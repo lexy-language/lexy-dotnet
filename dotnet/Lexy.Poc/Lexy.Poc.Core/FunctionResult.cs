@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace Lexy.Poc.Core
 {
-    public class LexyScriptResult
+    public class FunctionResult
     {
         private readonly IDictionary values = new Hashtable();
 

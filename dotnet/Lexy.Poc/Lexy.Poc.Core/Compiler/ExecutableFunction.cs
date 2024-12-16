@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Lexy.Poc.Core.Compiler
 {
-    public class LexyExecutable
+    public class ExecutableFunction
     {
         private readonly object[] emptyParameters = Array.Empty<object>();
 
@@ -14,7 +14,7 @@ namespace Lexy.Poc.Core.Compiler
         private readonly MethodInfo runMethod;
         private readonly IDictionary<string, FieldInfo> variables = new Dictionary<string, FieldInfo>();
 
-        public LexyExecutable(object functionObject)
+        public ExecutableFunction(object functionObject)
         {
             this.functionObject = functionObject;
 
@@ -22,14 +22,14 @@ namespace Lexy.Poc.Core.Compiler
             resultMethod = functionObject.GetType().GetMethod("__Result", BindingFlags.Instance | BindingFlags.Public);
         }
 
-        public LexyScriptResult Run()
+        public FunctionResult Run()
         {
             runMethod.Invoke(functionObject, emptyParameters);
 
-            return (LexyScriptResult)resultMethod.Invoke(functionObject, emptyParameters);
+            return (FunctionResult)resultMethod.Invoke(functionObject, emptyParameters);
         }
 
-        public LexyScriptResult Run(IDictionary<string, object> values)
+        public FunctionResult Run(IDictionary<string, object> values)
         {
             foreach (var value in values)
             {
@@ -39,7 +39,7 @@ namespace Lexy.Poc.Core.Compiler
 
             runMethod.Invoke(functionObject, emptyParameters);
 
-            return (LexyScriptResult)resultMethod.Invoke(functionObject, emptyParameters);
+            return (FunctionResult)resultMethod.Invoke(functionObject, emptyParameters);
         }
 
         private FieldInfo GetParameterField(string name)

@@ -9,21 +9,35 @@ namespace Lexy.Poc
         [Test]
         public void TestSimpleReturn()
         {
-            var code = @"function: Test simple return
-result:
-  number Result
-
-Result = 777";
+            var code = @"Function: Test simple return
+  Result
+    number Result
+  Code
+    Result = 777";
 
             var parser = new LexyParser();
-            var script = parser.Parse(code);
+            var script = parser.ParseFunction(code);
 
-            script.Function.Name.ShouldBe("Test simple return");
+            script.Name.Value.ShouldBe("Test simple return");
             script.Result.Variables.Count.ShouldBe(1);
             script.Result.Variables[0].Name.ShouldBe("Result");
             script.Result.Variables[0].Type.ShouldBe("number");
-            script.ScriptCode.Lines.Count.ShouldBe(1);
-            script.ScriptCode.Lines[0].ShouldBe("Result = 777");
+            script.Code.Lines.Count.ShouldBe(1);
+            script.Code.Lines[0].ShouldBe("Result = 777");
+        }
+
+        [Test]
+        public void TestFunctionKeywords()
+        {
+            var code = @"Function: ValidateFunctionKeywords
+# Validate function keywords
+  Parameters
+  Result
+  Code";
+
+            var parser = new LexyParser();
+            parser.ParseFunction(code);
+
         }
     }
 }

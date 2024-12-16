@@ -1,15 +1,19 @@
 using System.Collections.Generic;
+using Lexy.Poc.Core.Parser;
 
-namespace Lexy.Poc.Core.Parser
+namespace Lexy.Poc.Core.Language
 {
-    public class LexyParameters : ILexySection
+    public class FunctionParameters : IToken
     {
         public IList<VariableDefinition> Variables { get; } = new List<VariableDefinition>();
 
-        public void Parse(string line)
+        public IToken Parse(Line line)
         {
+            if (line.IsEmpty()) return this;
+
             var variableDefinition = VariableDefinition.Parse(line);
             Variables.Add(variableDefinition);
+            return this;
         }
     }
 }
