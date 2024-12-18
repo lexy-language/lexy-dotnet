@@ -9,6 +9,8 @@ namespace Lexy.Poc.Core.Language
 
         public IComponent Parse(ParserContext context)
         {
+            if (context.CurrentLine.IsEmpty()) return this;
+
             context.ValidateTokens<ScenarioExpectError>()
                 .Count(2)
                 .Keyword(0)

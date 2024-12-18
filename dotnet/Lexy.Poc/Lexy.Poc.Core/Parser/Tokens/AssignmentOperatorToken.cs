@@ -7,9 +7,9 @@ namespace Lexy.Poc.Core.Parser.Tokens
     {
         private class OperatorCombinations
         {
-            public char FirstChar { get; set; }
-            public char? SecondChar { get; set; }
-            public OperatorType Type { get; set; }
+            public char FirstChar { get; }
+            public char? SecondChar { get; }
+            public OperatorType Type { get; }
 
             public OperatorCombinations(char firstChar, char? secondChar, OperatorType type)
             {
@@ -19,7 +19,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
             }
         }
 
-        private static char[] terminatorValues = new[]
+        private static readonly char[] terminatorValues = 
         {
             TokenValues.Space,
             TokenValues.OpenParentheses,
@@ -28,7 +28,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
             TokenValues.CloseBrackets,
         };
 
-        private IList<OperatorCombinations> operatorCombinations = new List<OperatorCombinations>()
+        private readonly IList<OperatorCombinations> operatorCombinations = new List<OperatorCombinations>()
         {
             new OperatorCombinations(TokenValues.Assignment, null, OperatorType.Assignment),
             new OperatorCombinations(TokenValues.Addition, null, OperatorType.Addition),

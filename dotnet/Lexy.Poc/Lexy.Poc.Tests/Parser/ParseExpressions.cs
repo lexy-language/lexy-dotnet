@@ -21,9 +21,9 @@ namespace Lexy.Poc.Parser
             script.Name.Value.ShouldBe("TestTable");
             script.Headers.Values.Count.ShouldBe(2);
             script.Headers.Values[0].Name.ShouldBe("Value");
-            script.Headers.Values[0].Type.ShouldBe(Types.Int);
+            script.Headers.Values[0].Type.ShouldBe(TypeNames.Int);
             script.Headers.Values[1].Name.ShouldBe("Result");
-            script.Headers.Values[1].Type.ShouldBe(Types.String);
+            script.Headers.Values[1].Type.ShouldBe(TypeNames.String);
             script.Rows.Count.ShouldBe(2);
             script.Rows[0].Values[0].ShouldBeOfType<IntLiteralToken>();
             script.Rows[0].Values[0].Value.ShouldBe("7");
@@ -49,9 +49,9 @@ namespace Lexy.Poc.Parser
             script.Name.Value.ShouldBe("TestTable");
             script.Headers.Values.Count.ShouldBe(2);
             script.Headers.Values[0].Name.ShouldBe("Value");
-            script.Headers.Values[0].Type.ShouldBe(Types.DateTime);
+            script.Headers.Values[0].Type.ShouldBe(TypeNames.DateTime);
             script.Headers.Values[1].Name.ShouldBe("Result");
-            script.Headers.Values[1].Type.ShouldBe(Types.Boolean);
+            script.Headers.Values[1].Type.ShouldBe(TypeNames.Boolean);
             script.Rows.Count.ShouldBe(2);
             script.Rows[0].Values[0].ShouldBeOfType<DateTimeLiteral>();
             script.Rows[0].Values[0].Value.ShouldBe("2024/12/18 17:07:45");

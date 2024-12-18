@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Lexy.Poc.Core.Compiler;
 using Lexy.Poc.Core.Language;
+using Lexy.Poc.Core.Parser;
 
 namespace Lexy.Poc.Core.Specifications
 {
@@ -12,40 +13,50 @@ namespace Lexy.Poc.Core.Specifications
     {
         private readonly Scenario scenario;
         private readonly Function function;
+        private readonly SpecificationRunnerContext context;
+        private readonly ParserContext parserContext;
         private readonly Components components;
 
-        private SpecificationRunner(Components components, Scenario scenario, Function function)
+        public string FileName { get; }
+        public bool Failed { get; private set; }
+
+        private SpecificationRunner(string fileName, ParserContext parserContext, Components components,
+            Scenario scenario, Function function, SpecificationRunnerContext context)
         {
+            FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+
+            this.parserContext = parserContext;
             this.components = components;
             this.scenario = scenario;
             this.function = function;
+            this.context = context;
         }
 
-        public static SpecificationRunner Create(Scenario scenario, Components components)
+        public static SpecificationRunner Create(string fileName, Scenario scenario,
+            SpecificationRunnerContext runnerContext, ParserContext parserContext)
         {
             if (scenario == null) throw new ArgumentNullException(nameof(scenario));
-            if (components == null) throw new ArgumentNullException(nameof(components));
+            if (parserContext == null) throw new ArgumentNullException(nameof(context));
 
+            var components = parserContext.Components;
             var function = components.GetFunction(scenario.FunctionName.Value);
 
-            return new SpecificationRunner(components, scenario, function);
+            return new SpecificationRunner(fileName, parserContext, components, scenario, function, runnerContext);
         }
 
-        public void Run(SpecificationRunnerContext context)
+
+        public void Run()
         {
             if (scenario.HasErrors)
             {
-                context.Fail(scenario, $"Parsing scenario failed: {scenario.FunctionName}");
-                foreach (var message in scenario.FailedMessages)
-                {
-                    context.Log(message);
-                }
+                Fail($"  Parsing scenario failed: {scenario.FunctionName}");
+                scenario.FailedMessages.ForEach(context.Log);
                 return;
             }
 
             if (function == null)
             {
-                context.Fail(scenario, $"Function not found: {scenario.FunctionName}");
+                Fail($"  Function not found: {scenario.FunctionName}");
                 return;
             }
 
@@ -58,6 +69,26 @@ namespace Lexy.Poc.Core.Specifications
 
             var result = executable.Run(values);
 
+            var validationResultText = GetValidationResult(result, environment);
+            if (validationResultText.Length > 0)
+            {
+                Fail(validationResultText);
+
+            }
+            else
+            {
+                context.Success(scenario);
+            }
+        }
+
+        private void Fail(string message)
+        {
+            Failed = true;
+            context.Fail(scenario, message);
+        }
+
+        private string GetValidationResult(FunctionResult result, ExecutionEnvironment environment)
+        {
             var validationResult = new StringWriter();
             foreach (var expected in scenario.Results.Assignments)
             {
@@ -72,15 +103,7 @@ namespace Lexy.Poc.Core.Specifications
                 }
             }
 
-            var validationResultText = validationResult.ToString();
-            if (validationResultText.Length > 0)
-            {
-                context.Fail(scenario, validationResultText);
-            }
-            else
-            {
-                context.Success(scenario);
-            }
+            return validationResult.ToString();
         }
 
         private bool ValidateErrors(SpecificationRunnerContext context)
@@ -93,7 +116,7 @@ namespace Lexy.Poc.Core.Specifications
 
             if (scenario.ExpectError.HasValue)
             {
-                context.Fail(scenario, $"Exception expected but didn't occur: {scenario.ExpectError.Message}");
+                Fail($"Exception expected but didn't occur: {scenario.ExpectError.Message}");
                 return true;
             }
 
@@ -104,7 +127,7 @@ namespace Lexy.Poc.Core.Specifications
         {
             if (!scenario.ExpectError.HasValue)
             {
-                context.Fail(scenario, "Exception occured: " + Format(function.FailedMessages));
+                Fail("Exception occured: " + Format(function.FailedMessages));
                 return;
             }
 
@@ -112,8 +135,7 @@ namespace Lexy.Poc.Core.Specifications
             {
                 if (!message.Contains(scenario.ExpectError.Message))
                 {
-                    context.Fail(scenario,
-                        $"Wrong exception {Environment.NewLine}  Expected: {scenario.ExpectError.Message}{Environment.NewLine}  Actual: {message}");
+                    Fail($"Wrong exception {Environment.NewLine}  Expected: {scenario.ExpectError.Message}{Environment.NewLine}  Actual: {message}");
                     return;
                 }
             }
@@ -146,6 +168,11 @@ namespace Lexy.Poc.Core.Specifications
         private object GetValue(ExecutionEnvironment environment, string value, VariableDefinition definition)
         {
             return TypeConverter.Convert(environment, value, definition.Type);
+        }
+
+        public string ParserLogging()
+        {
+            return parserContext.FormatMessages();
         }
     }
 }

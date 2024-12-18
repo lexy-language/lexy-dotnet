@@ -1,7 +1,7 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=65629ef6_002Dacec_002D4246_002D8387_002Ddea46f438ee7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestSimpleReturn #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=65629ef6_002Dacec_002D4246_002D8387_002Ddea46f438ee7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestSimpleReturn #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Project Location="/Users/timcools/_/Lexy/git/dotnet/Lexy.Poc/Lexy.Poc.Tests" Presentation="&amp;lt;Lexy.Poc.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8ecdc5be_002Dfe2c_002D402b_002D8565_002Dbe70127c9bd5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestSimpleReturn" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8ecdc5be_002Dfe2c_002D402b_002D8565_002Dbe70127c9bd5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestSimpleReturn" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Project Location="/Users/timcools/_/Lexy/git/dotnet/Lexy.Poc/Lexy.Poc.Tests" Presentation="&amp;lt;Lexy.Poc.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

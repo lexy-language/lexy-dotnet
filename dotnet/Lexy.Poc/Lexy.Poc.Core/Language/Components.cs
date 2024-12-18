@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -6,10 +7,9 @@ namespace Lexy.Poc.Core.Language
 {
     public class Components
     {
-        private IList<IComponent> values = new Collection<IComponent>();
+        private IList<IRootComponent> values = new Collection<IRootComponent>();
 
         public int Count => values.Count;
-
 
         public bool ContainsEnum(string enumName)
         {
@@ -18,10 +18,23 @@ namespace Lexy.Poc.Core.Language
                 .Any(definition => definition.Name.Value == enumName);
         }
 
+        public IRootComponent GetComponent(string typeName)
+        {
+            return values
+                .SingleOrDefault(definition => definition.ComponentName == typeName);
+        }
+
         public Function GetFunction(string name)
         {
             return values
                 .OfType<Function>()
+                .FirstOrDefault(function => function.Name.Value == name);
+        }
+
+        public IRootComponent GetTable(string name)
+        {
+            return values
+                .OfType<Table>()
                 .FirstOrDefault(function => function.Name.Value == name);
         }
 
@@ -41,8 +54,25 @@ namespace Lexy.Poc.Core.Language
                 .FirstOrDefault(enumDefinition => enumDefinition.Name.Value == name);
         }
 
-        public void Add(IComponent component) => values.Add(component);
+        public void Add(IRootComponent component) => values.Add(component);
 
         public IComponent First() => values.FirstOrDefault();
+
+        public string MapType(string variableType)
+        {
+            if (ContainsEnum(variableType))
+            {
+                return variableType;
+            }
+
+            return variableType switch
+            {
+                TypeNames.Int => "int",
+                TypeNames.Number => "decimal",
+                TypeNames.Boolean => "bool",
+                TypeNames.DateTime => "System.DateTime",
+                _ => throw new InvalidOperationException("Unknown type: " + variableType)
+            };
+        }
     }
 }

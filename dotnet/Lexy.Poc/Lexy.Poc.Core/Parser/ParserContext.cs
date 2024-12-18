@@ -29,13 +29,13 @@ namespace Lexy.Poc.Core.Parser
 
         public void Log(string message)
         {
-            messages.Add($"{CurrentLine?.Index}: {message}");
+            messages.Add($"{CurrentLine?.Index + 1}: {message}");
         }
 
         public void Fail(string message)
         {
             failedMessages++;
-            messages.Add($"{CurrentLine?.Index}: ERROR - {message}");
+            messages.Add($"{CurrentLine?.Index + 1}: ERROR - {message}");
             currentComponent?.Fail(message);
         }
 
@@ -55,20 +55,20 @@ namespace Lexy.Poc.Core.Parser
             var success = CurrentLine.Tokenize(tokenizer, this);
             var tokenNames = string.Join(" ", CurrentLine.Tokens.Select(token => token.GetType().Name).ToArray());
 
-            Log("Tokens: " + tokenNames);
+            Log("  Tokens: " + tokenNames);
 
             return success;
         }
 
         public TokenValidator ValidateTokens<T>()
         {
-            Log("Parse: " + typeof(T).Name);
+            Log("  Parse: " + typeof(T).Name);
             return new TokenValidator(this);
         }
 
         public TokenValidator ValidateTokens(string name)
         {
-            Log("Parse: " + name);
+            Log("  Parse: " + name);
             return new TokenValidator(this);
         }
 
@@ -79,7 +79,8 @@ namespace Lexy.Poc.Core.Parser
 
         public string FormatMessages()
         {
-            return string.Join(Environment.NewLine, messages) + Environment.NewLine + FormatCode();
+            return
+                $"{string.Join(Environment.NewLine, messages)}{Environment.NewLine}------------- Lexy Source Code{Environment.NewLine}{FormatCode()}";
         }
 
         private string FormatCode()

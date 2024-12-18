@@ -17,7 +17,7 @@ namespace Lexy.Poc.Core.Language
         public static TableRow Parse(ParserContext context)
         {
             var index = 0;
-            var validator = context.ValidateTokens<TableHeaders>();
+            var validator = context.ValidateTokens<TableRow>();
 
             if (!validator.Type<TableSeparatorToken>(index).IsValid)
             {

@@ -13,20 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Lexy.Poc.Core.Compiler
 {
-    public class LexyCompilerContext
-    {
-        public ExecutionEnvironment ExecutionEnvironment { get; }
-        public ILogger Logger { get; }
-
-        public LexyCompilerContext(ExecutionEnvironment executionEnvironment)
-        {
-            ExecutionEnvironment = executionEnvironment;
-            using var factory = LoggerFactory.Create(builder => builder.AddConsole());
-
-            Logger = factory.CreateLogger("Program");
-        }
-    }
-
     public class LexyCompiler
     {
         public ExecutionEnvironment Compile(Components components, Function function)
@@ -40,19 +26,22 @@ namespace Lexy.Poc.Core.Compiler
             var generateNodes = new List<IRootComponent> { function };
             generateNodes.AddRange(function.GetDependencies(components));
             
-            var codeWriter = new StringBuilder();
+            var classWriter = new ClassWriter();
+            classWriter.WriteLine($"using System.Collections.Generic;");
+            classWriter.OpenScope($"namespace {WriterCode.Namespace}");
 
             foreach (var generateNode in generateNodes)
             {
                 var writer = GetWriter(generateNode);
-                var generatedType = writer.CreateCode(generateNode, components);
+                var generatedType = writer.CreateCode(classWriter, generateNode, components);
 
-                codeWriter.Append(generatedType.Code);
                 environment.AddType(generatedType);
             }
 
-            var code = codeWriter.ToString();
-            context.Logger.LogDebug("Compile code: " + code);
+            classWriter.CloseScope();
+
+            var code = classWriter.ToString();
+            context.Logger.LogDebug(code + "Compile code: ");
 
             var syntaxTree = CSharpSyntaxTree.ParseText(code);
 
@@ -80,7 +69,7 @@ namespace Lexy.Poc.Core.Compiler
             if (!emitResult.Success)
                 throw new InvalidOperationException("Compilation failed: " +
                                                     FormatCompilationErrors(emitResult.Diagnostics) +
-                                                    Environment.NewLine + "code: " + codeWriter);
+                                                    Environment.NewLine + "code: " + classWriter);
 
             var assembly = Assembly.Load(dllStream.ToArray());
 
@@ -96,6 +85,8 @@ namespace Lexy.Poc.Core.Compiler
                     return new FunctionWriter();
                 case EnumDefinition _:
                     return new EnumWriter();
+                case Table _:
+                    return new TableWriter();
                 case Scenario _:
                     return null;
             }
@@ -112,60 +103,5 @@ namespace Lexy.Poc.Core.Compiler
             }
             return stringWriter.ToString();
         }
-    }
-
-    public class ExecutionEnvironment
-    {
-        private readonly IList<GeneratedClass> generatedTypes = new List<GeneratedClass>();
-        private readonly IDictionary<string, ExecutableFunction> executables = new Dictionary<string, ExecutableFunction>();
-        private readonly IDictionary<string, Type> enums = new Dictionary<string, Type>();
-
-        public void CreateExecutables(Assembly assembly)
-        {
-            foreach (var generatedClass in generatedTypes)
-            {
-                if (generatedClass.Component is Function)
-                {
-                    var instance = assembly.CreateInstance(generatedClass.FullClassName);
-                    var executable = new ExecutableFunction(instance);
-
-                    executables.Add(generatedClass.Component.Keyword, executable);
-                }
-                else if (generatedClass.Component is EnumDefinition)
-                {
-                    var enumType = assembly.GetType(generatedClass.FullClassName);
-                    enums.Add(generatedClass.Component.Keyword, enumType);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Unknown generated type: " + generatedClass.Component.GetType());
-                }
-            }
-        }
-
-        internal void AddType(GeneratedClass generatedType)
-        {
-            generatedTypes.Add(generatedType);
-        }
-
-        public ExecutableFunction GetFunction(Function function)
-        {
-            return executables[function.Keyword];
-        }
-
-        public bool ContainsEnum(string type)
-        {
-            return enums.ContainsKey(type);
-        }
-
-        public Type GetEnumType(string type)
-        {
-            return enums[type];
-        }
-    }
-
-    internal interface IRootTokenWriter
-    {
-        GeneratedClass CreateCode(IRootComponent generateNode, Components components);
     }
 }

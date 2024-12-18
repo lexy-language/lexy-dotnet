@@ -5,41 +5,43 @@ using Lexy.Poc.Core.Language;
 
 namespace Lexy.Poc.Core.Parser
 {
-    public class WriterCode
-    {
-        public const string Namespace = "Lexy.Runtime";
-    }
     public class FunctionWriter : IRootTokenWriter
     {
-
-        public GeneratedClass CreateCode(IRootComponent component, Components components)
+        public GeneratedClass CreateCode(ClassWriter writer, IRootComponent component, Components components)
         {
             if (!(component is Function function))
             {
                 throw new InvalidOperationException("Root token not Function");
             }
 
-            var writer = new ClassWriter();
-
-            writer.OpenScope($"namespace {WriterCode.Namespace}");
-
             var name = function.Name.ClassName();
 
             writer.OpenScope($"public class {name}");
 
             WriteParameters(function, writer, components);
+            WriteIncludes(function, writer, components);
             WriteResult(function, writer, components);
             WriteRunMethod(function, writer);
 
             writer.CloseScope();
-            writer.CloseScope();
 
-            return new GeneratedClass(function, WriterCode.Namespace, name, writer.ToString());
+            return new GeneratedClass(function, name);
         }
 
         private void WriteParameters(Function function, ClassWriter stringWriter, Components components)
         {
             WriteVariables(stringWriter, function.Parameters.Variables, components);
+        }
+
+        private void WriteIncludes(Function function, ClassWriter stringWriter, Components components)
+        {
+            foreach (var include in function.Include.Definitions)
+            {
+                if (include.Type != IncludeTypes.Table)
+                    throw new InvalidOperationException("Invalid include type: " + include.Type);
+
+                stringWriter.WriteLine($"public {include.Name} {include.Name} = new {include.Name}();");
+            }
         }
 
         private void WriteResult(Function function, ClassWriter stringWriter, Components components)
@@ -68,28 +70,11 @@ namespace Lexy.Poc.Core.Parser
         {
             foreach (var variable in variables)
             {
-                stringWriter.WriteLineStart($"public {MapType(variable.Type, components)} {variable.Name}");
+                stringWriter.WriteLineStart($"public {components.MapType(variable.Type)} {variable.Name}");
                 if (variable.Default != null) stringWriter.Write($" = {variable.Default.Value}");
                 stringWriter.Write(";");
                 stringWriter.EndLine();
             }
-        }
-
-        private string MapType(string variableType, Components components)
-        {
-            if (components.ContainsEnum(variableType))
-            {
-                return variableType;
-            }
-
-            return variableType switch
-            {
-                TypeNames.Int => "int",
-                TypeNames.Number => "decimal",
-                TypeNames.Boolean => "bool",
-                TypeNames.DateTime => "System.DateTime",
-                _ => throw new InvalidOperationException("Unknown type: " + variableType)
-            };
         }
 
         private void WriteRunMethod(Function function, ClassWriter writer)
@@ -105,39 +90,6 @@ namespace Lexy.Poc.Core.Parser
             }
 
             writer.CloseScope();
-        }
-    }
-
-    public class EnumWriter : IRootTokenWriter
-    {
-        public GeneratedClass CreateCode(IRootComponent component, Components components)
-        {
-            if (!(component is EnumDefinition enumDefinition))
-            {
-                throw new InvalidOperationException("Root token not Function");
-            }
-
-            var writer = new ClassWriter();
-            var name = enumDefinition.Name.Value;
-
-            writer.OpenScope($"namespace {WriterCode.Namespace}");
-            writer.OpenScope($"public enum {name}");
-
-            WriteValues(enumDefinition, writer, components);
-
-            writer.CloseScope();
-            writer.CloseScope();
-
-            return new GeneratedClass(enumDefinition, WriterCode.Namespace, name, writer.ToString());
-
-        }
-
-        private void WriteValues(EnumDefinition enumDefinition, ClassWriter classWriter, Components components)
-        {
-            foreach (var value in enumDefinition.Assignments)
-            {
-                classWriter.WriteLine($"{value.Name} = {value.Value},");
-            }
         }
     }
 }

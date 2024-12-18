@@ -6,9 +6,9 @@ namespace Lexy.Poc.Core.Language
     public class TableHeader
     {
         public string Name { get; }
-        public Types Type { get; }
+        public string Type { get; }
 
-        public TableHeader(string name, Types type)
+        public TableHeader(string name, string type)
         {
             Name = name;
             Type = type;
@@ -16,8 +16,7 @@ namespace Lexy.Poc.Core.Language
 
         public static TableHeader Parse(string name, string typeName)
         {
-            var type = TypeNames.ConvertToType(typeName);
-            return new TableHeader(name, type);
+            return new TableHeader(name, typeName);
         }
     }
 }

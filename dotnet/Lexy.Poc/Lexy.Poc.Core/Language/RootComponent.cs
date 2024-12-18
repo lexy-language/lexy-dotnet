@@ -11,7 +11,7 @@ namespace Lexy.Poc.Core.Language
         public IEnumerable<string> FailedMessages => failedMessages;
         public bool HasErrors => failedMessages.Count > 0;
 
-        public abstract string Keyword { get; }
+        public abstract string ComponentName { get; }
 
         public abstract IComponent Parse(ParserContext context);
 

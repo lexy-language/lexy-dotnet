@@ -8,7 +8,7 @@ namespace Lexy.Poc.Core.Language
     public class Function : RootComponent
     {
         private static readonly LambdaComparer<IRootComponent> componentComparer =
-            new LambdaComparer<IRootComponent>((token1, token2) => token1.Keyword == token2.Keyword);
+            new LambdaComparer<IRootComponent>((token1, token2) => token1.ComponentName == token2.ComponentName);
 
         public Comments Comments { get; } = new Comments();
         public FunctionName Name { get; } = new FunctionName();
@@ -16,7 +16,8 @@ namespace Lexy.Poc.Core.Language
         public FunctionResults Results { get; } = new FunctionResults();
         public FunctionCode Code { get; } = new FunctionCode();
         public FunctionIncludes Include { get; } = new FunctionIncludes();
-        public override string Keyword => Name.Value;
+
+        public override string ComponentName => Name.Value;
 
         private Function(string name)
         {
@@ -63,6 +64,7 @@ namespace Lexy.Poc.Core.Language
             var result = new List<IRootComponent>();
             AddEnumTypes(components, Parameters.Variables, result);
             AddEnumTypes(components, Results.Variables, result);
+            AddIncludes(components, Include.Definitions, result);
             return result.Distinct(componentComparer);
         }
 
@@ -82,5 +84,28 @@ namespace Lexy.Poc.Core.Language
                 }
             }
         }
+
+
+        private void AddIncludes(Components components, IList<FunctionInclude> functionIncludes, List<IRootComponent> result)
+        {
+            foreach (var include in functionIncludes)
+            {
+                var dependency = include.Type == IncludeTypes.Table
+                    ? components.GetTable(include.Name)
+                    : throw new InvalidOperationException("Include not yet supported; " + include.Type);
+
+                if (dependency == null)
+                {
+                    throw new InvalidOperationException($"Include {include.Type} component not found {include.Name}");
+                }
+
+                result.Add(dependency);
+            }
+        }
+    }
+
+    internal class IncludeTypes
+    {
+        public const string Table = "table";
     }
 }

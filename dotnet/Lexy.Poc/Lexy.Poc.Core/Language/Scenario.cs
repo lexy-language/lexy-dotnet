@@ -13,7 +13,7 @@ namespace Lexy.Poc.Core.Language
         public ScenarioExpectError ExpectError { get; } = new ScenarioExpectError();
         public ScenarioTable Table { get; } = new ScenarioTable();
 
-        public override string Keyword => Name.Value;
+        public override string ComponentName => Name.Value;
 
         private Scenario(string name)
         {

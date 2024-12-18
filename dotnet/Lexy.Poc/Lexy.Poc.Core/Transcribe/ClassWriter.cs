@@ -32,7 +32,7 @@ namespace Lexy.Poc.Core.Parser
             intend += intendSize;
         }
 
-        public void CloseScope()
+        public void CloseScope(string suffix = null)
         {
             if (intend == 0)
             {
@@ -40,7 +40,7 @@ namespace Lexy.Poc.Core.Parser
             }
 
             intend -= intendSize;
-            WriteLine("}");
+            WriteLine("}" + suffix);
         }
 
         public void WriteLineStart(string text)

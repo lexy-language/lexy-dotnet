@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Lexy.Poc.Core
 {
-    internal static class TypeNames
+    public static class TypeNames
     {
         private static readonly IList<string> existing = new List<string>
         {

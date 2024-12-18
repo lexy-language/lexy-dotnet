@@ -8,8 +8,9 @@ namespace Lexy.Poc.Core.Language
         public Comments Comments { get; } = new Comments();
         public EnumName Name { get; } = new EnumName();
 
+        public override string ComponentName => Name.Value;
+
         public IList<AssignmentDefinition> Assignments { get; } = new List<AssignmentDefinition>();
-        public override string Keyword => Name.Value;
 
         private EnumDefinition(string name)
         {
