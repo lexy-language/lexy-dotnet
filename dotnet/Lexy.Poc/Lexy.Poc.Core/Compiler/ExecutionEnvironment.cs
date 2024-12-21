@@ -16,6 +16,8 @@ namespace Lexy.Poc.Core.Compiler
 
         public void CreateExecutables(Assembly assembly)
         {
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+
             foreach (var generatedClass in generatedTypes)
             {
                 switch (generatedClass.Component)

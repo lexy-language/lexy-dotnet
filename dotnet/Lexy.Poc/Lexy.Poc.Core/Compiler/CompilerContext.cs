@@ -2,17 +2,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Lexy.Poc.Core.Compiler
 {
-    public class CompilerContext
+    public class CompilerContext : ICompilerContext
     {
         public ExecutionEnvironment ExecutionEnvironment { get; }
-        public ILogger Logger { get; }
+        public ILogger<CompilerContext> Logger { get; }
 
-        public CompilerContext(ExecutionEnvironment executionEnvironment)
+        public CompilerContext(ILogger<CompilerContext> logger)
         {
-            ExecutionEnvironment = executionEnvironment;
-            using var factory = LoggerFactory.Create(builder => builder.AddConsole());
-
-            Logger = factory.CreateLogger("Program");
+            this.Logger = logger;
         }
+    }
+
+    public interface ICompilerContext
+    {
+        ExecutionEnvironment ExecutionEnvironment { get; }
+        ILogger<CompilerContext> Logger { get; }
     }
 }

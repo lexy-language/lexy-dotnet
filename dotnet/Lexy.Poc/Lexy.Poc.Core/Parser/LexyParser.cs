@@ -16,14 +16,14 @@ namespace Lexy.Poc.Core.Parser
             this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
         }
 
-        public IParserContext ParseFile(string fileName, bool throwException = true)
+        public ParserResult ParseFile(string fileName, bool throwException = true)
         {
             var code = File.ReadAllLines(fileName);
 
             return Parse(code, throwException);
         }
 
-        public IParserContext Parse(string[] code, bool throwException = true)
+        public ParserResult Parse(string[] code, bool throwException = true)
         {
             if (code == null) throw new ArgumentNullException(nameof(code));
 
@@ -97,7 +97,7 @@ namespace Lexy.Poc.Core.Parser
                 context.Logger.AssertNoErrors();
             }
 
-            return context;
+            return new ParserResult(context.Components);
         }
 
         private IRootComponent GetToken(Line line, IParserContext context)

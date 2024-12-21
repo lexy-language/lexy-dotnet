@@ -16,7 +16,7 @@ namespace Lexy.Poc.Compiler
             var components = parser.ParseComponents(code);
             var function = components.GetSingleFunction();
 
-            var compiler = new LexyCompiler();
+            var compiler = serviceScope.ServiceProvider.GetRequiredService<ILexyCompiler>();
             var environment = compiler.Compile(components, function);
             return environment.GetFunction(function);
         }

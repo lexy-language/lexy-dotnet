@@ -18,6 +18,7 @@ namespace Lexy.Poc.Core
             services.TryAdd(ServiceDescriptor.Scoped<ISourceCodeDocument, SourceCodeDocument>());
             services.TryAdd(ServiceDescriptor.Scoped<ITokenizer, Tokenizer>());
 
+            services.TryAdd(ServiceDescriptor.Scoped<ICompilerContext, CompilerContext>());
             services.TryAdd(ServiceDescriptor.Scoped<ILexyCompiler, LexyCompiler>());
 
             services.TryAdd(ServiceDescriptor.Scoped<ISpecificationRunnerContext, SpecificationRunnerContext>());
