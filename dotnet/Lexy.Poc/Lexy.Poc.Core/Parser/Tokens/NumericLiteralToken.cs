@@ -1,10 +1,30 @@
+using System;
+using System.Globalization;
+
 namespace Lexy.Poc.Core.Parser
 {
-    internal class NumericLiteralToken : ParsableToken
+    public class NumberLiteralToken : ParsableToken, ILiteralToken
     {
         private bool hasDecimalSeparator;
+        private decimal? numberValue;
 
-        public NumericLiteralToken(char value) : base(value)
+        public decimal NumberValue
+        {
+            get
+            {
+                if (!numberValue.HasValue)
+                {
+                    throw new InvalidOperationException("NumberLiteralToken not finalized.");
+                }
+                return numberValue.Value;
+            }
+        }
+
+        public override string Value => numberValue.HasValue
+            ? numberValue.Value.ToString(CultureInfo.InvariantCulture)
+            : base.Value;
+
+        public NumberLiteralToken(char value) : base(value)
         {
         }
 
@@ -38,8 +58,8 @@ namespace Lexy.Poc.Core.Parser
 
         private ParseTokenResult Finish()
         {
-            var newToken = hasDecimalSeparator ? NumberLiteralToken.Parse(Value) : (Token) IntLiteralToken.Parse(Value);
-            return ParseTokenResult.Finished(false, newToken);
+            numberValue = decimal.Parse(base.Value, CultureInfo.InvariantCulture);
+            return ParseTokenResult.Finished(false);
         }
     }
 }

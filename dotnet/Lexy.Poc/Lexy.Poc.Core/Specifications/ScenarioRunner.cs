@@ -32,7 +32,7 @@ namespace Lexy.Poc.Core.Specifications
         public void Initialize(string fileName, Components components, Scenario scenario,
             ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger)
         {
-            //parserContext and runnerContext are managed by a parent ServiceProvider context,
+            //parserContext and runnerContext are managed by a parent ServiceProvider scope,
             //thus they can't be injected via the constructor
             if (this.fileName != null)
             {
@@ -198,16 +198,5 @@ namespace Lexy.Poc.Core.Specifications
             serviceScope?.Dispose();
             serviceScope = null;
         }
-    }
-
-    public interface IScenarioRunner
-    {
-        bool Failed { get; }
-
-        void Initialize(string fileName, Components components, Scenario scenario,
-            ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger);
-
-        void Run();
-        string ParserLogging();
     }
 }

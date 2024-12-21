@@ -128,16 +128,6 @@ namespace Lexy.Poc.Core.Parser
             return this;
         }
 
-        public TokenValidator IntLiteral(int index, int value)
-        {
-            var token = ValidateType<IntLiteralToken>(index);
-            if (token != null && token.NumberValue != value)
-            {
-                parserContext.Logger.Fail($"Invalid token {index} value. Expected: '{value}' Actual: '{token.Value}'", componentName);
-                IsValid = false;
-            }
-            return this;
-        }
 
         public TokenValidator NumberLiteral(int index, decimal value)
         {

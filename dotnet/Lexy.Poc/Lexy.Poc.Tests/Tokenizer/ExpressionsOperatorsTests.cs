@@ -17,7 +17,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "Y")
                     .Operator(3, OperatorType.Addition)
-                    .IntLiteral(4, 1)
+                    .NumberLiteral(4, 1)
                 .Assert();
         }
 
@@ -32,7 +32,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "Y")
                     .Operator(3, OperatorType.Subtraction)
-                    .IntLiteral(4, 1)
+                    .NumberLiteral(4, 1)
                 .Assert();
         }
 
@@ -47,7 +47,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "Y")
                     .Operator(3, OperatorType.Multiplication)
-                    .IntLiteral(4, 1)
+                    .NumberLiteral(4, 1)
                 .Assert();
         }
 
@@ -62,7 +62,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "Y")
                     .Operator(3, OperatorType.Division)
-                    .IntLiteral(4, 1)
+                    .NumberLiteral(4, 1)
                 .Assert();
         }
 
@@ -77,7 +77,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "Y")
                     .Operator(3, OperatorType.Modulus)
-                    .IntLiteral(4, 1)
+                    .NumberLiteral(4, 1)
                 .Assert();
         }
 
@@ -107,7 +107,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "A")
                     .Operator(3, OperatorType.OpenBrackets)
-                    .IntLiteral(4, 1)
+                    .NumberLiteral(4, 1)
                     .Operator(5, OperatorType.CloseBrackets)
                 .Assert();
         }
@@ -123,7 +123,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "A")
                     .Operator(3, OperatorType.LessThan)
-                    .IntLiteral(4, 7)
+                    .NumberLiteral(4, 7)
                 .Assert();
         }
 
@@ -138,7 +138,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "A")
                     .Operator(3, OperatorType.LessThanOrEqual)
-                    .IntLiteral(4, 7)
+                    .NumberLiteral(4, 7)
                 .Assert();
         }
 
@@ -153,7 +153,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "A")
                     .Operator(3, OperatorType.GreaterThan)
-                    .IntLiteral(4, 7)
+                    .NumberLiteral(4, 7)
                 .Assert();
         }
 
@@ -168,11 +168,9 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(1, OperatorType.Assignment)
                     .StringLiteral(2, "A")
                     .Operator(3, OperatorType.GreaterThanOrEqual)
-                    .IntLiteral(4, 7)
+                    .NumberLiteral(4, 7)
                 .Assert();
         }
-
-
 
         [Test]
         public void TestFunctionCallOperator()
@@ -187,7 +185,7 @@ namespace Lexy.Poc.Tokenizer
                     .Operator(3, OperatorType.OpenParentheses)
                     .StringLiteral(4, "Y")
                     .Operator(5, OperatorType.Addition)
-                    .IntLiteral(6, 8)
+                    .NumberLiteral(6, 8)
                     .Operator(7, OperatorType.CloseParentheses)
                 .Assert();
         }

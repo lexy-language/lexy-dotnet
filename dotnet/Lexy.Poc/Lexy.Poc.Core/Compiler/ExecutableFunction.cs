@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace Lexy.Poc.Core.Compiler
@@ -34,7 +35,8 @@ namespace Lexy.Poc.Core.Compiler
             foreach (var value in values)
             {
                 var field = GetParameterField(value.Key);
-                field.SetValue(functionObject, value.Value);
+                var convertedValue = Convert.ChangeType(value.Value, field.FieldType);
+                field.SetValue(functionObject, convertedValue);
             }
 
             runMethod.Invoke(functionObject, emptyParameters);

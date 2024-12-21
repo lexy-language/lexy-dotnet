@@ -26,7 +26,7 @@ namespace Lexy.Poc.Core.Specifications
 
         public void Initialize(IServiceScope serviceScope, ISpecificationRunnerContext runnerContext, string fileName)
         {
-            //runnerContext is managed by a parent ServiceProvider context,
+            //runnerContext is managed by a parent ServiceProvider scope,
             //thus they can't be injected via the constructor
 
             if (this.fileName != null)
@@ -76,15 +76,5 @@ namespace Lexy.Poc.Core.Specifications
         }
 
         public int CountScenarioRunners() => scenarioRunners.Count;
-    }
-
-    public interface ISpecificationFileRunner : IDisposable
-    {
-        IEnumerable<IScenarioRunner> ScenarioRunners { get; }
-
-        void Initialize(IServiceScope serviceScope, ISpecificationRunnerContext runnerContext, string fileName);
-
-        int CountScenarioRunners();
-        void Run();
     }
 }

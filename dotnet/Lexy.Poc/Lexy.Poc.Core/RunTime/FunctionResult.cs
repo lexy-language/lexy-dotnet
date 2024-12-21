@@ -12,9 +12,9 @@ namespace Lexy.Poc.Core
             set => values[name] = value;
         }
 
-        public int Int(string name)
+        public decimal Number(string name)
         {
-            return (int)values[name];
+            return (decimal)values[name];
         }
     }
 }

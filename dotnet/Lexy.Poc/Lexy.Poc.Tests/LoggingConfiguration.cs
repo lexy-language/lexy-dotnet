@@ -51,7 +51,7 @@ namespace Lexy.Poc
                 var datePart = Path.GetFileName(logFile).Split("-")[0];
                 if (DateTime.TryParseExact(datePart, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime value))
                 {
-                    if (DateTime.Now.Subtract(value).Days > 1)
+                    if (DateTime.Now.Subtract(value).Hours > 1)
                     {
                         File.Delete(logFile);
                     }

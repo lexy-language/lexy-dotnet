@@ -12,11 +12,11 @@ namespace Lexy.Poc.Compiler
         {
             var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
   Results
-    int Result
+    number Result
   Code
     Result = 777");
             var result = script.Run();
-            result.Int("Result").ShouldBe(777);
+            result.Number("Result").ShouldBe(777);
         }
 
         [Test]
@@ -24,13 +24,13 @@ namespace Lexy.Poc.Compiler
         {
             var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
   Parameters
-    int Input = 5
+    number Input = 5
   Results
-    int Result
+    number Result
   Code
     Result = Input");
             var result = script.Run();
-            result.Int("Result").ShouldBe(5);
+            result.Number("Result").ShouldBe(5);
         }
 
         [Test]
@@ -38,17 +38,17 @@ namespace Lexy.Poc.Compiler
         {
             var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
   Parameters
-    int Input = 5
+    number Input = 5
 
   Results
-    int Result
+    number Result
   Code
     Result = Input");
             var result = script.Run(new Dictionary<string, object>
             {
                 { "Input", 777 }
             });
-            result.Int("Result").ShouldBe(777);
+            result.Number("Result").ShouldBe(777);
         }
     }
 }

@@ -7,14 +7,12 @@ namespace Lexy.Poc.Core
     {
         private static readonly IList<string> existing = new List<string>
         {
-            Int,
             Number,
             Boolean,
             DateTime,
             String
         };
 
-        public const string Int = "int";
         public const string Number = "number";
         public const string Boolean = "boolean";
         public const string DateTime = "datetime";
@@ -29,7 +27,6 @@ namespace Lexy.Poc.Core
         {
             return value switch
             {
-                Int => Types.Int,
                 Number => Types.Number,
                 Boolean => Types.Boolean,
                 DateTime => Types.DateTime,

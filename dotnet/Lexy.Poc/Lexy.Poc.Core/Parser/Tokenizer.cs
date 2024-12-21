@@ -36,7 +36,7 @@ namespace Lexy.Poc.Core.Parser
         private readonly IDictionary<Func<char, bool>, Func<char, ParsableToken>> tokensValidators =
             new Dictionary<Func<char, bool>, Func<char, ParsableToken>>
             {
-                { char.IsDigit, value => new NumericLiteralToken(value)},
+                { char.IsDigit, value => new NumberLiteralToken(value)},
                 { char.IsLetter, value => new BuildLiteralToken(value)},
                 { char.IsWhiteSpace, value => new WhitespaceToken(value)}
             };

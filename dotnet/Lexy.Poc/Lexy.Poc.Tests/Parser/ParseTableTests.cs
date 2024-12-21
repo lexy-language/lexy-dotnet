@@ -12,7 +12,7 @@ namespace Lexy.Poc.Parser
         public void TestInAndStringColumns()
         {
             var code = @"Table: TestTable
-  | int Value | string Result |
+  | number Value | string Result |
   | 7 | ""Test quoted"" |
   | 8 | Test |";
 
@@ -22,15 +22,15 @@ namespace Lexy.Poc.Parser
             script.Name.Value.ShouldBe("TestTable");
             script.Headers.Values.Count.ShouldBe(2);
             script.Headers.Values[0].Name.ShouldBe("Value");
-            script.Headers.Values[0].Type.ShouldBe(TypeNames.Int);
+            script.Headers.Values[0].Type.ShouldBe(TypeNames.Number);
             script.Headers.Values[1].Name.ShouldBe("Result");
             script.Headers.Values[1].Type.ShouldBe(TypeNames.String);
             script.Rows.Count.ShouldBe(2);
-            script.Rows[0].Values[0].ShouldBeOfType<IntLiteralToken>();
+            script.Rows[0].Values[0].ShouldBeOfType<NumberLiteralToken>();
             script.Rows[0].Values[0].Value.ShouldBe("7");
             script.Rows[0].Values[1].ShouldBeOfType<QuotedLiteralToken>();
             script.Rows[0].Values[1].Value.ShouldBe("Test quoted");
-            script.Rows[1].Values[0].ShouldBeOfType<IntLiteralToken>();
+            script.Rows[1].Values[0].ShouldBeOfType<NumberLiteralToken>();
             script.Rows[1].Values[0].Value.ShouldBe("8");
             script.Rows[1].Values[1].ShouldBeOfType<StringLiteralToken>();
             script.Rows[1].Values[1].Value.ShouldBe("Test");

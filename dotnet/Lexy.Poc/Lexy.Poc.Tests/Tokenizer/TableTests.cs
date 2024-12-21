@@ -30,9 +30,9 @@ namespace Lexy.Poc.Tokenizer
                 .ValidateTokens()
                     .Count(5)
                     .Type<TableSeparatorToken>(0)
-                    .IntLiteral(1, 7)
+                    .NumberLiteral(1, 7)
                     .Type<TableSeparatorToken>(2)
-                    .IntLiteral(3, 8)
+                    .NumberLiteral(3, 8)
                     .Type<TableSeparatorToken>(4)
                 .Assert();
         }

@@ -16,7 +16,6 @@ namespace Lexy.Poc.Core.Specifications
 
             return type switch
             {
-                TypeNames.Int => int.Parse(value),
                 TypeNames.Number => decimal.Parse(value),
                 TypeNames.DateTime => DateTime.Parse(value),
                 TypeNames.Boolean => bool.Parse(value),
