@@ -35,7 +35,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
         {
             if (!quoteClosed)
             {
-                return ParseTokenResult.Invalid("Closing quote expected");
+                return ParseTokenResult.Invalid("Closing quote expected.");
             }
 
             return ParseTokenResult.Finished(true, CheckForKeywords());

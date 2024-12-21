@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Poc.Core.Language;
+using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.Parser.Tokens;
 using Lexy.Poc.Core.RunTime;
 
@@ -84,7 +85,7 @@ namespace Lexy.Poc.Core.Transcribe
 
             foreach (var line in function.Code.Lines)
             {
-                writer.WriteLine($@"executionContext.LogDebug(""{line.SourceLine}"");");
+                writer.WriteLine($@"executionContext.LogDebug(@""{Escape(line.SourceLine)}"");");
                 writer.WriteLineStart();
                 foreach (var token in line.Tokens)
                 {
@@ -94,6 +95,12 @@ namespace Lexy.Poc.Core.Transcribe
             }
 
             writer.CloseScope();
+        }
+
+        private string Escape(Line line)
+        {
+            return line.ToString()
+                .Replace(@"""", @"""""");
         }
 
         private string FormatLiteralValue(Token token)

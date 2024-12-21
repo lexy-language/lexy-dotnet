@@ -33,13 +33,13 @@ namespace Lexy.Poc.Core.Language
         public override IComponent Parse(IParserContext context)
         {
             var line = context.CurrentLine;
-            if (line.IsTokenType<CommentToken>(0))
+            if (line.Tokens.IsTokenType<CommentToken>(0))
             {
                 return Comments;
             }
 
-            var name = line.TokenValue(0);
-            if (!line.IsTokenType<KeywordToken>(0))
+            var name = line.Tokens.TokenValue(0);
+            if (!line.Tokens.IsTokenType<KeywordToken>(0))
             {
                 return InvalidToken(name, line, context);
             }
@@ -57,7 +57,7 @@ namespace Lexy.Poc.Core.Language
         private IComponent InvalidToken(string name, Line line, IParserContext parserContext)
         {
             parserContext.Logger.Fail($"Invalid token '{name}'. {line}", this);
-            return null;
+            return this;
         }
 
         public IEnumerable<IRootComponent> GetDependencies(Components components)

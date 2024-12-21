@@ -30,15 +30,15 @@ namespace Lexy.Poc.Core.Language
             if (!result) return null;
 
             var tokens = line.Tokens;
-            var name = line.TokenValue(1);
-            var type = line.TokenValue(0);
+            var name = tokens.TokenValue(1);
+            var type = tokens.TokenValue(0);
 
             if (tokens.Length == 2)
             {
                 return new VariableDefinition(name, type);
             }
 
-            if (line.Token<OperatorToken>(2).Type != OperatorType.Assignment)
+            if (tokens.Token<OperatorToken>(2).Type != OperatorType.Assignment)
             {
                 context.Logger.Fail("Invalid variable declaration token. Expected '='.", context.CurrentComponent);
                 return null;
@@ -49,7 +49,7 @@ namespace Lexy.Poc.Core.Language
                 return null;
             }
 
-            var @default = line.Token<Token>(3);
+            var @default = tokens.Token<Token>(3);
             return new VariableDefinition(name, type, @default);
         }
     }

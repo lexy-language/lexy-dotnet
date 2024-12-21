@@ -17,7 +17,7 @@ namespace Lexy.Poc.Core.Language
 
             if (!valid) return null;
 
-            var comment = context.CurrentLine.Token<CommentToken>(0);
+            var comment = context.CurrentLine.Tokens.Token<CommentToken>(0);
             Lines.Add(comment.Value);
             return this;
         }

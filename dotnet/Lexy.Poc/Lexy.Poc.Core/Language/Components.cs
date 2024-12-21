@@ -79,6 +79,7 @@ namespace Lexy.Poc.Core.Language
 
             return variableType switch
             {
+                TypeNames.String => "string",
                 TypeNames.Number => "decimal",
                 TypeNames.Boolean => "bool",
                 TypeNames.DateTime => "System.DateTime",

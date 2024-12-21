@@ -41,7 +41,7 @@ namespace Lexy.Poc.Core.Parser
                 { char.IsWhiteSpace, value => new WhitespaceToken(value)}
             };
 
-        public Token[] Tokenize(Line line, ParserContext parserContext, out bool errors)
+        public TokenList Tokenize(Line line, ParserContext parserContext, out bool errors)
         {
             if (line == null) throw new ArgumentNullException(nameof(line));
 
@@ -72,12 +72,8 @@ namespace Lexy.Poc.Core.Parser
                     else if (result.Status == TokenStatus.InProgress && result.NewToken != null)
                     {
                         var parsableToken = result.NewToken as ParsableToken;
-                        if (parsableToken == null)
-                        {
-                            throw new InvalidOperationException(
-                                "New token can only be a parsable token when in progress");
-                        }
-                        current = parsableToken;
+                        current = parsableToken ?? throw new InvalidOperationException(
+                            "New token can only be a parsable token when in progress");
                     }
                 }
 
@@ -92,7 +88,7 @@ namespace Lexy.Poc.Core.Parser
                 var result = current.Finalize(parserContext);
                 if (result.Status != TokenStatus.Finished)
                 {
-                    parserContext.Logger.Fail($"Invalid token at end of line: {result.Status} ({result.ValidationError})", parserContext.CurrentComponent);
+                    parserContext.Logger.Fail($"Invalid token at end of line. {result.ValidationError}", parserContext.CurrentComponent);
                     errors = true;
                 }
                 else
@@ -104,9 +100,9 @@ namespace Lexy.Poc.Core.Parser
             return DiscardWhitespace(tokens);
         }
 
-        private static Token[] DiscardWhitespace(List<Token> tokens)
+        private static TokenList DiscardWhitespace(List<Token> tokens)
         {
-            return tokens.Where(token => !(token is WhitespaceToken)).ToArray();
+            return new TokenList(tokens.Where(token => !(token is WhitespaceToken)).ToArray());
         }
 
         private ParsableToken StartToken(char value, int index, ParserContext parserContext)

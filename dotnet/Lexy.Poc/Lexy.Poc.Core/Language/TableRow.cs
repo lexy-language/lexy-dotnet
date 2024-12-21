@@ -26,7 +26,8 @@ namespace Lexy.Poc.Core.Language
             }
 
             var tokens = new List<ILiteralToken>();
-            while (++index < context.CurrentLine.Tokens.Length)
+            var currentLineTokens = context.CurrentLine.Tokens;
+            while (++index < currentLineTokens.Length)
             {
                 if (!validator
                     .IsLiteralToken(index)
@@ -36,7 +37,7 @@ namespace Lexy.Poc.Core.Language
                     return null;
                 }
 
-                var token = context.CurrentLine.LiteralToken(index++);
+                var token = currentLineTokens.LiteralToken(index++);
                 tokens.Add(token);
             }
 

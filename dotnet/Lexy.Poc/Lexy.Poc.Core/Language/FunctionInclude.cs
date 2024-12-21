@@ -24,8 +24,10 @@ namespace Lexy.Poc.Core.Language
 
             if (!valid) return null;
 
-            var name = context.CurrentLine.TokenValue(1);
-            var type = context.CurrentLine.TokenValue(0);
+            var tokens = context.CurrentLine.Tokens;
+
+            var name = tokens.TokenValue(1);
+            var type = tokens.TokenValue(0);
 
             return new FunctionInclude(name, type);
         }

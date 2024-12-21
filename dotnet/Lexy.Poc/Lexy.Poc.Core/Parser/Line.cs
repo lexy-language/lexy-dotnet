@@ -1,6 +1,4 @@
 using System;
-using System.Text;
-using Lexy.Poc.Core.Parser.Tokens;
 
 namespace Lexy.Poc.Core.Parser
 {
@@ -11,7 +9,7 @@ namespace Lexy.Poc.Core.Parser
         internal string Content { get; }
         private string TrimmedContent { get; }
 
-        internal Token[] Tokens { get; private set; }
+        internal TokenList Tokens { get; private set; }
 
         public Line(int index, string line)
         {
@@ -56,62 +54,19 @@ namespace Lexy.Poc.Core.Parser
             return tabs > 0 ? tabs : spaces / 2;
         }
 
-        public override string ToString()
-        {
-            return $"{Index + 1}: {Content}";
-        }
-
-        public bool IsComment()
-        {
-            return Tokens.Length == 1 && Tokens[0] is CommentToken;
-        }
-
-        public bool IsEmpty() => Content.Length == 0;
-
         internal bool Tokenize(ITokenizer tokenizer, ParserContext parserContext)
         {
             Tokens = tokenizer.Tokenize(this, parserContext, out bool errors);
             return !errors;
         }
 
-        public string TokenValue(int index)
+        public override string ToString()
         {
-            return index >= 0 && index <= Tokens.Length - 1 ? Tokens[index].Value : null;
+            return $"{Index + 1}: {Content}";
         }
 
-        public Token[] TokensFrom(int index)
-        {
-            return Tokens[index..];
-        }
+        public bool IsEmpty() => Content.Length == 0;
 
-        public string TokenValuesFrom(int startIndex)
-        {
-            var valueBuilder = new StringBuilder();
-            for (int index = startIndex; index < Tokens.Length; index++)
-            {
-                valueBuilder.Append(Tokens[index].Value);
-            }
-            return valueBuilder.ToString();
-        }
-
-        public bool IsTokenType<T>(int index)
-        {
-            return index >= 0 && index <= Tokens.Length - 1 && Tokens[index].GetType() == typeof(T);
-        }
-
-        public Type TokenAsType<T>(int index)
-        {
-            return index >= 0 && index <= Tokens.Length - 1 ? Tokens[index].GetType() : null;
-        }
-
-        public T Token<T>(int index) where T : Token
-        {
-            return (T) Tokens[index];
-        }
-
-        public ILiteralToken LiteralToken(int index)
-        {
-            return index >= 0 && index <= Tokens.Length - 1 ? Tokens[index] as ILiteralToken : null;
-        }
+        public bool IsComment() => Tokens.IsComment();
     }
 }

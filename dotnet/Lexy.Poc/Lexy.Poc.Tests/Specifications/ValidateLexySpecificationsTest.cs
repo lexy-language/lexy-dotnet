@@ -21,7 +21,7 @@ namespace Lexy.Poc.Specifications
             LoggingConfiguration.LogFileNames();
 
             var runner = ServiceProvider.GetRequiredService<ISpecificationsRunner>();
-            runner.Run("../../../../../../laws/Specifications/Language/00001-DuplicatedNames.lexy");
+            runner.Run("../../../../../../laws/Specifications/Language/00004-BooleanLiteral.lexy");
         }
     }
 }

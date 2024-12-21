@@ -25,8 +25,8 @@ namespace Lexy.Poc.Core.Language
             if (!valid) return null;
 
             var line = context.CurrentLine;
-            var name = line.TokenValue(0);
-            var value = Expression.Parse(line, line.TokensFrom(2));
+            var name = line.Tokens.TokenValue(0);
+            var value = Expression.Parse(context, line.Tokens.TokensFrom(2));
             return value != null ? new AssignmentDefinition(name, value) : null;
         }
     }

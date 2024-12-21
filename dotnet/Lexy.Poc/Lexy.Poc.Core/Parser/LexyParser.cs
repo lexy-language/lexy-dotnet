@@ -34,10 +34,8 @@ namespace Lexy.Poc.Core.Parser
             sourceCodeDocument.SetCode(code);
 
             var currentIndent = 0;
-
-            IComponent currentComponent = null;
-
             var componentStack = new Stack<IComponent>();
+            IComponent currentComponent = new Document();
 
             while (sourceCodeDocument.HasMoreLines())
             {
@@ -48,52 +46,21 @@ namespace Lexy.Poc.Core.Parser
                 }
 
                 var line = sourceCodeDocument.CurrentLine;
-                var indent = line.Indent();
-
-                if (indent == 0 && !line.IsComment() && !line.IsEmpty())
-                {
-                    var root = GetToken(line, context);
-                    if (root == null) continue;
-
-                    context.ProcessComponent(root);
-
-                    currentComponent = root;
-                    currentIndent = indent;
-
-                    componentStack.Push(currentComponent);
-
-                    continue;
-                }
-
                 if (line.IsComment() || line.IsEmpty())
                 {
                     currentComponent?.Parse(context);
                     continue;
                 }
 
-                if (currentComponent == null)
-                {
-                    logger.Fail( $"Unexpected line: {line}");
-                    continue;
-                }
+                var indent = line.Indent();
 
-                var indentDifference = currentIndent - indent;
-                for (var stackWalkBack = 0; stackWalkBack < indentDifference; stackWalkBack++)
-                {
-                    currentComponent = componentStack.Pop();
-                }
+                currentComponent = WalkBackOnCallStackByIndent(indent, currentIndent, componentStack, currentComponent);
 
-                var component = currentComponent.Parse(context);
-                if (component != currentComponent)
-                {
-                    componentStack.Push(currentComponent);
-                    currentComponent = component;
-                    currentIndent = indent + 1;
-                }
-                else
-                {
-                    currentIndent = indent;
-                }
+                var component = ParseLine(currentComponent);
+
+                componentStack.Push(currentComponent);
+                currentComponent = component;
+                currentIndent = indent + 1;
             }
 
             if (throwException)
@@ -104,26 +71,26 @@ namespace Lexy.Poc.Core.Parser
             return new ParserResult(context.Components);
         }
 
-        private IRootComponent GetToken(Line line, IParserContext context)
+        private IComponent ParseLine(IComponent currentComponent)
         {
-            var tokenName = ComponentName.Parse(line, context);
-
-            return tokenName?.Name switch
+            var component = currentComponent.Parse(context);
+            if (component == null)
             {
-                null => null,
-                TokenValues.FunctionComponent => Function.Parse(tokenName),
-                TokenValues.EnumComponent => EnumDefinition.Parse(tokenName),
-                TokenValues.ScenarioComponent => Scenario.Parse(tokenName),
-                TokenValues.TableComponent => Table.Parse(tokenName),
-                _ => InvalidComponent(tokenName, context)
-            };
+                throw new InvalidOperationException("Parse should return child component or itself.");
+            }
+            return component;
         }
 
-        private IRootComponent InvalidComponent(ComponentName tokenName, IParserContext context)
+        private static IComponent WalkBackOnCallStackByIndent(int indent, int currentIndent, Stack<IComponent> componentStack,
+            IComponent currentComponent)
         {
-            var message = $"Unknown keyword: {tokenName.Name}";
-            logger.Fail(message);
-            return null;
+            var indentDifference = currentIndent - indent;
+            for (var stackWalkBack = 0; stackWalkBack < indentDifference; stackWalkBack++)
+            {
+                currentComponent = componentStack.Pop();
+            }
+
+            return currentComponent;
         }
     }
 }

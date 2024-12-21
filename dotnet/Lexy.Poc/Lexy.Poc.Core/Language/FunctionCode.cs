@@ -24,7 +24,7 @@ namespace Lexy.Poc.Core.Language
 
             if (!valid) return null;
 
-            var expression = Expression.Parse(context.CurrentLine, context.CurrentLine.TokensFrom(0));
+            var expression = Expression.Parse(context, context.CurrentLine.Tokens);
 
             Lines.Add(expression);
             return this;

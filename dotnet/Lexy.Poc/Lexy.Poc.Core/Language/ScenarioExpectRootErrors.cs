@@ -24,7 +24,7 @@ namespace Lexy.Poc.Core.Language
 
             if (!valid) return this;
 
-            messages.Add(line.TokenValuesFrom(0));
+            messages.Add(line.Tokens.TokenValuesFrom(0));
             return this;
         }
     }

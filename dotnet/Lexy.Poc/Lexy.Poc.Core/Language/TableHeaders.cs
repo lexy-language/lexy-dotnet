@@ -25,7 +25,8 @@ namespace Lexy.Poc.Core.Language
             }
 
             var headers = new List<TableHeader>();
-            while (++index < context.CurrentLine.Tokens.Length)
+            var tokens = context.CurrentLine.Tokens;
+            while (++index < tokens.Length)
             {
                 if (!validator
                         .Type<StringLiteralToken>(index)
@@ -36,8 +37,8 @@ namespace Lexy.Poc.Core.Language
                     return null;
                 }
 
-                var typeName = context.CurrentLine.TokenValue(index);
-                var name = context.CurrentLine.TokenValue(++index);
+                var typeName = tokens.TokenValue(index);
+                var name = tokens.TokenValue(++index);
 
                 var header = TableHeader.Parse(name, typeName);
                 headers.Add(header);

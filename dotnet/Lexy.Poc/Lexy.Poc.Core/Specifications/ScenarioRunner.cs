@@ -194,7 +194,7 @@ namespace Lexy.Poc.Core.Specifications
                 var type = functionParameters.Variables.FirstOrDefault(variable => variable.Name == parameter.Name);
                 if (type == null)
                 {
-                    throw new InvalidOperationException($"Function parameter '{parameter.Name}' not found.");
+                    throw new InvalidOperationException($"Function '{function.ComponentName}' parameter '{parameter.Name}' not found.");
                 }
                 var value = GetValue(compilerResult, parameter.Expression.ToString(), type);
                 result.Add(parameter.Name, value);

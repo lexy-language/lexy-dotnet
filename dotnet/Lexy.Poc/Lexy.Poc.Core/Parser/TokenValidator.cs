@@ -8,7 +8,7 @@ namespace Lexy.Poc.Core.Parser
     {
         private readonly string parserName;
         private readonly IParserContext parserContext;
-        private readonly Token[] tokens;
+        private readonly TokenList tokens;
         private readonly IComponent component;
 
         private bool errorsExpected;

@@ -22,14 +22,15 @@ namespace Lexy.Poc.Core.Parser
 
             if (!valid) return null;
 
-            var parameter = line.TokenValue(1);
+            var tokens = line.Tokens;
+            var parameter = tokens.TokenValue(1);
             if (context.Components.Contains(parameter))
             {
                 context.Logger.Fail("Duplicated component name: '" + parameter + "'");
                 return null;
             }
 
-            return new ComponentName(line.TokenValue(0), parameter);
+            return new ComponentName(tokens.TokenValue(0), parameter);
         }
 
         public override string ToString() => $"{Name} {Parameter}";

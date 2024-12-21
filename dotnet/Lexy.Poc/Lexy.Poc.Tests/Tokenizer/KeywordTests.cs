@@ -79,11 +79,8 @@ namespace Lexy.Poc.Tokenizer
             ServiceProvider
                 .TestLine(@"  Value = ValidateEnumKeyword.", false)
                 .ValidateTokens()
-                .ExpectError("1: ERROR - Invalid token at end of line: InvalidToken (Unexpected end of line. Member accessor should be followed by member name.)")
+                .ExpectError("1: ERROR - Invalid token at end of line. Unexpected end of line. Member accessor should be followed by member name.")
                 .Assert();
         }
-
-
     }
-
 }
