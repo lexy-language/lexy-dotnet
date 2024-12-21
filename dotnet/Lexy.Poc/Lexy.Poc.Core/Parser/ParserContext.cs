@@ -42,7 +42,7 @@ namespace Lexy.Poc.Core.Parser
         public bool ProcessLine()
         {
             var line = sourceCodeDocument.NextLine();
-            logger.Log(line.ToString());
+            logger.Log($"'{line.Content}'");
 
             var success = CurrentLine.Tokenize(tokenizer, this);
             var tokenNames = string.Join(" ", CurrentLine.Tokens.Select(token => token.GetType().Name).ToArray());

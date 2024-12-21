@@ -20,7 +20,16 @@ namespace Lexy.Poc.Core.Parser
                 .StringLiteral(1)
                 .IsValid;
 
-            return !valid ? null : new ComponentName(line.TokenValue(0), line.TokenValue(1));
+            if (!valid) return null;
+
+            var parameter = line.TokenValue(1);
+            if (context.Components.Contains(parameter))
+            {
+                context.Logger.Fail("Duplicated component name: '" + parameter + "'");
+                return null;
+            }
+
+            return new ComponentName(line.TokenValue(0), parameter);
         }
 
         public override string ToString() => $"{Name} {Parameter}";

@@ -18,10 +18,16 @@ namespace Lexy.Poc.Core.Language
                 .Any(definition => definition.Name.Value == enumName);
         }
 
-        public IRootComponent GetComponent(string typeName)
+        public IRootComponent GetComponent(string name)
         {
             return values
-                .SingleOrDefault(definition => definition.ComponentName == typeName);
+                .SingleOrDefault(definition => definition.ComponentName == name);
+        }
+
+        public bool Contains(string name)
+        {
+            return values
+                .Any(definition => definition.ComponentName == name);
         }
 
         public Function GetFunction(string name)

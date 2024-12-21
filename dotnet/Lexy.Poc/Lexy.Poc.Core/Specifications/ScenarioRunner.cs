@@ -80,7 +80,7 @@ namespace Lexy.Poc.Core.Specifications
                 return;
             }
 
-            if (ValidateErrors(context)) return;
+            if (!ValidateErrors(context)) return;
 
             var compilerResult = lexyCompiler.Compile(components, function);
             var executable = compilerResult.GetFunction(function);
@@ -126,40 +126,36 @@ namespace Lexy.Poc.Core.Specifications
 
         private bool ValidateErrors(ISpecificationRunnerContext context)
         {
-            if (parserLogger.ComponentHasErrors(function))
-            {
-                ValidateFunctionErrors(context);
-                return true;
-            }
-
-            if (scenario.ExpectError.HasValue)
-            {
-                Fail($"Exception expected but didn't occur: {scenario.ExpectError.Message}");
-                return true;
-            }
-
-            return false;
+            return ValidateFunctionErrors(context);
         }
 
-        private void ValidateFunctionErrors(ISpecificationRunnerContext context)
+        private bool ValidateFunctionErrors(ISpecificationRunnerContext context)
         {
-            var failedMessages = parserLogger.ComponentFailedMessages(function);
-            if (!scenario.ExpectError.HasValue)
+            var failedMessages = scenario.ExpectError.Root
+                ? parserLogger.FailedRootMessages()
+                : parserLogger.ComponentFailedMessages(function);
+
+            if (failedMessages.Length > 0 && !scenario.ExpectError.HasValue)
             {
                 Fail("Exception occured: " + Format(failedMessages));
-                return;
+                context.Fail(scenario, "Exception occured: " + Format(failedMessages));
+                return false;
             }
+
+            if (!scenario.ExpectError.HasValue) return true;
 
             foreach (var message in failedMessages)
             {
                 if (!message.Contains(scenario.ExpectError.Message))
                 {
                     Fail($"Wrong exception {Environment.NewLine}  Expected: {scenario.ExpectError.Message}{Environment.NewLine}  Actual: {message}");
-                    return;
+                    return false;
                 }
             }
 
             context.Success(scenario);
+
+            return false;
         }
 
         private string Format(IEnumerable<string> functionFailedMessages)

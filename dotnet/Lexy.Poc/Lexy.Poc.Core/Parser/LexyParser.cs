@@ -9,15 +9,19 @@ namespace Lexy.Poc.Core.Parser
     {
         private readonly IParserContext context;
         private readonly ISourceCodeDocument sourceCodeDocument;
+        private readonly IParserLogger logger;
 
-        public LexyParser(IParserContext parserContext, ISourceCodeDocument sourceCodeDocument)
+        public LexyParser(IParserContext parserContext, ISourceCodeDocument sourceCodeDocument, IParserLogger logger)
         {
             context = parserContext ?? throw new ArgumentNullException(nameof(parserContext));
             this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public ParserResult ParseFile(string fileName, bool throwException = true)
         {
+            logger.LogInfo("Parse file: " + fileName);
+
             var code = File.ReadAllLines(fileName);
 
             return Parse(code, throwException);
@@ -69,7 +73,7 @@ namespace Lexy.Poc.Core.Parser
 
                 if (currentComponent == null)
                 {
-                    context.Logger.Fail( $"Unexpected line: {line}");
+                    logger.Fail( $"Unexpected line: {line}");
                     continue;
                 }
 
@@ -94,7 +98,7 @@ namespace Lexy.Poc.Core.Parser
 
             if (throwException)
             {
-                context.Logger.AssertNoErrors();
+                logger.AssertNoErrors();
             }
 
             return new ParserResult(context.Components);
@@ -118,7 +122,7 @@ namespace Lexy.Poc.Core.Parser
         private IRootComponent InvalidComponent(ComponentName tokenName, IParserContext context)
         {
             var message = $"Unknown keyword: {tokenName.Name}";
-            context.Logger.Fail(message);
+            logger.Fail(message);
             return null;
         }
     }

@@ -40,7 +40,7 @@ namespace Lexy.Poc.Core.Compiler
             return environment.Result();
         }
 
-        private static List<IRootComponent> FunctionComponentAndDependencies(Components components, Function function)
+        private List<IRootComponent> FunctionComponentAndDependencies(Components components, Function function)
         {
             var generateNodes = new List<IRootComponent> { function };
             generateNodes.AddRange(function.GetDependencies(components));

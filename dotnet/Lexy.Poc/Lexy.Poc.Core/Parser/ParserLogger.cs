@@ -38,6 +38,11 @@ namespace Lexy.Poc.Core.Parser
             this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
         }
 
+        public void LogInfo(string message)
+        {
+            logger.LogInformation(message);
+        }
+
         public void Log(string message, IComponent component)
         {
             var item = $"{sourceCodeDocument.CurrentLine?.Index + 1}: {message}";
@@ -57,13 +62,13 @@ namespace Lexy.Poc.Core.Parser
 
         public bool HasErrorMessage(string expectedError)
         {
-            return logEntries.Any(message => message.IsError && message.Message.StartsWith(expectedError));
+            return logEntries.Any(message => message.IsError && message.Message.Contains(expectedError));
         }
 
         public string FormatMessages()
         {
             return
-                $"{string.Join(Environment.NewLine, logEntries)}{Environment.NewLine}------------- Lexy Source Code{Environment.NewLine}{FormatCode()}";
+                $"{string.Join(Environment.NewLine, logEntries)}{Environment.NewLine}";
         }
 
         public bool ComponentHasErrors(IRootComponent component)
@@ -76,6 +81,13 @@ namespace Lexy.Poc.Core.Parser
         public string[] ComponentFailedMessages(IRootComponent component)
         {
             return logEntries.Where(entry => entry.IsError && entry.Component == component)
+                .Select(entry => entry.Message)
+                .ToArray();
+        }
+
+        public string[] FailedRootMessages()
+        {
+            return logEntries.Where(entry => entry.IsError && entry.Component == null)
                 .Select(entry => entry.Message)
                 .ToArray();
         }

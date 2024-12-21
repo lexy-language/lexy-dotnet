@@ -96,7 +96,7 @@ namespace Lexy.Poc.Core.Parser
 
             Type<OperatorToken>(index);
             var token = tokens[index] as OperatorToken;
-            if (token.Type != operatorType)
+            if (token?.Type != operatorType)
             {
                 Fail($"Invalid operator token {index} value. Expected: '{operatorType}' Actual: '{token.Type}'");
                 IsValid = false;

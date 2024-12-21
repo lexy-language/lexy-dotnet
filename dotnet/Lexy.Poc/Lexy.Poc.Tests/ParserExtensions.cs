@@ -1,8 +1,6 @@
 using System;
 using Lexy.Poc.Core.Language;
 using Lexy.Poc.Core.Parser;
-using Lexy.Poc.Core.Specifications;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Lexy.Poc
 {

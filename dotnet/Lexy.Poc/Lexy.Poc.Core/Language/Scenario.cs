@@ -71,15 +71,18 @@ namespace Lexy.Poc.Core.Language
 
         private IComponent ParseFunction(IParserContext context)
         {
-            if (Function == null)
+            if (Function != null)
             {
-                var tokenName = Parser.ComponentName.Parse(context.CurrentLine, context);
-                Function = Function.Parse(tokenName);
-                context.SetCurrentComponent(Function);
-                return Function;
+                context.Logger.Fail($"Duplicated inline Function '{ComponentName}'.", this);
+                return null;
             }
-            context.Logger.Fail($"Duplicated inline Function '{ComponentName}'.", this);
-            return null;
+
+            var tokenName = Parser.ComponentName.Parse(context.CurrentLine, context);
+            if (tokenName == null) return null;
+
+            Function = Function.Parse(tokenName);
+            context.SetCurrentComponent(Function);
+            return Function;
         }
 
         private IComponent InvalidToken(IParserContext parserContext, string name)
