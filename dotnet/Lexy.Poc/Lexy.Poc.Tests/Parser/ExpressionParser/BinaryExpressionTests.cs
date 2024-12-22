@@ -22,6 +22,20 @@ namespace Lexy.Poc.Parser.ExpressionParser
         }
 
         [Test]
+        public void Subtraction()
+        {
+            var expression = this.ParseExpression("B - C");
+            expression.ValidateOfType<BinaryExpression>(addition =>
+            {
+                addition.Operator.ShouldBe(ExpressionOperator.Subtraction);
+                addition.Left.ValidateOfType<VariableExpression>(left =>
+                    left.VariableName.ShouldBe("B"));
+                addition.Right.ValidateOfType<VariableExpression>(right =>
+                    right.VariableName.ShouldBe("C"));
+            });
+        }
+
+        [Test]
         public void AdditionAndMultiplication()
         {
             var expression = this.ParseExpression("B + C * 12");

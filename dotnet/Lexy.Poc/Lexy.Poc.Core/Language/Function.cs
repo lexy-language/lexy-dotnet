@@ -27,7 +27,7 @@ namespace Lexy.Poc.Core.Language
 
         internal static Function Parse(ComponentName name)
         {
-            return new Function(name.Parameter);
+            return new Function(name?.Name);
         }
 
         public override IComponent Parse(IParserContext context)

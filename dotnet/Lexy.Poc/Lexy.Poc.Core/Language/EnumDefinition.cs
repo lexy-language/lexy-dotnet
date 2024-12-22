@@ -19,7 +19,7 @@ namespace Lexy.Poc.Core.Language
 
         internal static EnumDefinition Parse(ComponentName name)
         {
-            return new EnumDefinition(name.Parameter);
+            return new EnumDefinition(name.Name);
         }
 
         public override IComponent Parse(IParserContext context)

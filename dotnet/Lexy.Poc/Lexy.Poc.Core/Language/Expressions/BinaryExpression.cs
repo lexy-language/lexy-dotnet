@@ -10,6 +10,7 @@ namespace Lexy.Poc.Core.Language.Expressions
         private static readonly IDictionary<OperatorType, ExpressionOperator> supportedOperators = new Dictionary<OperatorType, ExpressionOperator>
         {
             { OperatorType.Addition, ExpressionOperator.Addition },
+            { OperatorType.Subtraction, ExpressionOperator.Subtraction },
             { OperatorType.Multiplication, ExpressionOperator.Multiplication },
             { OperatorType.Division, ExpressionOperator.Division },
             { OperatorType.Modulus, ExpressionOperator.Modulus },

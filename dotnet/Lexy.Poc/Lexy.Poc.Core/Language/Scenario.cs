@@ -27,7 +27,7 @@ namespace Lexy.Poc.Core.Language
 
         internal static Scenario Parse(ComponentName name)
         {
-            return new Scenario(name.Parameter);
+            return new Scenario(name.Name);
         }
 
         public override IComponent Parse(IParserContext context)
@@ -81,7 +81,6 @@ namespace Lexy.Poc.Core.Language
             }
 
             var tokenName = Parser.ComponentName.Parse(context.CurrentLine, context);
-            if (tokenName == null) return null;
 
             Function = Function.Parse(tokenName);
             context.SetCurrentComponent(Function);

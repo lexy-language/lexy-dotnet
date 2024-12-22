@@ -76,7 +76,8 @@ namespace Lexy.Poc.Core.Parser
             var component = currentComponent.Parse(context);
             if (component == null)
             {
-                throw new InvalidOperationException("Parse should return child component or itself.");
+                throw new InvalidOperationException(
+                    $"({currentComponent}) Parse should return child component or itself.");
             }
             return component;
         }

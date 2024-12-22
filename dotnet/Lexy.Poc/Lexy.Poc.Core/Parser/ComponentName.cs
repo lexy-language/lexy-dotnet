@@ -3,36 +3,48 @@ namespace Lexy.Poc.Core.Parser
 {
     internal class ComponentName
     {
-        public string Parameter { get; }
         public string Name { get; }
+        public string Keyword { get; }
 
-        private ComponentName(string name, string parameter)
+        private ComponentName(string keyword, string name)
         {
-            Parameter = parameter;
             Name = name;
+            Keyword = keyword;
         }
 
         public static ComponentName Parse(Line line, IParserContext context)
         {
+            var tokens = line.Tokens;
+            if (tokens.Length < 1 && tokens.Length > 2) return null;
+
             var valid = context.ValidateTokens<ComponentName>()
-                .Count(2)
                 .Keyword(0)
+                .IsValid;
+
+            if (!valid) return null;
+
+            var keyword = tokens.TokenValue(0);
+            if (tokens.Length == 1)
+            {
+                return new ComponentName(keyword, null);
+            }
+
+            valid = context.ValidateTokens<ComponentName>()
                 .StringLiteral(1)
                 .IsValid;
 
             if (!valid) return null;
 
-            var tokens = line.Tokens;
             var parameter = tokens.TokenValue(1);
             if (context.Components.Contains(parameter))
             {
-                context.Logger.Fail("Duplicated component name: '" + parameter + "'");
+                context.Logger.Fail($"Duplicated component name: '{parameter}'");
                 return null;
             }
 
-            return new ComponentName(tokens.TokenValue(0), parameter);
+            return new ComponentName(keyword, parameter);
         }
 
-        public override string ToString() => $"{Name} {Parameter}";
+        public override string ToString() => $"{Keyword} {Name}";
     }
 }

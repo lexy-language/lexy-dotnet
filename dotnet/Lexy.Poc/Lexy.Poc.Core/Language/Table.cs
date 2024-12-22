@@ -18,7 +18,7 @@ namespace Lexy.Poc.Core.Language
 
         internal static Table Parse(ComponentName name)
         {
-            return new Table(name.Parameter);
+            return new Table(name.Name);
         }
 
         public override IComponent Parse(IParserContext context)

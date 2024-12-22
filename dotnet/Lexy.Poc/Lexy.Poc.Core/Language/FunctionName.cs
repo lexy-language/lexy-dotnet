@@ -6,11 +6,11 @@ namespace Lexy.Poc.Core.Language
 {
     public class FunctionName
     {
-        public string Value { get; private set; } = Guid.NewGuid().ToString("D");
+        public string Value { get; private set; }
 
-        public void ParseName(string parameter)
+        public void ParseName(string parameter = null)
         {
-            Value = parameter;
+            Value = parameter ?? Guid.NewGuid().ToString("D");
         }
 
         public string ClassName()

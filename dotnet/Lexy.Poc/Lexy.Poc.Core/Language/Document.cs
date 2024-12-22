@@ -18,7 +18,7 @@ namespace Lexy.Poc.Core.Language
             }
 
             var tokenName = Parser.ComponentName.Parse(line, context);
-            var rootComponent = tokenName?.Name switch
+            var rootComponent = tokenName?.Keyword switch
             {
                 null => null,
                 TokenValues.FunctionComponent => Function.Parse(tokenName),
@@ -38,7 +38,7 @@ namespace Lexy.Poc.Core.Language
 
         private IRootComponent InvalidComponent(ComponentName tokenName, IParserContext context)
         {
-            var message = $"Unknown keyword: {tokenName.Name}";
+            var message = $"Unknown keyword: {tokenName.Keyword}";
             context.Logger.Fail(message);
             return null;
         }
