@@ -81,9 +81,14 @@ namespace Lexy.Poc.Core.Parser
 
         public bool IsLiteralToken(int index)
         {
-            CheckValidTokenIndex(index);
-
             return index >= 0 && index <= values.Length - 1 && values[index] is ILiteralToken;
+        }
+
+        public bool IsKeyword(int index, string keyword)
+        {
+            return index >= 0
+                && index <= values.Length - 1
+                && (values[index] as KeywordToken)?.Value == keyword;
         }
 
         public bool OperatorToken(int index, OperatorType type)

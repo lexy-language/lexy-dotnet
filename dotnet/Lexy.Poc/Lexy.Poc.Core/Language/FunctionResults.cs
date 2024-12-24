@@ -28,7 +28,7 @@ namespace Lexy.Poc.Core.Language
             return this;
         }
 
-        public VariableType GetParameterType(string expectedName)
+        public VariableDeclarationType GetParameterType(string expectedName)
         {
             return Variables.FirstOrDefault(variable => variable.Name == expectedName)?.Type;
         }

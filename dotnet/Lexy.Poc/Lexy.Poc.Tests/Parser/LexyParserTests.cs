@@ -23,8 +23,8 @@ namespace Lexy.Poc.Parser
             script.Name.Value.ShouldBe("TestSimpleReturn");
             script.Results.Variables.Count.ShouldBe(1);
             script.Results.Variables[0].Name.ShouldBe("Result");
-            script.Results.Variables[0].Type.ShouldBeOfType<PrimitiveVariableType>();
-            (script.Results.Variables[0].Type as PrimitiveVariableType).Type.ShouldBe("number");
+            script.Results.Variables[0].Type.ShouldBeOfType<PrimitiveVariableDeclarationType>();
+            (script.Results.Variables[0].Type as PrimitiveVariableDeclarationType).Type.ShouldBe("number");
             script.Code.Expressions.Count.ShouldBe(1);
             script.Code.Expressions[0].ToString().ShouldBe("Result=777");
         }

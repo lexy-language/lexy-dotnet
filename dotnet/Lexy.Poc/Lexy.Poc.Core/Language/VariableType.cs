@@ -1,16 +1,6 @@
-
-namespace Lexy.Poc.Core.Language
+namespace Lexy.Poc.Core.Parser
 {
     public abstract class VariableType
     {
-        public static VariableType Parse(string type)
-        {
-            if (TypeNames.Contains(type))
-            {
-                return new PrimitiveVariableType(type);
-            }
-
-            return new CustomVariableType(type);
-        }
     }
 }

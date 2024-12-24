@@ -14,7 +14,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
 
             line.Tokenize(tokenizer, context);
 
-            return ExpressionFactory.Parse (sourceFile, line.Tokens, line);
+            return ExpressionFactory.Parse(sourceFile, line.Tokens, line);
         }
 
         public static void ParseExpressionExpectException(this ScopedServicesTestFixture fixture,

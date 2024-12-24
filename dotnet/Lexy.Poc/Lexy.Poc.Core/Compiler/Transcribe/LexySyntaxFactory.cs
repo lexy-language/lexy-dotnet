@@ -1,13 +1,12 @@
 using System;
 using Lexy.Poc.Core.Language;
-using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.Parser.Tokens;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Lexy.Poc.Core.Transcribe
+namespace Lexy.Poc.Core.Compiler.Transcribe
 {
     public static class LexySyntaxFactory
     {
@@ -76,12 +75,12 @@ namespace Lexy.Poc.Core.Transcribe
             };
         }
 
-        public static TypeSyntax MapType(VariableType type)
+        public static TypeSyntax MapType(VariableDeclarationType type)
         {
             return type switch
             {
-                PrimitiveVariableType primitive => MapType(primitive.Type),
-                CustomVariableType enumType => SyntaxFactory.IdentifierName(enumType.TypeName),
+                PrimitiveVariableDeclarationType primitive => MapType(primitive.Type),
+                CustomVariableDeclarationType enumType => IdentifierName(enumType.Type),
                 _ => throw new InvalidOperationException("Couldn't map type: " + type)
             };
         }

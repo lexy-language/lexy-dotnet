@@ -12,6 +12,9 @@ namespace Lexy.Poc.Core.Parser
         public const string Function = "Function";
         public const string ValidationTable = "ValidationTable";
 
+        public const string If = "if";
+        public const string Else = "else";
+
         public const string Include = "Include";
         public const string Parameters = "Parameters";
         public const string Results = "Results";
@@ -30,6 +33,9 @@ namespace Lexy.Poc.Core.Parser
 
             Function,
             ValidationTable,
+
+            If,
+            Else,
 
             Include,
             Parameters,

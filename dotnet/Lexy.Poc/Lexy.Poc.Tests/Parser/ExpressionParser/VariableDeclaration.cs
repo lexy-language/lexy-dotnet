@@ -14,9 +14,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("number temp");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("number"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ShouldBeNull();
             });
         }
@@ -27,9 +27,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("number temp = 123.45");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("number"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ValidateNumericLiteralExpression(123.45m);
             });
         }
@@ -40,9 +40,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("string temp");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("string"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ShouldBeNull();
             });
         }
@@ -53,9 +53,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression(@"string temp = ""abc""");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("string"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ValidateQuotedLiteralExpression("abc");
             });
         }
@@ -67,9 +67,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("boolean temp");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("boolean"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ShouldBeNull();
             });
         }
@@ -80,9 +80,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression(@"boolean temp = true");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("boolean"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ValidateBooleanLiteralExpression(true);
             });
         }
@@ -93,9 +93,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("datetime temp");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("datetime"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ShouldBeNull();
             });
         }
@@ -106,9 +106,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression(@"datetime temp = d""2024/12/16 16:51:12""");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<PrimitiveVariableType>(type =>
+                assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                     type.Type.ShouldBe("datetime"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ValidateDateTimeLiteralExpression(new DateTime(2024, 12, 16,16,51, 12));
             });
         }
@@ -119,9 +119,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("Custom temp");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<CustomVariableType>(type =>
-                    type.TypeName.ShouldBe("Custom"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Type.ValidateOfType<CustomVariableDeclarationType>(type =>
+                    type.Type.ShouldBe("Custom"));
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ShouldBeNull();
             });
         }
@@ -132,9 +132,9 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("Custom temp = Custom.First");
             expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableType.ValidateOfType<CustomVariableType>(type =>
-                    type.TypeName.ShouldBe("Custom"));
-                assignmentExpression.VariableName.ShouldBe("temp");
+                assignmentExpression.Type.ValidateOfType<CustomVariableDeclarationType>(type =>
+                    type.Type.ShouldBe("Custom"));
+                assignmentExpression.Name.ShouldBe("temp");
                 assignmentExpression.Assignment.ValidateMemberAccessExpression("Custom.First");
             });
         }

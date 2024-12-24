@@ -23,7 +23,7 @@ namespace Lexy.Poc.Core
             return existing.Contains(parameterType);
         }
 
-        public static Types ConvertToType(string value)
+        public static Types ConvertToTypes(string value)
         {
             return value switch
             {
@@ -31,7 +31,7 @@ namespace Lexy.Poc.Core
                 Boolean => Types.Boolean,
                 DateTime => Types.DateTime,
                 String => Types.String,
-                _ => throw new InvalidOperationException("Invalid type: " + value)
+                _ => Types.Unknown
             };
         }
     }

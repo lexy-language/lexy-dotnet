@@ -6,7 +6,9 @@ namespace Lexy.Poc.Core.Language
 {
     public class FunctionCode : ParsableNode
     {
-        public IList<Expression> Expressions { get; } = new List<Expression>();
+        private readonly ExpressionList expressions = new ExpressionList();
+
+        public IReadOnlyList<Expression> Expressions => expressions;
 
         public FunctionCode(SourceReference reference) : base(reference)
         {
@@ -20,18 +22,12 @@ namespace Lexy.Poc.Core.Language
                 return this;
             }
 
-            var valid = context.ValidateTokens<FunctionCode>()
-                .CountMinimum(1)
-                .IsValid;
-
-            if (!valid) return null;
-
             var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line);
             if (expression != null)
             {
-                Expressions.Add(expression);
+                expressions.Add(expression, context);
             }
-            return this;
+            return expression is IParsableNode node ? node : this;
         }
 
         protected override IEnumerable<INode> GetChildren() => Expressions;

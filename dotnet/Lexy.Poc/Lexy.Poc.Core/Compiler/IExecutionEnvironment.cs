@@ -1,6 +1,6 @@
 using System.Reflection;
+using Lexy.Poc.Core.Compiler.Transcribe;
 using Lexy.Poc.Core.Parser;
-using Lexy.Poc.Core.Transcribe;
 
 namespace Lexy.Poc.Core.Compiler
 {

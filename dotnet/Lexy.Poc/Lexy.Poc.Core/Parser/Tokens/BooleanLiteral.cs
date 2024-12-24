@@ -1,4 +1,5 @@
 using System;
+using Lexy.Poc.Core.Language;
 
 namespace Lexy.Poc.Core.Parser.Tokens
 {
@@ -29,5 +30,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
         }
 
         public override string ToString() => Value;
+
+        public VariableType DeriveType(IValidationContext context) => PrimitiveType.Boolean;
     }
 }

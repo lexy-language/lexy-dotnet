@@ -1,4 +1,6 @@
 
+using System;
+
 namespace Lexy.Poc.Core.Parser.Tokens
 {
     public class StringLiteralToken : Token, ILiteralToken
@@ -11,5 +13,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
         }
 
         public override string ToString() => Value;
+
+        public VariableType DeriveType(IValidationContext context) => throw new InvalidOperationException("Not supported. Type should be defined by node or expression.");
     }
 }

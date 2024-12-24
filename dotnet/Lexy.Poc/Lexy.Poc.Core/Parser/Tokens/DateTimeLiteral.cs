@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Lexy.Poc.Core.Language;
 
 namespace Lexy.Poc.Core.Parser.Tokens
 {
@@ -85,5 +86,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
         }
 
         public override string ToString() => DateTimeValue.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
+
+        public VariableType DeriveType(IValidationContext context) => PrimitiveType.DateTime;
     }
 }

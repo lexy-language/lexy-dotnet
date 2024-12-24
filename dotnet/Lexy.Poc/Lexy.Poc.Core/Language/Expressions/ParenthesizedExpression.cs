@@ -11,7 +11,7 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         private ParenthesizedExpression(Expression expression, ExpressionSource source, SourceReference reference) : base(source, reference)
         {
-            Expression = expression;
+            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         public static ParseExpressionResult Parse(ExpressionSource source)
@@ -76,5 +76,7 @@ namespace Lexy.Poc.Core.Language.Expressions
         protected override void Validate(IValidationContext context)
         {
         }
+
+        public override VariableType DeriveType(IValidationContext context) => Expression.DeriveType(context);
     }
 }

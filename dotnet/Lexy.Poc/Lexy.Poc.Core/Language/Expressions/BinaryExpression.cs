@@ -172,6 +172,22 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
+            var left = Left.DeriveType(context);
+            var right = Right.DeriveType(context);
+
+            if (!left.Equals(right))
+            {
+                context.Logger.Fail(Reference,
+                    $"Invalid expression type. Left expression: '{left}'. Right expression '{right}.");
+            }
+        }
+
+        public override VariableType DeriveType(IValidationContext context)
+        {
+            var left = Left.DeriveType(context);
+            var right = Right.DeriveType(context);
+
+            return left.Equals(right) ? left : null;
         }
     }
 }

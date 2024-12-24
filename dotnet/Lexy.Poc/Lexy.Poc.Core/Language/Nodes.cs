@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Lexy.Poc.Core.Parser;
 
 namespace Lexy.Poc.Core.Language
 {
@@ -21,7 +21,7 @@ namespace Lexy.Poc.Core.Language
         public IRootNode GetNode(string name)
         {
             return values
-                .SingleOrDefault(definition => definition.NodeName == name);
+                .FirstOrDefault(definition => definition.NodeName == name);
         }
 
         public bool Contains(string name)
@@ -37,7 +37,7 @@ namespace Lexy.Poc.Core.Language
                 .FirstOrDefault(function => function.Name.Value == name);
         }
 
-        public IRootNode GetTable(string name)
+        public Table GetTable(string name)
         {
             return values
                 .OfType<Table>()
@@ -70,20 +70,14 @@ namespace Lexy.Poc.Core.Language
 
         public INode First() => values.FirstOrDefault();
 
-        public string MapType(string variableType)
+        public VariableType GetType(string name)
         {
-            if (ContainsEnum(variableType))
+            var node = GetNode(name);
+            return node switch
             {
-                return variableType;
-            }
-
-            return variableType switch
-            {
-                TypeNames.String => "string",
-                TypeNames.Number => "decimal",
-                TypeNames.Boolean => "bool",
-                TypeNames.DateTime => "System.DateTime",
-                _ => throw new InvalidOperationException($"Unknown type: '{variableType}'")
+                Table table => new TableType(name, table),
+                EnumDefinition enumDefinition => new EnumType(name, enumDefinition),
+                _ => null
             };
         }
     }

@@ -1,7 +1,7 @@
 using Lexy.Poc.Core.Language;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Lexy.Poc.Core.Transcribe
+namespace Lexy.Poc.Core.Compiler.Transcribe
 {
     public class GeneratedClass
     {

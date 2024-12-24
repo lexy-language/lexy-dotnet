@@ -82,5 +82,7 @@ namespace Lexy.Poc.Core.Language.Expressions
         protected override void Validate(IValidationContext context)
         {
         }
+
+        public override VariableType DeriveType(IValidationContext context) => Expression.DeriveType(context);
     }
 }

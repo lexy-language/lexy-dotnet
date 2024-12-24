@@ -7,15 +7,15 @@ namespace Lexy.Poc.Core.Language.Expressions
 {
     public class VariableDeclarationExpression : Expression
     {
-        public VariableType VariableType { get; }
-        public string VariableName { get; }
+        public VariableDeclarationType Type { get; }
+        public string Name { get; }
         public Expression Assignment { get; }
 
-        private VariableDeclarationExpression(VariableType variableType, string variableName, Expression assignment,
+        private VariableDeclarationExpression(VariableDeclarationType variableType, string variableName, Expression assignment,
             ExpressionSource source, SourceReference reference) : base(source, reference)
         {
-            VariableType = variableType ?? throw new ArgumentNullException(nameof(variableType));
-            VariableName = variableName ?? throw new ArgumentNullException(nameof(variableName));
+            Type = variableType ?? throw new ArgumentNullException(nameof(variableType));
+            Name = variableName ?? throw new ArgumentNullException(nameof(variableName));
             Assignment = assignment;
         }
 
@@ -27,7 +27,7 @@ namespace Lexy.Poc.Core.Language.Expressions
                 return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
             }
 
-            var type = VariableType.Parse(tokens.TokenValue(0));
+            var type = VariableDeclarationType.Parse(tokens.TokenValue(0));
             var name = tokens.TokenValue(1);
             var assignment = tokens.Length > 3 ? ExpressionFactory.Parse(source.File, tokens.TokensFrom(3), source.Line) : null;
             var reference = source.CreateReference();
@@ -58,7 +58,21 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
-            context.FunctionCodeContext.EnsureVariableUnique(this, VariableName);
+            var variableType = Type.CreateVariableType(context);
+            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType);
+
+            var memberAccessExpression = Assignment as MemberAccessExpression;
+            var literalExpression = Assignment as LiteralExpression;
+            if (Assignment != null && literalExpression == null && memberAccessExpression == null)
+            {
+                context.Logger.Fail(Reference, "Invalid expression. Literal or enum value expression expected.");
+            }
+
+            var defaultValue = literalExpression?.Literal;
+
+            context.ValidateTypeAndDefault(Reference, Type, defaultValue);
         }
+
+        public override VariableType DeriveType(IValidationContext context) => null;
     }
 }

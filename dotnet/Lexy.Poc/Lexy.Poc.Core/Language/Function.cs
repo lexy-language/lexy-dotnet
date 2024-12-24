@@ -78,12 +78,12 @@ namespace Lexy.Poc.Core.Language
         {
             foreach (var parameter in variableDefinitions)
             {
-                if (!(parameter.Type is CustomVariableType enumVariableType)) continue;
+                if (!(parameter.Type is CustomVariableDeclarationType enumVariableType)) continue;
 
-                var dependency = nodes.GetEnum(enumVariableType.TypeName);
+                var dependency = nodes.GetEnum(enumVariableType.Type);
                 if (dependency == null)
                 {
-                    throw new InvalidOperationException("Type or enum not found: " + parameter.Type);
+                    throw new InvalidOperationException($"Type or enum not found: {parameter.Type}");
                 }
 
                 result.Add(dependency);
@@ -111,6 +111,7 @@ namespace Lexy.Poc.Core.Language
         {
             using (context.CreateCodeContextScope())
             {
+
                 base.ValidateTree(context);
             }
         }

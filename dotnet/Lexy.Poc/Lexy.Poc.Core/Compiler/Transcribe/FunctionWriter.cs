@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Poc.Core.Language;
-using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.RunTime;
-using Lexy.Poc.Core.Transcribe;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Lexy.Poc.Core.Transcribe.ExpressionSyntaxFactory;
-using static Lexy.Poc.Core.Transcribe.LexySyntaxFactory;
+using static Lexy.Poc.Core.Compiler.Transcribe.ExpressionSyntaxFactory;
+using static Lexy.Poc.Core.Compiler.Transcribe.LexySyntaxFactory;
 
 namespace Lexy.Poc.Core.Compiler.Transcribe
 {
@@ -138,7 +136,7 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
                 var fieldDeclaration = FieldDeclaration(
                     VariableDeclaration(MapType(variable))
                         .WithVariables(
-                            SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            SingletonSeparatedList(
                                 variableDeclaration)))
                     .WithModifiers(Modifiers.PublicAsList);
 
@@ -148,23 +146,7 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
 
         private MethodDeclarationSyntax WriteRunMethod(Function function)
         {
-            var statements = function.Code.Expressions.SelectMany(expression =>
-                new []{
-                    ExpressionStatement(
-                        InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("context"),
-                                    IdentifierName(nameof(IExecutionContext.LogDebug))))
-                            .WithArgumentList(
-                                ArgumentList(
-                                    SingletonSeparatedList<ArgumentSyntax>(
-                                        Argument(
-                                            LiteralExpression(
-                                                SyntaxKind.StringLiteralExpression,
-                                                Literal(expression.Source.Line.ToString()))))))),
-                    ExpressionStatementSyntax(expression)
-                });
+            var statements = function.Code.Expressions.SelectMany(ExecuteStatementSyntax);
 
             var functionSyntax = MethodDeclaration(
                     PredefinedType(
@@ -185,22 +167,5 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
             return functionSyntax;
         }
 
-        private string Escape(Line line)
-        {
-            return line.ToString()
-                .Replace(@"""", @"""""");
-        }
-
-        /*
-        private string FormatLiteralValue(Token token)
-        {
-            return token switch
-            {
-                //StringLiteralToken _ => $@"""{token.Value}""",
-                QuotedLiteralToken _ => $@"""{token.Value}""",
-                NumberLiteralToken _ => $@"{token.Value}m",
-                _ => token.Value
-            };
-        }*/
     }
 }

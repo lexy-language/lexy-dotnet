@@ -8,10 +8,10 @@ namespace Lexy.Poc.Core.Language
     public class VariableDefinition : Node
     {
         public ILiteralToken Default { get; }
-        public VariableType Type { get; }
+        public VariableDeclarationType Type { get; }
         public string Name { get; }
 
-        private VariableDefinition(string name, VariableType type,
+        private VariableDefinition(string name, VariableDeclarationType type,
             SourceReference reference, ILiteralToken @default = null) : base(reference)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
@@ -36,7 +36,7 @@ namespace Lexy.Poc.Core.Language
             var name = tokens.TokenValue(1);
             var type = tokens.TokenValue(0);
 
-            var variableType = VariableType.Parse(type);
+            var variableType = VariableDeclarationType.Parse(type);
             if (variableType == null) return null;
 
             if (tokens.Length == 2)
@@ -49,9 +49,11 @@ namespace Lexy.Poc.Core.Language
                 context.Logger.Fail(context.TokenReference(2), "Invalid variable declaration token. Expected '='.");
                 return null;
             }
+
             if (tokens.Length != 4)
             {
-                context.Logger.Fail(context.LineEndReference(), "Invalid variable declaration token. Expected default literal token.");
+                context.Logger.Fail(context.LineEndReference(),
+                    "Invalid variable declaration. Expected literal token.");
                 return null;
             }
 
@@ -66,90 +68,10 @@ namespace Lexy.Poc.Core.Language
 
         protected override void Validate(IValidationContext context)
         {
-            context.FunctionCodeContext.EnsureVariableUnique(this, Name);
+            var variableType = Type.CreateVariableType(context);
 
-            switch (Type)
-            {
-                case CustomVariableType customVariableType:
-                    ValidateCustomVariableType(context, customVariableType);
-                    break;
-
-                case PrimitiveVariableType primitiveVariableType:
-                    ValidatePrimitiveVariableType(context, primitiveVariableType);
-                    break;
-
-                default:
-                    throw new InvalidOperationException("Invalid Type: " + Type.GetType());
-            }
-        }
-
-        private void ValidateCustomVariableType(IValidationContext context, CustomVariableType customVariableType)
-        {
-            if (!context.Nodes.ContainsEnum(customVariableType.TypeName))
-            {
-                context.Logger.Fail(Reference, $"Unknown type: '{customVariableType.TypeName}'");
-                return;
-            }
-
-            if (Default == null) return;
-
-            if (!(Default is MemberAccessLiteral memberAccessLiteral))
-            {
-                context.Logger.Fail(Reference, $"Invalid default value '{Default}'. (type: '{customVariableType.TypeName}')");
-            }
-            else
-            {
-                var parts = memberAccessLiteral.GetParts();
-                var enumDeclaration = context.Nodes.GetEnum(customVariableType.TypeName);
-                if (parts.Length != 2)
-                {
-                    context.Logger.Fail(Reference, $"Invalid default value '{Default}'. (type: '{customVariableType.TypeName}')");
-                }
-                if (parts[0] != customVariableType.TypeName)
-                {
-                    context.Logger.Fail(Reference, $"Invalid default value '{Default}'. Invalid enum type. (type: '{customVariableType.TypeName}')");
-                }
-                if (!enumDeclaration.ContainsMember(parts[1]))
-                {
-                    context.Logger.Fail(Reference, $"Invalid default value '{Default}'. Invalid member. (type: '{customVariableType.TypeName}')");
-                }
-            }
-        }
-
-        private void ValidatePrimitiveVariableType(IValidationContext context, PrimitiveVariableType primitiveVariableType)
-        {
-            if (Default == null) return;
-
-            switch (primitiveVariableType.Type)
-            {
-                case TypeNames.Number:
-                    ValidateDefaultLiteral<NumberLiteralToken>(context, primitiveVariableType);
-                    break;
-
-                case TypeNames.String:
-                    ValidateDefaultLiteral<QuotedLiteralToken>(context, primitiveVariableType);
-                    break;
-
-                case TypeNames.Boolean:
-                    ValidateDefaultLiteral<BooleanLiteral>(context, primitiveVariableType);
-                    break;
-
-                case TypeNames.DateTime:
-                    ValidateDefaultLiteral<DateTimeLiteral>(context, primitiveVariableType);
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Unexpected type: {primitiveVariableType.Type}");
-            }
-        }
-
-        private void ValidateDefaultLiteral<T>(IValidationContext context, PrimitiveVariableType primitiveVariableType)
-            where T : ILiteralToken
-        {
-            if (!(Default is T))
-            {
-                context.Logger.Fail(Reference, $"Invalid default value '{Default}'. (type: '{primitiveVariableType.Type}')");
-            }
+            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType);
+            context.ValidateTypeAndDefault(Reference, Type, Default);
         }
     }
 }

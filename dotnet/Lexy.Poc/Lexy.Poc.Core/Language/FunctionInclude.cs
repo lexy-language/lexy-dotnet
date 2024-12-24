@@ -40,6 +40,14 @@ namespace Lexy.Poc.Core.Language
 
         protected override void Validate(IValidationContext context)
         {
+            var table = context.Nodes.GetTable(Name);
+            if (table == null)
+            {
+                context.Logger.Fail(Reference, $"Invalid table name: '{Name}'");
+            }
+
+            var variableType = new TableType(Name, table);
+            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType);
         }
     }
 }

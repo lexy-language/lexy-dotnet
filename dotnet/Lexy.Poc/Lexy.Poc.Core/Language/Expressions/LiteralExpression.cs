@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.Parser.Tokens;
@@ -10,7 +11,7 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         private LiteralExpression(ILiteralToken literal, ExpressionSource source, SourceReference reference) : base(source, reference)
         {
-            Literal = literal;
+            Literal = literal ?? throw new ArgumentNullException(nameof(literal));
         }
 
         public static ParseExpressionResult Parse(ExpressionSource source)
@@ -42,5 +43,7 @@ namespace Lexy.Poc.Core.Language.Expressions
         protected override void Validate(IValidationContext context)
         {
         }
+
+        public override VariableType DeriveType(IValidationContext context) => Literal.DeriveType(context);
     }
 }

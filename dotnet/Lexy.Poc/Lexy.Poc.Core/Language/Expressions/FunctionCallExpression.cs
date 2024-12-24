@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.Parser.Tokens;
@@ -52,6 +53,11 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
+        }
+
+        public override VariableType DeriveType(IValidationContext context)
+        {
+            throw new InvalidOperationException("Not yet supported/");
         }
     }
 }

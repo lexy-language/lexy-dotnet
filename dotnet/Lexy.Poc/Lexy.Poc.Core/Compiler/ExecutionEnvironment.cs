@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Lexy.Poc.Core.Compiler.Transcribe;
 using Lexy.Poc.Core.Language;
 using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.RunTime;
-using Lexy.Poc.Core.Transcribe;
 
 namespace Lexy.Poc.Core.Compiler
 {

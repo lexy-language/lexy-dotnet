@@ -6,9 +6,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Lexy.Poc.Core.Transcribe.LexySyntaxFactory;
+using static Lexy.Poc.Core.Compiler.Transcribe.LexySyntaxFactory;
 
-namespace Lexy.Poc.Core.Transcribe
+namespace Lexy.Poc.Core.Compiler.Transcribe
 {
     internal class TableWriter : IRootTokenWriter
     {
@@ -83,7 +83,7 @@ namespace Lexy.Poc.Core.Transcribe
         {
             var rows = table.Rows.Select(row =>
                     ObjectCreationExpression(
-                            IdentifierName("ValidateTableKeywordRow"))
+                            IdentifierName(rowName))
                         .WithInitializer(
                             InitializerExpression(
                                 SyntaxKind.ObjectInitializerExpression,

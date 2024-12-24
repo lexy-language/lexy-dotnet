@@ -22,7 +22,7 @@ namespace Lexy.Poc.Core.Language.Expressions
             }
 
             var variableName = tokens.TokenValue(0);
-            var reference = source.CreateReference(0);
+            var reference = source.CreateReference();
 
             var expression = new VariableExpression(variableName, source, reference);
 
@@ -42,7 +42,10 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
-            context.FunctionCodeContext.EnsureVariableExists(this, VariableName);
+            context.FunctionCodeContext.EnsureVariableExists(Reference, VariableName);
         }
+
+        public override VariableType DeriveType(IValidationContext context) =>
+            context.FunctionCodeContext.GetVariableType(VariableName);
     }
 }

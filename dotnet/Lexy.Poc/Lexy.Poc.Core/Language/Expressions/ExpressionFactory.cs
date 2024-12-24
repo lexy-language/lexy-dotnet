@@ -9,13 +9,15 @@ namespace Lexy.Poc.Core.Language.Expressions
         private static readonly IDictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>> factories =
             new Dictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>>()
             {
+                { IfExpression.IsValid, IfExpression.Parse },
+                { ElseExpression.IsValid, ElseExpression.Parse },
                 { VariableDeclarationExpression.IsValid, VariableDeclarationExpression.Parse },
                 { AssignmentExpression.IsValid, AssignmentExpression.Parse },
                 { ParenthesizedExpression.IsValid, ParenthesizedExpression.Parse },
                 { BracketedExpression.IsValid, BracketedExpression.Parse },
                 { VariableExpression.IsValid, VariableExpression.Parse },
-                { LiteralExpression.IsValid, LiteralExpression.Parse },
                 { MemberAccessExpression.IsValid, MemberAccessExpression.Parse },
+                { LiteralExpression.IsValid, LiteralExpression.Parse },
                 { BinaryExpression.IsValid, BinaryExpression.Parse },
                 { FunctionCallExpression.IsValid, FunctionCallExpression.Parse },
             };

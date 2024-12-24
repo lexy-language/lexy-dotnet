@@ -22,5 +22,7 @@ namespace Lexy.Poc.Core.Language.Expressions
             }
             return writer.ToString();
         }
+
+        public abstract VariableType DeriveType(IValidationContext context);
     }
 }

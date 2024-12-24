@@ -1,6 +1,6 @@
 using Lexy.Poc.Core.Language;
 
-namespace Lexy.Poc.Core.Transcribe
+namespace Lexy.Poc.Core.Compiler.Transcribe
 {
     internal interface IRootTokenWriter
     {

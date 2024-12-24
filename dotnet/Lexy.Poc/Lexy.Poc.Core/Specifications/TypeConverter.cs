@@ -6,19 +6,19 @@ namespace Lexy.Poc.Core.Specifications
 {
     internal static class TypeConverter
     {
-        public static object Convert(CompilerResult compilerResult, string value, VariableType type)
+        public static object Convert(CompilerResult compilerResult, string value, VariableDeclarationType type)
         {
-            if (type is CustomVariableType enumVariableType)
+            if (type is CustomVariableDeclarationType enumVariableType)
             {
-                if (!compilerResult.ContainsEnum(enumVariableType.TypeName)) throw new InvalidOperationException("Known enum: " + enumVariableType.TypeName);
+                if (!compilerResult.ContainsEnum(enumVariableType.Type)) throw new InvalidOperationException("Known enum: " + enumVariableType.Type);
 
                 var indexOfSeparator = value.IndexOf(".");
                 var enumValue = value[(indexOfSeparator + 1)..];
 
-                return Enum.Parse(compilerResult.GetEnumType(enumVariableType.TypeName), enumValue);
+                return Enum.Parse(compilerResult.GetEnumType(enumVariableType.Type), enumValue);
             }
 
-            if (type is PrimitiveVariableType primitiveVariableType)
+            if (type is PrimitiveVariableDeclarationType primitiveVariableType)
             {
                 return primitiveVariableType.Type switch
                 {
