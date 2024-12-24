@@ -64,8 +64,32 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
                 AssignmentExpression assignment => TranslateAssignmentExpression(assignment),
                 VariableDeclarationExpression variableDeclarationExpression => TranslateVariableDeclarationExpression(variableDeclarationExpression),
                 IfExpression ifExpression => TranslateIfExpression(ifExpression),
+                SwitchExpression switchExpression => TranslateSwitchExpression(switchExpression),
                 _ => throw new InvalidOperationException($"Wrong expression type {line.GetType()}: {line}")
             };
+        }
+
+        private static StatementSyntax TranslateSwitchExpression(SwitchExpression switchExpression)
+        {
+            var cases = switchExpression.Cases
+                .Select(expression =>
+                    SwitchSection()
+                        .WithLabels(
+                            SingletonList(
+                                !expression.IsDefault
+                                    ? CaseSwitchLabel(ExpressionSyntax(expression.Value))
+                                    : (SwitchLabelSyntax) DefaultSwitchLabel()))
+                        .WithStatements(
+                            List(
+                                new StatementSyntax[]
+                                {
+                                    Block(List(ExecuteExpressionStatementSyntax(expression.Expressions))),
+                                    BreakStatement()
+                                })))
+                .ToList();
+
+            return SwitchStatement(ExpressionSyntax(switchExpression.Condition))
+                .WithSections(List(cases));
         }
 
         private static StatementSyntax TranslateIfExpression(IfExpression ifExpression)
@@ -116,10 +140,10 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
             return line switch
             {
                 LiteralExpression expression => LexySyntaxFactory.TokenValueExpression(expression.Literal),
-                VariableExpression expression => SyntaxFactory.IdentifierName(expression.VariableName),
+                VariableExpression expression => IdentifierName(expression.VariableName),
                 MemberAccessExpression expression => TranslateMemberAccessExpression(expression),
                 BinaryExpression expression => TranslateBinaryExpression(expression),
-                ParenthesizedExpression expression => SyntaxFactory.ParenthesizedExpression(ExpressionSyntax(expression.Expression)),
+                ParenthesizedExpression expression => ParenthesizedExpression(ExpressionSyntax(expression.Expression)),
                 _ => throw new InvalidOperationException($"Wrong expression type {line.GetType()}: {line}")
             };
         }
@@ -127,7 +151,7 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
         private static ExpressionSyntax TranslateBinaryExpression(BinaryExpression expression)
         {
             var kind = Translate(expression.Operator);
-            return SyntaxFactory.BinaryExpression(
+            return BinaryExpression(
                 kind,
                 ExpressionSyntax(expression.Left),
                 ExpressionSyntax(expression.Right));

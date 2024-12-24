@@ -50,16 +50,6 @@ namespace Lexy.Poc.Core.Parser
             return new TokenList(range);
         }
 
-        public string TokenValuesFrom(int startIndex)
-        {
-            var valueBuilder = new StringBuilder();
-            for (int index = startIndex; index < values.Length; index++)
-            {
-                valueBuilder.Append(values[index].Value);
-            }
-            return valueBuilder.ToString();
-        }
-
         public bool IsTokenType<T>(int index)
         {
             return index >= 0 && index <= values.Length - 1 && values[index].GetType() == typeof(T);
@@ -97,11 +87,6 @@ namespace Lexy.Poc.Core.Parser
 
             return values[index] is OperatorToken operatorToken
                    && operatorToken.Type == type;
-        }
-
-        public OperatorToken OperatorToken(int index)
-        {
-            return Token<OperatorToken>(index);
         }
 
         public IEnumerator<Token> GetEnumerator()

@@ -14,6 +14,15 @@ namespace Lexy.Poc.Core.Parser
 
         public const string If = "if";
         public const string Else = "else";
+        public const string Switch = "switch";
+        public const string Case = "case";
+        public const string Default = "default";
+
+        public const string For = "for";
+        public const string From = "from";
+        public const string To = "to";
+
+        public const string While = "while";
 
         public const string Include = "Include";
         public const string Parameters = "Parameters";
@@ -36,6 +45,16 @@ namespace Lexy.Poc.Core.Parser
 
             If,
             Else,
+
+            Switch,
+            Case,
+            Default,
+
+            For,
+            From,
+            To,
+
+            While,
 
             Include,
             Parameters,

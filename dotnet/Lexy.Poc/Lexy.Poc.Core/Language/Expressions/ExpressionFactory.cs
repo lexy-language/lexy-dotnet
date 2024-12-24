@@ -11,6 +11,8 @@ namespace Lexy.Poc.Core.Language.Expressions
             {
                 { IfExpression.IsValid, IfExpression.Parse },
                 { ElseExpression.IsValid, ElseExpression.Parse },
+                { SwitchExpression.IsValid, SwitchExpression.Parse },
+                { CaseExpression.IsValid, CaseExpression.Parse },
                 { VariableDeclarationExpression.IsValid, VariableDeclarationExpression.Parse },
                 { AssignmentExpression.IsValid, AssignmentExpression.Parse },
                 { ParenthesizedExpression.IsValid, ParenthesizedExpression.Parse },

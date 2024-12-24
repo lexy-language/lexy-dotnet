@@ -77,13 +77,13 @@ namespace Lexy.Poc.Core.Language.Expressions
             if (type == null || !type.Equals(PrimitiveType.Boolean))
             {
                 context.Logger.Fail(Reference,
-                    $"'If' condition expression should be 'boolean', is of wrong type '{type}'.");
+                    $"'if' condition expression should be 'boolean', is of wrong type '{type}'.");
             }
         }
 
         internal void LinkElse(ElseExpression elseExpression)
         {
-            if (Else != null) throw new InvalidOperationException("'Else' already linked.");
+            if (Else != null) throw new InvalidOperationException("'else' already linked.");
 
             Else = elseExpression;
         }
