@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Lexy.Poc.Core.Compiler.Transcribe.LexySyntaxFactory;
+using static Lexy.Poc.Core.Compiler.Transcribe.ExpressionSyntaxFactory;
 
 namespace Lexy.Poc.Core.Compiler.Transcribe
 {

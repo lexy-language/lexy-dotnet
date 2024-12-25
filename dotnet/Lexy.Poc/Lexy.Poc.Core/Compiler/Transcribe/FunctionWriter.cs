@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static Lexy.Poc.Core.Compiler.Transcribe.ExpressionSyntaxFactory;
-using static Lexy.Poc.Core.Compiler.Transcribe.LexySyntaxFactory;
 
 namespace Lexy.Poc.Core.Compiler.Transcribe
 {
@@ -131,6 +130,12 @@ namespace Lexy.Poc.Core.Compiler.Transcribe
                 {
                     variableDeclaration = variableDeclaration.WithInitializer(
                         EqualsValueClause(defaultValue));
+                }
+                else if (variable.Type is PrimitiveVariableDeclarationType primitiveType)
+                {
+                    variableDeclaration = variableDeclaration.WithInitializer(
+                        EqualsValueClause(
+                            PrimitiveTypeDefaultExpression(primitiveType)));
                 }
 
                 var fieldDeclaration = FieldDeclaration(

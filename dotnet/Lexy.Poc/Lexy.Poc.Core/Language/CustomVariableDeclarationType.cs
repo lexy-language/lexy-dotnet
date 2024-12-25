@@ -2,7 +2,7 @@ using Lexy.Poc.Core.Parser;
 
 namespace Lexy.Poc.Core.Language
 {
-    public class CustomVariableDeclarationType : VariableDeclarationType
+    public sealed class CustomVariableDeclarationType : VariableDeclarationType
     {
         public string Type { get; }
 
@@ -11,7 +11,7 @@ namespace Lexy.Poc.Core.Language
             Type = type;
         }
 
-        protected bool Equals(CustomVariableDeclarationType other) => Type == other.Type;
+        private bool Equals(CustomVariableDeclarationType other) => Type == other.Type;
 
         public override bool Equals(object obj)
         {

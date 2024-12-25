@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Poc.Core.Language.Expressions;
 using Lexy.Poc.Core.Parser;
+using Lexy.Poc.Core.Parser.Tokens;
 
 namespace Lexy.Poc.Core.Language
 {

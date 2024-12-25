@@ -147,18 +147,54 @@ namespace Lexy.Poc.Core.Language
 
         public override IEnumerable<INode> GetChildren()
         {
-            yield return Name;
-
             if (Function != null) yield return Function;
             if (Enum != null) yield return Enum;
             if (Table != null) yield return Table;
 
+            yield return Name;
             yield return FunctionName;
             yield return Parameters;
             yield return Results;
             yield return ValidationTable;
             yield return ExpectError;
             yield return ExpectRootErrors;
+        }
+
+        protected override void ValidateNodeTree(IValidationContext context, INode child)
+        {
+            if (child == Parameters || child == Results)
+            {
+                ValidateParameterOrResultNode(context, child);
+                return;
+            }
+            base.ValidateNodeTree(context, child);
+        }
+
+        private void ValidateParameterOrResultNode(IValidationContext context, INode child)
+        {
+            using (context.CreateCodeContextScope())
+            {
+                AddFunctionParametersAndResultsForValidation(context);
+                base.ValidateNodeTree(context, child);
+            }
+        }
+
+        private void AddFunctionParametersAndResultsForValidation(IValidationContext context)
+        {
+            var function = Function ?? (FunctionName != null ? context.Nodes.GetFunction(FunctionName.Value) : null);
+            if (function == null) return;
+
+            AddVariablesForValidation(context, function.Results.Variables);
+            AddVariablesForValidation(context, function.Parameters.Variables);
+        }
+
+        private static void AddVariablesForValidation(IValidationContext context, IList<VariableDefinition> definitions)
+        {
+            foreach (var result in definitions)
+            {
+                var variableType = result.Type.CreateVariableType(context);
+                context.FunctionCodeContext.AddVariable(result.Name, variableType);
+            }
         }
 
         protected override void Validate(IValidationContext context)

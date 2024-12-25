@@ -8,6 +8,9 @@ namespace Lexy.Poc.Core.Specifications
     {
         public static object Convert(CompilerResult compilerResult, string value, VariableDeclarationType type)
         {
+            if (compilerResult == null) throw new ArgumentNullException(nameof(compilerResult));
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
             if (type is CustomVariableDeclarationType enumVariableType)
             {
                 if (!compilerResult.ContainsEnum(enumVariableType.Type)) throw new InvalidOperationException("Known enum: " + enumVariableType.Type);

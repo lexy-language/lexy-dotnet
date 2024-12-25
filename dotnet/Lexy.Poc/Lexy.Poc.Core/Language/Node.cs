@@ -20,11 +20,11 @@ namespace Lexy.Poc.Core.Language
             var children = GetChildren();
             foreach (var child in children)
             {
-                ValidateTree(context, child);
+                ValidateNodeTree(context, child);
             }
         }
 
-        private void ValidateTree(IValidationContext context, INode child)
+        protected virtual void ValidateNodeTree(IValidationContext context, INode child)
         {
             if (child == null) throw new InvalidOperationException($"({GetType().Name}) Child is null");
 

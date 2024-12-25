@@ -16,9 +16,22 @@ namespace Lexy.Poc.Core.Parser
         }
 
         private readonly Stack<IFunctionCodeContext> contexts = new Stack<IFunctionCodeContext>();
+        private IFunctionCodeContext functionCodeContext;
 
         public IParserContext ParserContext { get; }
-        public IFunctionCodeContext FunctionCodeContext { get; private set; }
+
+        public IFunctionCodeContext FunctionCodeContext
+        {
+            get
+            {
+                if (functionCodeContext == null)
+                {
+                    throw new InvalidOperationException("FunctionCodeContext not set.");
+                }
+                return functionCodeContext;
+            }
+        }
+
         public IParserLogger Logger => ParserContext.Logger;
         public Nodes Nodes => ParserContext.Nodes;
 
@@ -29,16 +42,16 @@ namespace Lexy.Poc.Core.Parser
 
         public IDisposable CreateCodeContextScope()
         {
-            if (FunctionCodeContext != null)
+            if (functionCodeContext != null)
             {
-                contexts.Push(FunctionCodeContext);
+                contexts.Push(functionCodeContext);
             }
 
-            FunctionCodeContext = new FunctionCodeContext(Logger, FunctionCodeContext);
+            functionCodeContext = new FunctionCodeContext(Logger, functionCodeContext);
 
             return new CodeContextScope(() =>
             {
-                return FunctionCodeContext = contexts.Count == 0 ? null : contexts.Pop();
+                return functionCodeContext = contexts.Count == 0 ? null : contexts.Pop();
             });
         }
     }

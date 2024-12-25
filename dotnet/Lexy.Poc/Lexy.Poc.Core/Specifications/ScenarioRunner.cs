@@ -105,11 +105,16 @@ namespace Lexy.Poc.Core.Specifications
             var validationResult = new StringWriter();
             foreach (var expected in scenario.Results.Assignments)
             {
-                var actual = result[expected.Name];
+                var parameterType = function.Results.GetParameterType(expected.Name);
+                if (parameterType == null)
+                {
+                    throw new InvalidOperationException($"Parameter '{expected.Name}' doesn't exists");
+                }
 
                 var expectedValue = TypeConverter.Convert(compilerResult, expected.Expression.ToString(),
-                    function.Results.GetParameterType(expected.Name));
+                    parameterType);
 
+                var actual = result[expected.Name];
                 if (Comparer.Default.Compare(actual, expectedValue) != 0)
                 {
                     validationResult.WriteLine($"'{expected.Name}' should be '{expectedValue}' but is '{actual}'");

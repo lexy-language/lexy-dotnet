@@ -184,10 +184,7 @@ namespace Lexy.Poc.Core.Language.Expressions
         {
             if (Value != null) yield return Value;
 
-            foreach (var expression in Expressions)
-            {
-                yield return expression;
-            }
+            yield return expressions;
         }
 
         protected override void Validate(IValidationContext context)

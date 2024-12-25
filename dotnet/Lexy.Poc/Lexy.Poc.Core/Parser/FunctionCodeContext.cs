@@ -15,6 +15,14 @@ namespace Lexy.Poc.Core.Parser
             this.parentContext = parentContext;
         }
 
+        public void AddVariable(string name, VariableType type)
+        {
+            if (!Contains(name))
+            {
+                variables.Add(name, type);
+            }
+        }
+
         public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, VariableType type)
         {
             if (Contains(name))

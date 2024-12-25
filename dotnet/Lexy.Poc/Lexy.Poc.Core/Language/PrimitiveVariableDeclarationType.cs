@@ -3,8 +3,13 @@ using Lexy.Poc.Core.Parser;
 
 namespace Lexy.Poc.Core.Language
 {
-    public class PrimitiveVariableDeclarationType : VariableDeclarationType
+    public sealed class PrimitiveVariableDeclarationType : VariableDeclarationType
     {
+        public static PrimitiveVariableDeclarationType Boolean => new PrimitiveVariableDeclarationType(TypeNames.Boolean);
+        public static PrimitiveVariableDeclarationType String => new PrimitiveVariableDeclarationType(TypeNames.String);
+        public static PrimitiveVariableDeclarationType Number => new PrimitiveVariableDeclarationType(TypeNames.Number);
+        public static PrimitiveVariableDeclarationType DateTime => new PrimitiveVariableDeclarationType(TypeNames.DateTime);
+
         public string Type { get; }
 
         public PrimitiveVariableDeclarationType(string type)
