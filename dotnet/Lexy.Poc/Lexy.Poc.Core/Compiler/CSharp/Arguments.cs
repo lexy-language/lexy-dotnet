@@ -1,5 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Poc.Core.Compiler.CSharp
 {
@@ -7,13 +9,37 @@ namespace Lexy.Poc.Core.Compiler.CSharp
     {
         public static SyntaxNode Numeric(int value)
         {
-            return SyntaxFactory.Argument(
-                SyntaxFactory.LiteralExpression(
+            return Argument(
+                LiteralExpression(
                     SyntaxKind.NumericLiteralExpression,
-                    SyntaxFactory.Literal(value)));
+                    Literal(value)));
         }
 
+        public static SyntaxNode String(string value)
+        {
+            return Argument(
+                LiteralExpression(
+                    SyntaxKind.StringLiteralExpression,
+                    Literal(value)));
+        }
 
+        public static SyntaxNode MemberAccess(string value, string member)
+        {
+            return Argument(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(value),
+                    IdentifierName(member)));
+        }
 
+        public static SyntaxNode MemberAccessLambda(string parameter, string member)
+        {
+            return Argument(SimpleLambdaExpression(Parameter(Identifier(parameter)))
+                .WithExpressionBody(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(parameter),
+                        IdentifierName(member))));
+        }
     }
 }

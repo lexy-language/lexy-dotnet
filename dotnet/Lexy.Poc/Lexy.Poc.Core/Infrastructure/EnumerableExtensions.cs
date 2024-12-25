@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Lexy.Poc.Core
+namespace Lexy.Poc.Core.Infrastructure
 {
     public static class EnumerableExtensions
     {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Lexy.Poc.Core.Infrastructure;
 using Lexy.Poc.Core.Language;
 
 namespace Lexy.Poc.Core.Parser.Tokens

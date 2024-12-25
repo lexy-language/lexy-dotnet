@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Lexy.Poc.Core.Compiler;
+using Lexy.Poc.Core.Infrastructure;
 using Lexy.Poc.Core.Language;
 using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.RunTime;

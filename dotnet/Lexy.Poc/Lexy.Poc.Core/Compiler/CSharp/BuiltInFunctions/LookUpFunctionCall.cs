@@ -15,8 +15,8 @@ namespace Lexy.Poc.Core.Compiler.CSharp.BuiltInFunctions
         public LookUpFunctionCall(LookupFunction lookupFunction) : base(lookupFunction)
         {
             LookupFunction = lookupFunction;
-            methodName = "__LookUp" + lookupFunction.TableType + lookupFunction.ResultColumnHeaderName + "By" +
-                         lookupFunction.SearchValueColumnHeaderName;
+            methodName =
+                $"__LookUp{lookupFunction.TableType}{lookupFunction.ResultColumnHeaderName}By{lookupFunction.SearchValueColumnHeaderName}";
         }
 
         public override MemberDeclarationSyntax CustomMethodSyntax(ICompileFunctionContext context)
@@ -34,8 +34,7 @@ namespace Lexy.Poc.Core.Compiler.CSharp.BuiltInFunctions
                                     .WithType(Types.Syntax(LookupFunction.SearchValueColumnType)),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("context"))
-                                    .WithType(
-                                        IdentifierName("IExecutionContext"))
+                                    .WithType(IdentifierName("IExecutionContext"))
                             })))
                 .WithBody(
                     Block(
@@ -51,59 +50,27 @@ namespace Lexy.Poc.Core.Compiler.CSharp.BuiltInFunctions
                                             SeparatedList<ArgumentSyntax>(
                                                 new SyntaxNodeOrToken[]
                                                 {
-                                                    Argument(
-                                                        LiteralExpression(
-                                                            SyntaxKind.StringLiteralExpression,
-                                                            Literal(LookupFunction.ResultColumnHeaderName))),
+                                                    Arguments.String(LookupFunction.ResultColumnHeaderName),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        LiteralExpression(
-                                                            SyntaxKind.StringLiteralExpression,
-                                                            Literal(LookupFunction.SearchValueColumnHeaderName))),
+                                                    Arguments.String(LookupFunction.SearchValueColumnHeaderName),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        LiteralExpression(
-                                                            SyntaxKind.StringLiteralExpression,
-                                                            Literal(LookupFunction.TableType))),
+                                                    Arguments.String(LookupFunction.TableType),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName(LookupFunction.TableType),
-                                                            IdentifierName("Values"))),
+                                                    Arguments.MemberAccess(LookupFunction.TableType, "Values"),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        IdentifierName("condition")),
+                                                    Argument(IdentifierName("condition")),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        SimpleLambdaExpression(
-                                                                Parameter(
-                                                                    Identifier("row")))
-                                                            .WithExpressionBody(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("row"),
-                                                                    IdentifierName(LookupFunction.SearchValueColumnHeaderName)))),
+                                                    Arguments.MemberAccessLambda("row", LookupFunction.SearchValueColumnHeaderName),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        SimpleLambdaExpression(
-                                                                Parameter(
-                                                                    Identifier("row")))
-                                                            .WithExpressionBody(
-                                                                MemberAccessExpression(
-                                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                                    IdentifierName("row"),
-                                                                    IdentifierName(LookupFunction.ResultColumnHeaderName)))),
+                                                    Arguments.MemberAccessLambda("row", LookupFunction.ResultColumnHeaderName),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(
-                                                        IdentifierName("context"))
+                                                    Argument(IdentifierName("context"))
                                                 })))))));
         }
 
         public override ExpressionSyntax CallExpressionSyntax(ICompileFunctionContext context)
         {
-            return InvocationExpression(
-                    IdentifierName(methodName))
+            return InvocationExpression(IdentifierName(methodName))
                 .WithArgumentList(
                     ArgumentList(
                         SeparatedList<ArgumentSyntax>(
