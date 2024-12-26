@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Lexy.Poc.Core\Lexy.Poc.Core.csproj" />
+      <ProjectReference Include="..\Lexy.Core\Lexy.Core.csproj" />
     </ItemGroup>
 
 </Project>

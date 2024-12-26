@@ -1,8 +1,8 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Poc.Tests", "Lexy.Poc.Tests\Lexy.Poc.Tests.csproj", "{2166E7F5-376E-48C8-9819-E8C9F9437C3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Tests", "LexyTests\Lexy.Tests.csproj", "{2166E7F5-376E-48C8-9819-E8C9F9437C3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Poc.Core", "Lexy.Poc.Core\Lexy.Poc.Core.csproj", "{882211F2-D6E9-42B2-A289-76DEEEBB78B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Core", "Lexy.Core\Lexy.Core.csproj", "{882211F2-D6E9-42B2-A289-76DEEEBB78B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
