@@ -4,6 +4,7 @@ using System.Linq;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -20,6 +21,9 @@ namespace Lexy.Compiler.Language
         public FunctionCode Code { get; }
 
         public override string NodeName => Name.Value;
+
+        public const string ParameterName = "Parameters";
+        public const string ResultsName = "Results";
 
         private Function(string name, SourceReference reference) : base(reference)
         {
@@ -76,10 +80,13 @@ namespace Lexy.Compiler.Language
 
         private void AddTableTypes(Nodes nodes, IReadOnlyList<Expression> codeExpressions, List<IRootNode> result)
         {
-            var tables = NodesWalker.WalkWithResult(codeExpressions,
-                node => node is IUsesTable usesTable ? nodes.GetTable(usesTable.Table) : null);
-
-            result.AddRange(tables.Distinct());
+            NodesWalker.Walk(codeExpressions, node =>
+            {
+                if (node is IHasNodeDependencies hasDependencies)
+                {
+                    result.AddRange(hasDependencies.GetNodes(nodes));
+                }
+            });
         }
 
         private static void AddEnumTypes(Nodes nodes, IList<VariableDefinition> variableDefinitions, List<IRootNode> result)
@@ -118,6 +125,24 @@ namespace Lexy.Compiler.Language
 
         protected override void Validate(IValidationContext context)
         {
+        }
+
+        public ComplexType GetParametersType(IValidationContext context)
+        {
+            var members = Parameters.Variables
+                .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.CreateVariableType(context)))
+                .ToList();
+
+            return new ComplexType(Name.Value, ComplexTypeSource.FunctionParameters, members);
+        }
+
+        public ComplexType GetResultsType(IValidationContext context)
+        {
+            var members = Results.Variables
+                .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.CreateVariableType(context)))
+                .ToList();
+
+            return new ComplexType(Name.Value, ComplexTypeSource.FunctionResults, members);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Lexy.Compiler.Compiler.CSharp
         private static ClassDeclarationSyntax GenerateRowClass(string rowName, Table table)
         {
             var properties = List<MemberDeclarationSyntax>(
-                table.Header.Values
+                table.Header.Columns
                     .Select(header =>
                         PropertyDeclaration(
                                 Types.Syntax(header.Type),
@@ -107,9 +107,9 @@ namespace Lexy.Compiler.Compiler.CSharp
         private static SyntaxNodeOrToken[] RowValues(TableRow tableRow, TableHeader header)
         {
             var result = new List<SyntaxNodeOrToken>();
-            for (var index = 0; index < header.Values.Count; index++)
+            for (var index = 0; index < header.Columns.Count; index++)
             {
-                var columnHeader = header.Values[index];
+                var columnHeader = header.Columns[index];
                 var value = tableRow.Values[index];
 
                 if (result.Count > 0)

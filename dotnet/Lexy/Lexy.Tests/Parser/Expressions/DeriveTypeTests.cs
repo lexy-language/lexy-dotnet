@@ -1,4 +1,5 @@
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Poc.Parser.ExpressionParser;
 using NUnit.Framework;
@@ -94,7 +95,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String, VariableSource.Results);
 
             var expression = this.ParseExpression(@"a");
             var type = expression.DeriveType(validationContext);
@@ -108,7 +109,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number, VariableSource.Results);
 
             var expression = this.ParseExpression(@"a");
             var type = expression.DeriveType(validationContext);
@@ -122,7 +123,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Boolean);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Boolean, VariableSource.Results);
 
             var expression = this.ParseExpression(@"a");
             var type = expression.DeriveType(validationContext);
@@ -136,7 +137,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Date);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Date, VariableSource.Results);
 
             var expression = this.ParseExpression(@"a");
             var type = expression.DeriveType(validationContext);
@@ -150,7 +151,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String, VariableSource.Results);
 
             var expression = this.ParseExpression(@"a + ""bc""");
             var type = expression.DeriveType(validationContext);
@@ -164,7 +165,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number, VariableSource.Results);
 
             var expression = this.ParseExpression(@"a + 20");
             var type = expression.DeriveType(validationContext);
@@ -178,7 +179,7 @@ namespace Lexy.Poc.Parser.Expressions
             var validationContext = new ValidationContext(GetService<IParserContext>());
             using var _ = validationContext.CreateCodeContextScope();
             var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number);
+            validationContext.FunctionCodeContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number, VariableSource.Results);
 
             var expression = this.ParseExpression(@"(a + 20.05) * 3");
             var type = expression.DeriveType(validationContext);

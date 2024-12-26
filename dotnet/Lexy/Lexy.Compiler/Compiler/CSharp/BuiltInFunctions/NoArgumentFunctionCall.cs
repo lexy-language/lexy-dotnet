@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
 {
-    internal abstract class NoArgumentFunctionCall : BuiltInFunctionCall
+    internal abstract class NoArgumentFunctionCall : FunctionCall
     {
         public NoArgumentFunction Function { get; }
 

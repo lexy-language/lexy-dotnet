@@ -1,3 +1,4 @@
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
@@ -13,6 +14,6 @@ namespace Lexy.Compiler.Language.Expressions.Functions
         {
         }
 
-        public static BuiltInFunction Create(SourceReference reference) => new NowFunction(reference);
+        public static ExpressionFunction Create(SourceReference reference) => new NowFunction(reference);
     }
 }

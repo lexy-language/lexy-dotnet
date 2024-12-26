@@ -4,7 +4,9 @@ using System.Linq;
 using Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Types;
 using Lexy.RunTime.RunTime;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -25,18 +27,17 @@ namespace Lexy.Compiler.Compiler.CSharp
             var context = new CompileFunctionContext(function, builtInFunctionCalls);
 
             var members = new List<MemberDeclarationSyntax>();
-            //members.AddRange(TranslateTableFields(function));
-            members.AddRange(TranslateVariables(function.Parameters.Variables));
-            members.AddRange(TranslateVariables(function.Results.Variables));
+            members.Add(TranslateVariablesClass(LexyCodeConstants.ParameterType, function.Parameters.Variables));
+            members.Add(TranslateVariablesClass( LexyCodeConstants.ResultType, function.Results.Variables));
+
+            members.Add(RunMethod(function, context));
 
             members.AddRange(CustomBuiltInFunctions(context));
 
-            members.Add(ResultMethod(function.Results.Variables));
-            members.Add(RunMethod(function, context));
+            var name = context.FunctionClassName();
 
-            var name = context.ClassName();
             var classDeclaration = ClassDeclaration(name)
-                .WithModifiers(Modifiers.Public())
+                .WithModifiers(Modifiers.PublicStatic())
                 .WithMembers(List(members));
 
             return new GeneratedClass(function, name, classDeclaration);
@@ -49,88 +50,21 @@ namespace Lexy.Compiler.Compiler.CSharp
                 .Where(customMethodSyntax => customMethodSyntax != null);
         }
 
-        private IEnumerable<BuiltInFunctionCall> GetBuiltInFunctionCalls(Function function)
+        private IEnumerable<FunctionCall> GetBuiltInFunctionCalls(Function function)
         {
             return NodesWalker.WalkWithResult(function.Code.Expressions,
-                node => node is FunctionCallExpression expression ? BuiltInFunctionCall.Create(expression) : null);
+                node => node is FunctionCallExpression expression ? FunctionCall.Create(expression) : null);
         }
 
-        /*
+        private MemberDeclarationSyntax TranslateVariablesClass(string className, IList<VariableDefinition> variables)
         {
-            foreach (var include in function.Include.Definitions)
-            {
-                if (include.Type != IncludeTypes.Table)
-                    throw new InvalidOperationException("Invalid include type: " + include.Type);
-
-                var fieldDeclaration = FieldDeclaration(
-                    VariableDeclaration(IdentifierName(include.Name))
-                        .WithVariables(
-                            SingletonSeparatedList(
-                                VariableDeclarator(Identifier(include.Name))
-                                    .WithInitializer(
-                                        EqualsValueClause(
-                                            ObjectCreationExpression(IdentifierName(include.Name))
-                                                .WithArgumentList(ArgumentList()))))))
-                    .WithModifiers(Modifiers.Public());
-
-                yield return fieldDeclaration;
-            }
-        } */
-
-        private static MemberDeclarationSyntax ResultMethod(IList<VariableDefinition> resultVariables)
-        {
-            var resultType = ParseName($"{typeof(FunctionResult).Namespace}.{nameof(FunctionResult)}");
-
-            var statements = new List<StatementSyntax> {
-                LocalDeclarationStatement(
-                    VariableDeclaration(
-                        IdentifierName(
-                            Identifier(
-                                TriviaList(),
-                                SyntaxKind.VarKeyword,
-                                "var",
-                                "var",
-                                TriviaList())))
-                    .WithVariables(
-                        SingletonSeparatedList<VariableDeclaratorSyntax>(
-                            VariableDeclarator(
-                                    Identifier("result"))
-                                .WithInitializer(
-                                    EqualsValueClause(
-                                        ObjectCreationExpression(
-                                            resultType)
-                                            .WithArgumentList(
-                                                ArgumentList()))))))
-            };
-
-            statements.AddRange(resultVariables.Select(variable =>
-                (StatementSyntax) ExpressionStatement(
-                    AssignmentExpression(
-                        SyntaxKind.SimpleAssignmentExpression,
-                        ElementAccessExpression(
-                                IdentifierName("result"))
-                            .WithArgumentList(
-                                BracketedArgumentList(
-                                    SingletonSeparatedList<ArgumentSyntax>(
-                                        Argument(
-                                            LiteralExpression(
-                                                SyntaxKind.StringLiteralExpression,
-                                                Literal(variable.Name)))))),
-                        IdentifierName(variable.Name)))));
-
-            statements.Add(ReturnStatement(IdentifierName("result")));
-
-            var function = MethodDeclaration(
-                resultType,
-                Identifier(LexyCodeConstants.ResultMethod))
+            var fields = TranslateVariablesClass(variables);
+            return ClassDeclaration(className)
                 .WithModifiers(Modifiers.Public())
-                .WithBody(
-                    Block(statements));
-
-            return function;
+                .WithMembers(List(fields));
         }
 
-        private IEnumerable<MemberDeclarationSyntax> TranslateVariables(IList<VariableDefinition> variables)
+        private IEnumerable<MemberDeclarationSyntax> TranslateVariablesClass(IList<VariableDefinition> variables)
         {
             foreach (var variable in variables)
             {
@@ -149,10 +83,10 @@ namespace Lexy.Compiler.Compiler.CSharp
                 }
 
                 var fieldDeclaration = FieldDeclaration(
-                    VariableDeclaration(Types.Syntax(variable))
-                        .WithVariables(
-                            SingletonSeparatedList(
-                                variableDeclaration)))
+                        VariableDeclaration(Types.Syntax(variable))
+                            .WithVariables(
+                                SingletonSeparatedList(
+                                    variableDeclaration)))
                     .WithModifiers(Modifiers.Public());
 
                 yield return fieldDeclaration;
@@ -162,20 +96,84 @@ namespace Lexy.Compiler.Compiler.CSharp
         private MethodDeclarationSyntax RunMethod(Function function,
             ICompileFunctionContext compileFunctionContext)
         {
-            var statements = function.Code.Expressions.SelectMany(expression => ExecuteStatementSyntax(expression, compileFunctionContext));
+            var statements = new List<StatementSyntax>
+            {
+                GuardStatements.VerifyNotNull(LexyCodeConstants.ParameterVariable),
+                GuardStatements.VerifyNotNull(LexyCodeConstants.ContextVariable),
+                InitializeResults(),
+            };
+            statements.AddRange(function.Code.Expressions.SelectMany(expression => ExecuteStatementSyntax(expression, compileFunctionContext)));
+            statements.Add(ReturnResults());
 
             var functionSyntax = MethodDeclaration(
-                    PredefinedType(Token(SyntaxKind.VoidKeyword)),
+                    IdentifierName(LexyCodeConstants.ResultType),
                     Identifier(LexyCodeConstants.RunMethod))
-                .WithModifiers(Modifiers.Public())
+                .WithModifiers(Modifiers.PublicStatic())
                 .WithParameterList(
                     ParameterList(
-                        SingletonSeparatedList<ParameterSyntax>(
-                            Parameter(Identifier("context"))
-                                .WithType(IdentifierName(nameof(IExecutionContext))))))
+                        SeparatedList<ParameterSyntax>(
+                            new SyntaxNodeOrToken[]{
+                                Parameter(Identifier(LexyCodeConstants.ParameterVariable))
+                                    .WithType(IdentifierName(LexyCodeConstants.ParameterType)),
+                                Token(SyntaxKind.CommaToken),
+                                Parameter(Identifier(LexyCodeConstants.ContextVariable))
+                                    .WithType(IdentifierName(nameof(IExecutionContext)))
+                            })))
                 .WithBody(Block(statements));
 
             return functionSyntax;
+        }
+
+        private StatementSyntax ReturnResults() => ReturnStatement(IdentifierName(LexyCodeConstants.ResultsVariable));
+
+        private StatementSyntax InitializeResults()
+        {
+            return LocalDeclarationStatement(
+                VariableDeclaration(
+                        IdentifierName(
+                            Identifier(TriviaList(), SyntaxKind.VarKeyword, "var", "var", TriviaList())))
+                    .WithVariables(
+                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            VariableDeclarator(
+                                    Identifier(LexyCodeConstants.ResultsVariable))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        ObjectCreationExpression(
+                                                IdentifierName(LexyCodeConstants.ResultType))
+                                            .WithArgumentList(
+                                                ArgumentList()))))));
+        }
+    }
+
+    internal static class GuardStatements
+    {
+        public static StatementSyntax VerifyNotNull(string variable)
+        {
+            return IfStatement(
+                BinaryExpression(
+                    SyntaxKind.EqualsExpression,
+                    IdentifierName(variable),
+                    LiteralExpression(SyntaxKind.NullLiteralExpression)),
+                ThrowStatement(
+                    ObjectCreationExpression(
+                            IdentifierName("ArgumentNullException"))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        InvocationExpression(
+                                                IdentifierName(
+                                                    Identifier(
+                                                        TriviaList(),
+                                                        SyntaxKind.NameOfKeyword,
+                                                        "nameof",
+                                                        "nameof",
+                                                        TriviaList())))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList<ArgumentSyntax>(
+                                                        Argument(
+                                                            IdentifierName(variable)))))))))));
         }
     }
 }

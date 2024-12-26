@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions.Functions;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -11,15 +12,15 @@ namespace Lexy.Compiler.Language.Expressions
         public string FunctionName { get; }
 
         public List<Expression> Arguments { get; }
-        public BuiltInFunction BuiltInFunction { get; }
+        public ExpressionFunction ExpressionFunction { get; }
 
         private FunctionCallExpression(string functionName, List<Expression> arguments,
-            BuiltInFunction builtInFunction,
+            ExpressionFunction expressionFunction,
             ExpressionSource source, SourceReference reference) : base(source, reference)
         {
             FunctionName = functionName ?? throw new ArgumentNullException(nameof(functionName));
             Arguments = arguments;
-            BuiltInFunction = builtInFunction;
+            ExpressionFunction = expressionFunction;
         }
 
         public static ParseExpressionResult Parse(ExpressionSource source)
@@ -55,13 +56,16 @@ namespace Lexy.Compiler.Language.Expressions
 
             var reference = source.CreateReference();
 
-            var builtInFunctionResult = BuiltInFunctions.Parse(functionName, source.CreateReference(), arguments);
-            if (!builtInFunctionResult.IsSuccess)
+            var builtInFunctionResult = BuiltInExpressionFunctions.Parse(functionName, source.CreateReference(), arguments);
+            if (builtInFunctionResult is { IsSuccess: false })
             {
                 return ParseExpressionResult.Invalid<FunctionCallExpression>(builtInFunctionResult.ErrorMessage);
             }
 
-            var expression = new FunctionCallExpression(functionName, arguments, builtInFunctionResult.Result, source, reference);
+            var expressionFunction = builtInFunctionResult?.Result
+                                  ?? new LexyFunction(functionName, arguments, source.CreateReference());
+
+            var expression = new FunctionCallExpression(functionName, arguments, expressionFunction, source, reference);
 
             return ParseExpressionResult.Success(expression);
         }
@@ -74,15 +78,15 @@ namespace Lexy.Compiler.Language.Expressions
 
         public override IEnumerable<INode> GetChildren()
         {
-            if (BuiltInFunction != null)
+            if (ExpressionFunction != null)
             {
-                yield return BuiltInFunction;
+                yield return ExpressionFunction;
             }
         }
 
         protected override void Validate(IValidationContext context)
         {
-            if (BuiltInFunction == null)
+            if (ExpressionFunction == null)
             {
                 context.Logger.Fail(Reference, $"Invalid function name: '{FunctionName}'");
                 return;
@@ -91,7 +95,7 @@ namespace Lexy.Compiler.Language.Expressions
 
         public override VariableType DeriveType(IValidationContext context)
         {
-            return BuiltInFunction?.DeriveReturnType(context);
+            return ExpressionFunction?.DeriveReturnType(context);
         }
     }
 }

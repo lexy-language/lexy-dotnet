@@ -5,6 +5,20 @@ namespace Lexy.Compiler.Language
 {
     internal static class NodesWalker
     {
+        public static void Walk(IEnumerable<INode> nodes, Action<INode> action)
+        {
+            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            foreach (var node in nodes)
+            {
+                action(node);
+
+                var children = node.GetChildren();
+                Walk(children, action);
+            }
+        }
+
         public static IEnumerable<T> WalkWithResult<T>(IEnumerable<INode> nodes, Func<INode, T> action)
         {
             if (nodes == null) throw new ArgumentNullException(nameof(nodes));

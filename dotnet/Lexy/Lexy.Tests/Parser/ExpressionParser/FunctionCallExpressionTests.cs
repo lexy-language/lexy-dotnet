@@ -14,7 +14,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             expression.ValidateOfType<FunctionCallExpression>(functionCallExpression =>
             {
                 functionCallExpression.FunctionName.ShouldBe("INT");
-                functionCallExpression.BuiltInFunction.ValidateOfType<IntFunction>(function =>
+                functionCallExpression.ExpressionFunction.ValidateOfType<IntFunction>(function =>
                     function.ValueExpression.ValidateVariableExpression("y"));
             });
         }
@@ -26,7 +26,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             expression.ValidateOfType<FunctionCallExpression>(functionCall =>
             {
                 functionCall.FunctionName.ShouldBe("INT");
-                functionCall.BuiltInFunction.ValidateOfType<IntFunction>(function =>
+                functionCall.ExpressionFunction.ValidateOfType<IntFunction>(function =>
                     function.ValueExpression.ValidateOfType<BinaryExpression>(multiplication =>
                         multiplication.Right.ValidateOfType<ParenthesizedExpression>(inner =>
                             inner.Expression.ValidateOfType<BinaryExpression>(addition =>
@@ -52,7 +52,17 @@ namespace Lexy.Poc.Parser.ExpressionParser
             });
         }
 
-
+        [Test]
+        public void CallExtract()
+        {
+            var expression = this.ParseExpression("extract(results)");
+            expression.ValidateOfType<FunctionCallExpression>(round =>
+            {
+                round.FunctionName.ShouldBe("extract");
+                round.Arguments.Count.ShouldBe(1);
+                round.Arguments[0].ValidateIdentifierExpression("results");
+            });
+        }
 
         [Test]
         public void InvalidParenthesizedExpression()

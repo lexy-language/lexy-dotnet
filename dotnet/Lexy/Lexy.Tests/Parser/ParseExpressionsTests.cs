@@ -1,4 +1,5 @@
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.Poc.Parser.ExpressionParser;
@@ -25,11 +26,11 @@ namespace Lexy.Poc.Parser
             context.Logger.HasErrors().ShouldBeFalse(context.Logger.FormatMessages());
 
             script.Name.Value.ShouldBe("TestTable");
-            script.Header.Values.Count.ShouldBe(2);
-            script.Header.Values[0].Name.ShouldBe("Value");
-            script.Header.Values[0].Type.ShouldBePrimitiveType(TypeNames.Number);
-            script.Header.Values[1].Name.ShouldBe("Result");
-            script.Header.Values[1].Type.ShouldBePrimitiveType(TypeNames.String);
+            script.Header.Columns.Count.ShouldBe(2);
+            script.Header.Columns[0].Name.ShouldBe("Value");
+            script.Header.Columns[0].Type.ShouldBePrimitiveType(TypeNames.Number);
+            script.Header.Columns[1].Name.ShouldBe("Result");
+            script.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.String);
             script.Rows.Count.ShouldBe(2);
             script.Rows[0].Values[0].ShouldBeOfType<NumberLiteralToken>();
             script.Rows[0].Values[0].Value.ShouldBe("7");
@@ -53,11 +54,11 @@ namespace Lexy.Poc.Parser
             var script = parser.ParseTable(code);
 
             script.Name.Value.ShouldBe("TestTable");
-            script.Header.Values.Count.ShouldBe(2);
-            script.Header.Values[0].Name.ShouldBe("Value");
-            script.Header.Values[0].Type.ShouldBePrimitiveType(TypeNames.Date);
-            script.Header.Values[1].Name.ShouldBe("Result");
-            script.Header.Values[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
+            script.Header.Columns.Count.ShouldBe(2);
+            script.Header.Columns[0].Name.ShouldBe("Value");
+            script.Header.Columns[0].Type.ShouldBePrimitiveType(TypeNames.Date);
+            script.Header.Columns[1].Name.ShouldBe("Result");
+            script.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
             script.Rows.Count.ShouldBe(2);
             script.Rows[0].Values[0].ShouldBeOfType<DateTimeLiteral>();
             script.Rows[0].Values[0].Value.ShouldBe("2024/12/18 17:07:45");

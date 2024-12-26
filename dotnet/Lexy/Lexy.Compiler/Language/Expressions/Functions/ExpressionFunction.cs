@@ -1,10 +1,12 @@
+using System.Linq;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public abstract class BuiltInFunction : Node
+    public abstract class ExpressionFunction : Node
     {
-        protected BuiltInFunction(SourceReference reference) : base(reference)
+        protected ExpressionFunction(SourceReference reference) : base(reference)
         {
         }
 

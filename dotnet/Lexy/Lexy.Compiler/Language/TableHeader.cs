@@ -7,11 +7,11 @@ namespace Lexy.Compiler.Language
 {
     public class TableHeader : Node
     {
-        public IList<ColumnHeader> Values { get; } = new List<ColumnHeader>();
+        public IList<ColumnHeader> Columns { get; } = new List<ColumnHeader>();
 
-        private TableHeader(ColumnHeader[] values, SourceReference reference) : base(reference)
+        private TableHeader(ColumnHeader[] columns, SourceReference reference) : base(reference)
         {
-            Values = values;
+            Columns = columns;
         }
 
         public static TableHeader Parse(IParserContext context)
@@ -50,7 +50,7 @@ namespace Lexy.Compiler.Language
             return new TableHeader(headers.ToArray(), context.LineStartReference());
         }
 
-        public override IEnumerable<INode> GetChildren() => Values;
+        public override IEnumerable<INode> GetChildren() => Columns;
 
         protected override void Validate(IValidationContext context)
         {
@@ -62,7 +62,7 @@ namespace Lexy.Compiler.Language
             if (parts.Length < 2)  return null;
             var name = parts[1];
 
-            return Values.FirstOrDefault(value => value.Name == name);
+            return Columns.FirstOrDefault(value => value.Name == name);
         }
     }
 }

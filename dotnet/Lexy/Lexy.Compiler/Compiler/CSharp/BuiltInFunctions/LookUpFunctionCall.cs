@@ -6,7 +6,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
 {
-    internal class LookUpFunctionCall : BuiltInFunctionCall
+    internal class LookUpFunctionCall : FunctionCall
     {
         private readonly string methodName;
 
@@ -24,7 +24,7 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
             return MethodDeclaration(
                     Types.Syntax(LookupFunction.ResultColumnType),
                     Identifier(methodName))
-                .WithModifiers(Modifiers.Private())
+                .WithModifiers(Modifiers.PrivateStatic())
                 .WithParameterList(
                     ParameterList(
                         SeparatedList<ParameterSyntax>(
@@ -33,7 +33,7 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                                 Parameter(Identifier("condition"))
                                     .WithType(Types.Syntax(LookupFunction.SearchValueColumnType)),
                                 Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("context"))
+                                Parameter(Identifier(LexyCodeConstants.ContextVariable))
                                     .WithType(IdentifierName("IExecutionContext"))
                             })))
                 .WithBody(
@@ -66,7 +66,7 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                                                     Arguments.MemberAccessLambda("row",
                                                         LookupFunction.ResultColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Argument(IdentifierName("context"))
+                                                    Argument(IdentifierName(LexyCodeConstants.ContextVariable))
                                                 })))))));
         }
 
@@ -81,7 +81,7 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                                 Argument(ExpressionSyntaxFactory.ExpressionSyntax(LookupFunction.ValueExpression,
                                     context)),
                                 Token(SyntaxKind.CommaToken),
-                                Argument(IdentifierName("context"))
+                                Argument(IdentifierName(LexyCodeConstants.ContextVariable))
                             })));
         }
     }

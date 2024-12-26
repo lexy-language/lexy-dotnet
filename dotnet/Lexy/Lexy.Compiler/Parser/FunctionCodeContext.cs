@@ -1,14 +1,26 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Parser
 {
+    public class VariableEntry
+    {
+        public VariableType VariableType { get; }
+        public VariableSource VariableSource { get; }
+
+        public VariableEntry(VariableType variableType, VariableSource variableSource)
+        {
+            VariableType = variableType;
+            VariableSource = variableSource;
+        }
+    }
+
     public class FunctionCodeContext : IFunctionCodeContext
     {
         private readonly IParserLogger logger;
         private readonly IFunctionCodeContext parentContext;
-        private readonly IDictionary<string, VariableType> variables = new Dictionary<string, VariableType>();
+        private readonly IDictionary<string, VariableEntry> variables = new Dictionary<string, VariableEntry>();
 
         public FunctionCodeContext(IParserLogger logger, IFunctionCodeContext parentContext)
         {
@@ -16,15 +28,15 @@ namespace Lexy.Compiler.Parser
             this.parentContext = parentContext;
         }
 
-        public void AddVariable(string name, VariableType type)
+        public void AddVariable(string name, VariableType type, VariableSource source)
         {
-            if (!Contains(name))
-            {
-                variables.Add(name, type);
-            }
+            if (Contains(name)) return;
+
+            var entry = new VariableEntry(type, source);
+            variables.Add(name, entry);
         }
 
-        public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, VariableType type)
+        public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, VariableType type, VariableSource source)
         {
             if (Contains(name))
             {
@@ -32,7 +44,8 @@ namespace Lexy.Compiler.Parser
                 return;
             }
 
-            variables.Add(name, type);
+            var entry = new VariableEntry(type, source);
+            variables.Add(name, entry);
         }
 
         public bool Contains(string name)
@@ -51,8 +64,23 @@ namespace Lexy.Compiler.Parser
         public VariableType GetVariableType(string name)
         {
             return variables.TryGetValue(name, out var value)
-                ? value
+                ? value.VariableType
                 : parentContext?.GetVariableType(name);
+        }
+
+
+        public VariableSource? GetVariableSource(string name)
+        {
+            return variables.TryGetValue(name, out var value)
+                ? value.VariableSource
+                : parentContext?.GetVariableSource(name);
+        }
+
+        public VariableEntry GetVariable(string name)
+        {
+            return variables.TryGetValue(name, out var value)
+                ? value
+                : null;
         }
     }
 }

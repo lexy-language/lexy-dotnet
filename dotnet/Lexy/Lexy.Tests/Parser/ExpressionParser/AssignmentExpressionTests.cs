@@ -12,7 +12,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("A = B + C");
             expression.ValidateOfType<AssignmentExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableName.ShouldBe("A");
+                assignmentExpression.Variable.ValidateIdentifierExpression("A");
                 assignmentExpression.Assignment.ValidateOfType<BinaryExpression>(addition =>
                 {
                     addition.Operator.ShouldBe(ExpressionOperator.Addition);
@@ -28,7 +28,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("A = B + C * 12");
             expression.ValidateOfType<AssignmentExpression>(assignment =>
             {
-                assignment.VariableName.ShouldBe("A");
+                assignment.Variable.ValidateIdentifierExpression("A");
                 assignment.Assignment.ValidateOfType<BinaryExpression>(addition =>
                 {
                     addition.Operator.ShouldBe(ExpressionOperator.Addition);

@@ -1,5 +1,6 @@
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using NUnit.Framework;
 using Shouldly;
@@ -60,10 +61,11 @@ namespace Lexy.Poc.Parser
 
             logger.NodeHasErrors(scenario).ShouldBeTrue();
 
-            errors.Length.ShouldBe(3, logger.ErrorMessages().Format(2));
+            errors.Length.ShouldBe(4, logger.ErrorMessages().Format(2));
             errors[0].ShouldBe("tests.lexy(2, 2): ERROR - Invalid token 'Functtion'. Keyword expected.");
-            errors[1].ShouldBe("tests.lexy(4, 4): ERROR - Unknown variable 'Value'.");
-            errors[2].ShouldBe("tests.lexy(6, 4): ERROR - Unknown variable 'Result'.");
+            errors[1].ShouldBe("tests.lexy(1, 0): ERROR - Scenario as no function, enum, table or expect errors.");
+            errors[2].ShouldBe("tests.lexy(4, 4): ERROR - Unknown variable 'Value'.");
+            errors[3].ShouldBe("tests.lexy(6, 4): ERROR - Unknown variable 'Result'.");
         }
 
         [Test]

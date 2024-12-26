@@ -6,8 +6,8 @@ namespace Lexy.Compiler.Compiler.CSharp
 {
     internal interface ICompileFunctionContext
     {
-        IEnumerable<BuiltInFunctionCall> BuiltInFunctionCalls { get; }
+        IEnumerable<FunctionCall> BuiltInFunctionCalls { get; }
 
-        BuiltInFunctionCall Get(BuiltInFunction expressionBuiltInFunction);
+        FunctionCall Get(ExpressionFunction expressionExpressionFunction);
     }
 }

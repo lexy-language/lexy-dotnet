@@ -1,6 +1,6 @@
 using System;
 
-namespace Lexy.Compiler.Language
+namespace Lexy.Compiler.Language.Types
 {
     public static class DateTypeDefault
     {

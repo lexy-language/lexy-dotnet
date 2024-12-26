@@ -31,8 +31,8 @@ namespace Lexy.Compiler.Compiler
                 {
                     case Function _:
                     {
-                        var instance = assembly.CreateInstance(generatedClass.FullClassName);
-                        var executable = new ExecutableFunction(instance, executionContext);
+                        var instanceType = assembly.GetType(generatedClass.FullClassName);
+                        var executable = new ExecutableFunction(instanceType, executionContext);
 
                         executables.Add(generatedClass.Node.NodeName, executable);
                         break;

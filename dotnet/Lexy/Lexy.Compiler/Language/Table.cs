@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language
@@ -9,7 +11,10 @@ namespace Lexy.Compiler.Language
         public TableName Name { get; } = new TableName();
         public TableHeader Header { get; private set; }
         public IList<TableRow> Rows { get; } = new List<TableRow>();
+
         public override string NodeName => Name.Value;
+
+        public const string RowName = "Rw";
 
         private Table(string name, SourceReference reference) : base(reference)
         {
@@ -63,6 +68,15 @@ namespace Lexy.Compiler.Language
 
         protected override void Validate(IValidationContext context)
         {
+        }
+
+        public ComplexType GetRowType(IValidationContext context)
+        {
+            var members = Header.Columns
+                .Select(column => new ComplexTypeMember(column.Name, column.Type.CreateVariableType(context)))
+                .ToList();
+
+            return new ComplexType(Name.Value, ComplexTypeSource.TableRow, members);
         }
     }
 }

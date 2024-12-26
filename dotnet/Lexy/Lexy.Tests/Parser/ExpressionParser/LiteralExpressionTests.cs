@@ -62,7 +62,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("Result = ABS(-2)");
             expression.ValidateOfType<AssignmentExpression>(assignment =>
             {
-                assignment.VariableName.ShouldBe("Result");
+                assignment.Variable.ValidateIdentifierExpression("Result");
                 assignment.Assignment.ValidateOfType<FunctionCallExpression>(functionCall =>
                 {
                     functionCall.FunctionName.ShouldBe("ABS");

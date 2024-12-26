@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Parser
 {

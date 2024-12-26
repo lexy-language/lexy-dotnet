@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Language
 {
@@ -76,6 +77,7 @@ namespace Lexy.Compiler.Language
             return node switch
             {
                 Table table => new TableType(name, table),
+                Function function => new FunctionType(name, function),
                 EnumDefinition enumDefinition => new EnumType(name, enumDefinition),
                 _ => null
             };

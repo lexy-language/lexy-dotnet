@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions.Functions;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions
 {
-    public class MemberAccessExpression : Expression, IUsesTable
+    public class MemberAccessExpression : Expression, IHasNodeDependencies
     {
         public MemberAccessLiteral MemberAccessLiteral { get; }
 
         public string Value { get; }
-
-        public string Table { get; private set; }
 
         private MemberAccessExpression(MemberAccessLiteral literal, ExpressionSource source, SourceReference reference) : base(source, reference)
         {
@@ -53,26 +52,34 @@ namespace Lexy.Compiler.Language.Expressions
                 context.Logger.Fail(Reference, "Invalid member access. Only 2 levels supported.");
                 return;
             }
+
             var typeName = MemberAccessLiteral.Parent;
-            if (!(context.Nodes.GetType(typeName) is ITypeWithMembers typeWithMembers))
+            var variableType = context.FunctionCodeContext.GetVariableType(MemberAccessLiteral.Parent)
+                            ?? context.Nodes.GetType(typeName);
+
+            if (!(variableType is ITypeWithMembers typeWithMembers))
             {
                 context.Logger.Fail(Reference, $"Invalid member access. Type '{typeName}' not found.");
                 return;
             }
 
             var memberName = MemberAccessLiteral.Member;
-            var memberType = typeWithMembers.MemberType(memberName);
+            var memberType = typeWithMembers.MemberType(memberName, context);
             if (memberType == null)
             {
                 context.Logger.Fail(Reference, $"Invalid member access. Member '{memberName}' not found on '{typeName}'.");
             }
-
-            if (typeWithMembers is TableType tableType)
-            {
-                Table = tableType.Type;
-            }
         }
 
         public override VariableType DeriveType(IValidationContext context) => MemberAccessLiteral.DeriveType(context);
+
+        public IEnumerable<IRootNode> GetNodes(Nodes nodes)
+        {
+            var rootNode = nodes.GetNode(MemberAccessLiteral.Parent);
+            if (rootNode != null)
+            {
+                yield return rootNode;
+            }
+        }
     }
 }

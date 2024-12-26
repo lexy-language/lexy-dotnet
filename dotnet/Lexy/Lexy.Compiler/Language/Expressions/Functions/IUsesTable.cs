@@ -1,7 +1,9 @@
+using System.Collections.Generic;
+
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    internal interface IUsesTable
+    internal interface IHasNodeDependencies
     {
-        string Table { get; }
+        IEnumerable<IRootNode> GetNodes(Nodes nodes);
     }
 }

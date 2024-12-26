@@ -1,3 +1,4 @@
+
 namespace Lexy.Compiler.Compiler.CSharp
 {
     public static class LexyCodeConstants
@@ -5,6 +6,17 @@ namespace Lexy.Compiler.Compiler.CSharp
         public const string Namespace = "Lexy.Runtime";
 
         public const string RunMethod = "__Run";
-        public const string ResultMethod = "__Result";
+        public const string ResultType = "__Result";
+        public const string ParameterType = "__Parameters";
+
+        public const string RowType = "__Row";
+
+        public const string ParameterVariable = "__parameters";
+        public const string ResultsVariable = "__result";
+        public const string ContextVariable = "__context";
+
+        public const string FunctionClassPrefix = "Function__";
+        public const string ComplexTypeClassPrefix = "Complex__";
+        public const string TableClassPrefix = "Table__";
     }
 }

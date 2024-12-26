@@ -10,49 +10,49 @@ namespace Lexy.Compiler.Compiler
     {
         private readonly object[] emptyParameters = Array.Empty<object>();
 
-        private readonly object functionObject;
+        private readonly Type functionObject;
         private readonly IExecutionContext context;
-        private readonly MethodInfo resultMethod;
 
         private readonly MethodInfo runMethod;
         private readonly IDictionary<string, FieldInfo> variables = new Dictionary<string, FieldInfo>();
+        private readonly Type parametersType;
 
-        public ExecutableFunction(object functionObject, IExecutionContext context)
+        public ExecutableFunction(Type functionObject, IExecutionContext context)
         {
             this.functionObject = functionObject ?? throw new ArgumentNullException(nameof(functionObject));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
 
-            runMethod = functionObject.GetType().GetMethod( LexyCodeConstants.RunMethod, BindingFlags.Instance | BindingFlags.Public);
-            resultMethod = functionObject.GetType().GetMethod(LexyCodeConstants.ResultMethod, BindingFlags.Instance | BindingFlags.Public);
+            runMethod = functionObject.GetMethod( LexyCodeConstants.RunMethod, BindingFlags.Static | BindingFlags.Public);
+            parametersType = functionObject.GetNestedType(LexyCodeConstants.ParameterType);
         }
 
-        public FunctionResult Run()
-        {
-            runMethod.Invoke(functionObject, new [] { context });
-
-            return (FunctionResult)resultMethod.Invoke(functionObject, emptyParameters);
-        }
+        public FunctionResult Run() => Run(new Dictionary<string, object>());
 
         public FunctionResult Run(IDictionary<string, object> values)
         {
+            var parameters = CreateParameters();
+
             foreach (var value in values)
             {
-                var field = GetParameterField(value.Key);
+                var field = GetParameterField(parameters, value.Key);
                 var convertedValue = Convert.ChangeType(value.Value, field.FieldType);
-                field.SetValue(functionObject, convertedValue);
+                field.SetValue(parameters, convertedValue);
             }
 
-            runMethod.Invoke(functionObject, new []{context});
+            var results = runMethod.Invoke(null, new []{parameters, context});
 
-            return (FunctionResult)resultMethod.Invoke(functionObject, emptyParameters);
+            return new FunctionResult(results);
         }
 
-        private FieldInfo GetParameterField(string name)
+        private object CreateParameters() => Activator.CreateInstance(parametersType);
+
+        private FieldInfo GetParameterField(object parameters, string name)
         {
             if (variables.ContainsKey(name)) return variables[name];
 
-            var field = functionObject.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public);
-            if (field == null) throw new InvalidOperationException("Couldn't find parameter field: " + name);
+            var type = parameters.GetType();
+            var field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public);
+            if (field == null) throw new InvalidOperationException($"Couldn't find parameter field: '{name}' on type: '{type.Name}'");
 
             variables[name] = field;
             return field;

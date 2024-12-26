@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -75,7 +76,7 @@ namespace Lexy.Compiler.Language.Expressions
 
             var variableType = GetVariableType(context, assignmentType);
 
-            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType);
+            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType, VariableSource.Code);
         }
 
         private VariableType GetVariableType(IValidationContext context, VariableType assignmentType)

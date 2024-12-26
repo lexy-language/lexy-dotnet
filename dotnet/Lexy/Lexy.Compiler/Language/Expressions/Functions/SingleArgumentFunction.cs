@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public abstract class SingleArgumentFunction : BuiltInFunction
+    public abstract class SingleArgumentFunction : ExpressionFunction
     {
         protected abstract string FunctionHelp { get; }
 

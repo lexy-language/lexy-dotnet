@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language
@@ -14,7 +15,7 @@ namespace Lexy.Compiler.Language
 
         public override IParsableNode Parse(IParserContext context)
         {
-            var variableDefinition = VariableDefinition.Parse(context);
+            var variableDefinition = VariableDefinition.Parse(VariableSource.Results, context);
             if (variableDefinition == null) return this;
 
             if (variableDefinition.Default != null)

@@ -1,5 +1,6 @@
 using System;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Parser.Tokens
 {
@@ -34,14 +35,15 @@ namespace Lexy.Compiler.Parser.Tokens
             {
                 return null;
             }
-            var typeName = parts[0];
-            if (!(context.Nodes.GetType(typeName) is ITypeWithMembers typeWithMembers))
+
+            var variableType = context.FunctionCodeContext.GetVariableType(Parent)
+                               ?? context.Nodes.GetType(Parent);
+            if (!(variableType is ITypeWithMembers typeWithMembers))
             {
                 return null;
             }
 
-            var memberName = parts[1];
-            return typeWithMembers.MemberType(memberName);
+            return typeWithMembers.MemberType(Member, context);
         }
     }
 }

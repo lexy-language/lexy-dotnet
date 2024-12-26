@@ -13,7 +13,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
         {
         }
 
-        public static BuiltInFunction Create(SourceReference reference, Expression endDateExpression,
+        public static ExpressionFunction Create(SourceReference reference, Expression endDateExpression,
             Expression startDateExpression) =>
             new HoursFunction(endDateExpression, startDateExpression, reference);
     }

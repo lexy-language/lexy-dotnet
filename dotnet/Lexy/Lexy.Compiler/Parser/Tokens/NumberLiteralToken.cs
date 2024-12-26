@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Parser.Tokens
 {

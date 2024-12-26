@@ -129,6 +129,7 @@ namespace Lexy.Compiler.Compiler
                 .WithUsings(List(
                     new[]
                     {
+                        Using("System"),
                         Using("System.Collections.Generic"),
                         Using(typeof(IExecutionContext).Namespace)
                     }))

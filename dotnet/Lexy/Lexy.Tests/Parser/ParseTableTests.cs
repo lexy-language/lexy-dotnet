@@ -21,11 +21,11 @@ namespace Lexy.Poc.Parser
             var table = parser.ParseTable(code);
 
             table.Name.Value.ShouldBe("TestTable");
-            table.Header.Values.Count.ShouldBe(2);
-            table.Header.Values[0].Name.ShouldBe("Value");
-            table.Header.Values[0].Type.ShouldBePrimitiveType(TypeNames.Number);
-            table.Header.Values[1].Name.ShouldBe("Result");
-            table.Header.Values[1].Type.ShouldBePrimitiveType(TypeNames.String);
+            table.Header.Columns.Count.ShouldBe(2);
+            table.Header.Columns[0].Name.ShouldBe("Value");
+            table.Header.Columns[0].Type.ShouldBePrimitiveType(TypeNames.Number);
+            table.Header.Columns[1].Name.ShouldBe("Result");
+            table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.String);
             table.Rows.Count.ShouldBe(2);
             table.Rows[0].Values[0].ShouldBeOfType<NumberLiteralToken>();
             table.Rows[0].Values[0].Value.ShouldBe("7");
@@ -49,11 +49,11 @@ namespace Lexy.Poc.Parser
             var table = parser.ParseTable(code);
 
             table.Name.Value.ShouldBe("TestTable");
-            table.Header.Values.Count.ShouldBe(2);
-            table.Header.Values[0].Name.ShouldBe("Value");
-            table.Header.Values[0].Type.ShouldBePrimitiveType(TypeNames.Date);
-            table.Header.Values[1].Name.ShouldBe("Result");
-            table.Header.Values[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
+            table.Header.Columns.Count.ShouldBe(2);
+            table.Header.Columns[0].Name.ShouldBe("Value");
+            table.Header.Columns[0].Type.ShouldBePrimitiveType(TypeNames.Date);
+            table.Header.Columns[1].Name.ShouldBe("Result");
+            table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
             table.Rows.Count.ShouldBe(2);
             table.Rows[0].Values[0].ShouldBeOfType<DateTimeLiteral>();
             table.Rows[0].Values[0].Value.ShouldBe("2024/12/18 17:07:45");

@@ -21,6 +21,7 @@ namespace Lexy.Poc.Specifications
             LoggingConfiguration.LogFileNames();
 
             var runner = GetService<ISpecificationsRunner>();
+            //runner.Run("../../../../../../laws/Specifications/Table/LookupValidation.lexy");
             runner.Run("../../../../../../laws/Specifications/Function/FunctionCall.lexy");
             //runner.Run("../../../../../../laws/Specifications/Function/Variables.lexy");
         }

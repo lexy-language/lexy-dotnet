@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public abstract class NoArgumentFunction : BuiltInFunction
+    public abstract class NoArgumentFunction : ExpressionFunction
     {
         protected abstract VariableType ResultType { get; }
 

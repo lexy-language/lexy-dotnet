@@ -4,10 +4,10 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public static class BuiltInFunctions
+    public static class BuiltInExpressionFunctions
     {
-        private static readonly IDictionary<string, Func<string, SourceReference, IReadOnlyList<Expression>, ParseBuiltInFunctionsResult>> Values =
-            new Dictionary<string, Func<string, SourceReference, IReadOnlyList<Expression>, ParseBuiltInFunctionsResult>>
+        private static readonly IDictionary<string, Func<string, SourceReference, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>> Values =
+            new Dictionary<string, Func<string, SourceReference, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
         {
             { IntFunction.Name, Create(IntFunction.Create) },
             { AbsFunction.Name, Create(AbsFunction.Create) },
@@ -32,50 +32,54 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             { SecondsFunction.Name, Create(SecondsFunction.Create) },
 
             { LookupFunction.Name, LookupFunction.Parse },
+
+            { NewFunction.Name, Create(NewFunction.Create) },
+            { FillParametersFunction.Name, Create(FillParametersFunction.Create) },
+            { ExtractResultsFunction.Name, Create(ExtractResultsFunction.Create) },
         };
 
-        public static ParseBuiltInFunctionsResult Parse(string functionName, SourceReference reference,
+        public static ParseExpressionFunctionsResult Parse(string functionName, SourceReference reference,
             IReadOnlyList<Expression> arguments)
         {
             return Values.TryGetValue(functionName, out var value)
                 ? value(functionName, reference, arguments)
-                : ParseBuiltInFunctionsResult.Failed($"Unknown function name: '{functionName}'");
+                : null;
         }
 
-        private static Func<string, SourceReference, IReadOnlyList<Expression>, ParseBuiltInFunctionsResult> Create(Func<SourceReference, BuiltInFunction> factory) =>
+        private static Func<string, SourceReference, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> Create(Func<SourceReference, ExpressionFunction> factory) =>
             (name, reference, arguments) =>
             {
                 if (arguments.Count != 0)
                 {
-                    return ParseBuiltInFunctionsResult.Failed($"Invalid number of arguments. No arguments expected.");
+                    return ParseExpressionFunctionsResult.Failed($"Invalid number of arguments. No arguments expected.");
                 }
 
                 var function = factory(reference);
-                return ParseBuiltInFunctionsResult.Success(function);
+                return ParseExpressionFunctionsResult.Success(function);
             };
 
-        private static Func<string, SourceReference, IReadOnlyList<Expression>, ParseBuiltInFunctionsResult> Create(Func<SourceReference, Expression, BuiltInFunction> factory) =>
+        private static Func<string, SourceReference, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> Create(Func<SourceReference, Expression, ExpressionFunction> factory) =>
             (name, reference, arguments) =>
             {
                 if (arguments.Count != 1)
                 {
-                    return ParseBuiltInFunctionsResult.Failed($"Invalid number of arguments. 1 argument expected.");
+                    return ParseExpressionFunctionsResult.Failed($"Invalid number of arguments. 1 argument expected.");
                 }
 
                 var function = factory(reference, arguments[0]);
-                return ParseBuiltInFunctionsResult.Success(function);
+                return ParseExpressionFunctionsResult.Success(function);
             };
 
-        private static Func<string, SourceReference, IReadOnlyList<Expression>, ParseBuiltInFunctionsResult> Create(Func<SourceReference, Expression, Expression, BuiltInFunction> factory) =>
+        private static Func<string, SourceReference, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> Create(Func<SourceReference, Expression, Expression, ExpressionFunction> factory) =>
             (name, reference, arguments) =>
             {
                 if (arguments.Count != 2)
                 {
-                    return ParseBuiltInFunctionsResult.Failed($"Invalid number of arguments. 2 arguments expected.");
+                    return ParseExpressionFunctionsResult.Failed($"Invalid number of arguments. 2 arguments expected.");
                 }
 
                 var function = factory(reference, arguments[0], arguments[1]);
-                return ParseBuiltInFunctionsResult.Success(function);
+                return ParseExpressionFunctionsResult.Success(function);
             };
     }
 }

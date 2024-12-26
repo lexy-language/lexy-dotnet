@@ -184,16 +184,17 @@ namespace Lexy.Compiler.Language
             var function = Function ?? (FunctionName != null ? context.Nodes.GetFunction(FunctionName.Value) : null);
             if (function == null) return;
 
-            AddVariablesForValidation(context, function.Results.Variables);
-            AddVariablesForValidation(context, function.Parameters.Variables);
+            AddVariablesForValidation(context, function.Parameters.Variables, VariableSource.Parameters);
+            AddVariablesForValidation(context, function.Results.Variables, VariableSource.Results);
         }
 
-        private static void AddVariablesForValidation(IValidationContext context, IList<VariableDefinition> definitions)
+        private static void AddVariablesForValidation(IValidationContext context, IList<VariableDefinition> definitions,
+            VariableSource source)
         {
             foreach (var result in definitions)
             {
                 var variableType = result.Type.CreateVariableType(context);
-                context.FunctionCodeContext.AddVariable(result.Name, variableType);
+                context.FunctionCodeContext.AddVariable(result.Name, variableType, source);
             }
         }
 

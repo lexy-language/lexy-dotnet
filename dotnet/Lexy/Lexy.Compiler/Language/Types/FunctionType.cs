@@ -1,17 +1,20 @@
-namespace Lexy.Compiler.Language
+using System.Collections;
+using Lexy.Compiler.Parser;
+
+namespace Lexy.Compiler.Language.Types
 {
-    public class TableType : VariableType, ITypeWithMembers
+    public class FunctionType : VariableType, ITypeWithMembers
     {
         public string Type { get; }
-        public Table Table { get; }
+        public Function Function { get; }
 
-        public TableType(string type, Table table)
+        public FunctionType(string type, Function function)
         {
             Type = type;
-            Table = table;
+            Function = function;
         }
 
-        protected bool Equals(TableType other)
+        protected bool Equals(FunctionType other)
         {
             return Type == other.Type;
         }
@@ -21,7 +24,7 @@ namespace Lexy.Compiler.Language
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((TableType)obj);
+            return Equals((FunctionType)obj);
         }
 
         public override int GetHashCode()
@@ -31,11 +34,12 @@ namespace Lexy.Compiler.Language
 
         public override string ToString() => Type;
 
-        public VariableType MemberType(string name)
+        public VariableType MemberType(string name, IValidationContext context)
         {
             return name switch
             {
-                "Count" => PrimitiveType.Number,
+                Function.ParameterName => new FunctionParametersType(Type),
+                Function.ResultsName => new FunctionResultsType(Type),
                 _ => null
             };
         }

@@ -63,6 +63,14 @@ namespace Lexy.Poc.Parser.ExpressionParser
             });
         }
 
+        public static void ValidateIdentifierExpression(this Expression expression, string value)
+        {
+            expression.ValidateOfType<IdentifierExpression>(literal =>
+            {
+                literal.Identifier.ShouldBe(value);
+            });
+        }
+
         public static void ValidateMemberAccessExpression(this Expression expression, string value)
         {
             expression.ValidateOfType<MemberAccessExpression>(literal =>

@@ -12,7 +12,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             var expression = this.ParseExpression("A = B.C");
             expression.ValidateOfType<AssignmentExpression>(assignmentExpression =>
             {
-                assignmentExpression.VariableName.ShouldBe("A");
+                assignmentExpression.Variable.ValidateIdentifierExpression("A");
                 assignmentExpression.Assignment.ValidateOfType<MemberAccessExpression>(memberAccess =>
                     memberAccess.Value.ShouldBe("B.C"));
             });

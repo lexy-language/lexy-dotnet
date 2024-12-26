@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -6,6 +7,8 @@ namespace Lexy.Compiler.Language.Expressions
 {
     public class IdentifierExpression : Expression
     {
+        public VariableSource VariableSource { get; private set; }
+
         public string Identifier { get; }
 
         private IdentifierExpression(string identifier, ExpressionSource source, SourceReference reference) : base(source, reference)
@@ -43,9 +46,12 @@ namespace Lexy.Compiler.Language.Expressions
         protected override void Validate(IValidationContext context)
         {
             context.FunctionCodeContext.EnsureVariableExists(Reference, Identifier);
+
+            VariableSource = context.FunctionCodeContext.GetVariableSource(Identifier) ?? VariableSource.Unknown;
         }
 
         public override VariableType DeriveType(IValidationContext context) =>
             context.FunctionCodeContext.GetVariableType(Identifier);
     }
+
 }

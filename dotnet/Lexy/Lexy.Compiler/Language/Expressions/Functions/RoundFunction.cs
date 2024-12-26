@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public class RoundFunction : BuiltInFunction
+    public class RoundFunction : ExpressionFunction
     {
         public const string Name = "ROUND";
 
@@ -34,7 +35,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         public override VariableType DeriveReturnType(IValidationContext context) => PrimitiveType.Number;
 
-        public static BuiltInFunction Create(SourceReference reference, Expression numberExpression, Expression powerExpression) =>
+        public static ExpressionFunction Create(SourceReference reference, Expression numberExpression, Expression powerExpression) =>
             new RoundFunction(numberExpression, powerExpression, reference);
     }
 }

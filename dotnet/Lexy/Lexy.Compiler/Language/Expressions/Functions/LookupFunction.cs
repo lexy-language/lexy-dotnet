@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    internal class LookupFunction : BuiltInFunction, IUsesTable
+    internal class LookupFunction : ExpressionFunction, IHasNodeDependencies
     {
         private const string FunctionHelp = Name + ". Arguments: LOOKUP(Table, lookUpValue, Table.SearchValueColumn, Table.ResultColumn)";
 
@@ -37,26 +38,26 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             SearchValueColumn = searchValueColumn ?? throw new ArgumentNullException(nameof(searchValueColumn));
         }
 
-        public static ParseBuiltInFunctionsResult Parse(string name, SourceReference functionCallReference, IReadOnlyList<Expression> arguments)
+        public static ParseExpressionFunctionsResult Parse(string name, SourceReference functionCallReference, IReadOnlyList<Expression> arguments)
         {
             if (arguments.Count != Arguments)
             {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid number of arguments. {FunctionHelp}");
+                return ParseExpressionFunctionsResult.Failed($"Invalid number of arguments. {FunctionHelp}");
             }
 
             if (!(arguments[ArgumentTable] is IdentifierExpression tableNameExpression))
             {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid argument {ArgumentTable}. Should be valid table name. {FunctionHelp}");
+                return ParseExpressionFunctionsResult.Failed($"Invalid argument {ArgumentTable}. Should be valid table name. {FunctionHelp}");
             }
 
             if (!(arguments[ArgumentSearchValueColumn] is MemberAccessExpression searchValueColumnHeader))
             {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid argument {ArgumentSearchValueColumn}. Should be search column. {FunctionHelp}");
+                return ParseExpressionFunctionsResult.Failed($"Invalid argument {ArgumentSearchValueColumn}. Should be search column. {FunctionHelp}");
             }
 
             if (!(arguments[ArgumentResultColumn] is MemberAccessExpression resultColumnExpression))
             {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid argument {ArgumentResultColumn}. Should be result column. {FunctionHelp}");
+                return ParseExpressionFunctionsResult.Failed($"Invalid argument {ArgumentResultColumn}. Should be result column. {FunctionHelp}");
             }
 
             var tableName = tableNameExpression.Identifier;
@@ -65,7 +66,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             var resultColumn = resultColumnExpression.MemberAccessLiteral;
 
             var lookupFunction = new LookupFunction(tableName, valueExpression, resultColumn, searchValueColumn, functionCallReference);
-            return ParseBuiltInFunctionsResult.Success(lookupFunction);
+            return ParseExpressionFunctionsResult.Success(lookupFunction);
         }
 
         public override IEnumerable<INode> GetChildren()
@@ -130,6 +131,11 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             var resultColumnHeader = tableType?.Header.Get(ResultColumn);
 
             return resultColumnHeader?.Type.CreateVariableType(context);
+        }
+
+        public IEnumerable<IRootNode> GetNodes(Nodes nodes)
+        {
+            yield return nodes.GetTable(Table);
         }
     }
 }

@@ -1,3 +1,4 @@
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
@@ -11,7 +12,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             if (valueTypeEnd == null || !valueTypeEnd.Equals(type))
             {
                 context.Logger.Fail(reference,
-                    $"Invalid argument {argumentIndex}. {name} should be of type 'Date' but is '{valueTypeEnd}. {functionHelp}");
+                    $"Invalid argument {argumentIndex}. '{name}' should be of type '{type}' but is '{valueTypeEnd}'. {functionHelp}");
             }
 
             return context;

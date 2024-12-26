@@ -1,4 +1,5 @@
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;

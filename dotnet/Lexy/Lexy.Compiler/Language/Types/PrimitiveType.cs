@@ -1,4 +1,4 @@
-namespace Lexy.Compiler.Language
+namespace Lexy.Compiler.Language.Types
 {
     public class PrimitiveType : VariableType
     {

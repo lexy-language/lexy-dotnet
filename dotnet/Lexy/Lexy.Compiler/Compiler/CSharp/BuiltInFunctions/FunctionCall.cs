@@ -5,18 +5,18 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
 {
-    internal abstract class BuiltInFunctionCall
+    internal abstract class FunctionCall
     {
-        public BuiltInFunction BuiltInFunction { get; }
+        public ExpressionFunction ExpressionFunction { get; }
 
-        protected BuiltInFunctionCall(BuiltInFunction builtInFunction)
+        protected FunctionCall(ExpressionFunction expressionFunction)
         {
-            BuiltInFunction = builtInFunction ?? throw new ArgumentNullException(nameof(builtInFunction));
+            ExpressionFunction = expressionFunction ?? throw new ArgumentNullException(nameof(expressionFunction));
         }
 
-        public static BuiltInFunctionCall Create(FunctionCallExpression expression)
+        public static FunctionCall Create(FunctionCallExpression expression)
         {
-            return expression.BuiltInFunction switch
+            return expression.ExpressionFunction switch
             {
                 LookupFunction function => new LookUpFunctionCall(function),
 
@@ -42,7 +42,9 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                 MinutesFunction function => new MinutesFunctionCall(function),
                 SecondsFunction function => new SecondsFunctionCall(function),
 
-                _ => throw new InvalidOperationException($"Invalid built in function call: {expression.FunctionName}")
+                LexyFunction function => new LexyFunctionCall(function),
+
+                _ => null
             };
         }
 

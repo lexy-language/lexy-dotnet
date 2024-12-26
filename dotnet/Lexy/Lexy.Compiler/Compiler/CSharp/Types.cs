@@ -1,9 +1,11 @@
 using System;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp
 {
@@ -16,12 +18,12 @@ namespace Lexy.Compiler.Compiler.CSharp
                 case TypeNames.Number:
                 case TypeNames.Boolean:
                     var typeSyntax = Syntax(type);
-                    return SyntaxFactory.DefaultExpression(typeSyntax);
+                    return DefaultExpression(typeSyntax);
 
                 case TypeNames.String:
-                    return SyntaxFactory.LiteralExpression(
+                    return LiteralExpression(
                         SyntaxKind.StringLiteralExpression,
-                        SyntaxFactory.Literal(""));
+                        Literal(""));
 
                 case TypeNames.Date:
                     return TranslateDate(DateTypeDefault.Value);
@@ -77,14 +79,58 @@ namespace Lexy.Compiler.Compiler.CSharp
 
         public static TypeSyntax Syntax(VariableType variableType)
         {
-
             return variableType switch
             {
                 PrimitiveType primitive => Syntax(primitive.Type),
-                EnumType enumType => SyntaxFactory.IdentifierName(enumType.Type),
-                TableType tableType => SyntaxFactory.IdentifierName(tableType.Type),
+                EnumType enumType => IdentifierName(enumType.Type),
+                TableType tableType => IdentifierName(tableType.Type),
+                ComplexType complexType => ComplexTypeSyntax(complexType),
+                ComplexTypeType complexTypeType => ComplexTypeTypeSyntax(complexTypeType),
                 _ => throw new InvalidOperationException("Couldn't map type: " + variableType)
             };
+        }
+
+        private static TypeSyntax ComplexTypeTypeSyntax(ComplexTypeType complexTypeType)
+        {
+            var typeName = GetTypeName(complexTypeType);
+            return QualifiedName(
+                IdentifierName(ClassNames.FunctionClassName(complexTypeType.Name)),
+                IdentifierName(typeName));
+        }
+
+        private static string GetTypeName(ComplexTypeType complexTypeType)
+        {
+            return complexTypeType switch
+            {
+                FunctionParametersType _ => LexyCodeConstants.ParameterType,
+                FunctionResultsType _ => LexyCodeConstants.ResultsVariable,
+                TableRowType _ => LexyCodeConstants.RowType,
+                _ => throw new InvalidOperationException($"Invalid type: {complexTypeType?.GetType()}")
+            };
+        }
+
+
+        private static TypeSyntax ComplexTypeSyntax(ComplexType complexType)
+        {
+            switch (complexType.Source)
+            {
+                case ComplexTypeSource.FunctionParameters:
+                    return QualifiedName(
+                        IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
+                        IdentifierName(LexyCodeConstants.ParameterType));
+                case ComplexTypeSource.FunctionResults:
+                    return QualifiedName(
+                        IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
+                        IdentifierName(LexyCodeConstants.ResultType));
+                case ComplexTypeSource.TableRow:
+                    return QualifiedName(
+                        IdentifierName(ClassNames.TableClassName(complexType.Name)),
+                        IdentifierName(LexyCodeConstants.RowType));
+                case ComplexTypeSource.Custom:
+                    return IdentifierName(ClassNames.CustomClassName(complexType.Name));
+                default:
+                    throw new InvalidOperationException($"Invalid type: {complexType}");
+            }
         }
 
         public static TypeSyntax Syntax(VariableDeclarationType type)
@@ -92,7 +138,7 @@ namespace Lexy.Compiler.Compiler.CSharp
             return type switch
             {
                 PrimitiveVariableDeclarationType primitive => Syntax(primitive.Type),
-                CustomVariableDeclarationType enumType => SyntaxFactory.IdentifierName(enumType.Type),
+                CustomVariableDeclarationType enumType => IdentifierName(enumType.Type),
                 ImplicitVariableDeclaration implicitVariable => Syntax(implicitVariable.VariableType),
                 _ => throw new InvalidOperationException("Couldn't map type: " + type)
             };

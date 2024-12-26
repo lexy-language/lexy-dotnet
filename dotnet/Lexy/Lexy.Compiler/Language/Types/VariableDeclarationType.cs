@@ -1,7 +1,7 @@
 
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language
+namespace Lexy.Compiler.Language.Types
 {
     public abstract class VariableDeclarationType
     {

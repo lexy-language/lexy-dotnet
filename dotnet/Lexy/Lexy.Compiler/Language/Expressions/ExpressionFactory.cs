@@ -35,7 +35,7 @@ namespace Lexy.Compiler.Language.Expressions
                 }
             }
 
-            throw new InvalidOperationException($"Invalid expression: {tokens}");
+            return ParseExpressionResult.Invalid<Expression>($"Invalid expression: {tokens}");
         }
     }
 }

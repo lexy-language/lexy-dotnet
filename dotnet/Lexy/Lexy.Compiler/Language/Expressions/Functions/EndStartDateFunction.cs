@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public abstract class EndStartDateFunction : BuiltInFunction
+    public abstract class EndStartDateFunction : ExpressionFunction
     {
         private string FunctionHelp => $"'{FunctionName}' expects 2 arguments (EndDate, StartDate).";
 
