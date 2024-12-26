@@ -11,8 +11,6 @@ namespace Lexy.Poc.Core
     {
         public static IServiceCollection AddLexy(this IServiceCollection services)
         {
-            services.TryAdd(ServiceDescriptor.Transient<ISpecificationsRunner, SpecificationsRunner>());
-
             services.TryAdd(ServiceDescriptor.Scoped<ILexyParser, LexyParser>());
             services.TryAdd(ServiceDescriptor.Scoped<IParserLogger, ParserLogger>());
             services.TryAdd(ServiceDescriptor.Scoped<IParserContext, ParserContext>());
@@ -29,6 +27,7 @@ namespace Lexy.Poc.Core
             services.TryAdd(ServiceDescriptor.Scoped<ISpecificationsRunner, SpecificationsRunner>());
             services.TryAdd(ServiceDescriptor.Scoped<ISpecificationFileRunner, SpecificationFileRunner>());
             services.TryAdd(ServiceDescriptor.Scoped<IScenarioRunner, ScenarioRunner>());
+            services.TryAdd(ServiceDescriptor.Transient<ISpecificationsRunner, SpecificationsRunner>());
 
             return services;
         }

@@ -1,8 +1,12 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Tests", "LexyTests\Lexy.Tests.csproj", "{2166E7F5-376E-48C8-9819-E8C9F9437C3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Tests", "Lexy.Tests\Lexy.Tests.csproj", "{2166E7F5-376E-48C8-9819-E8C9F9437C3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Core", "Lexy.Core\Lexy.Core.csproj", "{882211F2-D6E9-42B2-A289-76DEEEBB78B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.Compiler", "Lexy.Compiler\Lexy.Compiler.csproj", "{882211F2-D6E9-42B2-A289-76DEEEBB78B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy.RunTime", "Lexy.RunTime\Lexy.RunTime.csproj", "{1B683496-00E9-4274-AB0E-0F4BB9D91760}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lexy", "Lexy\Lexy.csproj", "{7F9936A1-2982-4E84-ADB1-C42CF768F380}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +22,13 @@ Global
 		{882211F2-D6E9-42B2-A289-76DEEEBB78B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{882211F2-D6E9-42B2-A289-76DEEEBB78B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{882211F2-D6E9-42B2-A289-76DEEEBB78B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B683496-00E9-4274-AB0E-0F4BB9D91760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B683496-00E9-4274-AB0E-0F4BB9D91760}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B683496-00E9-4274-AB0E-0F4BB9D91760}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B683496-00E9-4274-AB0E-0F4BB9D91760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F9936A1-2982-4E84-ADB1-C42CF768F380}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F9936A1-2982-4E84-ADB1-C42CF768F380}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F9936A1-2982-4E84-ADB1-C42CF768F380}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F9936A1-2982-4E84-ADB1-C42CF768F380}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
