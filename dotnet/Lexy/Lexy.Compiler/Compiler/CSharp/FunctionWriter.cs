@@ -144,36 +144,4 @@ namespace Lexy.Compiler.Compiler.CSharp
                                                 ArgumentList()))))));
         }
     }
-
-    internal static class GuardStatements
-    {
-        public static StatementSyntax VerifyNotNull(string variable)
-        {
-            return IfStatement(
-                BinaryExpression(
-                    SyntaxKind.EqualsExpression,
-                    IdentifierName(variable),
-                    LiteralExpression(SyntaxKind.NullLiteralExpression)),
-                ThrowStatement(
-                    ObjectCreationExpression(
-                            IdentifierName("ArgumentNullException"))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SingletonSeparatedList(
-                                    Argument(
-                                        InvocationExpression(
-                                                IdentifierName(
-                                                    Identifier(
-                                                        TriviaList(),
-                                                        SyntaxKind.NameOfKeyword,
-                                                        "nameof",
-                                                        "nameof",
-                                                        TriviaList())))
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList<ArgumentSyntax>(
-                                                        Argument(
-                                                            IdentifierName(variable)))))))))));
-        }
-    }
 }

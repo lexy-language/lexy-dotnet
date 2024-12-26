@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Lexy.Compiler.Compiler.CSharp
+namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatementExceptions
 {
     internal class FillFunctionExpressionStatementException : IExpressionStatementException
     {

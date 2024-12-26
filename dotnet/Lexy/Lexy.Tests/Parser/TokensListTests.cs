@@ -60,17 +60,4 @@ namespace Lexy.Poc.Parser
             result[2].ValidateOfType<StringLiteralToken>(value => value.Value.ShouldBe("4444"));
         }
     }
-
-    public static class TokenFactory
-    {
-        public static StringLiteralToken String(string value)
-        {
-            return new StringLiteralToken(value, TestTokenCharacter.Dummy);
-        }
-    }
-
-    public class TestTokenCharacter
-    {
-        public static TokenCharacter Dummy => new TokenCharacter('a', 0);
-    }
 }

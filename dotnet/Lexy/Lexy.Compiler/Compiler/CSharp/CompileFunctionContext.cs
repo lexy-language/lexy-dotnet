@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions.Functions;
@@ -26,34 +25,4 @@ namespace Lexy.Compiler.Compiler.CSharp
 
         public string FunctionClassName() => ClassNames.FunctionClassName(Function.Name.Value);
     }
-
-    public static class ClassNames
-    {
-        public static string FunctionClassName(string functionName)
-        {
-            return Normalize(functionName, LexyCodeConstants.FunctionClassPrefix);
-        }
-
-        public static string CustomClassName(string complexTypeName)
-        {
-            return Normalize(complexTypeName, LexyCodeConstants.ComplexTypeClassPrefix);
-        }
-
-        public static string TableClassName(string tableTypeName)
-        {
-            return Normalize(tableTypeName, LexyCodeConstants.TableClassPrefix);
-        }
-
-        private static string Normalize(string functionName, string functionClassPrefix)
-        {
-            var nameBuilder = new StringBuilder(functionClassPrefix);
-            foreach (var @char in functionName.Where(char.IsLetter))
-            {
-                nameBuilder.Append(@char);
-            }
-
-            return nameBuilder.ToString();
-        }
-    }
-
 }

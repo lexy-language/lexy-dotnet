@@ -1,5 +1,4 @@
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.Poc.Parser.ExpressionParser;
@@ -68,15 +67,6 @@ namespace Lexy.Poc.Parser
             script.Rows[1].Values[0].Value.ShouldBe("2024/12/18 17:08:12");
             script.Rows[1].Values[1].ShouldBeOfType<BooleanLiteral>();
             script.Rows[1].Values[1].Value.ShouldBe("true");
-        }
-    }
-
-    internal static class VariableTypeExtensions
-    {
-        public static void ShouldBePrimitiveType(this VariableDeclarationType type, string name)
-        {
-            type.ShouldBeOfType<PrimitiveVariableDeclarationType>()
-                .Type.ShouldBe(name);
         }
     }
 }
