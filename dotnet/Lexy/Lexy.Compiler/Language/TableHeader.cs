@@ -57,6 +57,13 @@ namespace Lexy.Poc.Core.Language
         {
         }
 
-        public ColumnHeader Get(string name) => Values.FirstOrDefault(value => value.Name == name);
+        public ColumnHeader Get(MemberAccessLiteral memberAccess)
+        {
+            var parts = memberAccess.Parts;
+            if (parts.Length < 2)  return null;
+            var name = parts[1];
+
+            return Values.FirstOrDefault(value => value.Name == name);
+        }
     }
 }

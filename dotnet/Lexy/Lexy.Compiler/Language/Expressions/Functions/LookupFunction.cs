@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Poc.Core.Parser;
+using Lexy.Poc.Core.Parser.Tokens;
 
 namespace Lexy.Poc.Core.Language.Expressions.Functions
 {
-    internal class LookupFunction : BuiltInFunction
+    internal class LookupFunction : BuiltInFunction, IUsesTable
     {
-        private const string FunctionHelp = Name + " expects 4 arguments (Table, lookUpValue, SearchValueColumnName, ResultColumnName)";
+        private const string FunctionHelp = Name + ". Arguments: LOOKUP(Table, lookUpValue, Table.SearchValueColumn, Table.ResultColumn)";
 
         public const string Name = "LOOKUP";
 
@@ -16,24 +17,24 @@ namespace Lexy.Poc.Core.Language.Expressions.Functions
         private const int ArgumentSearchValueColumn = 2;
         private const int ArgumentResultColumn = 3;
 
-        public string TableType { get; }
+        public string Table { get; }
 
         public Expression ValueExpression { get; }
 
-        public string ResultColumnHeaderName { get; }
-        public string SearchValueColumnHeaderName { get; }
+        public MemberAccessLiteral ResultColumn { get; }
+        public MemberAccessLiteral SearchValueColumn { get; }
 
         public VariableType ResultColumnType { get; private set; }
         public VariableType SearchValueColumnType { get; private set; }
 
         private LookupFunction(string tableType, Expression valueExpression,
-            string columnHeaderName, string searchValueColumnHeaderName, SourceReference tableNameArgumentReference)
+            MemberAccessLiteral resultColumn, MemberAccessLiteral searchValueColumn, SourceReference tableNameArgumentReference)
             : base(tableNameArgumentReference)
         {
-            TableType = tableType ?? throw new ArgumentNullException(nameof(tableType));
+            Table = tableType ?? throw new ArgumentNullException(nameof(tableType));
             ValueExpression = valueExpression ?? throw new ArgumentNullException(nameof(valueExpression));
-            ResultColumnHeaderName = columnHeaderName ?? throw new ArgumentNullException(nameof(columnHeaderName));
-            SearchValueColumnHeaderName = searchValueColumnHeaderName;
+            ResultColumn = resultColumn ?? throw new ArgumentNullException(nameof(resultColumn));
+            SearchValueColumn = searchValueColumn ?? throw new ArgumentNullException(nameof(searchValueColumn));
         }
 
         public static ParseBuiltInFunctionsResult Parse(string name, SourceReference functionCallReference, IReadOnlyList<Expression> arguments)
@@ -43,31 +44,27 @@ namespace Lexy.Poc.Core.Language.Expressions.Functions
                 return ParseBuiltInFunctionsResult.Failed($"Invalid number of arguments. {FunctionHelp}");
             }
 
-            var tableNameExpression = arguments[ArgumentTable] as IdentifierExpression;
-            var tableNameArgumentReference = arguments[ArgumentTable].Reference;
-            if (tableNameExpression == null)
+            if (!(arguments[ArgumentTable] is IdentifierExpression tableNameExpression))
             {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid argument 1. Should be valid table name. {FunctionHelp}");
+                return ParseBuiltInFunctionsResult.Failed($"Invalid argument {ArgumentTable}. Should be valid table name. {FunctionHelp}");
+            }
+
+            if (!(arguments[ArgumentSearchValueColumn] is MemberAccessExpression searchValueColumnHeader))
+            {
+                return ParseBuiltInFunctionsResult.Failed($"Invalid argument {ArgumentSearchValueColumn}. Should be search column. {FunctionHelp}");
+            }
+
+            if (!(arguments[ArgumentResultColumn] is MemberAccessExpression resultColumnExpression))
+            {
+                return ParseBuiltInFunctionsResult.Failed($"Invalid argument {ArgumentResultColumn}. Should be result column. {FunctionHelp}");
             }
 
             var tableName = tableNameExpression.Identifier;
-
-            var searchValueColumnHeader = arguments[ArgumentSearchValueColumn] as IdentifierExpression;
-            if (searchValueColumnHeader == null)
-            {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid argument 3. Should be search column name. {FunctionHelp}");
-            }
-            var searchValueColumnHeaderName = searchValueColumnHeader.Identifier;
-
-            if (!(arguments[ArgumentResultColumn] is IdentifierExpression resultColumnExpression))
-            {
-                return ParseBuiltInFunctionsResult.Failed($"Invalid argument 4. Should be lookup column name. {FunctionHelp}");
-            }
-            var resultColumnHeaderName = resultColumnExpression.Identifier;
-
             var valueExpression = arguments[ArgumentLookupValue];
+            var searchValueColumn = searchValueColumnHeader.MemberAccessLiteral;
+            var resultColumn = resultColumnExpression.MemberAccessLiteral;
 
-            var lookupFunction = new LookupFunction(tableName, valueExpression, resultColumnHeaderName, searchValueColumnHeaderName, tableNameArgumentReference);
+            var lookupFunction = new LookupFunction(tableName, valueExpression, resultColumn, searchValueColumn, functionCallReference);
             return ParseBuiltInFunctionsResult.Success(lookupFunction);
         }
 
@@ -78,26 +75,27 @@ namespace Lexy.Poc.Core.Language.Expressions.Functions
 
         protected override void Validate(IValidationContext context)
         {
-            if (string.IsNullOrEmpty(TableType) || string.IsNullOrEmpty(ResultColumnHeaderName)) return;
+            ValidateColumn(context, ResultColumn, ArgumentResultColumn);
+            ValidateColumn(context, SearchValueColumn, ArgumentSearchValueColumn);
 
-            var tableType = context.Nodes.GetTable(TableType);
+            var tableType = context.Nodes.GetTable(Table);
             if (tableType == null)
             {
-                context.Logger.Fail(Reference, $"Invalid argument 1. Table name '{TableType}' not found. {FunctionHelp}");
+                context.Logger.Fail(Reference, $"Invalid argument {ArgumentTable}. Table name '{Table}' not found. {FunctionHelp}");
                 return;
             }
 
-            var resultColumnHeader = tableType.Header.Get(ResultColumnHeaderName);
+            var resultColumnHeader = tableType.Header.Get(ResultColumn);
             if (resultColumnHeader == null)
             {
-                context.Logger.Fail(Reference, $"Invalid argument 3. Column name '{ResultColumnHeaderName}' not found in table '{TableType}'. {FunctionHelp}");
+                context.Logger.Fail(Reference, $"Invalid argument {ArgumentResultColumn}. Column name '{ResultColumn}' not found in table '{Table}'. {FunctionHelp}");
                 return;
             }
 
-            var searchColumnHeader = tableType.Header.Get(SearchValueColumnHeaderName);
+            var searchColumnHeader = tableType.Header.Get(SearchValueColumn);
             if (searchColumnHeader == null)
             {
-                context.Logger.Fail(Reference, $"Invalid argument 4. Column name '{SearchValueColumnHeaderName}' not found in table '{TableType}'. {FunctionHelp}");
+                context.Logger.Fail(Reference, $"Invalid argument {ArgumentSearchValueColumn}. Column name '{SearchValueColumn}' not found in table '{Table}'. {FunctionHelp}");
                 return;
             }
 
@@ -107,14 +105,29 @@ namespace Lexy.Poc.Core.Language.Expressions.Functions
 
             if (conditionValueType == null || !conditionValueType.Equals(SearchValueColumnType))
             {
-                context.Logger.Fail(Reference, $"Invalid argument 2. Column type '{SearchValueColumnHeaderName}': '{SearchValueColumnType}' doesn't match condition type '{conditionValueType}'. {FunctionHelp}");
+                context.Logger.Fail(Reference, $"Invalid argument {ArgumentSearchValueColumn}. Column type '{SearchValueColumn}': '{SearchValueColumnType}' doesn't match condition type '{conditionValueType}'. {FunctionHelp}");
+            }
+        }
+
+        private void ValidateColumn(IValidationContext context, MemberAccessLiteral column, int index)
+        {
+            if (column.Parent != Table)
+            {
+                context.Logger.Fail(Reference,
+                    $"Invalid argument {index}. Result column table '{column.Parent}' should be table name '{Table}'");
+            }
+
+            if (column.Parts.Length != 2)
+            {
+                context.Logger.Fail(Reference,
+                    $"Invalid argument {index}. Result column table '{column.Parent}' should be table name '{Table}'");
             }
         }
 
         public override VariableType DeriveReturnType(IValidationContext context)
         {
-            var tableType = context.Nodes.GetTable(TableType);
-            var resultColumnHeader = tableType?.Header.Get(ResultColumnHeaderName);
+            var tableType = context.Nodes.GetTable(Table);
+            var resultColumnHeader = tableType?.Header.Get(ResultColumn);
 
             return resultColumnHeader?.Type.CreateVariableType(context);
         }

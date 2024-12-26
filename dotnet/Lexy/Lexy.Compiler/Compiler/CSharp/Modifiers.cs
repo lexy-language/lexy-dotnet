@@ -14,5 +14,6 @@ namespace Lexy.Poc.Core.Compiler.CSharp
         public static SyntaxTokenList Static() => TokenList(StaticToken());
         public static SyntaxTokenList Private() => TokenList(PrivateToken());
         public static SyntaxTokenList PrivateStatic() => TokenList(PrivateToken(), StaticToken());
+        public static SyntaxTokenList PublicStatic() => TokenList(PublicToken(), StaticToken());
     }
 }

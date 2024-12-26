@@ -223,7 +223,7 @@ namespace Lexy.Poc.Core.Specifications
 
         public string ParserLogging()
         {
-            return $"------- Filename: {fileName}{Environment.NewLine}{parserLogger.FormatMessages()}";
+            return $"------- Filename: {fileName}{Environment.NewLine}{parserLogger.ErrorMessages().Format(2)}";
         }
 
         public void Dispose()

@@ -23,8 +23,9 @@ namespace Lexy.Poc.Core.Parser
         SourceReference TokenReference(int tokenIndex);
         SourceReference LineEndReference();
         SourceReference LineStartReference();
-        SourceReference DocumentReference();
         SourceReference LineReference(int characterPosition);
-        SourceReference TokenReference(Token token);
+
+        void AddFileIncluded(string fileName);
+        bool IsFileIncluded(string fileName);
     }
 }

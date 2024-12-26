@@ -27,7 +27,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
             if (value == TokenValues.Quote)
             {
                 quoteClosed = true;
-                return ParseTokenResult.Finished(true, CheckForKeywords());
+                return ParseTokenResult.Finished(true, this);
             }
 
             AppendValue(value);
@@ -41,18 +41,7 @@ namespace Lexy.Poc.Core.Parser.Tokens
                 return ParseTokenResult.Invalid("Closing quote expected.");
             }
 
-            return ParseTokenResult.Finished(true, CheckForKeywords());
-        }
-
-        private Token CheckForKeywords()
-        {
-            var keyword = Value;
-            if (Keywords.Contains(keyword))
-            {
-                return new KeywordToken(keyword, FirstCharacter);
-            }
-
-            return this;
+            return ParseTokenResult.Finished(true, this);
         }
 
         public override string ToString() => Value;

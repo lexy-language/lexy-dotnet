@@ -28,5 +28,7 @@ namespace Lexy.Poc.Core.Language
         protected override void Validate(IValidationContext context)
         {
         }
+
+        public bool IsEmpty() => string.IsNullOrEmpty(Value);
     }
 }

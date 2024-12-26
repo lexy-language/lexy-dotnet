@@ -132,9 +132,7 @@ namespace Lexy.Poc.Core.Compiler.CSharp
                         PredefinedType(
                             Token(SyntaxKind.IntKeyword)),
                         Identifier("Count"))
-                    .WithModifiers(
-                        TokenList(
-                            Token(SyntaxKind.PublicKeyword)))
+                    .WithModifiers(Modifiers.PublicStatic())
                     .WithExpressionBody(
                         ArrowExpressionClause(
                             MemberAccessExpression(
@@ -146,16 +144,13 @@ namespace Lexy.Poc.Core.Compiler.CSharp
 
             yield return
                 PropertyDeclaration(
-                        GenericName(
-                                Identifier("IReadOnlyList"))
+                        GenericName(Identifier("IReadOnlyList"))
                             .WithTypeArgumentList(
                                 TypeArgumentList(
                                     SingletonSeparatedList<TypeSyntax>(
                                         IdentifierName(rowName)))),
                         Identifier("Values"))
-                    .WithModifiers(
-                        TokenList(
-                            Token(SyntaxKind.PublicKeyword)))
+                    .WithModifiers(Modifiers.PublicStatic())
                     .WithExpressionBody(
                         ArrowExpressionClause(
                             IdentifierName("_value")))

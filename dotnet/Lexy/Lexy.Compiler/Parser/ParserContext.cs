@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Lexy.Poc.Core.Language;
 using Lexy.Poc.Core.Parser.Tokens;
@@ -7,6 +9,8 @@ namespace Lexy.Poc.Core.Parser
 {
     public class ParserContext : IParserContext
     {
+        private IList<string> includedFiles = new List<string>();
+
         private readonly IParserLogger logger;
         private readonly ITokenizer tokenizer;
         private readonly ISourceCodeDocument sourceCodeDocument;
@@ -67,36 +71,44 @@ namespace Lexy.Poc.Core.Parser
                 sourceCodeDocument.CurrentLine?.Tokens.CharacterPosition(tokenIndex) + 1);
         }
 
-        public SourceReference TokenReference(Token token)
-        {
-            if (token == null) throw new ArgumentNullException(nameof(token));
-
-            return new SourceReference(
-                sourceCodeDocument.File,
-                sourceCodeDocument.CurrentLine?.Index + 1,
-                token.FirstCharacter.Position + 1);
-        }
-
         public SourceReference LineEndReference()
         {
-            return new SourceReference(sourceCodeDocument.File, sourceCodeDocument.CurrentLine?.Index + 1,
+            return new SourceReference(sourceCodeDocument.File,
+                sourceCodeDocument.CurrentLine?.Index + 1,
                 sourceCodeDocument.CurrentLine.Content.Length);
         }
 
         public SourceReference LineStartReference()
         {
             var lineStart = sourceCodeDocument.CurrentLine?.FirstCharacter();
-            return new SourceReference(sourceCodeDocument.File, sourceCodeDocument.CurrentLine?.Index + 1, lineStart);
-        }
-
-        public SourceReference DocumentReference()
-        {
-            return new SourceReference(sourceCodeDocument.File, 1, 1);
+            return new SourceReference(sourceCodeDocument.File,
+                sourceCodeDocument.CurrentLine?.Index + 1,
+                lineStart);
         }
 
         public SourceReference LineReference(int characterIndex)
         {
-            return new SourceReference(sourceCodeDocument.File ?? new SourceFile("runtime"), sourceCodeDocument.CurrentLine?.Index + 1, characterIndex + 1);
+            return new SourceReference(sourceCodeDocument.File ?? new SourceFile("runtime"),
+                sourceCodeDocument.CurrentLine?.Index + 1,
+                characterIndex + 1);
+        }
+
+        public void AddFileIncluded(string fileName)
+        {
+            var path = NormalizePath(fileName);
+
+            includedFiles.Add(path);
+        }
+
+        public bool IsFileIncluded(string fileName)
+        {
+            return includedFiles.Contains(NormalizePath(fileName));
+        }
+
+        private static string NormalizePath(string fileName)
+        {
+            return Path.GetFullPath(fileName)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
     }
 }

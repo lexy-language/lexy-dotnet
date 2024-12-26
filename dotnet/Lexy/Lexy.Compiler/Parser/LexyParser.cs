@@ -22,19 +22,36 @@ namespace Lexy.Poc.Core.Parser
             logger.LogInfo("Parse file: " + fileName);
 
             var code = File.ReadAllLines(fileName);
-
-            return Parse(code, Path.GetFileName(fileName), throwException);
+            return Parse(code, fileName, throwException);
         }
 
-        public ParserResult Parse(string[] code, string fileName, bool throwException = true)
+        public ParserResult Parse(string[] code, string fullFileName, bool throwException = true)
         {
             if (code == null) throw new ArgumentNullException(nameof(code));
 
-            sourceCodeDocument.SetCode(code, fileName);
+            var sourceCodeNode = new SourceCodeNode();
+            context.AddFileIncluded(fullFileName);
+
+            ParseDocument(sourceCodeNode, code, fullFileName);
+
+            logger.LogNodes(context.Nodes);
+
+            ValidateNodesTree(sourceCodeNode);
+
+            if (throwException)
+            {
+                logger.AssertNoErrors();
+            }
+
+            return new ParserResult(context.Nodes);
+        }
+
+        private void ParseDocument(SourceCodeNode sourceCodeNode, string[] code, string fullFileName)
+        {
+            sourceCodeDocument.SetCode(code, Path.GetFileName(fullFileName));
 
             var currentIndent = 0;
-            var document = new Document(context.DocumentReference());
-            var nodes = new ParsableNodeArray(document);
+            var nodes = new ParsableNodeArray(sourceCodeNode);
 
             while (sourceCodeDocument.HasMoreLines())
             {
@@ -72,28 +89,45 @@ namespace Lexy.Poc.Core.Parser
             }
 
             Finalize();
-            ValidateNodesTree(document);
 
-            if (throwException)
-            {
-                logger.AssertNoErrors();
-            }
-
-            return new ParserResult(context.Nodes);
+            LoadIncludedFiles(fullFileName, sourceCodeNode);
         }
 
-        private void ValidateNodesTree(Document document)
+        private void LoadIncludedFiles(string parentFullFileName, SourceCodeNode sourceCodeNode)
+        {
+            var includes = sourceCodeNode.GetDueIncludes();
+            foreach (var include in includes)
+            {
+                IncludeFiles(parentFullFileName, sourceCodeNode, include);
+            }
+        }
+
+        private void IncludeFiles(string parentFullFileName, SourceCodeNode sourceCodeNode, Include include)
+        {
+            var fileName = include.Process(parentFullFileName, context);
+            if (fileName == null) return;
+
+            if (context.IsFileIncluded(fileName)) return;
+
+            logger.LogInfo("Parse file: " + fileName);
+
+            var code = File.ReadAllLines(fileName);
+
+            context.AddFileIncluded(fileName);
+
+            ParseDocument(sourceCodeNode, code, fileName);
+        }
+
+        private void ValidateNodesTree(SourceCodeNode sourceCodeNode)
         {
             var validationContext = new ValidationContext(context);
-            document.ValidateTree(validationContext);
+            sourceCodeNode.ValidateTree(validationContext);
         }
 
         private void Finalize()
         {
             sourceCodeDocument.Reset();
-
             logger.Reset();
-            logger.LogNodes(context.Nodes);
         }
 
         private IParsableNode ParseLine(IParsableNode currentNode)

@@ -74,6 +74,11 @@ namespace Lexy.Poc.Core.Parser
             return index >= 0 && index <= values.Length - 1 && values[index] is ILiteralToken;
         }
 
+        public bool IsQuotedString(int index)
+        {
+            return index >= 0 && index <= values.Length - 1 && values[index] is QuotedLiteralToken;
+        }
+
         public bool IsKeyword(int index, string keyword)
         {
             return index >= 0

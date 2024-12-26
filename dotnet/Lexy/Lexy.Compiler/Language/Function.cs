@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Poc.Core.Infrastructure;
+using Lexy.Poc.Core.Language.Expressions;
+using Lexy.Poc.Core.Language.Expressions.Functions;
 using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.Parser.Tokens;
 
@@ -16,7 +18,6 @@ namespace Lexy.Poc.Core.Language
         public FunctionParameters Parameters { get; }
         public FunctionResults Results { get; }
         public FunctionCode Code { get; }
-        public FunctionIncludes Include { get; }
 
         public override string NodeName => Name.Value;
 
@@ -26,7 +27,6 @@ namespace Lexy.Poc.Core.Language
             Parameters = new FunctionParameters(reference);
             Results = new FunctionResults(reference);
             Code = new FunctionCode(reference);
-            Include = new FunctionIncludes(reference);
 
             Name.ParseName(name);
         }
@@ -55,7 +55,6 @@ namespace Lexy.Poc.Core.Language
                 Keywords.Parameters => Parameters,
                 Keywords.Results => Results,
                 Keywords.Code => Code,
-                Keywords.Include => Include,
                  _ => InvalidToken(name, context)
             };
         }
@@ -69,10 +68,18 @@ namespace Lexy.Poc.Core.Language
         public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
         {
             var result = new List<IRootNode>();
+            AddTableTypes(nodes, Code.Expressions, result);
             AddEnumTypes(nodes, Parameters.Variables, result);
             AddEnumTypes(nodes, Results.Variables, result);
-            AddIncludes(nodes, Include.Definitions, result);
             return result.Distinct(NodeComparer);
+        }
+
+        private void AddTableTypes(Nodes nodes, IReadOnlyList<Expression> codeExpressions, List<IRootNode> result)
+        {
+            var tables = NodesWalker.WalkWithResult(codeExpressions,
+                node => node is IUsesTable usesTable ? nodes.GetTable(usesTable.Table) : null);
+
+            result.AddRange(tables.Distinct());
         }
 
         private static void AddEnumTypes(Nodes nodes, IList<VariableDefinition> variableDefinitions, List<IRootNode> result)
@@ -91,23 +98,6 @@ namespace Lexy.Poc.Core.Language
             }
         }
 
-        private void AddIncludes(Nodes nodes, IList<FunctionInclude> functionIncludes, List<IRootNode> result)
-        {
-            foreach (var include in functionIncludes)
-            {
-                var dependency = include.Type == IncludeTypes.Table
-                    ? nodes.GetTable(include.Name)
-                    : throw new InvalidOperationException("Include not yet supported; " + include.Type);
-
-                if (dependency == null)
-                {
-                    throw new InvalidOperationException($"Include {include.Type} node not found {include.Name}");
-                }
-
-                result.Add(dependency);
-            }
-        }
-
         public override void ValidateTree(IValidationContext context)
         {
             using (context.CreateCodeContextScope())
@@ -120,8 +110,6 @@ namespace Lexy.Poc.Core.Language
         {
             yield return Name;
 
-            yield return Include;
-
             yield return Parameters;
             yield return Results;
 
@@ -130,19 +118,6 @@ namespace Lexy.Poc.Core.Language
 
         protected override void Validate(IValidationContext context)
         {
-            /*
-            ValidateDuplicatedVariablesNames(context);
-        }
-
-        private void ValidateDuplicatedVariablesNames(IValidationContext context)
-        {
-            //var variableDeclarations = Code.GetVariableDeclarations();
-            DuplicateChecker.Validate(
-                context,
-                member => member.Name,
-                member => $"Duplicated variable name: '{member.Name}'",
-                Parameters.Variables,
-                Results.Variables); */
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Lexy.Poc.Core.Compiler.CSharp
             var context = new CompileFunctionContext(function, builtInFunctionCalls);
 
             var members = new List<MemberDeclarationSyntax>();
-            members.AddRange(TranslateIncludes(function));
+            //members.AddRange(TranslateTableFields(function));
             members.AddRange(TranslateVariables(function.Parameters.Variables));
             members.AddRange(TranslateVariables(function.Results.Variables));
 
@@ -51,11 +51,11 @@ namespace Lexy.Poc.Core.Compiler.CSharp
 
         private IEnumerable<BuiltInFunctionCall> GetBuiltInFunctionCalls(Function function)
         {
-            return NodesWalker.Walk(function.Code.Expressions,
+            return NodesWalker.WalkWithResult(function.Code.Expressions,
                 node => node is FunctionCallExpression expression ? BuiltInFunctionCall.Create(expression) : null);
         }
 
-        private IEnumerable<MemberDeclarationSyntax> TranslateIncludes(Function function)
+        /*
         {
             foreach (var include in function.Include.Definitions)
             {
@@ -75,7 +75,7 @@ namespace Lexy.Poc.Core.Compiler.CSharp
 
                 yield return fieldDeclaration;
             }
-        }
+        } */
 
         private static MemberDeclarationSyntax ResultMethod(IList<VariableDefinition> resultVariables)
         {

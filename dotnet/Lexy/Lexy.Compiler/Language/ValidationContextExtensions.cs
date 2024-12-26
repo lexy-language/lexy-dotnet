@@ -43,7 +43,7 @@ namespace Lexy.Poc.Core.Language
                 return;
             }
 
-            var parts = memberAccessLiteral.GetParts();
+            var parts = memberAccessLiteral.Parts;
             var enumDeclaration = context.Nodes.GetEnum(customVariableDeclarationType.Type);
             if (parts.Length != 2)
             {

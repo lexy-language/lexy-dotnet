@@ -15,23 +15,12 @@ namespace Lexy.Poc.Core.Parser
 
         public void SetCode(string[] lines, string fileName)
         {
-            if (code != null)
-            {
-                throw new InvalidOperationException(
-                    "Source code already set. Each LexyParser should only be used once. " +
-                    "Scope should be managed by using ServiceProvider.OpenScope(). " +
-                    "See SpecificationFileRunner.Create as example.");
-            }
-
             index = -1;
             code = lines.Select((line, index) => new Line(index, line)).ToArray();
             File = new SourceFile(fileName);
         }
 
-        public bool HasMoreLines()
-        {
-            return index < code.Length - 1;
-        }
+        public bool HasMoreLines() => index < code.Length - 1;
 
         public Line NextLine()
         {

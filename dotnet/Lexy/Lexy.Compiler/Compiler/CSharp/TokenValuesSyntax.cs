@@ -24,7 +24,7 @@ namespace Lexy.Poc.Core.Compiler.CSharp
 
         private static ExpressionSyntax TranslateMemberAccessLiteral(MemberAccessLiteral memberAccess)
         {
-            var parts = memberAccess.GetParts();
+            var parts = memberAccess.Parts;
             if (parts.Length != 2) throw new InvalidOperationException("Only 2 parts expected.");
 
             return SyntaxFactory.MemberAccessExpression(

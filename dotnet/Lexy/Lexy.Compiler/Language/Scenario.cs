@@ -199,6 +199,10 @@ namespace Lexy.Poc.Core.Language
 
         protected override void Validate(IValidationContext context)
         {
+            if (FunctionName.IsEmpty() && Function == null && Enum == null && Table == null && !ExpectRootErrors.HasValues)
+            {
+                context.Logger.Fail(Reference, "Scenario as no function, enum, table or expect errors.");
+            }
         }
     }
 }

@@ -1,18 +1,22 @@
+using System;
 using System.Collections.Generic;
+using Lexy.Poc.Core.Language.Expressions.Functions;
 using Lexy.Poc.Core.Parser;
 using Lexy.Poc.Core.Parser.Tokens;
 
 namespace Lexy.Poc.Core.Language.Expressions
 {
-    public class MemberAccessExpression : Expression
+    public class MemberAccessExpression : Expression, IUsesTable
     {
-        private readonly MemberAccessLiteral literal;
+        public MemberAccessLiteral MemberAccessLiteral { get; }
 
         public string Value { get; }
 
+        public string Table { get; private set; }
+
         private MemberAccessExpression(MemberAccessLiteral literal, ExpressionSource source, SourceReference reference) : base(source, reference)
         {
-            this.literal = literal;
+            MemberAccessLiteral = literal ?? throw new ArgumentNullException(nameof(literal));
             Value = literal.Value;
         }
 
@@ -44,31 +48,31 @@ namespace Lexy.Poc.Core.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
-            var parts = literal.GetParts();
-            if (parts.Length != 2)
+            if (MemberAccessLiteral.Parts.Length != 2)
             {
                 context.Logger.Fail(Reference, "Invalid member access. Only 2 levels supported.");
                 return;
             }
-            var typeName = parts[0];
-            var typeWithMembers = context.Nodes.GetType(typeName) as ITypeWithMembers;
-            if (typeWithMembers == null)
+            var typeName = MemberAccessLiteral.Parent;
+            if (!(context.Nodes.GetType(typeName) is ITypeWithMembers typeWithMembers))
             {
                 context.Logger.Fail(Reference, $"Invalid member access. Type '{typeName}' not found.");
                 return;
             }
 
-            var memberName = parts[1];
-            var memberType = typeWithMembers?.MemberType(memberName);
+            var memberName = MemberAccessLiteral.Member;
+            var memberType = typeWithMembers.MemberType(memberName);
             if (memberType == null)
             {
                 context.Logger.Fail(Reference, $"Invalid member access. Member '{memberName}' not found on '{typeName}'.");
             }
+
+            if (typeWithMembers is TableType tableType)
+            {
+                Table = tableType.Type;
+            }
         }
 
-        public override VariableType DeriveType(IValidationContext context)
-        {
-            return literal.DeriveType(context);
-        }
+        public override VariableType DeriveType(IValidationContext context) => MemberAccessLiteral.DeriveType(context);
     }
 }

@@ -16,7 +16,7 @@ namespace Lexy.Poc.Core.Compiler.CSharp.BuiltInFunctions
         {
             LookupFunction = lookupFunction;
             methodName =
-                $"__LookUp{lookupFunction.TableType}{lookupFunction.ResultColumnHeaderName}By{lookupFunction.SearchValueColumnHeaderName}";
+                $"__LookUp{lookupFunction.Table}{lookupFunction.ResultColumn.Member}By{lookupFunction.SearchValueColumn.Member}";
         }
 
         public override MemberDeclarationSyntax CustomMethodSyntax(ICompileFunctionContext context)
@@ -50,21 +50,21 @@ namespace Lexy.Poc.Core.Compiler.CSharp.BuiltInFunctions
                                             SeparatedList<ArgumentSyntax>(
                                                 new SyntaxNodeOrToken[]
                                                 {
-                                                    Arguments.String(LookupFunction.ResultColumnHeaderName),
+                                                    Arguments.String(LookupFunction.ResultColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Arguments.String(LookupFunction.SearchValueColumnHeaderName),
+                                                    Arguments.String(LookupFunction.SearchValueColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Arguments.String(LookupFunction.TableType),
+                                                    Arguments.String(LookupFunction.Table),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Arguments.MemberAccess(LookupFunction.TableType, "Values"),
+                                                    Arguments.MemberAccess(LookupFunction.Table, "Values"),
                                                     Token(SyntaxKind.CommaToken),
                                                     Argument(IdentifierName("condition")),
                                                     Token(SyntaxKind.CommaToken),
                                                     Arguments.MemberAccessLambda("row",
-                                                        LookupFunction.SearchValueColumnHeaderName),
+                                                        LookupFunction.SearchValueColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
                                                     Arguments.MemberAccessLambda("row",
-                                                        LookupFunction.ResultColumnHeaderName),
+                                                        LookupFunction.ResultColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
                                                     Argument(IdentifierName("context"))
                                                 })))))));
