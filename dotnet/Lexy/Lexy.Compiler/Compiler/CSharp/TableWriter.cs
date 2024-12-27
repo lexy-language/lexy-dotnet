@@ -18,14 +18,13 @@ namespace Lexy.Compiler.Compiler.CSharp
                 throw new InvalidOperationException("Root token not table");
             }
 
-            var className = table.Name.Value;
-            var rowName = $"{className}Row";
+            var className = ClassNames.TableClassName(table.Name.Value);
 
             var members = new List<MemberDeclarationSyntax>();
-            members.Add(GenerateRowClass(rowName, table));
-            members.Add(GenerateFields(rowName));
-            members.Add(GenerateStaticConstructor(className, table, rowName));
-            members.AddRange(GenerateProperties(rowName));
+            members.Add(GenerateRowClass(LexyCodeConstants.RowType, table));
+            members.Add(GenerateFields(LexyCodeConstants.RowType));
+            members.Add(GenerateStaticConstructor(className, table, LexyCodeConstants.RowType));
+            members.AddRange(GenerateProperties(LexyCodeConstants.RowType));
 
             var classDeclaration = ClassDeclaration(className)
                 .WithModifiers(Modifiers.Public())
@@ -36,18 +35,24 @@ namespace Lexy.Compiler.Compiler.CSharp
 
         private static ClassDeclarationSyntax GenerateRowClass(string rowName, Table table)
         {
-            var properties = List<MemberDeclarationSyntax>(
+
+            var fields = List<MemberDeclarationSyntax>(
                 table.Header.Columns
                     .Select(header =>
-                        PropertyDeclaration(
-                                Types.Syntax(header.Type),
-                                Identifier(header.Name))
-                            .WithModifiers(Modifiers.Public())
-                            .WithAccessorList(Accessors.GetSet)));
+                    {
+                        var typeSyntax = Types.Syntax(header.Type);
+                        var initialize = ExpressionSyntaxFactory.TypeDefaultExpression(header.Type, typeSyntax);
+
+                        return FieldDeclaration(
+                                VariableDeclaration(typeSyntax)
+                                    .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(header.Name))
+                                        .WithInitializer(EqualsValueClause(initialize)))))
+                            .WithModifiers(Modifiers.Public());
+                    }));
 
             var rowClassDeclaration = ClassDeclaration(rowName)
                 .WithModifiers(Modifiers.Public())
-                .WithMembers(properties);
+                .WithMembers(fields);
 
             return rowClassDeclaration;
         }

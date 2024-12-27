@@ -14,7 +14,7 @@ namespace Lexy.Compiler.Language
 
         public override string NodeName => Name.Value;
 
-        public const string RowName = "Rw";
+        public const string RowName = "Row";
 
         private Table(string name, SourceReference reference) : base(reference)
         {

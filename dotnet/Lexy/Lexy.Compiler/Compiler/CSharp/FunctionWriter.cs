@@ -27,8 +27,8 @@ namespace Lexy.Compiler.Compiler.CSharp
             var context = new CompileFunctionContext(function, builtInFunctionCalls);
 
             var members = new List<MemberDeclarationSyntax>();
-            members.Add(TranslateVariablesClass(LexyCodeConstants.ParameterType, function.Parameters.Variables));
-            members.Add(TranslateVariablesClass( LexyCodeConstants.ResultType, function.Results.Variables));
+            members.Add(TranslateVariablesClass(LexyCodeConstants.ParametersType, function.Parameters.Variables));
+            members.Add(TranslateVariablesClass( LexyCodeConstants.ResultsType, function.Results.Variables));
 
             members.Add(RunMethod(function, context));
 
@@ -106,7 +106,7 @@ namespace Lexy.Compiler.Compiler.CSharp
             statements.Add(ReturnResults());
 
             var functionSyntax = MethodDeclaration(
-                    IdentifierName(LexyCodeConstants.ResultType),
+                    IdentifierName(LexyCodeConstants.ResultsType),
                     Identifier(LexyCodeConstants.RunMethod))
                 .WithModifiers(Modifiers.PublicStatic())
                 .WithParameterList(
@@ -114,7 +114,7 @@ namespace Lexy.Compiler.Compiler.CSharp
                         SeparatedList<ParameterSyntax>(
                             new SyntaxNodeOrToken[]{
                                 Parameter(Identifier(LexyCodeConstants.ParameterVariable))
-                                    .WithType(IdentifierName(LexyCodeConstants.ParameterType)),
+                                    .WithType(IdentifierName(LexyCodeConstants.ParametersType)),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier(LexyCodeConstants.ContextVariable))
                                     .WithType(IdentifierName(nameof(IExecutionContext)))
@@ -139,7 +139,7 @@ namespace Lexy.Compiler.Compiler.CSharp
                                 .WithInitializer(
                                     EqualsValueClause(
                                         ObjectCreationExpression(
-                                                IdentifierName(LexyCodeConstants.ResultType))
+                                                IdentifierName(LexyCodeConstants.ResultsType))
                                             .WithArgumentList(
                                                 ArgumentList()))))));
         }

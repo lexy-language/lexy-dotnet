@@ -3,7 +3,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
 {
-    public class EnumType : VariableType, ITypeWithMembers
+    public class EnumType : TypeWithMembers
     {
         public string Type { get; }
         public EnumDefinition Enum { get; }
@@ -34,7 +34,7 @@ namespace Lexy.Compiler.Language.Types
 
         public override string ToString() => Type;
 
-        public VariableType MemberType(string name, IValidationContext context)
+        public override VariableType MemberType(string name, IValidationContext context)
         {
             return Enum.Members.Any(member => member.Name == name) ? this : null;
         }

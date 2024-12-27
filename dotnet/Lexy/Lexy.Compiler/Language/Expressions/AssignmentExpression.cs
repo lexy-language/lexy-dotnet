@@ -93,9 +93,9 @@ namespace Lexy.Compiler.Language.Expressions
 
             var memberType = typeWithMembers.MemberType(literal.Member, context);
             var assignmentType = Assignment.DeriveType(context);
-            if (!assignmentType.Equals(memberType))
+            if (assignmentType == null || !assignmentType.Equals(memberType))
             {
-                context.Logger.Fail(Reference, $"Variable '{literal}' of type '{parentType}' is not assignable from expression of type '{memberType}'.");
+                context.Logger.Fail(Reference, $"Variable '{literal}' of type '{memberType}' is not assignable from expression of type '{assignmentType}'.");
             }
         }
 

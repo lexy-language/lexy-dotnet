@@ -85,30 +85,27 @@ namespace Lexy.Compiler.Compiler.CSharp
                 EnumType enumType => IdentifierName(enumType.Type),
                 TableType tableType => IdentifierName(tableType.Type),
                 ComplexType complexType => ComplexTypeSyntax(complexType),
-                ComplexTypeType complexTypeType => ComplexTypeTypeSyntax(complexTypeType),
+                ComplexTypeReference complexTypeReference => ComplexTypeReferenceSyntax(complexTypeReference),
                 _ => throw new InvalidOperationException("Couldn't map type: " + variableType)
             };
         }
 
-        private static TypeSyntax ComplexTypeTypeSyntax(ComplexTypeType complexTypeType)
+        private static TypeSyntax ComplexTypeReferenceSyntax(ComplexTypeReference complexTypeReference)
         {
-            var typeName = GetTypeName(complexTypeType);
-            return QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(complexTypeType.Name)),
-                IdentifierName(typeName));
-        }
-
-        private static string GetTypeName(ComplexTypeType complexTypeType)
-        {
-            return complexTypeType switch
+            return complexTypeReference switch
             {
-                FunctionParametersType _ => LexyCodeConstants.ParameterType,
-                FunctionResultsType _ => LexyCodeConstants.ResultsVariable,
-                TableRowType _ => LexyCodeConstants.RowType,
-                _ => throw new InvalidOperationException($"Invalid type: {complexTypeType?.GetType()}")
+                FunctionParametersType _ => QualifiedName(
+                    IdentifierName(ClassNames.FunctionClassName(complexTypeReference.Name)),
+                    IdentifierName(LexyCodeConstants.ParametersType)),
+                FunctionResultsType _ => QualifiedName(
+                    IdentifierName(ClassNames.FunctionClassName(complexTypeReference.Name)),
+                    IdentifierName(LexyCodeConstants.ResultsType)),
+                TableRowType _ => QualifiedName(
+                    IdentifierName(ClassNames.TableClassName(complexTypeReference.Name)),
+                    IdentifierName(LexyCodeConstants.RowType)),
+                _ => throw new InvalidOperationException($"Invalid type: {complexTypeReference?.GetType()}")
             };
         }
-
 
         private static TypeSyntax ComplexTypeSyntax(ComplexType complexType)
         {
@@ -117,11 +114,11 @@ namespace Lexy.Compiler.Compiler.CSharp
                 case ComplexTypeSource.FunctionParameters:
                     return QualifiedName(
                         IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
-                        IdentifierName(LexyCodeConstants.ParameterType));
+                        IdentifierName(LexyCodeConstants.ParametersType));
                 case ComplexTypeSource.FunctionResults:
                     return QualifiedName(
                         IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
-                        IdentifierName(LexyCodeConstants.ResultType));
+                        IdentifierName(LexyCodeConstants.ResultsType));
                 case ComplexTypeSource.TableRow:
                     return QualifiedName(
                         IdentifierName(ClassNames.TableClassName(complexType.Name)),

@@ -153,7 +153,9 @@ namespace Lexy.Compiler.Compiler.CSharp
         {
             var typeSyntax = Types.Syntax(expression.Type);
 
-            var initialize = TypeDefaultExpression(expression.Assignment, expression.Type, typeSyntax, context);
+            var initialize = expression.Assignment != null
+                ? ExpressionSyntax(expression.Assignment, context)
+                : TypeDefaultExpression(expression.Type, typeSyntax);
 
             var variable = VariableDeclarator(Identifier(expression.Name))
                 .WithInitializer(EqualsValueClause(initialize));
@@ -163,11 +165,8 @@ namespace Lexy.Compiler.Compiler.CSharp
                     .WithVariables(SingletonSeparatedList(variable)));
         }
 
-        private static ExpressionSyntax TypeDefaultExpression(Expression expressionAssignment,
-            VariableDeclarationType variableDeclarationType, TypeSyntax typeSyntax, ICompileFunctionContext context)
+        public static ExpressionSyntax TypeDefaultExpression(VariableDeclarationType variableDeclarationType, TypeSyntax typeSyntax)
         {
-            if (expressionAssignment != null) return ExpressionSyntax(expressionAssignment, context);
-
             return variableDeclarationType switch
             {
                 PrimitiveVariableDeclarationType expression => Types.PrimitiveTypeDefaultExpression(expression),
@@ -254,9 +253,11 @@ namespace Lexy.Compiler.Compiler.CSharp
                 throw new InvalidOperationException($"Invalid MemberAccessExpression: {expression}");
             }
 
+            var rootType = expression.RootType is TableType ? ClassNames.TableClassName(parts[0]) : parts[0];
+
             ExpressionSyntax result = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName(parts[0]),
+                IdentifierName(rootType),
                 IdentifierName(parts[1]));
 
             for (var index = 2; index < parts.Length; index++)

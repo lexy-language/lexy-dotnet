@@ -13,6 +13,8 @@ namespace Lexy.Compiler.Language.Expressions
 
         public string Value { get; }
 
+        public VariableType RootType { get; private set; }
+
         private MemberAccessExpression(MemberAccessLiteral literal, ExpressionSource source, SourceReference reference) : base(source, reference)
         {
             MemberAccessLiteral = literal ?? throw new ArgumentNullException(nameof(literal));
@@ -53,13 +55,13 @@ namespace Lexy.Compiler.Language.Expressions
                 return;
             }
 
-            var typeName = MemberAccessLiteral.Parent;
-            var variableType = context.FunctionCodeContext.GetVariableType(MemberAccessLiteral.Parent)
-                            ?? context.Nodes.GetType(typeName);
+            var parent = MemberAccessLiteral.Parent;
+            RootType = context.FunctionCodeContext.GetVariableType(MemberAccessLiteral.Parent)
+                            ?? context.Nodes.GetType(parent);
 
-            if (!(variableType is ITypeWithMembers typeWithMembers))
+            if (!(RootType is ITypeWithMembers typeWithMembers))
             {
-                context.Logger.Fail(Reference, $"Invalid member access. Type '{typeName}' not found.");
+                context.Logger.Fail(Reference, $"Invalid member access. Variable '{parent}' not found.");
                 return;
             }
 
@@ -67,13 +69,13 @@ namespace Lexy.Compiler.Language.Expressions
             var memberType = typeWithMembers.MemberType(memberName, context);
             if (memberType == null)
             {
-                context.Logger.Fail(Reference, $"Invalid member access. Member '{memberName}' not found on '{typeName}'.");
+                context.Logger.Fail(Reference, $"Invalid member access. Member '{memberName}' not found on '{parent}'.");
             }
         }
 
         public override VariableType DeriveType(IValidationContext context) => MemberAccessLiteral.DeriveType(context);
 
-        public IEnumerable<IRootNode> GetNodes(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
         {
             var rootNode = nodes.GetNode(MemberAccessLiteral.Parent);
             if (rootNode != null)

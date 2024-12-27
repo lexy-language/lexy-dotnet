@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text;
 
@@ -23,12 +24,17 @@ namespace Lexy.Compiler.Compiler.CSharp
         private static string Normalize(string functionName, string functionClassPrefix)
         {
             var nameBuilder = new StringBuilder(functionClassPrefix);
-            foreach (var @char in functionName.Where(char.IsLetter))
+            foreach (var @char in functionName.Where(ValidCharacter))
             {
                 nameBuilder.Append(@char);
             }
 
             return nameBuilder.ToString();
+        }
+
+        private static bool ValidCharacter(char value)
+        {
+            return char.IsLetterOrDigit(value) || value == '_';
         }
     }
 }

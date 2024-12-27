@@ -63,7 +63,7 @@ namespace Lexy.Poc.Parser
 
             errors.Length.ShouldBe(4, logger.ErrorMessages().Format(2));
             errors[0].ShouldBe("tests.lexy(2, 2): ERROR - Invalid token 'Functtion'. Keyword expected.");
-            errors[1].ShouldBe("tests.lexy(1, 0): ERROR - Scenario as no function, enum, table or expect errors.");
+            errors[1].ShouldBe("tests.lexy(1, 0): ERROR - Scenario has no function, enum, table or expect errors.");
             errors[2].ShouldBe("tests.lexy(4, 4): ERROR - Unknown variable 'Value'.");
             errors[3].ShouldBe("tests.lexy(6, 4): ERROR - Unknown variable 'Result'.");
         }

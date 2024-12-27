@@ -67,7 +67,7 @@ namespace Lexy.Compiler.Parser
             return $"{Index + 1}: {Content}";
         }
 
-        public bool IsEmpty() => Content.Length == 0;
+        public bool IsEmpty() => Tokens.Length == 0;
 
         public bool IsComment() => Tokens.IsComment();
 

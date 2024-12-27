@@ -106,7 +106,20 @@ namespace Lexy.Compiler.Parser
 
         private static TokenList DiscardWhitespace(List<Token> tokens)
         {
-            return new TokenList(tokens.Where(token => !(token is WhitespaceToken)).ToArray());
+            var newTokens = new List<Token>();
+            foreach (var token in tokens)
+            {
+                if (token is CommentToken)
+                {
+                    break;
+                }
+                if (!(token is WhitespaceToken))
+                {
+                    newTokens.Add(token);
+                }
+            }
+
+            return new TokenList(newTokens.ToArray());
         }
 
         private ParsableToken StartToken(TokenCharacter character, int index, IParserContext parserContext)

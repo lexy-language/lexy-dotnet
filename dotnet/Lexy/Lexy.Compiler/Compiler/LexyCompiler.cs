@@ -45,9 +45,7 @@ namespace Lexy.Compiler.Compiler
 
         private List<IRootNode> FunctionAndDependencies(Nodes nodes, Function function)
         {
-            var generateNodes = new List<IRootNode> { function };
-            generateNodes.AddRange(function.GetDependencies(nodes));
-            return generateNodes;
+            return function.GetFunctionAndDependencies(nodes).ToList();
         }
 
         private Assembly CreateAssembly(SyntaxNode syntax)

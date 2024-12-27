@@ -11,7 +11,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         private readonly IList<Mapping> mapping = new List<Mapping>();
 
-        protected string FunctionHelp => $"{Name} expects 1 argument. extract(FunctionResults)";
+        protected string FunctionHelp => $"{Name} expects 1 argument. extract(variable)";
 
         public string FunctionResultVariable { get; }
         public Expression ValueExpression { get; }
@@ -32,6 +32,12 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         protected override void Validate(IValidationContext context)
         {
+            if (FunctionResultVariable == null)
+            {
+                context.Logger.Fail(Reference, $"Invalid variable argument. {FunctionHelp}");
+                return;
+            }
+
             var variableType = context.FunctionCodeContext.GetVariableType(FunctionResultVariable);
             if (variableType == null)
             {

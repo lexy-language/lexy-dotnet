@@ -6,8 +6,9 @@ namespace Lexy.Compiler.Compiler.CSharp
         public const string Namespace = "Lexy.Runtime";
 
         public const string RunMethod = "__Run";
-        public const string ResultType = "__Result";
-        public const string ParameterType = "__Parameters";
+
+        public const string ResultsType = "__Result";
+        public const string ParametersType = "__Parameters";
 
         public const string RowType = "__Row";
 

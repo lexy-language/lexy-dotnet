@@ -71,7 +71,7 @@ namespace Lexy.Compiler.Language
 
         public INode First() => values.FirstOrDefault();
 
-        public VariableType GetType(string name)
+        public TypeWithMembers GetType(string name)
         {
             var node = GetNode(name);
             return node switch

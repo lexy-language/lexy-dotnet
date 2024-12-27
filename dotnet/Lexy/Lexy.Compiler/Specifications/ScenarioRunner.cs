@@ -118,7 +118,7 @@ namespace Lexy.Compiler.Specifications
                 var actual = result[expected.Name];
                 if (Comparer.Default.Compare(actual, expectedValue) != 0)
                 {
-                    validationResult.WriteLine($"'{expected.Name}' should be '{expectedValue}' but is '{actual}'");
+                    validationResult.WriteLine($"'{expected.Name}' should be '{expectedValue ?? "<null>"}' but is '{actual ?? "<null>"}'");
                 }
             }
 

@@ -72,9 +72,13 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             return function?.GetResultsType(context);
         }
 
-        public IEnumerable<IRootNode> GetNodes(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
         {
-            yield return nodes.GetFunction(FunctionName);
+            var function = nodes.GetFunction(FunctionName);
+            if (function != null)
+            {
+                yield return function;
+            }
         }
     }
 }

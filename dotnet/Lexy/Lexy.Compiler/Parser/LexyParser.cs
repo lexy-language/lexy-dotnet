@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Expressions.Functions;
 
 namespace Lexy.Compiler.Parser
 {
@@ -37,6 +40,7 @@ namespace Lexy.Compiler.Parser
             logger.LogNodes(context.Nodes);
 
             ValidateNodesTree(sourceCodeNode);
+            DetectCircularDependencies();
 
             if (throwException)
             {
@@ -122,6 +126,74 @@ namespace Lexy.Compiler.Parser
         {
             var validationContext = new ValidationContext(context);
             sourceCodeNode.ValidateTree(validationContext);
+        }
+
+        private void DetectCircularDependencies()
+        {
+            var visitedNodes = new List<IRootNode>();
+            var node = DetectCircularDependencies(context.Nodes.OfType<IRootNode>(), visitedNodes);
+            if (node != null)
+            {
+                context.Logger.SetCurrentNode(node as IRootNode);
+                context.Logger.Fail(node.Reference, $"Circular reference detected in: '{node.NodeName}'");
+            }
+        }
+
+        private IRootNode DetectCircularDependencies(IEnumerable<IRootNode> nodes, List<IRootNode> visitedNodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (visitedNodes.Contains(node))
+                {
+                    return node;
+                }
+                visitedNodes.Add(node);
+
+                var circularNode = DetectCircularDependencies(node, visitedNodes);
+                if (circularNode != null)
+                {
+                    return circularNode;
+                }
+            }
+
+            return null;
+        }
+
+        private IRootNode DetectCircularDependencies(IRootNode node, List<IRootNode> visitedNodes)
+        {
+            var dependencies = GetDependenciesNodes(node);
+
+            if (dependencies == null) return null;
+
+            return DetectCircularDependencies(dependencies, visitedNodes);
+        }
+
+        private IEnumerable<IRootNode> GetDependenciesNodes(IRootNode node)
+        {
+            var resultDependencies = new List<IRootNode>();
+            var nodeDependencies = (node as IHasNodeDependencies)?.GetDependencies(context.Nodes);
+            if (nodeDependencies != null)
+            {
+                resultDependencies.AddRange(nodeDependencies);
+            }
+
+            var children = node.GetChildren();
+            NodesWalker.Walk(children, childNode =>
+            {
+                var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(context.Nodes);
+                if (nodeDependencies == null) return;
+
+                foreach (var dependency in nodeDependencies)
+                {
+                    if (dependency == null)
+                    {
+                        throw new NotImplementedException("node.GetNodes() should never return null");
+                    }
+
+                    resultDependencies.Add(dependency);
+                }
+            });
+            return resultDependencies;
         }
 
         private void Finalize()

@@ -19,6 +19,27 @@ namespace Lexy.Compiler.Language
             }
         }
 
+        public static bool Walk(IEnumerable<INode> nodes, Func<INode, bool> function)
+        {
+            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+            if (function == null) throw new ArgumentNullException(nameof(function));
+
+            foreach (var node in nodes)
+            {
+                if (!function(node))
+                {
+                    return false;
+                }
+
+                var children = node.GetChildren();
+                if (!Walk(children, function))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static IEnumerable<T> WalkWithResult<T>(IEnumerable<INode> nodes, Func<INode, T> action)
         {
             if (nodes == null) throw new ArgumentNullException(nameof(nodes));

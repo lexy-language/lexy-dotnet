@@ -133,7 +133,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             return resultColumnHeader?.Type.CreateVariableType(context);
         }
 
-        public IEnumerable<IRootNode> GetNodes(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
         {
             yield return nodes.GetTable(Table);
         }

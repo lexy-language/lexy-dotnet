@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
@@ -10,7 +9,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language
 {
-    public class Function : RootNode
+    public class Function : RootNode, IHasNodeDependencies
     {
         private static readonly LambdaComparer<IRootNode> NodeComparer =
             new LambdaComparer<IRootNode>((token1, token2) => token1.NodeName == token2.NodeName);
@@ -69,24 +68,45 @@ namespace Lexy.Compiler.Language
             return this;
         }
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetFunctionAndDependencies(Nodes nodes)
         {
-            var result = new List<IRootNode>();
-            AddTableTypes(nodes, Code.Expressions, result);
-            AddEnumTypes(nodes, Parameters.Variables, result);
-            AddEnumTypes(nodes, Results.Variables, result);
-            return result.Distinct(NodeComparer);
+            var result = new List<IRootNode> { this };
+            AddDependentNodes(this, nodes, result);
+
+            var processed = 0;
+            while (processed != result.Count)
+            {
+                processed = result.Count;
+                foreach (var node in result.ToList())
+                {
+                    AddDependentNodes(node, nodes, result);
+                }
+            }
+
+            return result;
         }
 
-        private void AddTableTypes(Nodes nodes, IReadOnlyList<Expression> codeExpressions, List<IRootNode> result)
+        private static void AddDependentNodes(INode node, Nodes nodes, List<IRootNode> result)
         {
-            NodesWalker.Walk(codeExpressions, node =>
+            AddNodeDependencies(node, nodes, result);
+
+            var children = node.GetChildren();
+
+            NodesWalker.Walk(children, eachNode => AddNodeDependencies(eachNode, nodes, result));
+        }
+
+        private static void AddNodeDependencies(INode node, Nodes nodes, List<IRootNode> result)
+        {
+            if (!(node is IHasNodeDependencies hasDependencies)) return;
+
+            var dependencies = hasDependencies.GetDependencies(nodes);
+            foreach (var dependency in dependencies)
             {
-                if (node is IHasNodeDependencies hasDependencies)
+                if (!result.Contains(dependency))
                 {
-                    result.AddRange(hasDependencies.GetNodes(nodes));
+                    result.Add(dependency);
                 }
-            });
+            }
         }
 
         private static void AddEnumTypes(Nodes nodes, IList<VariableDefinition> variableDefinitions, List<IRootNode> result)
@@ -96,12 +116,10 @@ namespace Lexy.Compiler.Language
                 if (!(parameter.Type is CustomVariableDeclarationType enumVariableType)) continue;
 
                 var dependency = nodes.GetEnum(enumVariableType.Type);
-                if (dependency == null)
+                if (dependency != null)
                 {
-                    throw new InvalidOperationException($"Type or enum not found: {parameter.Type}");
+                    result.Add(dependency);
                 }
-
-                result.Add(dependency);
             }
         }
 
@@ -143,6 +161,14 @@ namespace Lexy.Compiler.Language
                 .ToList();
 
             return new ComplexType(Name.Value, ComplexTypeSource.FunctionResults, members);
+        }
+
+        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        {
+            var result = new List<IRootNode>();
+            AddEnumTypes(nodes, Parameters.Variables, result);
+            AddEnumTypes(nodes, Results.Variables, result);
+            return result;
         }
     }
 }

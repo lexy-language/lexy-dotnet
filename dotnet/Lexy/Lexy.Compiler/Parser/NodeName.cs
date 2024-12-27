@@ -15,7 +15,7 @@ namespace Lexy.Compiler.Parser
         public static NodeName Parse(Line line, IParserContext context)
         {
             var tokens = line.Tokens;
-            if (tokens.Length < 1 && tokens.Length > 2) return null;
+            if (tokens.Length < 1 || tokens.Length > 2) return null;
 
             var valid = context.ValidateTokens<NodeName>()
                 .Keyword(0)

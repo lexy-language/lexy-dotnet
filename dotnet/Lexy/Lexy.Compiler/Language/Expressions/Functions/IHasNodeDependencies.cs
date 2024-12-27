@@ -4,6 +4,6 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 {
     internal interface IHasNodeDependencies
     {
-        IEnumerable<IRootNode> GetNodes(Nodes nodes);
+        IEnumerable<IRootNode> GetDependencies(Nodes nodes);
     }
 }

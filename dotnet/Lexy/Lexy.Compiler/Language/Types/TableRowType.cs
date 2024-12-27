@@ -3,16 +3,22 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
 {
-    public class TableRowType : ComplexTypeType
+    public class TableRowType : ComplexTypeReference
     {
         public string TableName { get; }
+        public ComplexType ComplexType { get; }
 
-        public TableRowType(string tableName) : base(tableName)
+        public TableRowType(string tableName, ComplexType complexType) : base(tableName)
         {
             TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+            ComplexType = complexType;
         }
 
-        public override ComplexType GetComplexType(IValidationContext context) =>
-            context.Nodes.GetTable(TableName)?.GetRowType(context);
+        public override ComplexType GetComplexType(IValidationContext context) => ComplexType;
+
+        public override VariableType MemberType(string name, IValidationContext context)
+        {
+            return ComplexType.MemberType(name, context);
+        }
     }
 }

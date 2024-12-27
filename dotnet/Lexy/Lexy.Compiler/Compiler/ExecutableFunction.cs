@@ -8,22 +8,18 @@ namespace Lexy.Compiler.Compiler
 {
     public class ExecutableFunction
     {
-        private readonly object[] emptyParameters = Array.Empty<object>();
-
-        private readonly Type functionObject;
         private readonly IExecutionContext context;
 
         private readonly MethodInfo runMethod;
         private readonly IDictionary<string, FieldInfo> variables = new Dictionary<string, FieldInfo>();
         private readonly Type parametersType;
 
-        public ExecutableFunction(Type functionObject, IExecutionContext context)
+        public ExecutableFunction(Type functionType, IExecutionContext context)
         {
-            this.functionObject = functionObject ?? throw new ArgumentNullException(nameof(functionObject));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
 
-            runMethod = functionObject.GetMethod( LexyCodeConstants.RunMethod, BindingFlags.Static | BindingFlags.Public);
-            parametersType = functionObject.GetNestedType(LexyCodeConstants.ParameterType);
+            runMethod = functionType.GetMethod( LexyCodeConstants.RunMethod, BindingFlags.Static | BindingFlags.Public);
+            parametersType = functionType.GetNestedType(LexyCodeConstants.ParametersType);
         }
 
         public FunctionResult Run() => Run(new Dictionary<string, object>());

@@ -25,8 +25,7 @@ namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatementExceptions
 
             var typeSyntax = Types.Syntax(assignmentExpression.Type);
 
-            var initialize = ObjectCreationExpression(
-                    Types.Syntax(assignmentExpression.Type))
+            var initialize = ObjectCreationExpression(typeSyntax)
                 .WithArgumentList(ArgumentList());
 
             var variable = VariableDeclarator(Identifier(assignmentExpression.Name))

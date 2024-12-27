@@ -1,9 +1,8 @@
-using System.Collections;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
 {
-    public class FunctionType : VariableType, ITypeWithMembers
+    public class FunctionType : TypeWithMembers
     {
         public string Type { get; }
         public Function Function { get; }
@@ -34,14 +33,26 @@ namespace Lexy.Compiler.Language.Types
 
         public override string ToString() => Type;
 
-        public VariableType MemberType(string name, IValidationContext context)
+        public override VariableType MemberType(string name, IValidationContext context)
         {
             return name switch
             {
-                Function.ParameterName => new FunctionParametersType(Type),
-                Function.ResultsName => new FunctionResultsType(Type),
+                Function.ParameterName => FunctionParametersType(context),
+                Function.ResultsName => FunctionResultsType(context),
                 _ => null
             };
+        }
+
+        private FunctionParametersType FunctionParametersType(IValidationContext context)
+        {
+            var complexType = context.Nodes.GetFunction(Type)?.GetParametersType(context);
+            return new FunctionParametersType(Type, complexType);
+        }
+
+        private FunctionResultsType FunctionResultsType(IValidationContext context)
+        {
+            var complexType = context.Nodes.GetFunction(Type)?.GetResultsType(context);
+            return new FunctionResultsType(Type, complexType);
         }
     }
 }

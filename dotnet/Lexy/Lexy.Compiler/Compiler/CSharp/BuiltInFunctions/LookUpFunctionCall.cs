@@ -56,7 +56,7 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                                                     Token(SyntaxKind.CommaToken),
                                                     Arguments.String(LookupFunction.Table),
                                                     Token(SyntaxKind.CommaToken),
-                                                    Arguments.MemberAccess(LookupFunction.Table, "Values"),
+                                                    Arguments.MemberAccess(ClassNames.TableClassName(LookupFunction.Table), "Values"),
                                                     Token(SyntaxKind.CommaToken),
                                                     Argument(IdentifierName("condition")),
                                                     Token(SyntaxKind.CommaToken),

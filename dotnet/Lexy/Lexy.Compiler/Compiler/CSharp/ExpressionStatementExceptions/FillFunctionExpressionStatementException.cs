@@ -41,7 +41,7 @@ namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatementExceptions
                 .WithArgumentList(SyntaxFactory.ArgumentList());
 
             var variable = VariableDeclarator(Identifier(variableName))
-                .WithInitializer(EqualsValueClause(initialize));
+               .WithInitializer(EqualsValueClause(initialize));
 
             yield return LocalDeclarationStatement(
                 VariableDeclaration(typeSyntax)

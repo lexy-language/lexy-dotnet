@@ -6,7 +6,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions.Functions
 {
-    public class FillParametersFunction : ExpressionFunction
+    public class FillParametersFunction : ExpressionFunction, IHasNodeDependencies
     {
         public const string Name = "fill";
 
@@ -18,7 +18,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         public Expression ValueExpression { get; }
 
-        public ComplexTypeType Type { get; private set; }
+        public ComplexTypeReference Type { get; private set; }
 
         public IEnumerable<Mapping> Mapping => mapping;
 
@@ -40,16 +40,16 @@ namespace Lexy.Compiler.Language.Expressions.Functions
         protected override void Validate(IValidationContext context)
         {
             var valueType = ValueExpression.DeriveType(context);
-            if (!(valueType is ComplexTypeType complexTypeType))
+            if (!(valueType is ComplexTypeReference complexTypeReference))
             {
                 context.Logger.Fail(Reference,
-                    $"Invalid argument 1. 'Value' should be of type 'ComplexTypeType' but is 'ValueType'. {FunctionHelp}");
+                    $"Invalid argument 1. 'Value' should be of type 'ComplexTypeReference' but is '{valueType}'. {FunctionHelp}");
                 return;
             }
 
-            Type = complexTypeType;
+            Type = complexTypeReference;
 
-            var complexType = complexTypeType.GetComplexType(context);
+            var complexType = complexTypeReference.GetComplexType(context);
 
             if (complexType == null) return;
 
@@ -90,17 +90,22 @@ namespace Lexy.Compiler.Language.Expressions.Functions
         public override VariableType DeriveReturnType(IValidationContext context)
         {
             var function = context.Nodes.GetFunction(TypeLiteral.Parent);
-            if (TypeLiteral.Member == Function.ParameterName)
-            {
-                return function.GetParametersType(context);
-            }
+            if (function == null) return null;
 
-            if (TypeLiteral.Member == Function.ResultsName)
+            return TypeLiteral.Member switch
             {
-                return function.GetResultsType(context);
-            }
+                Function.ParameterName => function.GetParametersType(context),
+                Function.ResultsName => function.GetResultsType(context),
+                _ => null
+            };
+        }
 
-            return null;
+        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        {
+            if (Type != null)
+            {
+                yield return nodes.GetNode(Type.Name);
+            }
         }
     }
 }

@@ -4,7 +4,11 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
 {
-    public class TableType : VariableType, ITypeWithMembers
+    public abstract class TypeWithMembers : VariableType, ITypeWithMembers
+    {
+        public abstract VariableType MemberType(string name, IValidationContext context);
+    }
+    public class TableType : TypeWithMembers
     {
         public string Type { get; }
         public Table Table { get; }
@@ -35,14 +39,20 @@ namespace Lexy.Compiler.Language.Types
 
         public override string ToString() => Type;
 
-        public VariableType MemberType(string name, IValidationContext context)
+        public override VariableType MemberType(string name, IValidationContext context)
         {
             return name switch
             {
                 "Count" => PrimitiveType.Number,
-                Table.RowName => new TableRowType(Type),
+                Table.RowName => TableRowType(context),
                 _ => null
             };
+        }
+
+        private TableRowType TableRowType(IValidationContext context)
+        {
+            var complexType = context.Nodes.GetTable(Type)?.GetRowType(context);
+            return new TableRowType(Type, complexType);
         }
 
         private IEnumerable<ComplexTypeMember> GetMembers(IValidationContext context)
