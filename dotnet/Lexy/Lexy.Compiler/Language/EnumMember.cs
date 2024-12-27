@@ -7,16 +7,18 @@ namespace Lexy.Compiler.Language
 {
     public class EnumMember : Node
     {
-        public NumberLiteralToken Value { get; }
         public string Name { get; }
+        public NumberLiteralToken ValueLiteral { get; }
+        public int NumberValue { get; }
 
-        private EnumMember(string name, SourceReference reference, NumberLiteralToken value = null) : base(reference)
+        private EnumMember(string name, SourceReference reference, NumberLiteralToken valueLiteral, int value) : base(reference)
         {
-            Value = value;
+            NumberValue = value;
             Name = name;
+            ValueLiteral = valueLiteral;
         }
 
-        public static EnumMember Parse(IParserContext context)
+        public static EnumMember Parse(IParserContext context, int lastIndex)
         {
             var valid = context.ValidateTokens<AssignmentDefinition>()
                 .CountMinimum(1)
@@ -31,7 +33,7 @@ namespace Lexy.Compiler.Language
 
             if (tokens.Length == 1)
             {
-                return new EnumMember(name, reference);
+                return new EnumMember(name, reference, null, lastIndex + 1);
             }
 
             if (tokens.Length != 3)
@@ -49,7 +51,7 @@ namespace Lexy.Compiler.Language
 
             var value = tokens.Token<NumberLiteralToken>(2);
 
-            return new EnumMember(name, reference, value);
+            return new EnumMember(name, reference, value, (int) value?.NumberValue);
         }
 
         public override IEnumerable<INode> GetChildren()
@@ -77,16 +79,16 @@ namespace Lexy.Compiler.Language
 
         private void ValidateMemberValues(IValidationContext context)
         {
-            if (Value == null) return;
+            if (ValueLiteral == null) return;
 
-            if (Value.NumberValue < 0)
+            if (ValueLiteral.NumberValue < 0)
             {
-                context.Logger.Fail(Reference, $"Enum member value should not be < 0: {Value}");
+                context.Logger.Fail(Reference, $"Enum member value should not be < 0: {ValueLiteral}");
             }
 
-            if (Value.IsDecimal())
+            if (ValueLiteral.IsDecimal())
             {
-                context.Logger.Fail(Reference, $"Enum member value should not be decimal: {Value}");
+                context.Logger.Fail(Reference, $"Enum member value should not be decimal: {ValueLiteral}");
             }
         }
     }

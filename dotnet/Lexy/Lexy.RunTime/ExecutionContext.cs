@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Lexy.RunTime.RunTime
+namespace Lexy.RunTime
 {
     public class ExecutionContext : IExecutionContext
     {

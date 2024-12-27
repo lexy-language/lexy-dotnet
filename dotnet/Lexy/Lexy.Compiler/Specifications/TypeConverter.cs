@@ -1,7 +1,9 @@
 using System;
+using System.Globalization;
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Specifications
 {
@@ -19,15 +21,17 @@ namespace Lexy.Compiler.Specifications
                 var indexOfSeparator = value.IndexOf(".");
                 var enumValue = value[(indexOfSeparator + 1)..];
 
-                return Enum.Parse(compilerResult.GetEnumType(enumVariableType.Type), enumValue);
+                var enumType = compilerResult.GetEnumType(enumVariableType.Type);
+
+                return EnumerationParser.Parse(enumType, enumValue);
             }
 
             if (type is PrimitiveVariableDeclarationType primitiveVariableType)
             {
                 return primitiveVariableType.Type switch
                 {
-                    TypeNames.Number => decimal.Parse(value),
-                    TypeNames.Date => DateTime.Parse(value),
+                    TypeNames.Number => decimal.Parse(value, CultureInfo.InvariantCulture),
+                    TypeNames.Date => DateTime.Parse(value, CultureInfo.InvariantCulture),
                     TypeNames.Boolean => bool.Parse(value),
                     TypeNames.String => value,
                     _ => throw new InvalidOperationException($"Invalid type: '{primitiveVariableType.Type}'")

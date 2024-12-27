@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Parser;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Filters;

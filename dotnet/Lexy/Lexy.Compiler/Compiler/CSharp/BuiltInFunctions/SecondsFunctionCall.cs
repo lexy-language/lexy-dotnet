@@ -1,7 +1,7 @@
 using System;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Types;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
 {

@@ -32,6 +32,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             { SecondsFunction.Name, Create(SecondsFunction.Create) },
 
             { LookupFunction.Name, LookupFunction.Parse },
+            { LookupRowFunction.Name, LookupRowFunction.Parse },
 
             { NewFunction.Name, Create(NewFunction.Create) },
             { FillParametersFunction.Name, Create(FillParametersFunction.Create) },

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Lexy.RunTime.RunTime
+namespace Lexy.RunTime
 {
     public class FunctionResult
     {

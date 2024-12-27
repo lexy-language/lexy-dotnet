@@ -5,7 +5,7 @@ using Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Types;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -75,18 +75,17 @@ namespace Lexy.Compiler.Compiler.CSharp
                     variableDeclaration = variableDeclaration.WithInitializer(
                         EqualsValueClause(defaultValue));
                 }
-                else if (variable.Type is PrimitiveVariableDeclarationType primitiveType)
+                else
                 {
-                    variableDeclaration = variableDeclaration.WithInitializer(
-                        EqualsValueClause(
-                            Types.PrimitiveTypeDefaultExpression(primitiveType)));
+                    var initializer = Types.TypeDefaultExpression(variable.Type);
+                    if (initializer != null)
+                    {
+                        variableDeclaration = variableDeclaration.WithInitializer(EqualsValueClause(initializer));
+                    }
                 }
 
-                var fieldDeclaration = FieldDeclaration(
-                        VariableDeclaration(Types.Syntax(variable))
-                            .WithVariables(
-                                SingletonSeparatedList(
-                                    variableDeclaration)))
+                var fieldDeclaration = FieldDeclaration(VariableDeclaration(Types.Syntax(variable))
+                        .WithVariables(SingletonSeparatedList(variableDeclaration)))
                     .WithModifiers(Modifiers.Public());
 
                 yield return fieldDeclaration;

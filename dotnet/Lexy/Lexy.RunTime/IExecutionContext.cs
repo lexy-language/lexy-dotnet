@@ -1,4 +1,4 @@
-namespace Lexy.RunTime.RunTime
+namespace Lexy.RunTime
 {
     public interface IExecutionContext
     {

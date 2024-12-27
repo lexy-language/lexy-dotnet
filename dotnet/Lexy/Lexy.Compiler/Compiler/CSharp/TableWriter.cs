@@ -35,26 +35,25 @@ namespace Lexy.Compiler.Compiler.CSharp
 
         private static ClassDeclarationSyntax GenerateRowClass(string rowName, Table table)
         {
-
             var fields = List<MemberDeclarationSyntax>(
                 table.Header.Columns
-                    .Select(header =>
-                    {
-                        var typeSyntax = Types.Syntax(header.Type);
-                        var initialize = ExpressionSyntaxFactory.TypeDefaultExpression(header.Type, typeSyntax);
-
-                        return FieldDeclaration(
-                                VariableDeclaration(typeSyntax)
-                                    .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(header.Name))
-                                        .WithInitializer(EqualsValueClause(initialize)))))
-                            .WithModifiers(Modifiers.Public());
-                    }));
+                    .Select(Field));
 
             var rowClassDeclaration = ClassDeclaration(rowName)
                 .WithModifiers(Modifiers.Public())
                 .WithMembers(fields);
 
             return rowClassDeclaration;
+        }
+
+        private static FieldDeclarationSyntax Field(ColumnHeader header)
+        {
+            return FieldDeclaration(
+                    VariableDeclaration(Types.Syntax(header.Type))
+                        .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(header.Name))
+                            .WithInitializer(EqualsValueClause(
+                                Types.TypeDefaultExpression(header.Type))))))
+                .WithModifiers(Modifiers.Public());
         }
 
         private static FieldDeclarationSyntax GenerateFields(string rowName)

@@ -1,7 +1,7 @@
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Specifications;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

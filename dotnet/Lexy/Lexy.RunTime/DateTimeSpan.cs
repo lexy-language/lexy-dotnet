@@ -1,6 +1,6 @@
 using System;
 
-namespace Lexy.RunTime.RunTime
+namespace Lexy.RunTime
 {
     internal struct DateTimeSpan
     {

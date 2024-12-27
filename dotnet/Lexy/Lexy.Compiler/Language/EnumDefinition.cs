@@ -34,7 +34,8 @@ namespace Lexy.Compiler.Language
                 throw new InvalidOperationException("No comments expected. Comment should be parsed by Document only.");
             }
 
-            var member = EnumMember.Parse(context);
+            var lastIndex = Members.LastOrDefault()?.NumberValue ?? -1;
+            var member = EnumMember.Parse(context, lastIndex);
             if (member != null)
             {
                 Members.Add(member);
@@ -54,6 +55,12 @@ namespace Lexy.Compiler.Language
 
         protected override void Validate(IValidationContext context)
         {
+            if (Members.Count == 0)
+            {
+                context.Logger.Fail(Reference, "Enum has no members defined.");
+                return;
+            }
+
             DuplicateChecker.Validate(
                 context,
                 member => member.Reference,

@@ -21,6 +21,11 @@ namespace Lexy.Compiler.Compiler.CSharp
             return Normalize(tableTypeName, LexyCodeConstants.TableClassPrefix);
         }
 
+        public static string EnumClassName(string enumName)
+        {
+            return Normalize(enumName, LexyCodeConstants.EnumClassPrefix);
+        }
+
         private static string Normalize(string functionName, string functionClassPrefix)
         {
             var nameBuilder = new StringBuilder(functionClassPrefix);

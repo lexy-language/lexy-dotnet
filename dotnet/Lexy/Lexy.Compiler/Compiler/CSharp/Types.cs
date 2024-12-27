@@ -11,28 +11,6 @@ namespace Lexy.Compiler.Compiler.CSharp
 {
     internal static class Types
     {
-        public static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableDeclarationType type)
-        {
-            switch (type.Type)
-            {
-                case TypeNames.Number:
-                case TypeNames.Boolean:
-                    var typeSyntax = Syntax(type);
-                    return DefaultExpression(typeSyntax);
-
-                case TypeNames.String:
-                    return LiteralExpression(
-                        SyntaxKind.StringLiteralExpression,
-                        Literal(""));
-
-                case TypeNames.Date:
-                    return TranslateDate(DateTypeDefault.Value);
-
-                default:
-                    throw new InvalidOperationException("Invalid type: " + type.Type);
-            }
-        }
-
         public static ExpressionSyntax TranslateDate(DateTimeLiteral dateTimeLiteral)
         {
             return TranslateDate(dateTimeLiteral.DateTimeValue);
@@ -69,10 +47,10 @@ namespace Lexy.Compiler.Compiler.CSharp
         {
             return type switch
             {
-                TypeNames.String => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.StringKeyword)),
-                TypeNames.Number => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.DecimalKeyword)),
-                TypeNames.Date => SyntaxFactory.ParseName("System.DateTime"),
-                TypeNames.Boolean => SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.BoolKeyword)),
+                TypeNames.String => PredefinedType(Token(SyntaxKind.StringKeyword)),
+                TypeNames.Number => PredefinedType(Token(SyntaxKind.DecimalKeyword)),
+                TypeNames.Date => ParseName("System.DateTime"),
+                TypeNames.Boolean => PredefinedType(Token(SyntaxKind.BoolKeyword)),
                 _ => throw new InvalidOperationException("Couldn't map type: " + type)
             };
         }
@@ -82,7 +60,7 @@ namespace Lexy.Compiler.Compiler.CSharp
             return variableType switch
             {
                 PrimitiveType primitive => Syntax(primitive.Type),
-                EnumType enumType => IdentifierName(enumType.Type),
+                EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
                 TableType tableType => IdentifierName(tableType.Type),
                 ComplexType complexType => ComplexTypeSyntax(complexType),
                 ComplexTypeReference complexTypeReference => ComplexTypeReferenceSyntax(complexTypeReference),
@@ -135,10 +113,43 @@ namespace Lexy.Compiler.Compiler.CSharp
             return type switch
             {
                 PrimitiveVariableDeclarationType primitive => Syntax(primitive.Type),
-                CustomVariableDeclarationType enumType => IdentifierName(enumType.Type),
+                CustomVariableDeclarationType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
                 ImplicitVariableDeclaration implicitVariable => Syntax(implicitVariable.VariableType),
                 _ => throw new InvalidOperationException("Couldn't map type: " + type)
             };
+        }
+
+        public static ExpressionSyntax TypeDefaultExpression(VariableDeclarationType variableDeclarationType)
+        {
+            return variableDeclarationType switch
+            {
+                PrimitiveVariableDeclarationType expression => PrimitiveTypeDefaultExpression(expression),
+                CustomVariableDeclarationType enumType => DefaultExpression(IdentifierName(ClassNames.EnumClassName(enumType.Type))),
+                _ => throw new InvalidOperationException(
+                    $"Wrong VariableDeclarationType {variableDeclarationType.GetType()}")
+            };
+        }
+
+        public static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableDeclarationType type)
+        {
+            switch (type.Type)
+            {
+                case TypeNames.Number:
+                case TypeNames.Boolean:
+                    var typeSyntax = Syntax(type);
+                    return DefaultExpression(typeSyntax);
+
+                case TypeNames.String:
+                    return LiteralExpression(
+                        SyntaxKind.StringLiteralExpression,
+                        Literal(""));
+
+                case TypeNames.Date:
+                    return TranslateDate(DateTypeDefault.Value);
+
+                default:
+                    throw new InvalidOperationException("Invalid type: " + type.Type);
+            }
         }
     }
 }

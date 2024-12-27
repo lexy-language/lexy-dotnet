@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Lexy.RunTime.RunTime
+namespace Lexy.RunTime
 {
     public class ExecutionException : Exception
     {

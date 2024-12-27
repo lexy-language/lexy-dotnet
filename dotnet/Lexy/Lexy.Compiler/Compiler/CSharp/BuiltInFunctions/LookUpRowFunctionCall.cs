@@ -7,23 +7,23 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
 {
-    internal class LookUpFunctionCall : FunctionCall
+    internal class LookUpRowFunctionCall : FunctionCall
     {
         private readonly string methodName;
 
-        public LookupFunction LookupFunction { get; }
+        public LookupRowFunction LookupFunction { get; }
 
-        public LookUpFunctionCall(LookupFunction lookupFunction) : base(lookupFunction)
+        public LookUpRowFunctionCall(LookupRowFunction lookupFunction) : base(lookupFunction)
         {
             LookupFunction = lookupFunction;
             methodName =
-                $"__LookUp{lookupFunction.Table}{lookupFunction.ResultColumn.Member}By{lookupFunction.SearchValueColumn.Member}";
+                $"__LookUp{lookupFunction.Table}RowBy{lookupFunction.SearchValueColumn.Member}";
         }
 
         public override MemberDeclarationSyntax CustomMethodSyntax(ICompileFunctionContext context)
         {
             return MethodDeclaration(
-                    Types.Syntax(LookupFunction.ResultColumnType),
+                    Types.Syntax(LookupFunction.RowType),
                     Identifier(methodName))
                 .WithModifiers(Modifiers.PrivateStatic())
                 .WithParameterList(
@@ -45,14 +45,12 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                                         MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
                                             IdentifierName(nameof(BuiltInTableFunctions)),
-                                            IdentifierName(nameof(BuiltInTableFunctions.LookUp))))
+                                            IdentifierName(nameof(BuiltInTableFunctions.LookUpRow))))
                                     .WithArgumentList(
                                         ArgumentList(
                                             SeparatedList<ArgumentSyntax>(
                                                 new SyntaxNodeOrToken[]
                                                 {
-                                                    Arguments.String(LookupFunction.ResultColumn.Member),
-                                                    Token(SyntaxKind.CommaToken),
                                                     Arguments.String(LookupFunction.SearchValueColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
                                                     Arguments.String(LookupFunction.Table),
@@ -63,9 +61,6 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
                                                     Token(SyntaxKind.CommaToken),
                                                     Arguments.MemberAccessLambda("row",
                                                         LookupFunction.SearchValueColumn.Member),
-                                                    Token(SyntaxKind.CommaToken),
-                                                    Arguments.MemberAccessLambda("row",
-                                                        LookupFunction.ResultColumn.Member),
                                                     Token(SyntaxKind.CommaToken),
                                                     Argument(IdentifierName(LexyCodeConstants.ContextVariable))
                                                 })))))));

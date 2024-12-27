@@ -7,7 +7,7 @@ using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Parser;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexy.Compiler.Specifications
@@ -112,8 +112,7 @@ namespace Lexy.Compiler.Specifications
                     throw new InvalidOperationException($"Parameter '{expected.Name}' doesn't exists");
                 }
 
-                var expectedValue = TypeConverter.Convert(compilerResult, expected.Expression.ToString(),
-                    parameterType);
+                var expectedValue = TypeConverter.Convert(compilerResult, expected.Expression.ToString(), parameterType);
 
                 var actual = result[expected.Name];
                 if (Comparer.Default.Compare(actual, expectedValue) != 0)

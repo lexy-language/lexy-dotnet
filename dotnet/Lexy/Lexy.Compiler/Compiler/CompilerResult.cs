@@ -29,6 +29,5 @@ namespace Lexy.Compiler.Compiler
         {
             return enums[type];
         }
-
     }
 }

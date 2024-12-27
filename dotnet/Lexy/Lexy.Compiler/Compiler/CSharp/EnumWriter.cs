@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,14 +19,14 @@ namespace Lexy.Compiler.Compiler.CSharp
                 throw new InvalidOperationException("Root token not Function");
             }
 
-            var name = enumDefinition.Name.Value;
+            var className = ClassNames.EnumClassName(enumDefinition.Name.Value);
             var members = WriteValues(enumDefinition);
 
-            var enumNode = EnumDeclaration(name)
+            var enumNode = EnumDeclaration(className)
                 .WithMembers(SeparatedList<EnumMemberDeclarationSyntax>(members))
                 .WithModifiers(Modifiers.Public());
 
-            return new GeneratedClass(enumDefinition, name, enumNode);
+            return new GeneratedClass(enumDefinition, className, enumNode);
         }
 
         private SyntaxNodeOrToken[] WriteValues(EnumDefinition enumDefinition)
@@ -37,14 +39,12 @@ namespace Lexy.Compiler.Compiler.CSharp
                     result.Add(Token(SyntaxKind.CommaToken));
                 }
 
-                var declaration = EnumMemberDeclaration(value.Name);
-                if (value.Value != null)
-                {
-                    declaration = declaration.WithEqualsValue(
+                var declaration = EnumMemberDeclaration(value.Name)
+                    .WithEqualsValue(
                         EqualsValueClause(
-                        SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                            Literal((int) value.Value.NumberValue))));
-                }
+                            LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                                Literal(value.NumberValue))));
+
                 result.Add(declaration);
             }
 

@@ -5,7 +5,7 @@ using Lexy.Compiler.Compiler.CSharp.ExpressionStatementExceptions;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -155,7 +155,7 @@ namespace Lexy.Compiler.Compiler.CSharp
 
             var initialize = expression.Assignment != null
                 ? ExpressionSyntax(expression.Assignment, context)
-                : TypeDefaultExpression(expression.Type, typeSyntax);
+                : Types.TypeDefaultExpression(expression.Type);
 
             var variable = VariableDeclarator(Identifier(expression.Name))
                 .WithInitializer(EqualsValueClause(initialize));
@@ -163,17 +163,6 @@ namespace Lexy.Compiler.Compiler.CSharp
             return LocalDeclarationStatement(
                 VariableDeclaration(typeSyntax)
                     .WithVariables(SingletonSeparatedList(variable)));
-        }
-
-        public static ExpressionSyntax TypeDefaultExpression(VariableDeclarationType variableDeclarationType, TypeSyntax typeSyntax)
-        {
-            return variableDeclarationType switch
-            {
-                PrimitiveVariableDeclarationType expression => Types.PrimitiveTypeDefaultExpression(expression),
-                CustomVariableDeclarationType _ => DefaultExpression(typeSyntax),
-                _ => throw new InvalidOperationException(
-                    $"Wrong VariableDeclarationType {variableDeclarationType.GetType()}")
-            };
         }
 
         public static ExpressionSyntax ExpressionSyntax(Expression line, ICompileFunctionContext context)
@@ -253,7 +242,7 @@ namespace Lexy.Compiler.Compiler.CSharp
                 throw new InvalidOperationException($"Invalid MemberAccessExpression: {expression}");
             }
 
-            var rootType = expression.RootType is TableType ? ClassNames.TableClassName(parts[0]) : parts[0];
+            var rootType = VariableClassName(expression, parts);
 
             ExpressionSyntax result = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
@@ -269,6 +258,17 @@ namespace Lexy.Compiler.Compiler.CSharp
             }
 
             return result;
+        }
+
+        private static string VariableClassName(MemberAccessExpression expression, string[] parts)
+        {
+            return expression.RootType switch
+            {
+                TableType _ => ClassNames.TableClassName(parts[0]),
+                FunctionType _ => ClassNames.TableClassName(parts[0]),
+                EnumType _ => ClassNames.EnumClassName(parts[0]),
+                _ => parts[0]
+            };
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
-using CommandLine;
+//using CommandLine;
 
 namespace Lexy
 {
     internal static class Program
     {
+        /*
         public class Options
         {
             [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
@@ -28,5 +29,6 @@ namespace Lexy
                     }
                 });
         }
+        */
     }
 }

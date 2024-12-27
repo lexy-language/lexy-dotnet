@@ -19,5 +19,8 @@ namespace Lexy.Compiler.Compiler.CSharp
         public const string FunctionClassPrefix = "Function__";
         public const string ComplexTypeClassPrefix = "Complex__";
         public const string TableClassPrefix = "Table__";
+
+        public const string EnumClassPrefix = "Enum__";
+        public const string EnumDefaultField = "__Default";
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Lexy.Compiler.Compiler.CSharp;
 using Lexy.Compiler.Language;
-using Lexy.RunTime.RunTime;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Compiler
 {

@@ -19,6 +19,7 @@ namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
             return expression.ExpressionFunction switch
             {
                 LookupFunction function => new LookUpFunctionCall(function),
+                LookupRowFunction function => new LookUpRowFunctionCall(function),
 
                 IntFunction function => new IntFunctionCall(function),
                 AbsFunction function => new AbsFunctionCall(function),
