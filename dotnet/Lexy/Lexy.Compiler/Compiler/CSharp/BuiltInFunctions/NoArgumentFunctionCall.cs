@@ -2,29 +2,31 @@ using Lexy.Compiler.Language.Expressions.Functions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
+namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
+
+internal abstract class NoArgumentFunctionCall : FunctionCall
 {
-    internal abstract class NoArgumentFunctionCall : FunctionCall
+    public NoArgumentFunction Function { get; }
+
+    protected abstract string ClassName { get; }
+    protected abstract string MethodName { get; }
+
+    protected NoArgumentFunctionCall(NoArgumentFunction function) : base(function)
     {
-        public NoArgumentFunction Function { get; }
+        Function = function;
+    }
 
-        protected abstract string ClassName { get; }
-        protected abstract string MethodName { get; }
+    public override MemberDeclarationSyntax CustomMethodSyntax(ICompileFunctionContext context)
+    {
+        return null;
+    }
 
-        protected NoArgumentFunctionCall(NoArgumentFunction function) : base(function)
-        {
-            Function = function;
-        }
-
-        public override MemberDeclarationSyntax CustomMethodSyntax(ICompileFunctionContext context) => null;
-
-        public override ExpressionSyntax CallExpressionSyntax(ICompileFunctionContext context)
-        {
-            return SyntaxFactory.InvocationExpression(
-                SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(ClassName),
-                    SyntaxFactory.IdentifierName(MethodName)));
-        }
+    public override ExpressionSyntax CallExpressionSyntax(ICompileFunctionContext context)
+    {
+        return SyntaxFactory.InvocationExpression(
+            SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                SyntaxFactory.IdentifierName(ClassName),
+                SyntaxFactory.IdentifierName(MethodName)));
     }
 }

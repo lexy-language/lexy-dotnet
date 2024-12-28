@@ -1,83 +1,78 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Scenarios;
 using Microsoft.Extensions.Logging;
 
-namespace Lexy.Compiler.Specifications
+namespace Lexy.Compiler.Specifications;
+
+public class SpecificationRunnerContext : ISpecificationRunnerContext, IDisposable
 {
-    public class SpecificationRunnerContext : ISpecificationRunnerContext, IDisposable
+    private readonly List<ISpecificationFileRunner> fileRunners = new();
+
+    private readonly ILogger<SpecificationRunnerContext> logger;
+
+    public SpecificationRunnerContext(ILogger<SpecificationRunnerContext> logger)
     {
-        private readonly List<ISpecificationFileRunner> fileRunners = new List<ISpecificationFileRunner>();
+        this.logger = logger;
+    }
 
-        private readonly ILogger<SpecificationRunnerContext> logger;
+    public void Dispose()
+    {
+        foreach (var fileRunner in fileRunners) fileRunner.Dispose();
+    }
 
-        //public IList<string> Messages { get; } = new List<string>();
+    //public IList<string> Messages { get; } = new List<string>();
 
-        public int Failed { get; private set; }
+    public int Failed { get; private set; }
 
-        public IReadOnlyCollection<ISpecificationFileRunner> FileRunners => fileRunners;
+    public IReadOnlyCollection<ISpecificationFileRunner> FileRunners => fileRunners;
 
-        public SpecificationRunnerContext(ILogger<SpecificationRunnerContext> logger)
-        {
-            this.logger = logger;
-        }
+    public void Fail(Scenario scenario, string message)
+    {
+        Failed++;
 
-        public void Fail(Scenario scenario, string message)
-        {
-            Failed++;
+        var log = $"- FAILED  - {scenario.Name}: {message}";
 
-            var log = $"- FAILED  - {scenario.Name}: {message}";
+        Console.WriteLine(log);
+        logger.LogError(log);
+    }
 
-            Console.WriteLine(log);
-            logger.LogError(log);
-        }
+    public void LogGlobal(string message)
+    {
+        Console.WriteLine(Environment.NewLine + message + Environment.NewLine);
+        logger.LogInformation(message);
+    }
 
-        public void LogGlobal(string message)
-        {
-            Console.WriteLine(  Environment.NewLine + message + Environment.NewLine);
-            logger.LogInformation(message);
-        }
+    public void Log(string message)
+    {
+        var log = $"  {message}";
+        Console.WriteLine(log);
+        logger.LogInformation(log);
+    }
 
-        public void Log(string message)
-        {
-            var log = $"  {message}";
-            Console.WriteLine(log);
-            logger.LogInformation(log);
-        }
+    public void Success(Scenario scenario)
+    {
+        var log = $"- SUCCESS - {scenario.Name}";
+        Console.WriteLine(log);
+        logger.LogInformation(log);
+    }
 
-        public void Success(Scenario scenario)
-        {
-            var log = $"- SUCCESS - {scenario.Name}";
-            Console.WriteLine(log);
-            logger.LogInformation(log);
-        }
+    public void Add(ISpecificationFileRunner fileRunner)
+    {
+        fileRunners.Add(fileRunner);
+    }
 
-        public void Add(ISpecificationFileRunner fileRunner)
-        {
-            fileRunners.Add(fileRunner);
-        }
+    public IEnumerable<IScenarioRunner> FailedScenariosRunners()
+    {
+        return fileRunners
+            .SelectMany(runner => runner.ScenarioRunners)
+            .Where(scenario => scenario.Failed);
+    }
 
-        public void Dispose()
-        {
-            foreach (var fileRunner in fileRunners)
-            {
-                fileRunner.Dispose();
-            }
-        }
-
-        public IEnumerable<IScenarioRunner> FailedScenariosRunners()
-        {
-            return fileRunners
-                .SelectMany(runner => runner.ScenarioRunners)
-                .Where(scenario => scenario.Failed);
-        }
-
-        public int CountScenarios()
-        {
-            return FileRunners.Select(fileRunner => fileRunner.CountScenarioRunners())
-                .Aggregate((value, total) => value + total);
-        }
+    public int CountScenarios()
+    {
+        return FileRunners.Select(fileRunner => fileRunner.CountScenarioRunners())
+            .Aggregate((value, total) => value + total);
     }
 }

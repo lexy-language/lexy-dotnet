@@ -1,16 +1,15 @@
 using System;
 
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+public abstract class Token : IToken
 {
-    public abstract class Token : IToken
+    public abstract string Value { get; }
+
+    protected Token(TokenCharacter firstCharacter)
     {
-        public TokenCharacter FirstCharacter { get; }
-
-        public abstract string Value { get; }
-
-        protected Token(TokenCharacter firstCharacter)
-        {
-            FirstCharacter = firstCharacter ?? throw new ArgumentNullException(nameof(firstCharacter));
-        }
+        FirstCharacter = firstCharacter ?? throw new ArgumentNullException(nameof(firstCharacter));
     }
+
+    public TokenCharacter FirstCharacter { get; }
 }

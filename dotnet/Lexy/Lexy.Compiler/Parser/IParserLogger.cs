@@ -1,34 +1,33 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language;
 
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public interface IParserLogger
 {
-    public interface IParserLogger
-    {
-        void LogInfo(string message);
+    void LogInfo(string message);
 
-        void Log(SourceReference reference, string message);
-        void Fail(SourceReference reference, string message);
-        void Fail(INode node, SourceReference reference, string message);
+    void Log(SourceReference reference, string message);
+    void Fail(SourceReference reference, string message);
+    void Fail(INode node, SourceReference reference, string message);
 
-        void LogNodes(IEnumerable<INode> nodes);
+    void LogNodes(IEnumerable<INode> nodes);
 
-        bool HasErrors();
-        bool HasRootErrors();
+    bool HasErrors();
+    bool HasRootErrors();
 
-        bool HasErrorMessage(string expectedError);
+    bool HasErrorMessage(string expectedError);
 
-        public string FormatMessages();
+    public string FormatMessages();
 
-        bool NodeHasErrors(IRootNode node);
+    bool NodeHasErrors(IRootNode node);
 
-        string[] ErrorMessages();
-        string[] ErrorRootMessages();
-        string[] ErrorNodeMessages(IRootNode node);
+    string[] ErrorMessages();
+    string[] ErrorRootMessages();
+    string[] ErrorNodeMessages(IRootNode node);
 
-        void AssertNoErrors();
+    void AssertNoErrors();
 
-        void SetCurrentNode(IRootNode node);
-        void Reset();
-    }
+    void SetCurrentNode(IRootNode node);
+    void Reset();
 }

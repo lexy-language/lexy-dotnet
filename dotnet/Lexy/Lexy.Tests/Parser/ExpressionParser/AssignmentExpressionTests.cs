@@ -2,45 +2,44 @@ using Lexy.Compiler.Language.Expressions;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser.ExpressionParser
-{
-    public class AssignmentExpressionTests : ScopedServicesTestFixture
-    {
-        [Test]
-        public void Addition()
-        {
-            var expression = this.ParseExpression("A = B + C");
-            expression.ValidateOfType<AssignmentExpression>(assignmentExpression =>
-            {
-                assignmentExpression.Variable.ValidateIdentifierExpression("A");
-                assignmentExpression.Assignment.ValidateOfType<BinaryExpression>(addition =>
-                {
-                    addition.Operator.ShouldBe(ExpressionOperator.Addition);
-                    addition.Left.ValidateVariableExpression("B");
-                    addition.Right.ValidateVariableExpression("C");
-                });
-            });
-        }
+namespace Lexy.Poc.Parser.ExpressionParser;
 
-        [Test]
-        public void AdditionAndMultiplication()
+public class AssignmentExpressionTests : ScopedServicesTestFixture
+{
+    [Test]
+    public void Addition()
+    {
+        var expression = this.ParseExpression("A = B + C");
+        expression.ValidateOfType<AssignmentExpression>(assignmentExpression =>
         {
-            var expression = this.ParseExpression("A = B + C * 12");
-            expression.ValidateOfType<AssignmentExpression>(assignment =>
+            assignmentExpression.Variable.ValidateIdentifierExpression("A");
+            assignmentExpression.Assignment.ValidateOfType<BinaryExpression>(addition =>
             {
-                assignment.Variable.ValidateIdentifierExpression("A");
-                assignment.Assignment.ValidateOfType<BinaryExpression>(addition =>
+                addition.Operator.ShouldBe(ExpressionOperator.Addition);
+                addition.Left.ValidateVariableExpression("B");
+                addition.Right.ValidateVariableExpression("C");
+            });
+        });
+    }
+
+    [Test]
+    public void AdditionAndMultiplication()
+    {
+        var expression = this.ParseExpression("A = B + C * 12");
+        expression.ValidateOfType<AssignmentExpression>(assignment =>
+        {
+            assignment.Variable.ValidateIdentifierExpression("A");
+            assignment.Assignment.ValidateOfType<BinaryExpression>(addition =>
+            {
+                addition.Operator.ShouldBe(ExpressionOperator.Addition);
+                addition.Left.ValidateVariableExpression("B");
+                addition.Right.ValidateOfType<BinaryExpression>(multiplication =>
                 {
-                    addition.Operator.ShouldBe(ExpressionOperator.Addition);
-                    addition.Left.ValidateVariableExpression("B");
-                    addition.Right.ValidateOfType<BinaryExpression>(multiplication =>
-                    {
-                        multiplication.Operator.ShouldBe(ExpressionOperator.Multiplication);
-                        multiplication.Left.ValidateVariableExpression("C");
-                        multiplication.Right.ValidateNumericLiteralExpression(12m);
-                    });
+                    multiplication.Operator.ShouldBe(ExpressionOperator.Multiplication);
+                    multiplication.Left.ValidateVariableExpression("C");
+                    multiplication.Right.ValidateNumericLiteralExpression(12m);
                 });
             });
-        }
+        });
     }
 }

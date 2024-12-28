@@ -1,21 +1,23 @@
 using System;
 
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public class SourceReference
 {
-    public class SourceReference
+    private readonly int? characterNumber;
+    private readonly int? lineNumber;
+
+    public SourceFile File { get; }
+
+    public SourceReference(SourceFile file, int? lineNumber, int? characterNumber)
     {
-        private readonly int? lineNumber;
-        private readonly int? characterNumber;
+        File = file ?? throw new ArgumentNullException(nameof(file));
+        this.characterNumber = characterNumber;
+        this.lineNumber = lineNumber;
+    }
 
-        public SourceFile File { get; }
-
-        public SourceReference(SourceFile file, int? lineNumber, int? characterNumber)
-        {
-            File = file ?? throw new ArgumentNullException(nameof(file));
-            this.characterNumber = characterNumber;
-            this.lineNumber = lineNumber;
-        }
-
-        public override string ToString() => $"{File.FileName}({lineNumber}, {characterNumber})";
+    public override string ToString()
+    {
+        return $"{File.FileName}({lineNumber}, {characterNumber})";
     }
 }

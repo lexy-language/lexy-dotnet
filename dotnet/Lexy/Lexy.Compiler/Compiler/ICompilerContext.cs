@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 
-namespace Lexy.Compiler.Compiler
+namespace Lexy.Compiler.Compiler;
+
+public interface ICompilerContext
 {
-    public interface ICompilerContext
-    {
-        ILogger<CompilerContext> Logger { get; }
-    }
+    ILogger<CompilerContext> Logger { get; }
 }

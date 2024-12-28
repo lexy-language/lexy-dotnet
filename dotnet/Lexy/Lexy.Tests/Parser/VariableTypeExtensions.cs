@@ -1,14 +1,13 @@
 using Lexy.Compiler.Language.Types;
 using Shouldly;
 
-namespace Lexy.Poc.Parser
+namespace Lexy.Poc.Parser;
+
+internal static class VariableTypeExtensions
 {
-    internal static class VariableTypeExtensions
+    public static void ShouldBePrimitiveType(this VariableDeclarationType type, string name)
     {
-        public static void ShouldBePrimitiveType(this VariableDeclarationType type, string name)
-        {
-            type.ShouldBeOfType<PrimitiveVariableDeclarationType>()
-                .Type.ShouldBe(name);
-        }
+        type.ShouldBeOfType<PrimitiveVariableDeclarationType>()
+            .Type.ShouldBe(name);
     }
 }

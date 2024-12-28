@@ -1,15 +1,14 @@
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
-{
-    internal class NowFunctionCall : NoArgumentFunctionCall
-    {
-        protected override string ClassName => nameof(BuiltInDateFunctions);
-        protected override string MethodName => nameof(BuiltInDateFunctions.Now);
+namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 
-        public NowFunctionCall(NowFunction function) : base(function)
-        {
-        }
+internal class NowFunctionCall : NoArgumentFunctionCall
+{
+    protected override string ClassName => nameof(BuiltInDateFunctions);
+    protected override string MethodName => nameof(BuiltInDateFunctions.Now);
+
+    public NowFunctionCall(NowFunction function) : base(function)
+    {
     }
 }

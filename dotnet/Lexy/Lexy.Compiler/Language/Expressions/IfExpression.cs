@@ -3,94 +3,83 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Expressions
+namespace Lexy.Compiler.Language.Expressions;
+
+public class IfExpression : Expression, IParsableNode
 {
-    public class IfExpression : Expression, IParsableNode
+    private readonly ExpressionList trueExpressions;
+
+    public Expression Condition { get; }
+    public IEnumerable<Expression> TrueExpressions => trueExpressions;
+
+    public ElseExpression Else { get; set; }
+
+    private IfExpression(Expression condition, ExpressionSource source, SourceReference reference) : base(source,
+        reference)
     {
-        private readonly ExpressionList trueExpressions;
+        Condition = condition;
+        trueExpressions = new ExpressionList(reference);
+    }
 
-        public Expression Condition { get; }
-        public IEnumerable<Expression> TrueExpressions => trueExpressions;
+    public IParsableNode Parse(IParserContext context)
+    {
+        var line = context.CurrentLine;
+        if (line.IsComment() || line.IsEmpty()) return this;
 
-        public ElseExpression Else { get; set; }
+        var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line);
+        if (context.Failed(expression, context.LineStartReference())) return null;
 
-        private IfExpression(Expression condition, ExpressionSource source, SourceReference reference) : base(source, reference)
-        {
-            Condition = condition;
-            trueExpressions = new ExpressionList(reference);
-        }
+        trueExpressions.Add(expression.Result, context);
+        return expression.Result is IParsableNode node ? node : this;
+    }
 
-        public static ParseExpressionResult Parse(ExpressionSource source)
-        {
-            var tokens = source.Tokens;
-            if (!IsValid(tokens))
-            {
-                return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
-            }
+    public override IEnumerable<INode> GetChildren()
+    {
+        yield return Condition;
+        yield return trueExpressions;
+        if (Else != null) yield return Else;
+    }
 
-            if (tokens.Length == 1)
-            {
-                return ParseExpressionResult.Invalid<IfExpression>("No condition found");
-            }
+    public static ParseExpressionResult Parse(ExpressionSource source)
+    {
+        var tokens = source.Tokens;
+        if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
 
-            var condition = tokens.TokensFrom(1);
-            var conditionExpression = ExpressionFactory.Parse(source.File, condition, source.Line);
-            if (!conditionExpression.IsSuccess) return conditionExpression;
+        if (tokens.Length == 1) return ParseExpressionResult.Invalid<IfExpression>("No condition found");
 
-            var reference = source.CreateReference();
+        var condition = tokens.TokensFrom(1);
+        var conditionExpression = ExpressionFactory.Parse(source.File, condition, source.Line);
+        if (!conditionExpression.IsSuccess) return conditionExpression;
 
-            var expression = new IfExpression(conditionExpression.Result, source, reference);
+        var reference = source.CreateReference();
 
-            return ParseExpressionResult.Success(expression);
-        }
+        var expression = new IfExpression(conditionExpression.Result, source, reference);
 
-        public static bool IsValid(TokenList tokens)
-        {
-            return tokens.IsKeyword(0, Keywords.If);
-        }
+        return ParseExpressionResult.Success(expression);
+    }
 
-        public IParsableNode Parse(IParserContext context)
-        {
-            var line = context.CurrentLine;
-            if (line.IsComment() || line.IsEmpty())
-            {
-                return this;
-            }
+    public static bool IsValid(TokenList tokens)
+    {
+        return tokens.IsKeyword(0, Keywords.If);
+    }
 
-            var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line);
-            if (context.Failed(expression, context.LineStartReference())) return null;
+    protected override void Validate(IValidationContext context)
+    {
+        var type = Condition.DeriveType(context);
+        if (type == null || !type.Equals(PrimitiveType.Boolean))
+            context.Logger.Fail(Reference,
+                $"'if' condition expression should be 'boolean', is of wrong type '{type}'.");
+    }
 
-            trueExpressions.Add(expression.Result, context);
-            return expression.Result is IParsableNode node ? node : this;
-        }
+    internal void LinkElse(ElseExpression elseExpression)
+    {
+        if (Else != null) throw new InvalidOperationException("'else' already linked.");
 
-        public override IEnumerable<INode> GetChildren()
-        {
-            yield return Condition;
-            yield return trueExpressions;
-            if (Else != null)
-            {
-                yield return Else;
-            }
-        }
+        Else = elseExpression;
+    }
 
-        protected override void Validate(IValidationContext context)
-        {
-            var type = Condition.DeriveType(context);
-            if (type == null || !type.Equals(PrimitiveType.Boolean))
-            {
-                context.Logger.Fail(Reference,
-                    $"'if' condition expression should be 'boolean', is of wrong type '{type}'.");
-            }
-        }
-
-        internal void LinkElse(ElseExpression elseExpression)
-        {
-            if (Else != null) throw new InvalidOperationException("'else' already linked.");
-
-            Else = elseExpression;
-        }
-
-        public override VariableType DeriveType(IValidationContext context) => null;
+    public override VariableType DeriveType(IValidationContext context)
+    {
+        return null;
     }
 }

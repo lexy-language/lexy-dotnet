@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 
-namespace Lexy.Compiler.Language.Expressions.Functions
+namespace Lexy.Compiler.Language.Expressions.Functions;
+
+internal interface IHasNodeDependencies
 {
-    internal interface IHasNodeDependencies
-    {
-        IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList);
-    }
+    IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList);
 }

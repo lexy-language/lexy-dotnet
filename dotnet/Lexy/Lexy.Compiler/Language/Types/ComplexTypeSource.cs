@@ -1,10 +1,9 @@
-namespace Lexy.Compiler.Language.Types
+namespace Lexy.Compiler.Language.Types;
+
+public enum ComplexTypeSource
 {
-    public enum ComplexTypeSource
-    {
-        FunctionParameters,
-        FunctionResults,
-        TableRow,
-        Custom
-    }
+    FunctionParameters,
+    FunctionResults,
+    TableRow,
+    Custom
 }

@@ -1,8 +1,7 @@
-namespace Lexy.Compiler.Language.Expressions
+namespace Lexy.Compiler.Language.Expressions;
+
+public enum ParseExpressionStatus
 {
-    public enum ParseExpressionStatus
-    {
-        Success,
-        Failed
-    }
+    Success,
+    Failed
 }

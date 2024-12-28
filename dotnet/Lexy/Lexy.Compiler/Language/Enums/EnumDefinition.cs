@@ -3,75 +3,66 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Enums
+namespace Lexy.Compiler.Language.Enums;
+
+public class EnumDefinition : RootNode
 {
-    public class EnumDefinition : RootNode
+    public EnumName Name { get; }
+
+    public override string NodeName => Name.Value;
+
+    public IList<EnumMember> Members { get; } = new List<EnumMember>();
+
+    private EnumDefinition(string name, SourceReference reference) : base(reference)
     {
-        public EnumName Name { get; }
+        Name = new EnumName(reference);
+        Name.ParseName(name);
+    }
 
-        public override string NodeName => Name.Value;
+    internal static EnumDefinition Parse(NodeName name, SourceReference reference)
+    {
+        return new EnumDefinition(name.Name, reference);
+    }
 
-        public IList<EnumMember> Members { get; } = new List<EnumMember>();
+    public override IParsableNode Parse(IParserContext context)
+    {
+        var line = context.CurrentLine;
+        if (line.IsEmpty()) return this;
 
-        private EnumDefinition(string name, SourceReference reference) : base(reference)
+        if (line.IsComment())
+            throw new InvalidOperationException("No comments expected. Comment should be parsed by Document only.");
+
+        var lastIndex = Members.LastOrDefault()?.NumberValue ?? -1;
+        var member = EnumMember.Parse(context, lastIndex);
+        if (member != null) Members.Add(member);
+        return this;
+    }
+
+    public override IEnumerable<INode> GetChildren()
+    {
+        yield return Name;
+
+        foreach (var member in Members) yield return member;
+    }
+
+    protected override void Validate(IValidationContext context)
+    {
+        if (Members.Count == 0)
         {
-            Name = new EnumName(reference);
-            Name.ParseName(name);
+            context.Logger.Fail(Reference, "Enum has no members defined.");
+            return;
         }
 
-        internal static EnumDefinition Parse(NodeName name, SourceReference reference)
-        {
-            return new EnumDefinition(name.Name, reference);
-        }
+        DuplicateChecker.Validate(
+            context,
+            member => member.Reference,
+            member => member.Name,
+            member => $"Enum member name should be unique. Duplicate name: '{member.Name}'",
+            Members);
+    }
 
-        public override IParsableNode Parse(IParserContext context)
-        {
-            var line = context.CurrentLine;
-            if (line.IsEmpty()) return this;
-
-            if (line.IsComment())
-            {
-                throw new InvalidOperationException("No comments expected. Comment should be parsed by Document only.");
-            }
-
-            var lastIndex = Members.LastOrDefault()?.NumberValue ?? -1;
-            var member = EnumMember.Parse(context, lastIndex);
-            if (member != null)
-            {
-                Members.Add(member);
-            }
-            return this;
-        }
-
-        public override IEnumerable<INode> GetChildren()
-        {
-            yield return Name;
-
-            foreach (var member in Members)
-            {
-                yield return member;
-            }
-        }
-
-        protected override void Validate(IValidationContext context)
-        {
-            if (Members.Count == 0)
-            {
-                context.Logger.Fail(Reference, "Enum has no members defined.");
-                return;
-            }
-
-            DuplicateChecker.Validate(
-                context,
-                member => member.Reference,
-                member => member.Name,
-                member => $"Enum member name should be unique. Duplicate name: '{member.Name}'",
-                Members);
-        }
-
-        public bool ContainsMember(string name)
-        {
-            return Members.Any(member => member.Name == name);
-        }
+    public bool ContainsMember(string name)
+    {
+        return Members.Any(member => member.Name == name);
     }
 }

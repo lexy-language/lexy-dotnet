@@ -1,12 +1,11 @@
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Poc.Parser
+namespace Lexy.Poc.Parser;
+
+public static class TokenFactory
 {
-    public static class TokenFactory
+    public static StringLiteralToken String(string value)
     {
-        public static StringLiteralToken String(string value)
-        {
-            return new StringLiteralToken(value, TestTokenCharacter.Dummy);
-        }
+        return new StringLiteralToken(value, TestTokenCharacter.Dummy);
     }
 }

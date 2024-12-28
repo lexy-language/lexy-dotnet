@@ -1,54 +1,50 @@
 using System;
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
 
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+public class QuotedLiteralToken : ParsableToken, ILiteralToken
 {
-    public class QuotedLiteralToken : ParsableToken, ILiteralToken
+    private bool quoteClosed;
+
+    public QuotedLiteralToken(TokenCharacter character) : base(null, character)
     {
-        private bool quoteClosed;
+        var value = character.Value;
+        if (value != TokenValues.Quote)
+            throw new InvalidOperationException("QuotedLiteralToken should start with a quote");
+    }
 
-        public object TypedValue => Value;
+    public object TypedValue => Value;
 
-        public QuotedLiteralToken(TokenCharacter character) : base(null, character)
+    public VariableType DeriveType(IValidationContext context)
+    {
+        return PrimitiveType.String;
+    }
+
+    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    {
+        var value = character.Value;
+        if (quoteClosed) throw new InvalidOperationException("No characters allowed after closing quote.");
+
+        if (value == TokenValues.Quote)
         {
-            var value = character.Value;
-            if (value != TokenValues.Quote)
-            {
-                throw new InvalidOperationException("QuotedLiteralToken should start with a quote");
-            }
-        }
-
-        public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
-        {
-            var value = character.Value;
-            if (quoteClosed)
-            {
-                throw new InvalidOperationException("No characters allowed after closing quote.");
-            }
-
-            if (value == TokenValues.Quote)
-            {
-                quoteClosed = true;
-                return ParseTokenResult.Finished(true, this);
-            }
-
-            AppendValue(value);
-            return ParseTokenResult.InProgress();
-        }
-
-        public override ParseTokenResult Finalize(IParserContext parserContext)
-        {
-            if (!quoteClosed)
-            {
-                return ParseTokenResult.Invalid("Closing quote expected.");
-            }
-
+            quoteClosed = true;
             return ParseTokenResult.Finished(true, this);
         }
 
-        public override string ToString() => Value;
+        AppendValue(value);
+        return ParseTokenResult.InProgress();
+    }
 
-        public VariableType DeriveType(IValidationContext context) => PrimitiveType.String;
+    public override ParseTokenResult Finalize(IParserContext parserContext)
+    {
+        if (!quoteClosed) return ParseTokenResult.Invalid("Closing quote expected.");
+
+        return ParseTokenResult.Finished(true, this);
+    }
+
+    public override string ToString()
+    {
+        return Value;
     }
 }

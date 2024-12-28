@@ -1,9 +1,8 @@
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language
+namespace Lexy.Compiler.Language;
+
+public interface IParsableNode : INode
 {
-    public interface IParsableNode : INode
-    {
-        IParsableNode Parse(IParserContext context);
-    }
+    IParsableNode Parse(IParserContext context);
 }

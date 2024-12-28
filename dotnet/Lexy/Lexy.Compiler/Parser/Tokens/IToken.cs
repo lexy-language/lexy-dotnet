@@ -1,7 +1,6 @@
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+public interface IToken
 {
-    public interface IToken
-    {
-        TokenCharacter FirstCharacter { get; }
-    }
+    TokenCharacter FirstCharacter { get; }
 }

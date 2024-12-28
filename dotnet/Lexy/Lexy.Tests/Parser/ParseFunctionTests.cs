@@ -1,16 +1,15 @@
 using Lexy.Compiler.Parser;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser
+namespace Lexy.Poc.Parser;
+
+public class ParseFunctionTests : ScopedServicesTestFixture
 {
-    public class ParseFunctionTests : ScopedServicesTestFixture
+    [Test]
+    public void TestDuplicatedFunctionName()
     {
-        [Test]
-        public void TestDuplicatedFunctionName()
-        {
-            var code = @"Function: ValidateTableKeyword
+        var code = @"Function: ValidateTableKeyword
 # Validate table keywords
   Include
     table ValidateTableKeyword
@@ -30,11 +29,10 @@ Function: ValidateTableKeyword
   Code
     Result = ValidateTableKeyword.Count";
 
-            var parser = GetService<ILexyParser>();
-            parser.ParseNodes(code);
+        var parser = GetService<ILexyParser>();
+        parser.ParseNodes(code);
 
-            var logger = GetService<IParserLogger>();
-            logger.HasErrorMessage("Duplicated node name: 'ValidateTableKeyword'").ShouldBeTrue(logger.FormatMessages());
-        }
+        var logger = GetService<IParserLogger>();
+        logger.HasErrorMessage("Duplicated node name: 'ValidateTableKeyword'").ShouldBeTrue(logger.FormatMessages());
     }
 }

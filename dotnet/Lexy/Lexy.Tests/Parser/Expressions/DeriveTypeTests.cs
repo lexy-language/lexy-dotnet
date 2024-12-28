@@ -1,190 +1,195 @@
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Poc.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser.Expressions
+namespace Lexy.Poc.Parser.Expressions;
+
+public class DeriveTypeTests : ScopedServicesTestFixture
 {
-    public class DeriveTypeTests : ScopedServicesTestFixture
+    [Test]
+    public void NumberLiteral()
     {
-        [Test]
-        public void NumberLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression("5");
-            var type = expression.DeriveType(validationContext);
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression("5");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Number);
-        }
+        type.ShouldBe(PrimitiveType.Number);
+    }
 
-        [Test]
-        public void StringLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression(@"""abc""");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void StringLiteral()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression(@"""abc""");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.String);
-        }
+        type.ShouldBe(PrimitiveType.String);
+    }
 
-        [Test]
-        public void BooleanLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression(@"true");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void BooleanLiteral()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression(@"true");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Boolean);
-        }
+        type.ShouldBe(PrimitiveType.Boolean);
+    }
 
-        [Test]
-        public void BooleanLiteralFalse()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression(@"false");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void BooleanLiteralFalse()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression(@"false");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Boolean);
-        }
+        type.ShouldBe(PrimitiveType.Boolean);
+    }
 
-        [Test]
-        public void DateTimeLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression(@"d""2024/12/24 10:05:00""");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void DateTimeLiteral()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression(@"d""2024/12/24 10:05:00""");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Date);
-        }
+        type.ShouldBe(PrimitiveType.Date);
+    }
 
-        [Test]
-        public void NumberCalculationLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression("5 + 5");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void NumberCalculationLiteral()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression("5 + 5");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Number);
-        }
+        type.ShouldBe(PrimitiveType.Number);
+    }
 
-        [Test]
-        public void StringConcatLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression(@"""abc"" + ""def""");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void StringConcatLiteral()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression(@"""abc"" + ""def""");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.String);
-        }
+        type.ShouldBe(PrimitiveType.String);
+    }
 
-        [Test]
-        public void BooleanLogicalLiteral()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            var expression = this.ParseExpression(@"true && false");
-            var type = expression.DeriveType(validationContext);
+    [Test]
+    public void BooleanLogicalLiteral()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        var expression = this.ParseExpression(@"true && false");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Boolean);
-        }
+        type.ShouldBe(PrimitiveType.Boolean);
+    }
 
-        [Test]
-        public void StringVariable()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String, VariableSource.Results);
+    [Test]
+    public void StringVariable()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"a");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"a");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.String);
-        }
+        type.ShouldBe(PrimitiveType.String);
+    }
 
-        [Test]
-        public void NumberVariable()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number, VariableSource.Results);
+    [Test]
+    public void NumberVariable()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"a");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"a");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Number);
-        }
+        type.ShouldBe(PrimitiveType.Number);
+    }
 
-        [Test]
-        public void BooleanVariable()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Boolean, VariableSource.Results);
+    [Test]
+    public void BooleanVariable()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Boolean,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"a");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"a");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Boolean);
-        }
+        type.ShouldBe(PrimitiveType.Boolean);
+    }
 
-        [Test]
-        public void DateTimeVariable()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Date, VariableSource.Results);
+    [Test]
+    public void DateTimeVariable()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Date,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"a");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"a");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Date);
-        }
+        type.ShouldBe(PrimitiveType.Date);
+    }
 
-        [Test]
-        public void StringVariableConcat()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String, VariableSource.Results);
+    [Test]
+    public void StringVariableConcat()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.String,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"a + ""bc""");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"a + ""bc""");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.String);
-        }
+        type.ShouldBe(PrimitiveType.String);
+    }
 
-        [Test]
-        public void NumberVariableCalculation()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number, VariableSource.Results);
+    [Test]
+    public void NumberVariableCalculation()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"a + 20");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"a + 20");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Number);
-        }
+        type.ShouldBe(PrimitiveType.Number);
+    }
 
-        [Test]
-        public void NumberVariableWithParenthesisCalculation()
-        {
-            var validationContext = new ValidationContext(GetService<IParserContext>());
-            using var _ = validationContext.CreateVariableScope();
-            var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
-            validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number, VariableSource.Results);
+    [Test]
+    public void NumberVariableWithParenthesisCalculation()
+    {
+        var validationContext = new ValidationContext(GetService<IParserContext>());
+        using var _ = validationContext.CreateVariableScope();
+        var reference = new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        validationContext.VariableContext.RegisterVariableAndVerifyUnique(reference, "a", PrimitiveType.Number,
+            VariableSource.Results);
 
-            var expression = this.ParseExpression(@"(a + 20.05) * 3");
-            var type = expression.DeriveType(validationContext);
+        var expression = this.ParseExpression(@"(a + 20.05) * 3");
+        var type = expression.DeriveType(validationContext);
 
-            type.ShouldBe(PrimitiveType.Number);
-        }
+        type.ShouldBe(PrimitiveType.Number);
     }
 }

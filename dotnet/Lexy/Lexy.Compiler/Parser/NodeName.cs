@@ -1,45 +1,43 @@
+namespace Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Parser
+internal class NodeName
 {
-    internal class NodeName
+    public string Name { get; }
+    public string Keyword { get; }
+
+    private NodeName(string keyword, string name)
     {
-        public string Name { get; }
-        public string Keyword { get; }
+        Name = name;
+        Keyword = keyword;
+    }
 
-        private NodeName(string keyword, string name)
-        {
-            Name = name;
-            Keyword = keyword;
-        }
+    public static NodeName Parse(Line line, IParserContext context)
+    {
+        var tokens = line.Tokens;
+        if (tokens.Length < 1 || tokens.Length > 2) return null;
 
-        public static NodeName Parse(Line line, IParserContext context)
-        {
-            var tokens = line.Tokens;
-            if (tokens.Length < 1 || tokens.Length > 2) return null;
+        var valid = context.ValidateTokens<NodeName>()
+            .Keyword(0)
+            .IsValid;
 
-            var valid = context.ValidateTokens<NodeName>()
-                .Keyword(0)
-                .IsValid;
+        if (!valid) return null;
 
-            if (!valid) return null;
+        var keyword = tokens.TokenValue(0);
+        if (tokens.Length == 1) return new NodeName(keyword, null);
 
-            var keyword = tokens.TokenValue(0);
-            if (tokens.Length == 1)
-            {
-                return new NodeName(keyword, null);
-            }
+        valid = context.ValidateTokens<NodeName>()
+            .StringLiteral(1)
+            .IsValid;
 
-            valid = context.ValidateTokens<NodeName>()
-                .StringLiteral(1)
-                .IsValid;
+        if (!valid) return null;
 
-            if (!valid) return null;
+        var parameter = tokens.TokenValue(1);
 
-            var parameter = tokens.TokenValue(1);
+        return new NodeName(keyword, parameter);
+    }
 
-            return new NodeName(keyword, parameter);
-        }
-
-        public override string ToString() => $"{Keyword} {Name}";
+    public override string ToString()
+    {
+        return $"{Keyword} {Name}";
     }
 }

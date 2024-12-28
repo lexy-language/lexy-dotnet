@@ -1,23 +1,24 @@
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Expressions.Functions
+namespace Lexy.Compiler.Language.Expressions.Functions;
+
+public class YearFunction : SingleArgumentFunction
 {
-    public class YearFunction : SingleArgumentFunction
+    public const string Name = "YEAR";
+
+    protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
+
+    protected override VariableType ArgumentType => PrimitiveType.Date;
+    protected override VariableType ResultType => PrimitiveType.Number;
+
+    private YearFunction(Expression valueExpression, SourceReference reference)
+        : base(valueExpression, reference)
     {
-        public const string Name = "YEAR";
+    }
 
-        protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
-
-        protected override VariableType ArgumentType => PrimitiveType.Date;
-        protected override VariableType ResultType => PrimitiveType.Number;
-
-        private YearFunction(Expression valueExpression, SourceReference reference)
-            : base(valueExpression, reference)
-        {
-        }
-
-        public static ExpressionFunction Create(SourceReference reference, Expression expression) =>
-            new YearFunction(expression, reference);
+    public static ExpressionFunction Create(SourceReference reference, Expression expression)
+    {
+        return new YearFunction(expression, reference);
     }
 }

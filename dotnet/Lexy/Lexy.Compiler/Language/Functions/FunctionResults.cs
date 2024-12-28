@@ -1,37 +1,39 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Functions
+namespace Lexy.Compiler.Language.Functions;
+
+public class FunctionResults : ParsableNode
 {
-    public class FunctionResults : ParsableNode
+    public IList<VariableDefinition> Variables { get; } = new List<VariableDefinition>();
+
+    public FunctionResults(SourceReference reference) : base(reference)
     {
-        public IList<VariableDefinition> Variables { get; } = new List<VariableDefinition>();
+    }
 
-        public FunctionResults(SourceReference reference) : base(reference)
+    public override IParsableNode Parse(IParserContext context)
+    {
+        var variableDefinition = VariableDefinition.Parse(VariableSource.Results, context);
+        if (variableDefinition == null) return this;
+
+        if (variableDefinition.DefaultExpression != null)
         {
-        }
-
-        public override IParsableNode Parse(IParserContext context)
-        {
-            var variableDefinition = VariableDefinition.Parse(VariableSource.Results, context);
-            if (variableDefinition == null) return this;
-
-            if (variableDefinition.DefaultExpression != null)
-            {
-                context.Logger.Fail(Reference,
-                    $"Result variable '{variableDefinition.Name}' should not have a default value.");
-                return this;
-            }
-
-            Variables.Add(variableDefinition);
-
+            context.Logger.Fail(Reference,
+                $"Result variable '{variableDefinition.Name}' should not have a default value.");
             return this;
         }
 
-        public override IEnumerable<INode> GetChildren() => Variables;
+        Variables.Add(variableDefinition);
 
-        protected override void Validate(IValidationContext context)
-        {
-        }
+        return this;
+    }
+
+    public override IEnumerable<INode> GetChildren()
+    {
+        return Variables;
+    }
+
+    protected override void Validate(IValidationContext context)
+    {
     }
 }

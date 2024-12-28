@@ -1,104 +1,103 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
 
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+public class NumberLiteralToken : ParsableToken, ILiteralToken
 {
-    public class NumberLiteralToken : ParsableToken, ILiteralToken
+    private readonly char[] allowedNextTokensValues =
     {
-        private readonly char[] allowedNextTokensValues = {
-            TokenValues.TableSeparator,
-            TokenValues.Space,
-            TokenValues.Assignment,
+        TokenValues.TableSeparator,
+        TokenValues.Space,
+        TokenValues.Assignment,
 
-            TokenValues.Addition,
-            TokenValues.Subtraction,
-            TokenValues.Multiplication,
-            TokenValues.Division,
-            TokenValues.Modulus,
-            TokenValues.CloseParentheses,
-            TokenValues.CloseBrackets,
-            TokenValues.GreaterThan,
-            TokenValues.LessThan,
-            TokenValues.ArgumentSeparator,
-        };
+        TokenValues.Addition,
+        TokenValues.Subtraction,
+        TokenValues.Multiplication,
+        TokenValues.Division,
+        TokenValues.Modulus,
+        TokenValues.CloseParentheses,
+        TokenValues.CloseBrackets,
+        TokenValues.GreaterThan,
+        TokenValues.LessThan,
+        TokenValues.ArgumentSeparator
+    };
 
-        private bool hasDecimalSeparator;
-        private decimal? numberValue;
+    private bool hasDecimalSeparator;
+    private decimal? numberValue;
 
-        public decimal NumberValue
+    public decimal NumberValue
+    {
+        get
         {
-            get
-            {
-                if (!numberValue.HasValue)
-                {
-                    throw new InvalidOperationException("NumberLiteralToken not finalized.");
-                }
-                return numberValue.Value;
-            }
+            if (!numberValue.HasValue) throw new InvalidOperationException("NumberLiteralToken not finalized.");
+            return numberValue.Value;
+        }
+    }
+
+    public NumberLiteralToken(decimal value, TokenCharacter character) : base(character)
+    {
+        numberValue = value;
+    }
+
+    public NumberLiteralToken(TokenCharacter character) : base(character)
+    {
+    }
+
+    public override string Value => numberValue.HasValue
+        ? numberValue.Value.ToString(CultureInfo.InvariantCulture)
+        : base.Value;
+
+    public object TypedValue => NumberValue;
+
+    public VariableType DeriveType(IValidationContext context)
+    {
+        return PrimitiveType.Number;
+    }
+
+    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    {
+        var value = character.Value;
+        if (char.IsDigit(value))
+        {
+            AppendValue(value);
+            return ParseTokenResult.InProgress();
         }
 
-        public override string Value => numberValue.HasValue
-            ? numberValue.Value.ToString(CultureInfo.InvariantCulture)
-            : base.Value;
-
-        public object TypedValue => NumberValue;
-
-        public NumberLiteralToken(decimal value, TokenCharacter character) : base(character)
+        if (value == TokenValues.DecimalSeparator)
         {
-            numberValue = value;
+            if (hasDecimalSeparator) return ParseTokenResult.Invalid("Only one decimal separator expected");
+
+            hasDecimalSeparator = true;
+            AppendValue(value);
+            return ParseTokenResult.InProgress();
         }
 
-        public NumberLiteralToken(TokenCharacter character) : base(character)
-        {
-        }
+        return allowedNextTokensValues.Contains(value)
+            ? Finish()
+            : ParseTokenResult.Invalid($"Invalid number token character: '{value}'");
+    }
 
-        public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
-        {
-            var value = character.Value;
-            if (char.IsDigit(value))
-            {
-                AppendValue(value);
-                return ParseTokenResult.InProgress();
-            }
+    public override ParseTokenResult Finalize(IParserContext parserContext)
+    {
+        return Finish();
+    }
 
-            if (value == TokenValues.DecimalSeparator)
-            {
-                if (hasDecimalSeparator)
-                {
-                    return ParseTokenResult.Invalid("Only one decimal separator expected");
-                }
+    private ParseTokenResult Finish()
+    {
+        numberValue = decimal.Parse(base.Value, CultureInfo.InvariantCulture);
+        return ParseTokenResult.Finished(false);
+    }
 
-                hasDecimalSeparator = true;
-                AppendValue(value);
-                return ParseTokenResult.InProgress();
-            }
+    public bool IsDecimal()
+    {
+        return numberValue.HasValue && numberValue % 1 != 0;
+    }
 
-            return allowedNextTokensValues.Contains(value)
-                ? Finish()
-                : ParseTokenResult.Invalid($"Invalid number token character: '{value}'");
-        }
-
-        public override ParseTokenResult Finalize(IParserContext parserContext)
-        {
-            return Finish();
-        }
-
-        private ParseTokenResult Finish()
-        {
-            numberValue = decimal.Parse(base.Value, CultureInfo.InvariantCulture);
-            return ParseTokenResult.Finished(false);
-        }
-
-        public bool IsDecimal()
-        {
-            return numberValue.HasValue && numberValue % 1 != 0;
-        }
-
-        public override string ToString() => Value;
-
-        public VariableType DeriveType(IValidationContext context) => PrimitiveType.Number;
+    public override string ToString()
+    {
+        return Value;
     }
 }

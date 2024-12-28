@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Expressions
+namespace Lexy.Compiler.Language.Expressions;
+
+public static class ExpressionFactory
 {
-    public static class ExpressionFactory
-    {
-        private static readonly IDictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>> factories =
-            new Dictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>>()
+    private static readonly IDictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>>
+        factories =
+            new Dictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>>
             {
                 { IfExpression.IsValid, IfExpression.Parse },
                 { ElseExpression.IsValid, ElseExpression.Parse },
@@ -21,21 +22,18 @@ namespace Lexy.Compiler.Language.Expressions
                 { MemberAccessExpression.IsValid, MemberAccessExpression.Parse },
                 { LiteralExpression.IsValid, LiteralExpression.Parse },
                 { BinaryExpression.IsValid, BinaryExpression.Parse },
-                { FunctionCallExpression.IsValid, FunctionCallExpression.Parse },
+                { FunctionCallExpression.IsValid, FunctionCallExpression.Parse }
             };
 
-        public static ParseExpressionResult Parse(SourceFile file, TokenList tokens, Line currentLine)
-        {
-            foreach (var factory in factories)
+    public static ParseExpressionResult Parse(SourceFile file, TokenList tokens, Line currentLine)
+    {
+        foreach (var factory in factories)
+            if (factory.Key(tokens))
             {
-                if (factory.Key(tokens))
-                {
-                    var source = new ExpressionSource(file, currentLine, tokens);
-                    return factory.Value(source);
-                }
+                var source = new ExpressionSource(file, currentLine, tokens);
+                return factory.Value(source);
             }
 
-            return ParseExpressionResult.Invalid<Expression>($"Invalid expression: {tokens}");
-        }
+        return ParseExpressionResult.Invalid<Expression>($"Invalid expression: {tokens}");
     }
 }

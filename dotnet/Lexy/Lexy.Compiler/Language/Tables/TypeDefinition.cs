@@ -23,14 +23,14 @@ public class TypeDefinition : RootNode
     public override IParsableNode Parse(IParserContext context)
     {
         var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context);
-        if (variableDefinition != null)
-        {
-            Variables.Add(variableDefinition);
-        }
+        if (variableDefinition != null) Variables.Add(variableDefinition);
         return this;
     }
 
-    public override IEnumerable<INode> GetChildren() => Variables;
+    public override IEnumerable<INode> GetChildren()
+    {
+        return Variables;
+    }
 
     protected override void Validate(IValidationContext context)
     {

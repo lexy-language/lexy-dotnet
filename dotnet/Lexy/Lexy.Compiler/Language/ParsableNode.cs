@@ -1,13 +1,12 @@
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language
-{
-    public abstract class ParsableNode : Node, IParsableNode
-    {
-        public abstract IParsableNode Parse(IParserContext context);
+namespace Lexy.Compiler.Language;
 
-        protected ParsableNode(SourceReference reference) : base(reference)
-        {
-        }
+public abstract class ParsableNode : Node, IParsableNode
+{
+    protected ParsableNode(SourceReference reference) : base(reference)
+    {
     }
+
+    public abstract IParsableNode Parse(IParserContext context);
 }

@@ -1,24 +1,23 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Lexy.RunTime
+namespace Lexy.RunTime;
+
+public class ExecutionException : Exception
 {
-    public class ExecutionException : Exception
+    public ExecutionException()
     {
-        public ExecutionException()
-        {
-        }
+    }
 
-        protected ExecutionException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+    protected ExecutionException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
+    }
 
-        public ExecutionException(string message) : base(message)
-        {
-        }
+    public ExecutionException(string message) : base(message)
+    {
+    }
 
-        public ExecutionException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+    public ExecutionException(string message, Exception innerException) : base(message, innerException)
+    {
     }
 }

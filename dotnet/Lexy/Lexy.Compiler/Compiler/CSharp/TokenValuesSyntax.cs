@@ -3,36 +3,39 @@ using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Lexy.Compiler.Compiler.CSharp
+namespace Lexy.Compiler.Compiler.CSharp;
+
+internal static class TokenValuesSyntax
 {
-    internal static class TokenValuesSyntax
+    public static ExpressionSyntax Expression(ILiteralToken token)
     {
-        public static ExpressionSyntax Expression(ILiteralToken token)
+        if (token == null) return null;
+
+        return token switch
         {
-            if (token == null) return null;
+            QuotedLiteralToken _ => SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
+                SyntaxFactory.Literal(token.Value)),
+            NumberLiteralToken number => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+                SyntaxFactory.Literal($"{number.NumberValue}m", number.NumberValue)),
+            DateTimeLiteral dateTimeLiteral => Types.TranslateDate(dateTimeLiteral),
+            BooleanLiteral boolean => SyntaxFactory.LiteralExpression(boolean.BooleanValue
+                ? SyntaxKind.TrueLiteralExpression
+                : SyntaxKind.FalseLiteralExpression),
+            MemberAccessLiteral memberAccess => TranslateMemberAccessLiteral(memberAccess),
+            _ => throw new InvalidOperationException("Couldn't map type: " + token.GetType())
+        };
+    }
 
-            return token switch
-            {
-                QuotedLiteralToken _ => SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(token.Value)),
-                NumberLiteralToken number => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal($"{number.NumberValue}m", number.NumberValue)),
-                DateTimeLiteral dateTimeLiteral =>  Types.TranslateDate(dateTimeLiteral),
-                BooleanLiteral boolean => SyntaxFactory.LiteralExpression(boolean.BooleanValue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
-                MemberAccessLiteral memberAccess => TranslateMemberAccessLiteral(memberAccess),
-                _ => throw new InvalidOperationException("Couldn't map type: " + token.GetType())
-            };
-        }
+    private static ExpressionSyntax TranslateMemberAccessLiteral(MemberAccessLiteral memberAccess)
+    {
+        var parts = memberAccess.Parts;
+        if (parts.Length != 2) throw new InvalidOperationException("Only 2 parts expected.");
 
-        private static ExpressionSyntax TranslateMemberAccessLiteral(MemberAccessLiteral memberAccess)
-        {
-            var parts = memberAccess.Parts;
-            if (parts.Length != 2) throw new InvalidOperationException("Only 2 parts expected.");
+        var identifierNameSyntax = SyntaxFactory.IdentifierName(parts[0]);
 
-            var identifierNameSyntax = SyntaxFactory.IdentifierName(parts[0]);
-
-            return SyntaxFactory.MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                identifierNameSyntax,
-                SyntaxFactory.IdentifierName(parts[1]));
-        }
+        return SyntaxFactory.MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression,
+            identifierNameSyntax,
+            SyntaxFactory.IdentifierName(parts[1]));
     }
 }

@@ -1,20 +1,19 @@
 using Lexy.Compiler.Language;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Lexy.Compiler.Compiler.CSharp
-{
-    public class GeneratedClass
-    {
-        public IRootNode Node { get; }
-        public string ClassName { get; }
-        public string FullClassName => $"{LexyCodeConstants.Namespace}.{ClassName}";
-        public MemberDeclarationSyntax Syntax { get; }
+namespace Lexy.Compiler.Compiler.CSharp;
 
-        public GeneratedClass(IRootNode node, string className, MemberDeclarationSyntax syntax)
-        {
-            Node = node;
-            ClassName = className;
-            Syntax = syntax;
-        }
+public class GeneratedClass
+{
+    public IRootNode Node { get; }
+    public string ClassName { get; }
+    public string FullClassName => $"{LexyCodeConstants.Namespace}.{ClassName}";
+    public MemberDeclarationSyntax Syntax { get; }
+
+    public GeneratedClass(IRootNode node, string className, MemberDeclarationSyntax syntax)
+    {
+        Node = node;
+        ClassName = className;
+        Syntax = syntax;
     }
 }

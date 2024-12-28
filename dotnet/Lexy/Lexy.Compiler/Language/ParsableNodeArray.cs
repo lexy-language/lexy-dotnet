@@ -1,37 +1,33 @@
 using System;
 
-namespace Lexy.Compiler.Language
+namespace Lexy.Compiler.Language;
+
+public class ParsableNodeArray
 {
-    public class ParsableNodeArray
+    private IParsableNode[] values = new IParsableNode[8];
+
+    public ParsableNodeArray(IParsableNode rootNode)
     {
-        private IParsableNode[] values = new IParsableNode[8];
+        values[0] = rootNode;
+    }
 
-        public ParsableNodeArray(IParsableNode rootNode)
+    public IParsableNode Get(int indent)
+    {
+        var node = values[indent];
+        for (var index = indent + 1; index < values.Length; index++)
         {
-            values[0] = rootNode;
+            if (values[index] == null) break;
+
+            values[index] = null;
         }
 
-        public IParsableNode Get(int indent)
-        {
-            var node = values[indent];
-            for (var index = indent + 1; index < values.Length; index++)
-            {
-                if (values[index] == null) break;
+        return node;
+    }
 
-                values[index] = null;
-            }
+    public void Set(int indent, IParsableNode node)
+    {
+        if (indent >= values.Length) Array.Resize(ref values, values.Length * 2);
 
-            return node;
-        }
-
-        public void Set(int indent, IParsableNode node)
-        {
-            if (indent >= values.Length)
-            {
-                Array.Resize(ref values, values.Length * 2);
-            }
-
-            values[indent] = node;
-        }
+        values[indent] = node;
     }
 }

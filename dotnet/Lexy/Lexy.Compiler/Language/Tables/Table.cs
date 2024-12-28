@@ -4,87 +4,73 @@ using System.Linq;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Tables
+namespace Lexy.Compiler.Language.Tables;
+
+public class Table : RootNode
 {
-    public class Table : RootNode
+    public const string RowName = "Row";
+    public TableName Name { get; } = new();
+    public TableHeader Header { get; private set; }
+    public IList<TableRow> Rows { get; } = new List<TableRow>();
+
+    public override string NodeName => Name.Value;
+
+    private Table(string name, SourceReference reference) : base(reference)
     {
-        public TableName Name { get; } = new TableName();
-        public TableHeader Header { get; private set; }
-        public IList<TableRow> Rows { get; } = new List<TableRow>();
+        Name.ParseName(name);
+    }
 
-        public override string NodeName => Name.Value;
+    internal static Table Parse(NodeName name, SourceReference reference)
+    {
+        return new Table(name.Name, reference);
+    }
 
-        public const string RowName = "Row";
+    public override IParsableNode Parse(IParserContext context)
+    {
+        var line = context.CurrentLine;
+        if (line.IsEmpty()) return this;
 
-        private Table(string name, SourceReference reference) : base(reference)
+        if (line.IsComment())
+            throw new InvalidOperationException("No comments expected. Comment should be parsed by Document only.");
+
+        if (IsFirstLine())
+            Header = TableHeader.Parse(context);
+        else
+            Rows.Add(TableRow.Parse(context));
+
+        return this;
+    }
+
+    private bool IsFirstLine()
+    {
+        return Header == null;
+    }
+
+    public override IEnumerable<INode> GetChildren()
+    {
+        if (Header != null) yield return Header;
+
+        foreach (var row in Rows) yield return row;
+    }
+
+    protected override void Validate(IValidationContext context)
+    {
+    }
+
+    public override void ValidateTree(IValidationContext context)
+    {
+        using (context.CreateVariableScope())
         {
-            Name.ParseName(name);
+            base.ValidateTree(context);
         }
+    }
 
-        internal static Table Parse(NodeName name, SourceReference reference)
-        {
-            return new Table(name.Name, reference);
-        }
+    public ComplexType GetRowType(IValidationContext context)
+    {
+        var members = Header.Columns
+            .Select(column => new ComplexTypeMember(column.Name, column.Type.CreateVariableType(context)))
+            .ToList();
 
-        public override IParsableNode Parse(IParserContext context)
-        {
-            var line = context.CurrentLine;
-            if (line.IsEmpty()) return this;
-
-            if (line.IsComment())
-            {
-                throw new InvalidOperationException("No comments expected. Comment should be parsed by Document only.");
-            }
-
-            if (IsFirstLine())
-            {
-                Header = TableHeader.Parse(context);
-            }
-            else
-            {
-                Rows.Add(TableRow.Parse(context));
-            }
-
-            return this;
-        }
-
-        private bool IsFirstLine()
-        {
-            return Header == null;
-        }
-
-        public override IEnumerable<INode> GetChildren()
-        {
-            if (Header != null)
-            {
-                yield return Header;
-            }
-
-            foreach (var row in Rows)
-            {
-                yield return row;
-            }
-        }
-
-        protected override void Validate(IValidationContext context)
-        {
-        }
-
-        public override void ValidateTree(IValidationContext context)
-        {
-            using (context.CreateVariableScope())
-            {
-                base.ValidateTree(context);
-            }
-        }
-
-        public ComplexType GetRowType(IValidationContext context)
-        {
-            var members = Header.Columns
-                .Select(column => new ComplexTypeMember(column.Name, column.Type.CreateVariableType(context)))
-                .ToList();
-
-            return new ComplexType(Name.Value, ComplexTypeSource.TableRow, members);
-        }
+        return new ComplexType(Name.Value, ComplexTypeSource.TableRow, members);
     }
 }

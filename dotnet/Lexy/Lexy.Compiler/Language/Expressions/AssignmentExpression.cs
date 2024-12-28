@@ -10,7 +10,8 @@ public class AssignmentExpression : Expression
     public Expression Variable { get; }
     public Expression Assignment { get; }
 
-    private AssignmentExpression(Expression variable, Expression assignment, ExpressionSource source, SourceReference reference) : base(source, reference)
+    private AssignmentExpression(Expression variable, Expression assignment, ExpressionSource source,
+        SourceReference reference) : base(source, reference)
     {
         Variable = variable;
         Assignment = assignment;
@@ -19,10 +20,7 @@ public class AssignmentExpression : Expression
     public static ParseExpressionResult Parse(ExpressionSource source)
     {
         var tokens = source.Tokens;
-        if (!IsValid(tokens))
-        {
-            return ParseExpressionResult.Invalid<ParseExpressionResult>("Invalid expression.");
-        }
+        if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParseExpressionResult>("Invalid expression.");
 
         var variableExpression = ExpressionFactory.Parse(source.File, tokens.TokensFromStart(1), source.Line);
         if (!variableExpression.IsSuccess) return variableExpression;
@@ -69,17 +67,13 @@ public class AssignmentExpression : Expression
 
         var expressionType = Assignment.DeriveType(context);
         if (!variableType.Equals(expressionType))
-        {
-            context.Logger.Fail(Reference, $"Variable '{variableName}' of type '{variableType}' is not assignable from expression of type '{expressionType}'.");
-        }
+            context.Logger.Fail(Reference,
+                $"Variable '{variableName}' of type '{variableType}' is not assignable from expression of type '{expressionType}'.");
     }
 
     private void ValidateMemberAccess(IValidationContext context)
     {
-        if (!(Variable is MemberAccessExpression memberAccessExpression))
-        {
-            return;
-        }
+        if (!(Variable is MemberAccessExpression memberAccessExpression)) return;
 
         var assignmentType = Assignment.DeriveType(context);
 
@@ -87,9 +81,8 @@ public class AssignmentExpression : Expression
         if (variableType != null)
         {
             if (assignmentType == null || !assignmentType.Equals(variableType))
-            {
-                context.Logger.Fail(Reference, $"Variable '{memberAccessExpression.Variable}' of type '{variableType}' is not assignable from expression of type '{assignmentType}'.");
-            }
+                context.Logger.Fail(Reference,
+                    $"Variable '{memberAccessExpression.Variable}' of type '{variableType}' is not assignable from expression of type '{assignmentType}'.");
             return;
         }
 
@@ -104,10 +97,12 @@ public class AssignmentExpression : Expression
 
         var memberType = typeWithMembers.MemberType(literal.Member, context);
         if (assignmentType == null || !assignmentType.Equals(memberType))
-        {
-            context.Logger.Fail(Reference, $"Variable '{literal}' of type '{memberType}' is not assignable from expression of type '{assignmentType}'.");
-        }
+            context.Logger.Fail(Reference,
+                $"Variable '{literal}' of type '{memberType}' is not assignable from expression of type '{assignmentType}'.");
     }
 
-    public override VariableType DeriveType(IValidationContext context) => Assignment.DeriveType(context);
+    public override VariableType DeriveType(IValidationContext context)
+    {
+        return Assignment.DeriveType(context);
+    }
 }

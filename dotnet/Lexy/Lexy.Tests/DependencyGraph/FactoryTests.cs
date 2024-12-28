@@ -1,5 +1,4 @@
 using System.Linq;
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
@@ -11,12 +10,12 @@ namespace Lexy.Poc.DependencyGraph;
 
 public class FactoryTests : ScopedServicesTestFixture
 {
-    const string enumDefinition = @"Enum: SimpleEnum
+    private const string enumDefinition = @"Enum: SimpleEnum
   First
   Second
 ";
 
-    const string table = @"Table: SimpleTable
+    private const string table = @"Table: SimpleTable
   | number Search | string Value |
   | 0 | ""0"" |
   | 1 | ""1"" |

@@ -1,15 +1,12 @@
-
-
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language
-{
-    public abstract class RootNode : ParsableNode, IRootNode
-    {
-        public abstract string NodeName { get; }
+namespace Lexy.Compiler.Language;
 
-        protected RootNode(SourceReference reference) : base(reference)
-        {
-        }
+public abstract class RootNode : ParsableNode, IRootNode
+{
+    protected RootNode(SourceReference reference) : base(reference)
+    {
     }
+
+    public abstract string NodeName { get; }
 }

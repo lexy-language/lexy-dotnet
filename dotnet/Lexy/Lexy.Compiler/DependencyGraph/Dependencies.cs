@@ -8,8 +8,8 @@ namespace Lexy.Compiler.DependencyGraph;
 
 public class Dependencies
 {
+    private readonly List<IRootNode> circularReferences = new();
     private readonly RootNodeList rootNodes;
-    private readonly List<IRootNode> circularReferences = new List<IRootNode>();
 
     public IList<DependencyNode> Nodes { get; } = new List<DependencyNode>();
     public bool HasCircularReferences => circularReferences.Count > 0;
@@ -27,20 +27,14 @@ public class Dependencies
 
     private void ProcessNodes(IEnumerable<IRootNode> nodes, DependencyNode parentNode)
     {
-        foreach (var node in nodes)
-        {
-            Nodes.Add(ProcessNode(node, parentNode));
-        }
+        foreach (var node in nodes) Nodes.Add(ProcessNode(node, parentNode));
     }
 
     private DependencyNode ProcessNode(INode node, DependencyNode parentNode)
     {
         var dependencyNode = NewDependencyNode(node, parentNode);
         var dependencies = GetDependencies(node, dependencyNode);
-        foreach (var dependency in dependencies)
-        {
-            dependencyNode.AddDependency(dependency);
-        }
+        foreach (var dependency in dependencies) dependencyNode.AddDependency(dependency);
         return dependencyNode;
     }
 
@@ -57,18 +51,17 @@ public class Dependencies
         return resultDependencies;
     }
 
-    private void ProcessDependencies(DependencyNode parentNode, INode childNode, List<DependencyNode> resultDependencies)
+    private void ProcessDependencies(DependencyNode parentNode, INode childNode,
+        List<DependencyNode> resultDependencies)
     {
         var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(rootNodes);
         if (nodeDependencies == null) return;
 
-        foreach (var dependency in nodeDependencies)
-        {
-            ValidateDependency(parentNode, resultDependencies, dependency);
-        }
+        foreach (var dependency in nodeDependencies) ValidateDependency(parentNode, resultDependencies, dependency);
     }
 
-    private void ValidateDependency(DependencyNode parentNode, List<DependencyNode> resultDependencies, IRootNode dependency)
+    private void ValidateDependency(DependencyNode parentNode, List<DependencyNode> resultDependencies,
+        IRootNode dependency)
     {
         if (dependency == null) throw new InvalidOperationException("node.GetNodes() should never return null");
 

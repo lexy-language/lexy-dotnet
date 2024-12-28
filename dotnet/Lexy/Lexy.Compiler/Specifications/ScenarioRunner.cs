@@ -13,222 +13,208 @@ using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lexy.Compiler.Specifications
+namespace Lexy.Compiler.Specifications;
+
+public class ScenarioRunner : IScenarioRunner, IDisposable
 {
-    public class ScenarioRunner : IScenarioRunner, IDisposable
+    private readonly ILexyCompiler lexyCompiler;
+    private ISpecificationRunnerContext context;
+
+    private string fileName;
+    private Function function;
+    private IParserLogger parserLogger;
+    private RootNodeList rootNodeList;
+    private IServiceScope serviceScope;
+
+    public ScenarioRunner(ILexyCompiler lexyCompiler)
     {
-        private ISpecificationRunnerContext context;
-        private readonly ILexyCompiler lexyCompiler;
+        this.lexyCompiler = lexyCompiler;
+    }
 
-        private string fileName;
-        private Scenario scenario;
-        private Function function;
-        private RootNodeList rootNodeList;
-        private IParserLogger parserLogger;
-        private IServiceScope serviceScope;
+    public void Dispose()
+    {
+        serviceScope?.Dispose();
+        serviceScope = null;
+    }
 
-        public bool Failed { get; private set; }
-        public Scenario Scenario => scenario;
+    public bool Failed { get; private set; }
+    public Scenario Scenario { get; private set; }
 
-        public ScenarioRunner(ILexyCompiler lexyCompiler)
+    public void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
+        ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger)
+    {
+        //parserContext and runnerContext are managed by a parent ServiceProvider scope,
+        //thus they can't be injected via the constructor
+        if (this.fileName != null)
+            throw new InvalidOperationException(
+                "Initialize should only called once. Scope should be managed by ServiceProvider.CreateScope");
+
+        this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+        this.context = context;
+
+        this.rootNodeList = rootNodeList ?? throw new ArgumentNullException(nameof(rootNodeList));
+        this.Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
+        this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
+        this.serviceScope = serviceScope ?? throw new ArgumentNullException(nameof(serviceScope));
+
+        function = scenario.Function ?? rootNodeList.GetFunction(scenario.FunctionName.Value);
+    }
+
+    public void Run()
+    {
+        if (parserLogger.NodeHasErrors(Scenario))
         {
-            this.lexyCompiler = lexyCompiler;
+            Fail($"  Parsing scenario failed: {Scenario.FunctionName}");
+            parserLogger.ErrorNodeMessages(Scenario).ForEach(context.Log);
+            return;
         }
 
-        public void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
-            ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger)
+        if (!ValidateErrors(context)) return;
+
+        var compilerResult = lexyCompiler.Compile(rootNodeList, function);
+        var executable = compilerResult.GetFunction(function);
+        var values = GetValues(Scenario.Parameters, function.Parameters, compilerResult);
+
+        var result = executable.Run(values);
+
+        var validationResultText = GetValidationResult(result, compilerResult);
+        if (validationResultText.Length > 0)
+            Fail(validationResultText);
+        else
+            context.Success(Scenario);
+    }
+
+    public string ParserLogging()
+    {
+        return $"------- Filename: {fileName}{Environment.NewLine}{parserLogger.ErrorMessages().Format(2)}";
+    }
+
+    public static IScenarioRunner Create(string fileName, Scenario scenario,
+        IParserContext parserContext, ISpecificationRunnerContext context,
+        IServiceProvider serviceProvider)
+    {
+        if (scenario == null) throw new ArgumentNullException(nameof(scenario));
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scenarioRunner = serviceScope.ServiceProvider.GetRequiredService<IScenarioRunner>();
+        scenarioRunner.Initialize(fileName, parserContext.Nodes, scenario, context, serviceScope, parserContext.Logger);
+
+        return scenarioRunner;
+    }
+
+    private void Fail(string message)
+    {
+        Failed = true;
+        context.Fail(Scenario, message);
+    }
+
+    private string GetValidationResult(FunctionResult result, CompilerResult compilerResult)
+    {
+        var validationResult = new StringWriter();
+        foreach (var expected in Scenario.Results.Assignments)
         {
-            //parserContext and runnerContext are managed by a parent ServiceProvider scope,
-            //thus they can't be injected via the constructor
-            if (this.fileName != null)
-            {
-                throw new InvalidOperationException(
-                    "Initialize should only called once. Scope should be managed by ServiceProvider.CreateScope");
-            }
+            var actual = result.GetValue(expected.Variable);
+            var expectedValue =
+                TypeConverter.Convert(compilerResult, expected.ConstantValue.Value, expected.VariableType);
 
-            this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-            this.context = context;
-
-            this.rootNodeList = rootNodeList ?? throw new ArgumentNullException(nameof(rootNodeList));
-            this.scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
-            this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
-            this.serviceScope = serviceScope ?? throw new ArgumentNullException(nameof(serviceScope));
-
-            function = scenario.Function ?? rootNodeList.GetFunction(scenario.FunctionName.Value);
+            if (actual == null || expectedValue == null
+                               || actual.GetType() != expectedValue.GetType()
+                               || Comparer.Default.Compare(actual, expectedValue) != 0)
+                validationResult.WriteLine(
+                    $"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
         }
 
-        public static IScenarioRunner Create(string fileName, Scenario scenario,
-            IParserContext parserContext, ISpecificationRunnerContext context,
-            IServiceProvider serviceProvider)
+        return validationResult.ToString();
+    }
+
+    private bool ValidateErrors(ISpecificationRunnerContext runnerContext)
+    {
+        if (Scenario.ExpectRootErrors.HasValues) return ValidateRootErrors();
+
+        var node = function ?? Scenario.Function ?? Scenario.Enum ?? (IRootNode)Scenario.Table;
+        var failedMessages = parserLogger.ErrorNodeMessages(node);
+
+        if (failedMessages.Length > 0 && !Scenario.ExpectError.HasValue)
         {
-            if (scenario == null) throw new ArgumentNullException(nameof(scenario));
-
-            var serviceScope = serviceProvider.CreateScope();
-            var scenarioRunner = serviceScope.ServiceProvider.GetRequiredService<IScenarioRunner>();
-            scenarioRunner.Initialize(fileName, parserContext.Nodes, scenario, context, serviceScope, parserContext.Logger);
-
-            return scenarioRunner;
+            Fail("Exception occured: " + failedMessages.Format(2));
+            return false;
         }
 
-        public void Run()
+        if (!Scenario.ExpectError.HasValue) return true;
+
+        if (failedMessages.Length == 0)
         {
-            if (parserLogger.NodeHasErrors(scenario))
-            {
-                Fail($"  Parsing scenario failed: {scenario.FunctionName}");
-                parserLogger.ErrorNodeMessages(scenario).ForEach(context.Log);
-                return;
-            }
+            Fail($"No exception {Environment.NewLine}" +
+                 $"  Expected: {Scenario.ExpectError.Message}{Environment.NewLine}");
+            return false;
+        }
 
-            if (!ValidateErrors(context)) return;
+        if (failedMessages.Any(message => message.Contains(Scenario.ExpectError.Message)))
+        {
+            runnerContext.Success(Scenario);
+            return false;
+        }
 
-            var compilerResult = lexyCompiler.Compile(rootNodeList, function);
-            var executable = compilerResult.GetFunction(function);
-            var values = GetValues(scenario.Parameters, function.Parameters, compilerResult);
+        Fail($"Wrong exception {Environment.NewLine}" +
+             $"  Expected: {Scenario.ExpectError.Message}{Environment.NewLine}" +
+             $"  Actual: {failedMessages.Format(4)}");
+        return false;
+    }
 
-            var result = executable.Run(values);
+    private bool ValidateRootErrors()
+    {
+        var failedMessages = parserLogger.ErrorMessages().ToList();
+        if (!failedMessages.Any())
+        {
+            Fail($"No exceptions {Environment.NewLine}" +
+                 $"  Expected: {Scenario.ExpectRootErrors.Messages.Format(4)}{Environment.NewLine}" +
+                 "  Actual: none");
+            return false;
+        }
 
-            var validationResultText = GetValidationResult(result, compilerResult);
-            if (validationResultText.Length > 0)
-            {
-                Fail(validationResultText);
-            }
+        var failed = false;
+        foreach (var rootMessage in Scenario.ExpectRootErrors.Messages)
+        {
+            var failedMessage = failedMessages.Find(message => message.Contains(rootMessage));
+            if (failedMessage != null)
+                failedMessages.Remove(failedMessage);
             else
-            {
-                context.Success(scenario);
-            }
+                failed = true;
         }
 
-        private void Fail(string message)
+        if (!failedMessages.Any())
+            if (!failed)
+            {
+                context.Success(Scenario);
+                return false; // don't compile and run rest of scenario
+            }
+
+        Fail($"Wrong exception {Environment.NewLine}" +
+             $"  Expected: {Scenario.ExpectRootErrors.Messages.Format(4)}{Environment.NewLine}" +
+             $"  Actual: {parserLogger.ErrorMessages().Format(4)}");
+        return false;
+    }
+
+    private IDictionary<string, object> GetValues(ScenarioParameters scenarioParameters,
+        FunctionParameters functionParameters, CompilerResult compilerResult)
+    {
+        var result = new Dictionary<string, object>();
+        foreach (var parameter in scenarioParameters.Assignments)
         {
-            Failed = true;
-            context.Fail(scenario, message);
+            var type = functionParameters.Variables.FirstOrDefault(variable =>
+                variable.Name == parameter.Variable.ParentIdentifier);
+            if (type == null)
+                throw new InvalidOperationException(
+                    $"Function '{function.NodeName}' parameter '{parameter.Variable.ParentIdentifier}' not found.");
+            var value = GetValue(compilerResult, parameter.ConstantValue.Value, parameter.VariableType);
+            result.Add(parameter.Variable.ParentIdentifier, value);
         }
 
-        private string GetValidationResult(FunctionResult result, CompilerResult compilerResult)
-        {
-            var validationResult = new StringWriter();
-            foreach (var expected in scenario.Results.Assignments)
-            {
-                var actual = result.GetValue(expected.Variable);
-                var expectedValue = TypeConverter.Convert(compilerResult, expected.ConstantValue.Value, expected.VariableType);
+        return result;
+    }
 
-                if (actual == null || expectedValue == null
-                || actual.GetType() != expectedValue.GetType()
-                || Comparer.Default.Compare(actual, expectedValue) != 0)
-                {
-                    validationResult.WriteLine($"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
-
-                }
-            }
-
-            return validationResult.ToString();
-        }
-
-        private bool ValidateErrors(ISpecificationRunnerContext runnerContext)
-        {
-            if (scenario.ExpectRootErrors.HasValues) return ValidateRootErrors();
-
-            var node = function ?? scenario.Function ?? scenario.Enum ?? (IRootNode) scenario.Table;
-            var failedMessages = parserLogger.ErrorNodeMessages(node);
-
-            if (failedMessages.Length > 0 && !scenario.ExpectError.HasValue)
-            {
-                Fail("Exception occured: " + failedMessages.Format(2));
-                return false;
-            }
-
-            if (!scenario.ExpectError.HasValue) return true;
-
-            if (failedMessages.Length == 0)
-            {
-                Fail($"No exception {Environment.NewLine}" +
-                     $"  Expected: {scenario.ExpectError.Message}{Environment.NewLine}");
-                return false;
-            }
-
-            if (failedMessages.Any(message => message.Contains(scenario.ExpectError.Message)))
-            {
-                runnerContext.Success(scenario);
-                return false;
-            }
-
-            Fail($"Wrong exception {Environment.NewLine}" +
-                 $"  Expected: {scenario.ExpectError.Message}{Environment.NewLine}" +
-                 $"  Actual: {failedMessages.Format(4)}");
-            return false;
-        }
-
-        private bool ValidateRootErrors()
-        {
-            var failedMessages = parserLogger.ErrorMessages().ToList();
-            if (!failedMessages.Any())
-            {
-                Fail($"No exceptions {Environment.NewLine}" +
-                     $"  Expected: {scenario.ExpectRootErrors.Messages.Format(4)}{Environment.NewLine}" +
-                     $"  Actual: none");
-                return false;
-            }
-
-            var failed = false;
-            foreach (var rootMessage in scenario.ExpectRootErrors.Messages)
-            {
-                var failedMessage = failedMessages.Find(message => message.Contains(rootMessage));
-                if (failedMessage != null)
-                {
-                    failedMessages.Remove(failedMessage);
-                }
-                else
-                {
-                    failed = true;
-                }
-            }
-
-            if (!failedMessages.Any())
-            {
-                if (!failed)
-                {
-                    context.Success(scenario);
-                    return false; // don't compile and run rest of scenario
-                }
-            }
-
-            Fail($"Wrong exception {Environment.NewLine}" +
-                 $"  Expected: {scenario.ExpectRootErrors.Messages.Format(4)}{Environment.NewLine}" +
-                 $"  Actual: {parserLogger.ErrorMessages().Format(4)}");
-            return false;
-        }
-
-        private IDictionary<string, object> GetValues(ScenarioParameters scenarioParameters,
-            FunctionParameters functionParameters, CompilerResult compilerResult)
-        {
-            var result = new Dictionary<string, object>();
-            foreach (var parameter in scenarioParameters.Assignments)
-            {
-                var type = functionParameters.Variables.FirstOrDefault(variable => variable.Name == parameter.Variable.ParentIdentifier);
-                if (type == null)
-                {
-                    throw new InvalidOperationException($"Function '{function.NodeName}' parameter '{parameter.Variable.ParentIdentifier}' not found.");
-                }
-                var value = GetValue(compilerResult, parameter.ConstantValue.Value, parameter.VariableType);
-                result.Add(parameter.Variable.ParentIdentifier, value);
-            }
-            return result;
-        }
-
-        private object GetValue(CompilerResult compilerResult, object value, VariableType type)
-        {
-            return TypeConverter.Convert(compilerResult, value, type);
-        }
-
-        public string ParserLogging()
-        {
-            return $"------- Filename: {fileName}{Environment.NewLine}{parserLogger.ErrorMessages().Format(2)}";
-        }
-
-        public void Dispose()
-        {
-            serviceScope?.Dispose();
-            serviceScope = null;
-        }
+    private object GetValue(CompilerResult compilerResult, object value, VariableType type)
+    {
+        return TypeConverter.Convert(compilerResult, value, type);
     }
 }

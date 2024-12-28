@@ -1,92 +1,75 @@
 using System.Linq;
 
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+public class BuildLiteralToken : ParsableToken
 {
-    public class BuildLiteralToken : ParsableToken
+    private static readonly char[] TerminatorValues =
     {
-        private static readonly char[] TerminatorValues = new[]
-        {
-            TokenValues.Space,
-            TokenValues.OpenParentheses,
-            TokenValues.OpenBrackets,
-            TokenValues.CloseParentheses,
-            TokenValues.CloseBrackets,
-            TokenValues.ArgumentSeparator,
-        };
+        TokenValues.Space,
+        TokenValues.OpenParentheses,
+        TokenValues.OpenBrackets,
+        TokenValues.CloseParentheses,
+        TokenValues.CloseBrackets,
+        TokenValues.ArgumentSeparator
+    };
 
-        private bool hasMemberAccessor;
-        private bool lastMemberAccessor;
+    private bool hasMemberAccessor;
+    private bool lastMemberAccessor;
 
-        public BuildLiteralToken(TokenCharacter character) : base(character)
-        {
-        }
+    public BuildLiteralToken(TokenCharacter character) : base(character)
+    {
+    }
 
-        public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
-        {
-            var value = character.Value;
+    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    {
+        var value = character.Value;
 
-            if (TerminatorValues.Contains(value))
-            {
-                return ParseTokenResult.Finished(false, SealLiteral());
-            }
+        if (TerminatorValues.Contains(value)) return ParseTokenResult.Finished(false, SealLiteral());
 
-            if (value == '.')
-            {
-                if (lastMemberAccessor)
-                {
-                    return ParseTokenResult.Invalid($"Unexpected character: '{value}'. Member accessor should be followed by member name.");
-                }
-
-                hasMemberAccessor = true;
-                lastMemberAccessor = true;
-                AppendValue(value);
-                return ParseTokenResult.InProgress();
-            }
-
-            if (char.IsLetterOrDigit(value) || value == ':')
-            {
-                lastMemberAccessor = false;
-
-                AppendValue(value);
-                return ParseTokenResult.InProgress();
-            }
-
-            if (value == TokenValues.Quote && Value == TokenValues.DateTimeStarter)
-            {
-                return ParseTokenResult.InProgress(new DateTimeLiteral(FirstCharacter));
-            }
-
-            return ParseTokenResult.Invalid($"Unexpected character: '{value}'");
-        }
-
-        public override ParseTokenResult Finalize(IParserContext parserContext)
+        if (value == '.')
         {
             if (lastMemberAccessor)
-            {
-                return ParseTokenResult.Invalid("Unexpected end of line. Member accessor should be followed by member name.");
-            }
+                return ParseTokenResult.Invalid(
+                    $"Unexpected character: '{value}'. Member accessor should be followed by member name.");
 
-            return ParseTokenResult.Finished(true, SealLiteral());
+            hasMemberAccessor = true;
+            lastMemberAccessor = true;
+            AppendValue(value);
+            return ParseTokenResult.InProgress();
         }
 
-        private Token SealLiteral()
+        if (char.IsLetterOrDigit(value) || value == ':')
         {
-            var value = Value;
-            if (Keywords.Contains(value))
-            {
-                return new KeywordToken(value, FirstCharacter);
-            }
-            if (BooleanLiteral.IsValid(value))
-            {
-                return BooleanLiteral.Parse(value, FirstCharacter);
-            }
+            lastMemberAccessor = false;
 
-            if (hasMemberAccessor)
-            {
-                return new MemberAccessLiteral(value, FirstCharacter);
-            }
-
-            return new StringLiteralToken(value, FirstCharacter);
+            AppendValue(value);
+            return ParseTokenResult.InProgress();
         }
+
+        if (value == TokenValues.Quote && Value == TokenValues.DateTimeStarter)
+            return ParseTokenResult.InProgress(new DateTimeLiteral(FirstCharacter));
+
+        return ParseTokenResult.Invalid($"Unexpected character: '{value}'");
+    }
+
+    public override ParseTokenResult Finalize(IParserContext parserContext)
+    {
+        if (lastMemberAccessor)
+            return ParseTokenResult.Invalid(
+                "Unexpected end of line. Member accessor should be followed by member name.");
+
+        return ParseTokenResult.Finished(true, SealLiteral());
+    }
+
+    private Token SealLiteral()
+    {
+        var value = Value;
+        if (Keywords.Contains(value)) return new KeywordToken(value, FirstCharacter);
+        if (BooleanLiteral.IsValid(value)) return BooleanLiteral.Parse(value, FirstCharacter);
+
+        if (hasMemberAccessor) return new MemberAccessLiteral(value, FirstCharacter);
+
+        return new StringLiteralToken(value, FirstCharacter);
     }
 }

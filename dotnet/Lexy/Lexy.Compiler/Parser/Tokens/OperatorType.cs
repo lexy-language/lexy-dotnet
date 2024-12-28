@@ -1,30 +1,29 @@
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+public enum OperatorType
 {
-    public enum OperatorType
-    {
-        NotSet,
+    NotSet,
 
-        Assignment,
-        Addition,
-        Subtraction,
-        Multiplication,
-        Division,
-        Modulus,
-        OpenParentheses,
-        CloseParentheses,
-        OpenBrackets,
-        CloseBrackets,
-        GreaterThan,
-        LessThan,
-        GreaterThanOrEqual,
-        LessThanOrEqual,
+    Assignment,
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    Modulus,
+    OpenParentheses,
+    CloseParentheses,
+    OpenBrackets,
+    CloseBrackets,
+    GreaterThan,
+    LessThan,
+    GreaterThanOrEqual,
+    LessThanOrEqual,
 
-        Equals,
-        NotEqual,
+    Equals,
+    NotEqual,
 
-        And,
-        Or,
+    And,
+    Or,
 
-        ArgumentSeparator
-    }
+    ArgumentSeparator
 }

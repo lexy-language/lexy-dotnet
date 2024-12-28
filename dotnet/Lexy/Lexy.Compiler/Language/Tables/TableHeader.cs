@@ -3,66 +3,63 @@ using System.Linq;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Compiler.Language.Tables
+namespace Lexy.Compiler.Language.Tables;
+
+public class TableHeader : Node
 {
-    public class TableHeader : Node
+    public IList<ColumnHeader> Columns { get; } = new List<ColumnHeader>();
+
+    private TableHeader(ColumnHeader[] columns, SourceReference reference) : base(reference)
     {
-        public IList<ColumnHeader> Columns { get; } = new List<ColumnHeader>();
+        Columns = columns;
+    }
 
-        private TableHeader(ColumnHeader[] columns, SourceReference reference) : base(reference)
+    public static TableHeader Parse(IParserContext context)
+    {
+        var index = 0;
+        var validator = context.ValidateTokens<TableHeader>();
+
+        if (!validator.Type<TableSeparatorToken>(index).IsValid) return null;
+
+        var headers = new List<ColumnHeader>();
+        var tokens = context.CurrentLine.Tokens;
+        while (++index < tokens.Length)
         {
-            Columns = columns;
-        }
-
-        public static TableHeader Parse(IParserContext context)
-        {
-            var index = 0;
-            var validator = context.ValidateTokens<TableHeader>();
-
-            if (!validator.Type<TableSeparatorToken>(index).IsValid)
-            {
+            if (!validator
+                    .Type<StringLiteralToken>(index)
+                    .Type<StringLiteralToken>(index + 1)
+                    .Type<TableSeparatorToken>(index + 2)
+                    .IsValid)
                 return null;
-            }
 
-            var headers = new List<ColumnHeader>();
-            var tokens = context.CurrentLine.Tokens;
-            while (++index < tokens.Length)
-            {
-                if (!validator
-                        .Type<StringLiteralToken>(index)
-                        .Type<StringLiteralToken>(index + 1)
-                        .Type<TableSeparatorToken>(index + 2)
-                        .IsValid)
-                {
-                    return null;
-                }
+            var typeName = tokens.TokenValue(index);
+            var name = tokens.TokenValue(++index);
+            var reference = context.TokenReference(index);
 
-                var typeName = tokens.TokenValue(index);
-                var name = tokens.TokenValue(++index);
-                var reference = context.TokenReference(index);
+            var header = ColumnHeader.Parse(name, typeName, reference);
+            headers.Add(header);
 
-                var header = ColumnHeader.Parse(name, typeName, reference);
-                headers.Add(header);
-
-                ++index;
-            }
-
-            return new TableHeader(headers.ToArray(), context.LineStartReference());
+            ++index;
         }
 
-        public override IEnumerable<INode> GetChildren() => Columns;
+        return new TableHeader(headers.ToArray(), context.LineStartReference());
+    }
 
-        protected override void Validate(IValidationContext context)
-        {
-        }
+    public override IEnumerable<INode> GetChildren()
+    {
+        return Columns;
+    }
 
-        public ColumnHeader Get(MemberAccessLiteral memberAccess)
-        {
-            var parts = memberAccess.Parts;
-            if (parts.Length < 2)  return null;
-            var name = parts[1];
+    protected override void Validate(IValidationContext context)
+    {
+    }
 
-            return Columns.FirstOrDefault(value => value.Name == name);
-        }
+    public ColumnHeader Get(MemberAccessLiteral memberAccess)
+    {
+        var parts = memberAccess.Parts;
+        if (parts.Length < 2) return null;
+        var name = parts[1];
+
+        return Columns.FirstOrDefault(value => value.Name == name);
     }
 }

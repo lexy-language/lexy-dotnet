@@ -2,53 +2,43 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Scenarios
+namespace Lexy.Compiler.Language.Scenarios;
+
+public class ScenarioTable : ParsableNode
 {
-    public class ScenarioTable : ParsableNode
+    public TableHeader Header { get; private set; }
+    public IList<TableRow> Rows { get; } = new List<TableRow>();
+
+    public ScenarioTable(SourceReference reference) : base(reference)
     {
-        public TableHeader Header { get; private set; }
-        public IList<TableRow> Rows { get; } = new List<TableRow>();
+    }
 
-        public ScenarioTable(SourceReference reference) : base(reference)
+    public override IParsableNode Parse(IParserContext context)
+    {
+        var line = context.CurrentLine;
+
+        if (line.IsEmpty()) return this;
+
+        if (Header == null)
         {
-        }
-
-        public override IParsableNode Parse(IParserContext context)
-        {
-            var line = context.CurrentLine;
-
-            if (line.IsEmpty()) return this;
-
-            if (Header == null)
-            {
-                Header = TableHeader.Parse(context);
-                return this;
-            }
-
-            var row = TableRow.Parse(context);
-            if (row != null)
-            {
-                Rows.Add(row);
-            }
-
+            Header = TableHeader.Parse(context);
             return this;
         }
 
-        public override IEnumerable<INode> GetChildren()
-        {
-            if (Header != null)
-            {
-                yield return Header;
-            }
+        var row = TableRow.Parse(context);
+        if (row != null) Rows.Add(row);
 
-            foreach (var row in Rows)
-            {
-                yield return row;
-            }
-        }
+        return this;
+    }
 
-        protected override void Validate(IValidationContext context)
-        {
-        }
+    public override IEnumerable<INode> GetChildren()
+    {
+        if (Header != null) yield return Header;
+
+        foreach (var row in Rows) yield return row;
+    }
+
+    protected override void Validate(IValidationContext context)
+    {
     }
 }

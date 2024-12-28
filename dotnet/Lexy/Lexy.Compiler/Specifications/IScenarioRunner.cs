@@ -3,17 +3,16 @@ using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lexy.Compiler.Specifications
+namespace Lexy.Compiler.Specifications;
+
+public interface IScenarioRunner
 {
-    public interface IScenarioRunner
-    {
-        bool Failed { get; }
-        Scenario Scenario { get; }
+    bool Failed { get; }
+    Scenario Scenario { get; }
 
-        void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
-            ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger);
+    void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
+        ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger);
 
-        void Run();
-        string ParserLogging();
-    }
+    void Run();
+    string ParserLogging();
 }

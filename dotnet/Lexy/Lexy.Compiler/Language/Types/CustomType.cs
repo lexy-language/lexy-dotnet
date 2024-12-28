@@ -24,16 +24,19 @@ public class CustomType : TypeWithMembers
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
+        if (obj.GetType() != GetType()) return false;
         return Equals((TableType)obj);
     }
 
     public override int GetHashCode()
     {
-        return (Type != null ? Type.GetHashCode() : 0);
+        return Type != null ? Type.GetHashCode() : 0;
     }
 
-    public override string ToString() => Type;
+    public override string ToString()
+    {
+        return Type;
+    }
 
     public override VariableType MemberType(string name, IValidationContext context)
     {

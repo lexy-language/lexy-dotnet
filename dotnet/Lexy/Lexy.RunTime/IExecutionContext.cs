@@ -1,9 +1,8 @@
-namespace Lexy.RunTime
-{
-    public interface IExecutionContext
-    {
-        void LogDebug(string message);
+namespace Lexy.RunTime;
 
-        void LogVariable<T>(string name, T value);
-    }
+public interface IExecutionContext
+{
+    void LogDebug(string message);
+
+    void LogVariable<T>(string name, T value);
 }

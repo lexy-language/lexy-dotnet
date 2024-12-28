@@ -1,15 +1,14 @@
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
-{
-    internal class SecondFunctionCall : SingleArgumentFunctionCall
-    {
-        protected override string ClassName => nameof(BuiltInDateFunctions);
-        protected override string MethodName => nameof(BuiltInDateFunctions.Second);
+namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 
-        public SecondFunctionCall(SecondFunction function) : base(function)
-        {
-        }
+internal class SecondFunctionCall : SingleArgumentFunctionCall
+{
+    protected override string ClassName => nameof(BuiltInDateFunctions);
+    protected override string MethodName => nameof(BuiltInDateFunctions.Second);
+
+    public SecondFunctionCall(SecondFunction function) : base(function)
+    {
     }
 }

@@ -26,12 +26,10 @@ public class VariableReference
         var builder = new StringBuilder();
         foreach (var value in Path)
         {
-            if (builder.Length > 0)
-            {
-                builder.Append('.');
-            }
+            if (builder.Length > 0) builder.Append('.');
             builder.Append(value);
         }
+
         return builder.ToString();
     }
 

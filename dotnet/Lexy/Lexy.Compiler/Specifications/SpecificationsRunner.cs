@@ -4,103 +4,91 @@ using System.Linq;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Specifications
+namespace Lexy.Compiler.Specifications;
+
+public class SpecificationsRunner : ISpecificationsRunner
 {
-    public class SpecificationsRunner : ISpecificationsRunner
+    private readonly ISpecificationRunnerContext context;
+    private readonly IServiceProvider serviceProvider;
+
+    public SpecificationsRunner(IServiceProvider serviceProvider, ISpecificationRunnerContext context)
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly ISpecificationRunnerContext context;
+        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.context = context;
+    }
 
-        public SpecificationsRunner(IServiceProvider serviceProvider, ISpecificationRunnerContext context)
-        {
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.context = context;
-        }
+    public void Run(string file)
+    {
+        CreateFileRunner(file);
 
-        public void Run(string file)
-        {
-            CreateFileRunner(file);
+        RunScenarios();
+    }
 
-            RunScenarios();
-        }
+    public void RunAll(string folder)
+    {
+        GetRunners(folder);
 
-        public void RunAll(string folder)
-        {
-            GetRunners(folder);
+        RunScenarios();
+    }
 
-            RunScenarios();
-        }
+    private void RunScenarios()
+    {
+        var runners = context.FileRunners;
+        var countScenarios = context.CountScenarios();
+        Console.WriteLine($"Specifications found: {countScenarios}");
+        if (runners.Count == 0) throw new InvalidOperationException("No specifications found");
 
-        private void RunScenarios()
-        {
-            var runners = context.FileRunners;
-            var countScenarios = context.CountScenarios();
-            Console.WriteLine($"Specifications found: {countScenarios}");
-            if (runners.Count == 0)
-            {
-                throw new InvalidOperationException($"No specifications found");
-            }
+        runners.ForEach(runner => runner.Run());
 
-            runners.ForEach(runner => runner.Run());
+        context.LogGlobal($"Specifications succeed: {countScenarios - context.Failed} / {countScenarios}");
 
-            context.LogGlobal($"Specifications succeed: {countScenarios - context.Failed} / {countScenarios}");
+        if (context.Failed > 0) Failed(context);
+    }
 
-            if (context.Failed > 0)
-            {
-                Failed(context);
-            }
-        }
+    private static void Failed(ISpecificationRunnerContext context)
+    {
+        Console.WriteLine("--------------- FAILED PARSER LOGGING ---------------");
+        foreach (var runner in context.FailedScenariosRunners()) Console.WriteLine(runner.ParserLogging());
 
-        private static void Failed(ISpecificationRunnerContext context)
-        {
-            Console.WriteLine("--------------- FAILED PARSER LOGGING ---------------");
-            foreach (var runner in context.FailedScenariosRunners())
-            {
-                Console.WriteLine(runner.ParserLogging());
-            }
+        throw new InvalidOperationException($"Specifications failed: {context.Failed}");
+    }
 
-            throw new InvalidOperationException($"Specifications failed: {context.Failed}");
-        }
+    private void GetRunners(string folder)
+    {
+        var absoluteFolder = GetAbsoluteFolder(folder);
 
-        private void GetRunners(string folder)
-        {
-            var absoluteFolder = GetAbsoluteFolder(folder);
+        Console.WriteLine($"Specifications folder: {absoluteFolder}");
 
-            Console.WriteLine($"Specifications folder: {absoluteFolder}");
+        AddFolder(absoluteFolder);
+    }
 
-            AddFolder(absoluteFolder);
-        }
+    private void AddFolder(string folder)
+    {
+        var files = Directory.GetFiles(folder, $"*.{LexySourceDocument.FileExtension}");
 
-        private void AddFolder(string folder)
-        {
-            var files = Directory.GetFiles(folder, $"*.{LexySourceDocument.FileExtension}");
+        files
+            .OrderBy(name => name)
+            .ForEach(CreateFileRunner);
 
-            files
-                .OrderBy(name => name)
-                .ForEach(CreateFileRunner);
+        Directory.GetDirectories(folder)
+            .OrderBy(name => name)
+            .ForEach(AddFolder);
+    }
 
-            Directory.GetDirectories(folder)
-                .OrderBy(name => name)
-                .ForEach(AddFolder);
-        }
+    private void CreateFileRunner(string fileName)
+    {
+        var runner = SpecificationFileRunner.Create(fileName, serviceProvider, context);
+        context.Add(runner);
+    }
 
-        private void CreateFileRunner(string fileName)
-        {
-            var runner = SpecificationFileRunner.Create(fileName, serviceProvider, context);
-            context.Add(runner);
-        }
+    private static string GetAbsoluteFolder(string folder)
+    {
+        var absoluteFolder = Path.IsPathRooted(folder)
+            ? folder
+            : Path.GetFullPath(folder);
+        if (!Directory.Exists(absoluteFolder))
+            throw new InvalidOperationException($"Specifications folder doesn't exist: {absoluteFolder}");
 
-        private static string GetAbsoluteFolder(string folder)
-        {
-            var absoluteFolder = Path.IsPathRooted(folder)
-                ? folder
-                : Path.GetFullPath(folder);
-            if (!Directory.Exists(absoluteFolder))
-            {
-                throw new InvalidOperationException($"Specifications folder doesn't exist: {absoluteFolder}");
-            }
-
-            return absoluteFolder;
-        }
+        return absoluteFolder;
     }
 }

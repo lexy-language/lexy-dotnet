@@ -2,40 +2,39 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Lexy.Poc
+namespace Lexy.Poc;
+
+public abstract class ScopedServicesTestFixture
 {
-    public abstract class ScopedServicesTestFixture
+    private IServiceScope serviceScope;
+
+    protected IServiceScope ServiceScope
     {
-        private IServiceScope serviceScope;
-
-        protected IServiceScope ServiceScope
+        get
         {
-            get
-            {
-                if (serviceScope == null)
-                {
-                    throw new InvalidOperationException("ServiceScope not set");
-                }
+            if (serviceScope == null) throw new InvalidOperationException("ServiceScope not set");
 
-                return serviceScope;
-            }
+            return serviceScope;
         }
+    }
 
-        protected IServiceProvider ServiceProvider => ServiceScope.ServiceProvider;
+    protected IServiceProvider ServiceProvider => ServiceScope.ServiceProvider;
 
-        [SetUp]
-        public void SetUp()
-        {
-            serviceScope = TestServiceProvider.CreateScope();
-        }
+    [SetUp]
+    public void SetUp()
+    {
+        serviceScope = TestServiceProvider.CreateScope();
+    }
 
-        [TearDown]
-        public void TearDown()
-        {
-            serviceScope?.Dispose();
-            serviceScope = null;
-        }
+    [TearDown]
+    public void TearDown()
+    {
+        serviceScope?.Dispose();
+        serviceScope = null;
+    }
 
-        public T GetService<T>() => ServiceProvider.GetRequiredService<T>();
+    public T GetService<T>()
+    {
+        return ServiceProvider.GetRequiredService<T>();
     }
 }

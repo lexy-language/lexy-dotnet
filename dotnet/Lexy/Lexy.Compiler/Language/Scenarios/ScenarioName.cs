@@ -2,30 +2,32 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Scenarios
+namespace Lexy.Compiler.Language.Scenarios;
+
+public class ScenarioName : Node
 {
-    public class ScenarioName : Node
+    public string Value { get; private set; } = Guid.NewGuid().ToString("D");
+
+    public ScenarioName(SourceReference reference) : base(reference)
     {
-        public string Value { get; private set; } = Guid.NewGuid().ToString("D");
+    }
 
-        public void ParseName(string parameter)
-        {
-            Value = parameter;
-        }
+    public void ParseName(string parameter)
+    {
+        Value = parameter;
+    }
 
-        public ScenarioName(SourceReference reference) : base(reference)
-        {
-        }
+    public override string ToString()
+    {
+        return Value;
+    }
 
-        public override string ToString() => Value;
+    public override IEnumerable<INode> GetChildren()
+    {
+        yield break;
+    }
 
-        public override IEnumerable<INode> GetChildren()
-        {
-            yield break;
-        }
-
-        protected override void Validate(IValidationContext context)
-        {
-        }
+    protected override void Validate(IValidationContext context)
+    {
     }
 }

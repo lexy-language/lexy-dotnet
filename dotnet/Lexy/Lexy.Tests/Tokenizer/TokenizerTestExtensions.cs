@@ -8,11 +8,12 @@ namespace Lexy.Poc.Tokenizer;
 
 public static class TokenizerTestExtensions
 {
-    public static IParserContext TestLine(this IServiceProvider serviceProvider, string value, bool expectSuccess = true)
+    public static IParserContext TestLine(this IServiceProvider serviceProvider, string value,
+        bool expectSuccess = true)
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
-        var code = new []{ value };
+        var code = new[] { value };
 
         var codeContext = serviceProvider.GetRequiredService<ISourceCodeDocument>();
         codeContext.SetCode(code, "tests.lexy");
@@ -20,11 +21,9 @@ public static class TokenizerTestExtensions
         var context = serviceProvider.GetRequiredService<IParserContext>();
         var result = context.ProcessLine();
         if (result != expectSuccess)
-        {
-            throw new InvalidOperationException(  result
+            throw new InvalidOperationException(result
                 ? "Process didn't fail, but should have: " + context.Logger.FormatMessages()
                 : "Process line failed: " + context.Logger.FormatMessages());
-        }
 
         return context;
     }

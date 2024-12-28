@@ -1,10 +1,9 @@
 using Lexy.Compiler.Compiler.CSharp;
 using Lexy.Compiler.Language;
 
-namespace Lexy.Compiler.Compiler
+namespace Lexy.Compiler.Compiler;
+
+internal interface IRootTokenWriter
 {
-    internal interface IRootTokenWriter
-    {
-        GeneratedClass CreateCode(IRootNode generateNode);
-    }
+    GeneratedClass CreateCode(IRootNode generateNode);
 }

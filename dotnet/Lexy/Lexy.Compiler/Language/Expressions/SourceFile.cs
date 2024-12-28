@@ -1,4 +1,1 @@
-namespace Lexy.Compiler.Language.Expressions
-{
-
-}
+namespace Lexy.Compiler.Language.Expressions;

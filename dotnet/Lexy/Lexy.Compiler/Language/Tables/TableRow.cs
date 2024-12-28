@@ -5,60 +5,53 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Compiler.Language.Tables
+namespace Lexy.Compiler.Language.Tables;
+
+public class TableRow : Node
 {
-    public class TableRow : Node
+    public IList<Expression> Values { get; }
+
+    private TableRow(Expression[] values, SourceReference reference) : base(reference)
     {
-        public IList<Expression> Values { get; }
+        Values = values ?? throw new ArgumentNullException(nameof(values));
+    }
 
-        private TableRow(Expression[] values, SourceReference reference) : base(reference)
+    public static TableRow Parse(IParserContext context)
+    {
+        var index = 0;
+        var validator = context.ValidateTokens<TableRow>();
+
+        if (!validator.Type<TableSeparatorToken>(index).IsValid) return null;
+
+        var tokens = new List<Expression>();
+        var currentLineTokens = context.CurrentLine.Tokens;
+        while (++index < currentLineTokens.Length)
         {
-            Values = values ?? throw new ArgumentNullException(nameof(values));
+            var valid = !validator
+                .IsLiteralToken(index)
+                .Type<TableSeparatorToken>(index + 1)
+                .IsValid;
+
+            if (valid) return null;
+
+            var reference = context.TokenReference(index);
+            var token = currentLineTokens.Token<Token>(index++);
+            var expression = ExpressionFactory.Parse(context.SourceCode.File, new TokenList(new[] { token }),
+                context.CurrentLine);
+            if (context.Failed(expression, reference)) return null;
+
+            tokens.Add(expression.Result);
         }
 
-        public static TableRow Parse(IParserContext context)
-        {
-            var index = 0;
-            var validator = context.ValidateTokens<TableRow>();
+        return new TableRow(tokens.ToArray(), context.LineStartReference());
+    }
 
-            if (!validator.Type<TableSeparatorToken>(index).IsValid)
-            {
-                return null;
-            }
+    public override IEnumerable<INode> GetChildren()
+    {
+        return Values.ToList();
+    }
 
-            var tokens = new List<Expression>();
-            var currentLineTokens = context.CurrentLine.Tokens;
-            while (++index < currentLineTokens.Length)
-            {
-                var valid = !validator
-                    .IsLiteralToken(index)
-                    .Type<TableSeparatorToken>(index + 1)
-                    .IsValid;
-
-                if (valid)
-                {
-                    return null;
-                }
-
-                var reference = context.TokenReference(index);
-                var token = currentLineTokens.Token<Token>(index++);
-                var expression = ExpressionFactory.Parse(context.SourceCode.File, new TokenList(new[] { token }),
-                    context.CurrentLine);
-                if (context.Failed(expression, reference)) return null;
-
-                tokens.Add(expression.Result);
-            }
-
-            return new TableRow(tokens.ToArray(), context.LineStartReference());
-        }
-
-        public override IEnumerable<INode> GetChildren()
-        {
-            return Values.ToList();
-        }
-
-        protected override void Validate(IValidationContext context)
-        {
-        }
+    protected override void Validate(IValidationContext context)
+    {
     }
 }

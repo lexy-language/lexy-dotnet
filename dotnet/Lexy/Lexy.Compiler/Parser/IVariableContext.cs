@@ -1,22 +1,23 @@
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public interface IVariableContext
 {
-    public interface IVariableContext
-    {
-        void AddVariable(string variableName, VariableType type, VariableSource source);
-        void RegisterVariableAndVerifyUnique(SourceReference reference, string variableName, VariableType type, VariableSource source);
-        bool EnsureVariableExists(SourceReference reference, string variableName);
+    void AddVariable(string variableName, VariableType type, VariableSource source);
 
-        bool Contains(string variableName);
-        bool Contains(VariableReference reference, IValidationContext context);
+    void RegisterVariableAndVerifyUnique(SourceReference reference, string variableName, VariableType type,
+        VariableSource source);
 
-        VariableType GetVariableType(string variableName);
-        VariableType GetVariableType(VariableReference reference, IValidationContext context);
-        VariableSource? GetVariableSource(string variableName);
+    bool EnsureVariableExists(SourceReference reference, string variableName);
 
-        VariableEntry GetVariable(string variableName);
-    }
+    bool Contains(string variableName);
+    bool Contains(VariableReference reference, IValidationContext context);
+
+    VariableType GetVariableType(string variableName);
+    VariableType GetVariableType(VariableReference reference, IValidationContext context);
+    VariableSource? GetVariableSource(string variableName);
+
+    VariableEntry GetVariable(string variableName);
 }

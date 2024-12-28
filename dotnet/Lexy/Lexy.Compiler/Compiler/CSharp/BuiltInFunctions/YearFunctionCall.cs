@@ -1,15 +1,14 @@
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions
-{
-    internal class YearFunctionCall : SingleArgumentFunctionCall
-    {
-        protected override string ClassName => nameof(BuiltInDateFunctions);
-        protected override string MethodName => nameof(BuiltInDateFunctions.Year);
+namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 
-        public YearFunctionCall(YearFunction function) : base(function)
-        {
-        }
+internal class YearFunctionCall : SingleArgumentFunctionCall
+{
+    protected override string ClassName => nameof(BuiltInDateFunctions);
+    protected override string MethodName => nameof(BuiltInDateFunctions.Year);
+
+    public YearFunctionCall(YearFunction function) : base(function)
+    {
     }
 }

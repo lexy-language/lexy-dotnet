@@ -1,12 +1,11 @@
-namespace Lexy.Compiler.Parser
-{
-    public class SourceFile
-    {
-        public string FileName { get; }
+namespace Lexy.Compiler.Parser;
 
-        public SourceFile(string fileName)
-        {
-            FileName = fileName;
-        }
+public class SourceFile
+{
+    public string FileName { get; }
+
+    public SourceFile(string fileName)
+    {
+        FileName = fileName;
     }
 }

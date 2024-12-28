@@ -1,23 +1,24 @@
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Expressions.Functions
+namespace Lexy.Compiler.Language.Expressions.Functions;
+
+public class AbsFunction : SingleArgumentFunction
 {
-    public class AbsFunction : SingleArgumentFunction
+    public const string Name = "ABS";
+
+    protected override string FunctionHelp => $"{Name} expects 1 argument (Value)";
+
+    protected override VariableType ArgumentType => PrimitiveType.Number;
+    protected override VariableType ResultType => PrimitiveType.Number;
+
+    private AbsFunction(Expression valueExpression, SourceReference reference)
+        : base(valueExpression, reference)
     {
-        public const string Name = "ABS";
+    }
 
-        protected override string FunctionHelp => $"{Name} expects 1 argument (Value)";
-
-        protected override VariableType ArgumentType => PrimitiveType.Number;
-        protected override VariableType ResultType => PrimitiveType.Number;
-
-        private AbsFunction(Expression valueExpression, SourceReference reference)
-            : base(valueExpression, reference)
-        {
-        }
-
-        public static ExpressionFunction Create(SourceReference reference, Expression expression) =>
-            new AbsFunction(expression, reference);
+    public static ExpressionFunction Create(SourceReference reference, Expression expression)
+    {
+        return new AbsFunction(expression, reference);
     }
 }

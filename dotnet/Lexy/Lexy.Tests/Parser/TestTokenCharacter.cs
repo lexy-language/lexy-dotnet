@@ -1,9 +1,8 @@
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Poc.Parser
+namespace Lexy.Poc.Parser;
+
+public class TestTokenCharacter
 {
-    public class TestTokenCharacter
-    {
-        public static TokenCharacter Dummy => new TokenCharacter('a', 0);
-    }
+    public static TokenCharacter Dummy => new('a', 0);
 }

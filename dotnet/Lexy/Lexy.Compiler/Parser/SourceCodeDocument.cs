@@ -1,41 +1,39 @@
 using System;
 using System.Linq;
 
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public class SourceCodeDocument : ISourceCodeDocument
 {
-    public class SourceCodeDocument : ISourceCodeDocument
+    private Line[] code;
+    private int index;
+
+    public SourceFile File { get; private set; }
+
+    public Line CurrentLine { get; private set; }
+
+    public void SetCode(string[] lines, string fileName)
     {
-        private int index;
+        index = -1;
+        code = lines.Select((line, index) => new Line(index, line)).ToArray();
+        File = new SourceFile(fileName);
+    }
 
-        private Line[] code;
+    public bool HasMoreLines()
+    {
+        return index < code.Length - 1;
+    }
 
-        public SourceFile File { get; private set; }
+    public Line NextLine()
+    {
+        if (index >= code.Length) throw new InvalidOperationException("No more lines");
 
-        public Line CurrentLine { get; private set; }
+        CurrentLine = code[++index];
+        return CurrentLine;
+    }
 
-        public void SetCode(string[] lines, string fileName)
-        {
-            index = -1;
-            code = lines.Select((line, index) => new Line(index, line)).ToArray();
-            File = new SourceFile(fileName);
-        }
-
-        public bool HasMoreLines() => index < code.Length - 1;
-
-        public Line NextLine()
-        {
-            if (index >= code.Length)
-            {
-                throw new InvalidOperationException("No more lines");
-            }
-
-            CurrentLine = code[++index];
-            return CurrentLine;
-        }
-
-        public void Reset()
-        {
-            CurrentLine = null;
-        }
+    public void Reset()
+    {
+        CurrentLine = null;
     }
 }

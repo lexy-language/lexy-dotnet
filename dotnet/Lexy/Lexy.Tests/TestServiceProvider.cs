@@ -1,25 +1,24 @@
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Lexy.Poc
+namespace Lexy.Poc;
+
+[SetUpFixture]
+public class TestServiceProvider
 {
-    [SetUpFixture]
-    public class TestServiceProvider
+    private static ServiceProvider instance;
+
+    [OneTimeSetUp]
+    public void RunBeforeAnyTests()
     {
-        private static ServiceProvider instance;
+        LoggingConfiguration.RemoveOldFiles();
+        LoggingConfiguration.ConfigureSerilog();
 
-        [OneTimeSetUp]
-        public void RunBeforeAnyTests()
-        {
-            LoggingConfiguration.RemoveOldFiles();
-            LoggingConfiguration.ConfigureSerilog();
+        instance = ServiceProviderConfiguration.CreateServices();
+    }
 
-            instance = ServiceProviderConfiguration.CreateServices();
-        }
-
-        public static IServiceScope CreateScope()
-        {
-            return instance.CreateScope();
-        }
+    public static IServiceScope CreateScope()
+    {
+        return instance.CreateScope();
     }
 }

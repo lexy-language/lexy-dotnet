@@ -1,6 +1,5 @@
-namespace Lexy.Compiler.Language.Types
+namespace Lexy.Compiler.Language.Types;
+
+public class VoidType : VariableType
 {
-    public class VoidType : VariableType
-    {
-    }
 }

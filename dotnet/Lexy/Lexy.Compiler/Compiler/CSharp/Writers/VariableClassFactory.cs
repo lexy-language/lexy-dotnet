@@ -8,7 +8,6 @@ namespace Lexy.Compiler.Compiler.CSharp.Writers;
 
 public static class VariableClassFactory
 {
-
     public static MemberDeclarationSyntax TranslateVariablesClass(string className, IList<VariableDefinition> variables)
     {
         var fields = TranslateVariablesClass(variables);
@@ -38,7 +37,9 @@ public static class VariableClassFactory
 
     private static ExpressionSyntax DefaultExpression(VariableDefinition variable)
     {
-        var defaultValue = variable.DefaultExpression != null ? ExpressionSyntaxFactory.ExpressionSyntax(variable.DefaultExpression) : null;
+        var defaultValue = variable.DefaultExpression != null
+            ? ExpressionSyntaxFactory.ExpressionSyntax(variable.DefaultExpression)
+            : null;
         return defaultValue ?? Types.TypeDefaultExpression(variable.Type);
     }
 }

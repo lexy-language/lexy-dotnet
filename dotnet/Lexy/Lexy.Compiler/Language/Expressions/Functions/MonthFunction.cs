@@ -1,23 +1,24 @@
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Expressions.Functions
+namespace Lexy.Compiler.Language.Expressions.Functions;
+
+public class MonthFunction : SingleArgumentFunction
 {
-    public class MonthFunction : SingleArgumentFunction
+    public const string Name = "MONTH";
+
+    protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
+
+    protected override VariableType ArgumentType => PrimitiveType.Date;
+    protected override VariableType ResultType => PrimitiveType.Number;
+
+    private MonthFunction(Expression valueExpression, SourceReference reference)
+        : base(valueExpression, reference)
     {
-        public const string Name = "MONTH";
+    }
 
-        protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
-
-        protected override VariableType ArgumentType => PrimitiveType.Date;
-        protected override VariableType ResultType => PrimitiveType.Number;
-
-        private MonthFunction(Expression valueExpression, SourceReference reference)
-            : base(valueExpression, reference)
-        {
-        }
-
-        public static ExpressionFunction Create(SourceReference reference, Expression expression) =>
-            new MonthFunction(expression, reference);
+    public static ExpressionFunction Create(SourceReference reference, Expression expression)
+    {
+        return new MonthFunction(expression, reference);
     }
 }

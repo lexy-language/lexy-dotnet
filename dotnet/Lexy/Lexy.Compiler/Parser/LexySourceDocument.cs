@@ -1,7 +1,6 @@
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public static class LexySourceDocument
 {
-    public static class LexySourceDocument
-    {
-        public const string FileExtension = "lexy";
-    }
+    public const string FileExtension = "lexy";
 }

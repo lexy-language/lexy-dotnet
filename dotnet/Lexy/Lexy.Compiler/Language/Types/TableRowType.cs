@@ -1,24 +1,26 @@
 using System;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Types
+namespace Lexy.Compiler.Language.Types;
+
+public class TableRowType : ComplexTypeReference
 {
-    public class TableRowType : ComplexTypeReference
+    public string TableName { get; }
+    public ComplexType ComplexType { get; }
+
+    public TableRowType(string tableName, ComplexType complexType) : base(tableName)
     {
-        public string TableName { get; }
-        public ComplexType ComplexType { get; }
+        TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
+        ComplexType = complexType;
+    }
 
-        public TableRowType(string tableName, ComplexType complexType) : base(tableName)
-        {
-            TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
-            ComplexType = complexType;
-        }
+    public override ComplexType GetComplexType(IValidationContext context)
+    {
+        return ComplexType;
+    }
 
-        public override ComplexType GetComplexType(IValidationContext context) => ComplexType;
-
-        public override VariableType MemberType(string name, IValidationContext context)
-        {
-            return ComplexType.MemberType(name, context);
-        }
+    public override VariableType MemberType(string name, IValidationContext context)
+    {
+        return ComplexType.MemberType(name, context);
     }
 }

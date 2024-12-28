@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language
+namespace Lexy.Compiler.Language;
+
+public interface INode
 {
-    public interface INode
-    {
-        SourceReference Reference { get; }
+    SourceReference Reference { get; }
 
-        void ValidateTree(IValidationContext context);
+    void ValidateTree(IValidationContext context);
 
-        IEnumerable<INode> GetChildren();
-    }
+    IEnumerable<INode> GetChildren();
 }

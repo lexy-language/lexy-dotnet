@@ -1,39 +1,41 @@
 using Lexy.Compiler.Language.Tables;
 
-namespace Lexy.Compiler.Language.Types
+namespace Lexy.Compiler.Language.Types;
+
+public class PrimitiveType : VariableType
 {
-    public class PrimitiveType : VariableType
+    public static PrimitiveType Boolean => new(TypeNames.Boolean);
+    public static PrimitiveType String => new(TypeNames.String);
+    public static PrimitiveType Number => new(TypeNames.Number);
+    public static PrimitiveType Date => new(TypeNames.Date);
+
+    public string Type { get; }
+
+    public PrimitiveType(string type)
     {
-        public static PrimitiveType Boolean => new PrimitiveType(TypeNames.Boolean);
-        public static PrimitiveType String => new PrimitiveType(TypeNames.String);
-        public static PrimitiveType Number => new PrimitiveType(TypeNames.Number);
-        public static PrimitiveType Date => new PrimitiveType(TypeNames.Date);
+        Type = type;
+    }
 
-        public string Type { get; }
+    protected bool Equals(PrimitiveType other)
+    {
+        return Type == other.Type;
+    }
 
-        public PrimitiveType(string type)
-        {
-            Type = type;
-        }
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((PrimitiveType)obj);
+    }
 
-        protected bool Equals(PrimitiveType other)
-        {
-            return Type == other.Type;
-        }
+    public override int GetHashCode()
+    {
+        return Type != null ? Type.GetHashCode() : 0;
+    }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((PrimitiveType)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return (Type != null ? Type.GetHashCode() : 0);
-        }
-
-        public override string ToString() => Type;
+    public override string ToString()
+    {
+        return Type;
     }
 }

@@ -1,8 +1,6 @@
+namespace Lexy.Compiler.Language;
 
-namespace Lexy.Compiler.Language
+public interface IRootNode : IParsableNode
 {
-    public interface IRootNode : IParsableNode
-    {
-        string NodeName { get; }
-    }
+    string NodeName { get; }
 }

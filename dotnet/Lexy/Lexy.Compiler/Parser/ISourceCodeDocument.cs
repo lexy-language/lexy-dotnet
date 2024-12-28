@@ -1,15 +1,13 @@
+namespace Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Parser
+public interface ISourceCodeDocument
 {
-    public interface ISourceCodeDocument
-    {
-        Line CurrentLine { get; }
-        SourceFile File { get; }
+    Line CurrentLine { get; }
+    SourceFile File { get; }
 
-        void SetCode(string[] lines, string fileName);
+    void SetCode(string[] lines, string fileName);
 
-        bool HasMoreLines();
-        Line NextLine();
-        void Reset();
-    }
+    bool HasMoreLines();
+    Line NextLine();
+    void Reset();
 }

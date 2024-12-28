@@ -1,22 +1,21 @@
-namespace Lexy.Compiler.Parser.Tokens
+namespace Lexy.Compiler.Parser.Tokens;
+
+internal class WhitespaceToken : ParsableToken
 {
-    internal class WhitespaceToken : ParsableToken
+    public WhitespaceToken(TokenCharacter character) : base(character)
     {
-        public WhitespaceToken(TokenCharacter character) : base(character)
-        {
-        }
+    }
 
-        public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
-        {
-            var value = character.Value;
-            return !char.IsWhiteSpace(value)
-                ? ParseTokenResult.Finished(false)
-                : ParseTokenResult.InProgress();
-        }
+    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    {
+        var value = character.Value;
+        return !char.IsWhiteSpace(value)
+            ? ParseTokenResult.Finished(false)
+            : ParseTokenResult.InProgress();
+    }
 
-        public override ParseTokenResult Finalize(IParserContext parserContext)
-        {
-            return ParseTokenResult.Finished(true);
-        }
+    public override ParseTokenResult Finalize(IParserContext parserContext)
+    {
+        return ParseTokenResult.Finished(true);
     }
 }

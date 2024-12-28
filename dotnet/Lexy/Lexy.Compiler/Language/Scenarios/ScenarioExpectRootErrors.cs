@@ -2,44 +2,43 @@ using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Compiler.Language.Scenarios
+namespace Lexy.Compiler.Language.Scenarios;
+
+public class ScenarioExpectRootErrors : ParsableNode
 {
-    public class ScenarioExpectRootErrors : ParsableNode
+    private readonly IList<string> messages = new List<string>();
+
+    public IEnumerable<string> Messages => messages;
+
+    public bool HasValues => messages.Count > 0;
+
+    public ScenarioExpectRootErrors(SourceReference reference) : base(reference)
     {
-        private readonly IList<string> messages = new List<string>();
+    }
 
-        public IEnumerable<string> Messages => messages;
+    public override IParsableNode Parse(IParserContext context)
+    {
+        var line = context.CurrentLine;
 
-        public bool HasValues => messages.Count > 0;
+        if (line.IsEmpty()) return this;
 
-        public ScenarioExpectRootErrors(SourceReference reference) : base(reference)
-        {
-        }
+        var valid = context.ValidateTokens<ScenarioExpectError>()
+            .Count(1)
+            .QuotedString(0)
+            .IsValid;
 
-        public override IParsableNode Parse(IParserContext context)
-        {
-            var line = context.CurrentLine;
+        if (!valid) return this;
 
-            if (line.IsEmpty()) return this;
+        messages.Add(line.Tokens.Token<QuotedLiteralToken>(0).Value);
+        return this;
+    }
 
-            var valid = context.ValidateTokens<ScenarioExpectError>()
-                .Count(1)
-                .QuotedString(0)
-                .IsValid;
+    public override IEnumerable<INode> GetChildren()
+    {
+        yield break;
+    }
 
-            if (!valid) return this;
-
-            messages.Add(line.Tokens.Token<QuotedLiteralToken>(0).Value);
-            return this;
-        }
-
-        public override IEnumerable<INode> GetChildren()
-        {
-            yield break;
-        }
-
-        protected override void Validate(IValidationContext context)
-        {
-        }
+    protected override void Validate(IValidationContext context)
+    {
     }
 }

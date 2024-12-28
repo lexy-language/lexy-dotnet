@@ -1,8 +1,7 @@
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public interface ILexyParser
 {
-    public interface ILexyParser
-    {
-        ParserResult ParseFile(string fileName, bool throwException = true);
-        ParserResult Parse(string[] code, string fileName, bool throwException = true);
-    }
+    ParserResult ParseFile(string fileName, bool throwException = true);
+    ParserResult Parse(string[] code, string fileName, bool throwException = true);
 }

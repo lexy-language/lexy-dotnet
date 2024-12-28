@@ -1,14 +1,13 @@
-namespace Lexy.Compiler.Parser.Tokens
-{
-    public class TokenCharacter
-    {
-        public int Position { get; }
-        public char Value { get; }
+namespace Lexy.Compiler.Parser.Tokens;
 
-        public TokenCharacter(char value, int position)
-        {
-            Value = value;
-            Position = position;
-        }
+public class TokenCharacter
+{
+    public int Position { get; }
+    public char Value { get; }
+
+    public TokenCharacter(char value, int position)
+    {
+        Value = value;
+        Position = position;
     }
 }

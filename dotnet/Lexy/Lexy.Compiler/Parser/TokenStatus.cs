@@ -1,9 +1,8 @@
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public enum TokenStatus
 {
-    public enum TokenStatus
-    {
-        InProgress,
-        Finished,
-        InvalidToken
-    }
+    InProgress,
+    Finished,
+    InvalidToken
 }

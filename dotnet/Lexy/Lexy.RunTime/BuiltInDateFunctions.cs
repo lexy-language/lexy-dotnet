@@ -1,24 +1,76 @@
 using System;
 
-namespace Lexy.RunTime
+namespace Lexy.RunTime;
+
+public static class BuiltInDateFunctions
 {
-    public static class BuiltInDateFunctions
+    public static DateTime Now()
     {
-        public static DateTime Now() => DateTime.Now;
-        public static DateTime Today() => DateTime.Today;
+        return DateTime.Now;
+    }
 
-        public static decimal Year(DateTime value) => value.Year;
-        public static decimal Month(DateTime value) => value.Month;
-        public static decimal Day(DateTime value) => value.Day;
-        public static decimal Hour(DateTime value) => value.Hour;
-        public static decimal Minute(DateTime value) => value.Minute;
-        public static decimal Second(DateTime value) => value.Second;
+    public static DateTime Today()
+    {
+        return DateTime.Today;
+    }
 
-        public static decimal Years(DateTime end, DateTime start) => DateTimeSpan.CompareDates(end, start).Years;
-        public static decimal Months(DateTime end, DateTime start) => DateTimeSpan.CompareDates(end, start).Months;
-        public static decimal Days(DateTime end, DateTime start) => DateTimeSpan.CompareDates(end, start).Days;
-        public static decimal Hours(DateTime end, DateTime start) => DateTimeSpan.CompareDates(end, start).Hours;
-        public static decimal Minutes(DateTime end, DateTime start) => DateTimeSpan.CompareDates(end, start).Minutes;
-        public static decimal Seconds(DateTime end, DateTime start) => DateTimeSpan.CompareDates(end, start).Seconds;
+    public static decimal Year(DateTime value)
+    {
+        return value.Year;
+    }
+
+    public static decimal Month(DateTime value)
+    {
+        return value.Month;
+    }
+
+    public static decimal Day(DateTime value)
+    {
+        return value.Day;
+    }
+
+    public static decimal Hour(DateTime value)
+    {
+        return value.Hour;
+    }
+
+    public static decimal Minute(DateTime value)
+    {
+        return value.Minute;
+    }
+
+    public static decimal Second(DateTime value)
+    {
+        return value.Second;
+    }
+
+    public static decimal Years(DateTime end, DateTime start)
+    {
+        return DateTimeSpan.CompareDates(end, start).Years;
+    }
+
+    public static decimal Months(DateTime end, DateTime start)
+    {
+        return DateTimeSpan.CompareDates(end, start).Months;
+    }
+
+    public static decimal Days(DateTime end, DateTime start)
+    {
+        return DateTimeSpan.CompareDates(end, start).Days;
+    }
+
+    public static decimal Hours(DateTime end, DateTime start)
+    {
+        return DateTimeSpan.CompareDates(end, start).Hours;
+    }
+
+    public static decimal Minutes(DateTime end, DateTime start)
+    {
+        return DateTimeSpan.CompareDates(end, start).Minutes;
+    }
+
+    public static decimal Seconds(DateTime end, DateTime start)
+    {
+        return DateTimeSpan.CompareDates(end, start).Seconds;
     }
 }

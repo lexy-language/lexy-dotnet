@@ -1,17 +1,17 @@
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Types
+namespace Lexy.Compiler.Language.Types;
+
+public abstract class ComplexTypeReference : VariableType, ITypeWithMembers
 {
-    public abstract class ComplexTypeReference : VariableType, ITypeWithMembers
+    public string Name { get; }
+
+    protected ComplexTypeReference(string name)
     {
-        protected ComplexTypeReference(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
-
-        public abstract ComplexType GetComplexType(IValidationContext context);
-        public abstract VariableType MemberType(string name, IValidationContext context);
+        Name = name;
     }
+
+    public abstract VariableType MemberType(string name, IValidationContext context);
+
+    public abstract ComplexType GetComplexType(IValidationContext context);
 }

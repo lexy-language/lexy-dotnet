@@ -1,6 +1,5 @@
-namespace Lexy.Compiler.Language.Types
+namespace Lexy.Compiler.Language.Types;
+
+public abstract class VariableType
 {
-    public abstract class VariableType
-    {
-    }
 }

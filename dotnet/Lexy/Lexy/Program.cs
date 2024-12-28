@@ -1,34 +1,33 @@
-﻿using System;
+﻿
 //using CommandLine;
 
-namespace Lexy
-{
-    internal static class Program
-    {
-        /*
-        public class Options
-        {
-            [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
-            public bool Verbose { get; set; }
-        }
+namespace Lexy;
 
-        private static void Main(string[] args)
-        {
-            Parser.Default.ParseArguments<Options>(args)
-                .WithParsed<Options>(o =>
-                {
-                    if (o.Verbose)
-                    {
-                        Console.WriteLine($"Verbose output enabled. Current Arguments: -v {o.Verbose}");
-                        Console.WriteLine("Quick Start Example! App is in Verbose mode!");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Current Arguments: -v {o.Verbose}");
-                        Console.WriteLine("Quick Start Example!");
-                    }
-                });
-        }
-        */
+internal static class Program
+{
+    /*
+    public class Options
+    {
+        [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
+        public bool Verbose { get; set; }
     }
+
+    private static void Main(string[] args)
+    {
+        Parser.Default.ParseArguments<Options>(args)
+            .WithParsed<Options>(o =>
+            {
+                if (o.Verbose)
+                {
+                    Console.WriteLine($"Verbose output enabled. Current Arguments: -v {o.Verbose}");
+                    Console.WriteLine("Quick Start Example! App is in Verbose mode!");
+                }
+                else
+                {
+                    Console.WriteLine($"Current Arguments: -v {o.Verbose}");
+                    Console.WriteLine("Quick Start Example!");
+                }
+            });
+    }
+    */
 }

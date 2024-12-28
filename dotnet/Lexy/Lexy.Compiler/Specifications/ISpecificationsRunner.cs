@@ -1,9 +1,7 @@
+namespace Lexy.Compiler.Specifications;
 
-namespace Lexy.Compiler.Specifications
+public interface ISpecificationsRunner
 {
-    public interface ISpecificationsRunner
-    {
-        void Run(string folder);
-        void RunAll(string file);
-    }
+    void Run(string folder);
+    void RunAll(string file);
 }

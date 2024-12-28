@@ -1,20 +1,18 @@
 using Lexy.Compiler;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-namespace Lexy.Poc
+namespace Lexy.Poc;
+
+public static class ServiceProviderConfiguration
 {
-    public static class ServiceProviderConfiguration
+    public static ServiceProvider CreateServices()
     {
-        public static ServiceProvider CreateServices()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddLogging()
-                .AddSingleton<ILoggerFactory>(LoggingConfiguration.CreateLoggerFactory())
-                .AddLexy()
-                .BuildServiceProvider();
+        var serviceProvider = new ServiceCollection()
+            .AddLogging()
+            .AddSingleton(LoggingConfiguration.CreateLoggerFactory())
+            .AddLexy()
+            .BuildServiceProvider();
 
-            return serviceProvider;
-        }
+        return serviceProvider;
     }
 }

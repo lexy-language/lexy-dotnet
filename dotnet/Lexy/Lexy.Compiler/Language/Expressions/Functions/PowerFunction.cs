@@ -2,40 +2,45 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.Expressions.Functions
+namespace Lexy.Compiler.Language.Expressions.Functions;
+
+public class PowerFunction : ExpressionFunction
 {
-    public class PowerFunction : ExpressionFunction
+    public const string Name = "POWER";
+
+    private string FunctionHelp => $"'{Name} expects 2 arguments (Number, Power).";
+
+    public Expression NumberExpression { get; }
+    public Expression PowerExpression { get; }
+
+    protected PowerFunction(Expression numberExpression, Expression powerExpression, SourceReference reference)
+        : base(reference)
     {
-        public const string Name = "POWER";
+        NumberExpression = numberExpression;
+        PowerExpression = powerExpression;
+    }
 
-        private string FunctionHelp => $"'{Name} expects 2 arguments (Number, Power).";
+    public override IEnumerable<INode> GetChildren()
+    {
+        yield return NumberExpression;
+        yield return PowerExpression;
+    }
 
-        public Expression NumberExpression { get; }
-        public Expression PowerExpression { get; }
+    protected override void Validate(IValidationContext context)
+    {
+        context
+            .ValidateType(NumberExpression, 1, "Number", PrimitiveType.Number, Reference, FunctionHelp)
+            .ValidateType(PowerExpression, 2, "Power", PrimitiveType.Number, Reference, FunctionHelp);
+    }
 
-        protected PowerFunction(Expression numberExpression, Expression powerExpression, SourceReference reference)
-            : base(reference)
-        {
-            NumberExpression = numberExpression;
-            PowerExpression = powerExpression;
-        }
+    public override VariableType DeriveReturnType(IValidationContext context)
+    {
+        return PrimitiveType.Number;
+    }
 
-        public override IEnumerable<INode> GetChildren()
-        {
-            yield return NumberExpression;
-            yield return PowerExpression;
-        }
-
-        protected override void Validate(IValidationContext context)
-        {
-            context
-                .ValidateType(NumberExpression, 1, "Number", PrimitiveType.Number, Reference, FunctionHelp)
-                .ValidateType(PowerExpression, 2, "Power", PrimitiveType.Number, Reference, FunctionHelp);
-        }
-
-        public override VariableType DeriveReturnType(IValidationContext context) => PrimitiveType.Number;
-
-        public static ExpressionFunction Create(SourceReference reference, Expression numberExpression, Expression powerExpression) =>
-            new PowerFunction(numberExpression, powerExpression, reference);
+    public static ExpressionFunction Create(SourceReference reference, Expression numberExpression,
+        Expression powerExpression)
+    {
+        return new PowerFunction(numberExpression, powerExpression, reference);
     }
 }

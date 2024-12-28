@@ -1,7 +1,6 @@
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public interface ITokenizer
 {
-    public interface ITokenizer
-    {
-        TokenList Tokenize(Line line, IParserContext parserContext, out bool errors);
-    }
+    TokenList Tokenize(Line line, IParserContext parserContext, out bool errors);
 }

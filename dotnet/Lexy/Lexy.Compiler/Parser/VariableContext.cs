@@ -3,117 +3,119 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Types;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Parser
+namespace Lexy.Compiler.Parser;
+
+public class VariableContext : IVariableContext
 {
-    public class VariableContext : IVariableContext
+    private readonly IParserLogger logger;
+    private readonly IVariableContext parentContext;
+    private readonly IDictionary<string, VariableEntry> variables = new Dictionary<string, VariableEntry>();
+
+    public VariableContext(IParserLogger logger, IVariableContext parentContext)
     {
-        private readonly IParserLogger logger;
-        private readonly IVariableContext parentContext;
-        private readonly IDictionary<string, VariableEntry> variables = new Dictionary<string, VariableEntry>();
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.parentContext = parentContext;
+    }
 
-        public VariableContext(IParserLogger logger, IVariableContext parentContext)
+    public void AddVariable(string name, VariableType type, VariableSource source)
+    {
+        if (Contains(name)) return;
+
+        var entry = new VariableEntry(type, source);
+        variables.Add(name, entry);
+    }
+
+    public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, VariableType type,
+        VariableSource source)
+    {
+        if (Contains(name))
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.parentContext = parentContext;
+            logger.Fail(reference, $"Duplicated variable name: '{name}'");
+            return;
         }
 
-        public void AddVariable(string name, VariableType type, VariableSource source)
-        {
-            if (Contains(name)) return;
+        var entry = new VariableEntry(type, source);
+        variables.Add(name, entry);
+    }
 
-            var entry = new VariableEntry(type, source);
-            variables.Add(name, entry);
+    public bool Contains(string name)
+    {
+        return variables.ContainsKey(name) || parentContext != null && parentContext.Contains(name);
+    }
+
+    public bool Contains(VariableReference reference, IValidationContext context)
+    {
+        var parent = GetVariable(reference.ParentIdentifier);
+        if (parent == null) return false;
+
+        return !reference.HasChildIdentifiers ||
+               ContainChild(parent.VariableType, reference.ChildrenReference(), context);
+    }
+
+    public bool EnsureVariableExists(SourceReference reference, string name)
+    {
+        if (!Contains(name))
+        {
+            logger.Fail(reference, $"Unknown variable name: '{name}'.");
+            return false;
         }
 
-        public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, VariableType type, VariableSource source)
-        {
-            if (Contains(name))
-            {
-                logger.Fail(reference, $"Duplicated variable name: '{name}'");
-                return;
-            }
+        return true;
+    }
 
-            var entry = new VariableEntry(type, source);
-            variables.Add(name, entry);
-        }
+    public VariableType GetVariableType(string name)
+    {
+        return variables.TryGetValue(name, out var value)
+            ? value.VariableType
+            : parentContext?.GetVariableType(name);
+    }
 
-        public bool Contains(string name)
-        {
-            return variables.ContainsKey(name) || parentContext != null && parentContext.Contains(name);
-        }
+    public VariableType GetVariableType(VariableReference reference, IValidationContext context)
+    {
+        if (reference == null) throw new ArgumentNullException(nameof(reference));
 
-        public bool Contains(VariableReference reference, IValidationContext context)
-        {
-            var parent = GetVariable(reference.ParentIdentifier);
-            if (parent == null) return false;
-
-            return !reference.HasChildIdentifiers || ContainChild(parent.VariableType, reference.ChildrenReference(), context);
-        }
-
-        private bool ContainChild(VariableType parentType, VariableReference reference, IValidationContext context)
-        {
-            var typeWithMembers = parentType as ITypeWithMembers;
-
-            var memberVariableType = typeWithMembers?.MemberType(reference.ParentIdentifier, context);
-            if (memberVariableType == null) return false;
-
-            return !reference.HasChildIdentifiers
-                || ContainChild(memberVariableType, reference.ChildrenReference(), context);
-        }
-
-        public bool EnsureVariableExists(SourceReference reference, string name)
-        {
-            if (!Contains(name))
-            {
-                logger.Fail(reference, $"Unknown variable name: '{name}'.");
-                return false;
-            }
-
-            return true;
-        }
-
-        public VariableType GetVariableType(string name)
-        {
-            return variables.TryGetValue(name, out var value)
-                ? value.VariableType
-                : parentContext?.GetVariableType(name);
-        }
-
-        public VariableType GetVariableType(VariableReference reference, IValidationContext context)
-        {
-            if (reference == null) throw new ArgumentNullException(nameof(reference));
-
-            var parent = GetVariableType(reference.ParentIdentifier);
-            return parent == null || !reference.HasChildIdentifiers
-                ? parent
-                : GetVariableType(parent, reference.ChildrenReference(), context);
-        }
-
-        private VariableType GetVariableType(VariableType parentType, VariableReference reference, IValidationContext context)
-        {
-            if (parentType is not ITypeWithMembers typeWithMembers) return null;
-
-            var memberVariableType = typeWithMembers.MemberType(reference.ParentIdentifier, context);
-            if (memberVariableType == null) return null;
-
-            return !reference.HasChildIdentifiers
-                ? memberVariableType
-                : GetVariableType(memberVariableType, reference.ChildrenReference(), context);
-        }
+        var parent = GetVariableType(reference.ParentIdentifier);
+        return parent == null || !reference.HasChildIdentifiers
+            ? parent
+            : GetVariableType(parent, reference.ChildrenReference(), context);
+    }
 
 
-        public VariableSource? GetVariableSource(string name)
-        {
-            return variables.TryGetValue(name, out var value)
-                ? value.VariableSource
-                : parentContext?.GetVariableSource(name);
-        }
+    public VariableSource? GetVariableSource(string name)
+    {
+        return variables.TryGetValue(name, out var value)
+            ? value.VariableSource
+            : parentContext?.GetVariableSource(name);
+    }
 
-        public VariableEntry GetVariable(string name)
-        {
-            return variables.TryGetValue(name, out var value)
-                ? value
-                : null;
-        }
+    public VariableEntry GetVariable(string name)
+    {
+        return variables.TryGetValue(name, out var value)
+            ? value
+            : null;
+    }
+
+    private bool ContainChild(VariableType parentType, VariableReference reference, IValidationContext context)
+    {
+        var typeWithMembers = parentType as ITypeWithMembers;
+
+        var memberVariableType = typeWithMembers?.MemberType(reference.ParentIdentifier, context);
+        if (memberVariableType == null) return false;
+
+        return !reference.HasChildIdentifiers
+               || ContainChild(memberVariableType, reference.ChildrenReference(), context);
+    }
+
+    private VariableType GetVariableType(VariableType parentType, VariableReference reference,
+        IValidationContext context)
+    {
+        if (parentType is not ITypeWithMembers typeWithMembers) return null;
+
+        var memberVariableType = typeWithMembers.MemberType(reference.ParentIdentifier, context);
+        if (memberVariableType == null) return null;
+
+        return !reference.HasChildIdentifiers
+            ? memberVariableType
+            : GetVariableType(memberVariableType, reference.ChildrenReference(), context);
     }
 }

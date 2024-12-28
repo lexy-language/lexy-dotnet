@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lexy.Compiler.Specifications
+namespace Lexy.Compiler.Specifications;
+
+public interface ISpecificationFileRunner : IDisposable
 {
-    public interface ISpecificationFileRunner : IDisposable
-    {
-        IEnumerable<IScenarioRunner> ScenarioRunners { get; }
+    IEnumerable<IScenarioRunner> ScenarioRunners { get; }
 
-        void Initialize(IServiceScope serviceScope, ISpecificationRunnerContext runnerContext, string fileName);
+    void Initialize(IServiceScope serviceScope, ISpecificationRunnerContext runnerContext, string fileName);
 
-        int CountScenarioRunners();
-        void Run();
-    }
+    int CountScenarioRunners();
+    void Run();
 }
