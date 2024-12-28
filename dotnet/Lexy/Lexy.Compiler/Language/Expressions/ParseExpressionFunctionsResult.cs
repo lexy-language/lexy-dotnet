@@ -2,23 +2,14 @@ using Lexy.Compiler.Language.Expressions.Functions;
 
 namespace Lexy.Compiler.Language.Expressions
 {
-    public class ParseExpressionFunctionsResult
+    public sealed class ParseExpressionFunctionsResult : ParseResult<ExpressionFunction>
     {
-        public string ErrorMessage { get; }
-        public bool IsSuccess { get; }
-
-        public ExpressionFunction Result { get; }
-
-        private ParseExpressionFunctionsResult(ExpressionFunction result)
+        private ParseExpressionFunctionsResult(ExpressionFunction result) : base(result)
         {
-            Result = result;
-            IsSuccess = true;
         }
 
-        private ParseExpressionFunctionsResult(bool success, string errorMessage)
+        private ParseExpressionFunctionsResult(bool success, string errorMessage) : base(success, errorMessage)
         {
-            ErrorMessage = errorMessage;
-            IsSuccess = success;
         }
 
         public static ParseExpressionFunctionsResult Success(ExpressionFunction result = null)

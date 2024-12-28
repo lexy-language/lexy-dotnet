@@ -29,23 +29,23 @@ namespace Lexy.Compiler.Compiler
             this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
         }
 
-        public CompilerResult Compile(Nodes nodes, Function function)
+        public CompilerResult Compile(RootNodeList rootNodeList, Function function)
         {
-            if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+            if (rootNodeList == null) throw new ArgumentNullException(nameof(rootNodeList));
             if (function == null) throw new ArgumentNullException(nameof(function));
 
-            var generateNodes = FunctionAndDependencies(nodes, function);
+            var generateNodes = FunctionAndDependencies(rootNodeList, function);
 
-            var syntaxNode = GenerateSyntaxNode(nodes, generateNodes);
+            var syntaxNode = GenerateSyntaxNode(rootNodeList, generateNodes);
             var assembly = CreateAssembly(syntaxNode);
 
             environment.CreateExecutables(assembly);
             return environment.Result();
         }
 
-        private List<IRootNode> FunctionAndDependencies(Nodes nodes, Function function)
+        private List<IRootNode> FunctionAndDependencies(RootNodeList rootNodeList, Function function)
         {
-            return function.GetFunctionAndDependencies(nodes).ToList();
+            return function.GetFunctionAndDependencies(rootNodeList).ToList();
         }
 
         private Assembly CreateAssembly(SyntaxNode syntax)
@@ -107,17 +107,17 @@ namespace Lexy.Compiler.Compiler
             return references;
         }
 
-        private SyntaxNode GenerateSyntaxNode(Nodes nodes, List<IRootNode> generateNodes)
+        private SyntaxNode GenerateSyntaxNode(RootNodeList rootNodeList, List<IRootNode> generateNodes)
         {
-            var root = GenerateCompilationUnitS(nodes, generateNodes);
+            var root = GenerateCompilationUnitS(rootNodeList, generateNodes);
 
             return root.NormalizeWhitespace();
         }
 
-        private CompilationUnitSyntax GenerateCompilationUnitS(Nodes nodes, List<IRootNode> generateNodes)
+        private CompilationUnitSyntax GenerateCompilationUnitS(RootNodeList rootNodeList, List<IRootNode> generateNodes)
         {
             var members = generateNodes
-                .Select(node => GenerateMember(nodes, node))
+                .Select(node => GenerateMember(rootNodeList, node))
                 .ToList();
 
             var namespaceDeclaration = NamespaceDeclaration(IdentifierName(LexyCodeConstants.Namespace))
@@ -135,7 +135,7 @@ namespace Lexy.Compiler.Compiler
             return root;
         }
 
-        private MemberDeclarationSyntax GenerateMember(Nodes nodes, IRootNode node)
+        private MemberDeclarationSyntax GenerateMember(RootNodeList rootNodeList, IRootNode node)
         {
             var writer = CSharpCode.GetWriter(node);
 

@@ -68,10 +68,10 @@ namespace Lexy.Compiler.Language
             return this;
         }
 
-        public IEnumerable<IRootNode> GetFunctionAndDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetFunctionAndDependencies(RootNodeList rootNodeList)
         {
             var result = new List<IRootNode> { this };
-            AddDependentNodes(this, nodes, result);
+            AddDependentNodes(this, rootNodeList, result);
 
             var processed = 0;
             while (processed != result.Count)
@@ -79,27 +79,27 @@ namespace Lexy.Compiler.Language
                 processed = result.Count;
                 foreach (var node in result.ToList())
                 {
-                    AddDependentNodes(node, nodes, result);
+                    AddDependentNodes(node, rootNodeList, result);
                 }
             }
 
             return result;
         }
 
-        private static void AddDependentNodes(INode node, Nodes nodes, List<IRootNode> result)
+        private static void AddDependentNodes(INode node, RootNodeList rootNodeList, List<IRootNode> result)
         {
-            AddNodeDependencies(node, nodes, result);
+            AddNodeDependencies(node, rootNodeList, result);
 
             var children = node.GetChildren();
 
-            NodesWalker.Walk(children, eachNode => AddNodeDependencies(eachNode, nodes, result));
+            NodesWalker.Walk(children, eachNode => AddNodeDependencies(eachNode, rootNodeList, result));
         }
 
-        private static void AddNodeDependencies(INode node, Nodes nodes, List<IRootNode> result)
+        private static void AddNodeDependencies(INode node, RootNodeList rootNodeList, List<IRootNode> result)
         {
             if (!(node is IHasNodeDependencies hasDependencies)) return;
 
-            var dependencies = hasDependencies.GetDependencies(nodes);
+            var dependencies = hasDependencies.GetDependencies(rootNodeList);
             foreach (var dependency in dependencies)
             {
                 if (!result.Contains(dependency))
@@ -109,13 +109,13 @@ namespace Lexy.Compiler.Language
             }
         }
 
-        private static void AddEnumTypes(Nodes nodes, IList<VariableDefinition> variableDefinitions, List<IRootNode> result)
+        private static void AddEnumTypes(RootNodeList rootNodeList, IList<VariableDefinition> variableDefinitions, List<IRootNode> result)
         {
             foreach (var parameter in variableDefinitions)
             {
                 if (!(parameter.Type is CustomVariableDeclarationType enumVariableType)) continue;
 
-                var dependency = nodes.GetEnum(enumVariableType.Type);
+                var dependency = rootNodeList.GetEnum(enumVariableType.Type);
                 if (dependency != null)
                 {
                     result.Add(dependency);
@@ -125,7 +125,7 @@ namespace Lexy.Compiler.Language
 
         public override void ValidateTree(IValidationContext context)
         {
-            using (context.CreateCodeContextScope())
+            using (context.CreateVariableScope())
             {
                 base.ValidateTree(context);
             }
@@ -163,11 +163,11 @@ namespace Lexy.Compiler.Language
             return new ComplexType(Name.Value, ComplexTypeSource.FunctionResults, members);
         }
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
         {
             var result = new List<IRootNode>();
-            AddEnumTypes(nodes, Parameters.Variables, result);
-            AddEnumTypes(nodes, Results.Variables, result);
+            AddEnumTypes(rootNodeList, Parameters.Variables, result);
+            AddEnumTypes(rootNodeList, Results.Variables, result);
             return result;
         }
     }

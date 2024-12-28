@@ -1,6 +1,8 @@
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.Poc.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
@@ -15,7 +17,7 @@ namespace Lexy.Poc.Parser
             var code = @"Table: TestTable
   | number Value | string Result |
   | 7 | ""Test quoted"" |
-  | 8 | Test |";
+  | 8 | ""Test"" |";
 
             var parser = ServiceProvider.GetRequiredService<ILexyParser>();
             var table = parser.ParseTable(code);
@@ -27,14 +29,10 @@ namespace Lexy.Poc.Parser
             table.Header.Columns[1].Name.ShouldBe("Result");
             table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.String);
             table.Rows.Count.ShouldBe(2);
-            table.Rows[0].Values[0].ShouldBeOfType<NumberLiteralToken>();
-            table.Rows[0].Values[0].Value.ShouldBe("7");
-            table.Rows[0].Values[1].ShouldBeOfType<QuotedLiteralToken>();
-            table.Rows[0].Values[1].Value.ShouldBe("Test quoted");
-            table.Rows[1].Values[0].ShouldBeOfType<NumberLiteralToken>();
-            table.Rows[1].Values[0].Value.ShouldBe("8");
-            table.Rows[1].Values[1].ShouldBeOfType<StringLiteralToken>();
-            table.Rows[1].Values[1].Value.ShouldBe("Test");
+            table.Rows[0].Values[0].ValidateNumericLiteralExpression(7);
+            table.Rows[0].Values[1].ValidateQuotedLiteralExpression("Test quoted");
+            table.Rows[1].Values[0].ValidateNumericLiteralExpression(8);
+            table.Rows[1].Values[1].ValidateQuotedLiteralExpression("Test");
         }
 
         [Test]
@@ -55,14 +53,10 @@ namespace Lexy.Poc.Parser
             table.Header.Columns[1].Name.ShouldBe("Result");
             table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
             table.Rows.Count.ShouldBe(2);
-            table.Rows[0].Values[0].ShouldBeOfType<DateTimeLiteral>();
-            table.Rows[0].Values[0].Value.ShouldBe("2024/12/18 17:07:45");
-            table.Rows[0].Values[1].ShouldBeOfType<BooleanLiteral>();
-            table.Rows[0].Values[1].Value.ShouldBe("false");
-            table.Rows[1].Values[0].ShouldBeOfType<DateTimeLiteral>();
-            table.Rows[1].Values[0].Value.ShouldBe("2024/12/18 17:08:12");
-            table.Rows[1].Values[1].ShouldBeOfType<BooleanLiteral>();
-            table.Rows[1].Values[1].Value.ShouldBe("true");
+            table.Rows[0].Values[0].ValidateDateTimeLiteralExpression("2024/12/18 17:07:45");
+            table.Rows[0].Values[1].ValidateBooleanLiteralExpression(false);
+            table.Rows[1].Values[0].ValidateDateTimeLiteralExpression("2024/12/18 17:08:12");
+            table.Rows[1].Values[1].ValidateBooleanLiteralExpression(true);
         }
     }
 }

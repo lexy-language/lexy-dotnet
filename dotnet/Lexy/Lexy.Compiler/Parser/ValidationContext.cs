@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Parser
 {
@@ -9,50 +8,50 @@ namespace Lexy.Compiler.Parser
     {
         private class CodeContextScope : IDisposable
         {
-            private readonly Func<IFunctionCodeContext> func;
+            private readonly Func<IVariableContext> func;
 
-            public CodeContextScope(Func<IFunctionCodeContext> func) => this.func = func;
+            public CodeContextScope(Func<IVariableContext> func) => this.func = func;
 
             public void Dispose() => func();
         }
 
-        private readonly Stack<IFunctionCodeContext> contexts = new Stack<IFunctionCodeContext>();
-        private IFunctionCodeContext functionCodeContext;
+        private readonly Stack<IVariableContext> contexts = new Stack<IVariableContext>();
+        private IVariableContext variableContext;
 
         public IParserContext ParserContext { get; }
 
-        public IFunctionCodeContext FunctionCodeContext
+        public IVariableContext VariableContext
         {
             get
             {
-                if (functionCodeContext == null)
+                if (variableContext == null)
                 {
                     throw new InvalidOperationException("FunctionCodeContext not set.");
                 }
-                return functionCodeContext;
+                return variableContext;
             }
         }
 
         public IParserLogger Logger => ParserContext.Logger;
-        public Nodes Nodes => ParserContext.Nodes;
+        public RootNodeList RootNodes => ParserContext.Nodes;
 
         public ValidationContext(IParserContext context)
         {
             ParserContext = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public IDisposable CreateCodeContextScope()
+        public IDisposable CreateVariableScope()
         {
-            if (functionCodeContext != null)
+            if (variableContext != null)
             {
-                contexts.Push(functionCodeContext);
+                contexts.Push(variableContext);
             }
 
-            functionCodeContext = new FunctionCodeContext(Logger, functionCodeContext);
+            variableContext = new VariableContext(Logger, variableContext);
 
             return new CodeContextScope(() =>
             {
-                return functionCodeContext = contexts.Count == 0 ? null : contexts.Pop();
+                return variableContext = contexts.Count == 0 ? null : contexts.Pop();
             });
         }
     }

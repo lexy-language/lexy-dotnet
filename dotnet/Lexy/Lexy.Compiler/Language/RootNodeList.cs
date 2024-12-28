@@ -6,11 +6,16 @@ using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Language
 {
-    public class Nodes : IEnumerable<INode>
+    public class RootNodeList : IEnumerable<IRootNode>
     {
         private readonly IList<IRootNode> values = new Collection<IRootNode>();
 
         public int Count => values.Count;
+
+        public void Add(IRootNode rootNode)
+        {
+            values.Add(rootNode);
+        }
 
         internal bool ContainsEnum(string enumName)
         {
@@ -42,6 +47,13 @@ namespace Lexy.Compiler.Language
         {
             return values
                 .OfType<Table>()
+                .FirstOrDefault(function => function.Name.Value == name);
+        }
+
+        public TypeDefinition GetCustomType(string name)
+        {
+            return values
+                .OfType<TypeDefinition>()
                 .FirstOrDefault(function => function.Name.Value == name);
         }
 
@@ -79,11 +91,12 @@ namespace Lexy.Compiler.Language
                 Table table => new TableType(name, table),
                 Function function => new FunctionType(name, function),
                 EnumDefinition enumDefinition => new EnumType(name, enumDefinition),
+                TypeDefinition typeDefinition => new CustomType(name, typeDefinition),
                 _ => null
             };
         }
 
-        public IEnumerator<INode> GetEnumerator()
+        public IEnumerator<IRootNode> GetEnumerator()
         {
             return values.GetEnumerator();
         }

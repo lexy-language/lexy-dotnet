@@ -66,7 +66,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
             foreach (var member in complexType.Members)
             {
-                var variable = context.FunctionCodeContext.GetVariable(member.Name);
+                var variable = context.VariableContext.GetVariable(member.Name);
                 if (variable == null) continue;
 
                 if (!variable.VariableType.Equals(member.Type))
@@ -89,7 +89,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         public override VariableType DeriveReturnType(IValidationContext context)
         {
-            var function = context.Nodes.GetFunction(TypeLiteral.Parent);
+            var function = context.RootNodes.GetFunction(TypeLiteral.Parent);
             if (function == null) return null;
 
             return TypeLiteral.Member switch
@@ -100,11 +100,11 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             };
         }
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
         {
             if (Type != null)
             {
-                yield return nodes.GetNode(Type.Name);
+                yield return rootNodeList.GetNode(Type.Name);
             }
         }
     }

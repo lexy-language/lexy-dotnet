@@ -39,11 +39,11 @@ namespace Lexy.Compiler.Language.Expressions
 
             var value = tokens.TokensFrom(1);
             var valueExpression = ExpressionFactory.Parse(source.File, value, source.Line);
-            if (valueExpression.Status == ParseExpressionStatus.Failed) return valueExpression;
+            if (!valueExpression.IsSuccess) return valueExpression;
 
             var reference = source.CreateReference();
 
-            var expression = new CaseExpression(valueExpression.Expression, false , source, reference);
+            var expression = new CaseExpression(valueExpression.Result, false , source, reference);
 
             return ParseExpressionResult.Success(expression);
         }
@@ -75,14 +75,14 @@ namespace Lexy.Compiler.Language.Expressions
             }
 
             var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line);
-            if (expression.Status == ParseExpressionStatus.Failed)
+            if (!expression.IsSuccess)
             {
                 context.Logger.Fail(context.LineStartReference(), expression.ErrorMessage);
                 return null;
             }
 
-            expressions.Add(expression.Expression, context);
-            return expression.Expression is IParsableNode node ? node : this;
+            expressions.Add(expression.Result, context);
+            return expression.Result is IParsableNode node ? node : this;
         }
 
         public override IEnumerable<INode> GetChildren()

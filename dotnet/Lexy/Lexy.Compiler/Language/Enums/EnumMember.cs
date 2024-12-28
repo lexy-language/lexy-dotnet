@@ -20,7 +20,7 @@ namespace Lexy.Compiler.Language
 
         public static EnumMember Parse(IParserContext context, int lastIndex)
         {
-            var valid = context.ValidateTokens<AssignmentDefinition>()
+            var valid = context.ValidateTokens<EnumMember>()
                 .CountMinimum(1)
                 .StringLiteral(0)
                 .IsValid;
@@ -43,7 +43,7 @@ namespace Lexy.Compiler.Language
                 return null;
             }
 
-            valid = context.ValidateTokens<AssignmentDefinition>()
+            valid = context.ValidateTokens<EnumMember>()
                 .Operator(1, OperatorType.Assignment)
                 .NumberLiteral(2)
                 .IsValid;

@@ -4,6 +4,6 @@ namespace Lexy.Compiler.Compiler
 {
     public interface ILexyCompiler
     {
-        CompilerResult Compile(Nodes nodes, Function function);
+        CompilerResult Compile(RootNodeList rootNodeList, Function function);
     }
 }

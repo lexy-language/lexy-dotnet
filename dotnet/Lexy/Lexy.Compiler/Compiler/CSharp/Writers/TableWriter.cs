@@ -125,7 +125,7 @@ namespace Lexy.Compiler.Compiler.CSharp
                     AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         IdentifierName(columnHeader.Name),
-                        TokenValuesSyntax.Expression(value)));
+                        ExpressionSyntaxFactory.ExpressionSyntax(value)));
             }
             return result.ToArray();
         }

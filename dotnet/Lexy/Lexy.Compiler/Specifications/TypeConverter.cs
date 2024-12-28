@@ -3,36 +3,35 @@ using System.Globalization;
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
-using Lexy.RunTime;
 
 namespace Lexy.Compiler.Specifications
 {
     internal static class TypeConverter
     {
-        public static object Convert(CompilerResult compilerResult, string value, VariableDeclarationType type)
+        public static object Convert(CompilerResult compilerResult, object value, VariableType type)
         {
             if (compilerResult == null) throw new ArgumentNullException(nameof(compilerResult));
+            if (value == null) throw new ArgumentNullException(nameof(value));
             if (type == null) throw new ArgumentNullException(nameof(type));
 
-            if (type is CustomVariableDeclarationType enumVariableType)
+            if (type is EnumType enumVariableType)
             {
-                if (!compilerResult.ContainsEnum(enumVariableType.Type)) throw new InvalidOperationException("Known enum: " + enumVariableType.Type);
-
-                var indexOfSeparator = value.IndexOf(".");
-                var enumValue = value[(indexOfSeparator + 1)..];
-
                 var enumType = compilerResult.GetEnumType(enumVariableType.Type);
+                if (enumType == null) throw new InvalidOperationException($"Unknown enum: {enumVariableType.Type}");
 
+                var enumValueName = value.ToString();
+                var indexOfSeparator = enumValueName.IndexOf(".", StringComparison.InvariantCulture);
+                var enumValue = enumValueName[(indexOfSeparator + 1)..];
                 return Enum.Parse(enumType, enumValue);
             }
 
-            if (type is PrimitiveVariableDeclarationType primitiveVariableType)
+            if (type is PrimitiveType primitiveVariableType)
             {
                 return primitiveVariableType.Type switch
                 {
-                    TypeNames.Number => decimal.Parse(value, CultureInfo.InvariantCulture),
-                    TypeNames.Date => DateTime.Parse(value, CultureInfo.InvariantCulture),
-                    TypeNames.Boolean => bool.Parse(value),
+                    TypeNames.Number => value as decimal? ?? decimal.Parse(value.ToString(), CultureInfo.InvariantCulture),
+                    TypeNames.Date => value as DateTime? ?? DateTime.Parse(value.ToString(), CultureInfo.InvariantCulture),
+                    TypeNames.Boolean => value as bool? ?? bool.Parse(value.ToString()),
                     TypeNames.String => value,
                     _ => throw new InvalidOperationException($"Invalid type: '{primitiveVariableType.Type}'")
                 };

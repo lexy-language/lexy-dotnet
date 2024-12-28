@@ -63,6 +63,25 @@ namespace Lexy.Poc.Parser.ExpressionParser
             });
         }
 
+        public static void ValidateDateTimeLiteralExpression(this Expression expression, string value)
+        {
+            var valueDate = DateTime.Parse(value);
+            expression.ValidateOfType<LiteralExpression>(literal =>
+            {
+                literal.Literal.ValidateOfType<DateTimeLiteral>(number =>
+                    number.DateTimeValue.ShouldBe(valueDate));
+            });
+        }
+
+        public static void ValidateStringLiteralExpression(this Expression expression, string value)
+        {
+            expression.ValidateOfType<LiteralExpression>(literal =>
+            {
+                literal.Literal.ValidateOfType<StringLiteralToken>(number =>
+                    number.Value.ShouldBe(value));
+            });
+        }
+
         public static void ValidateIdentifierExpression(this Expression expression, string value)
         {
             expression.ValidateOfType<IdentifierExpression>(literal =>
@@ -75,7 +94,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
         {
             expression.ValidateOfType<MemberAccessExpression>(literal =>
             {
-                literal.Value.ShouldBe(value);
+                literal.Variable.ToString().ShouldBe(value);
             });
         }
     }

@@ -44,7 +44,7 @@ namespace Lexy.Compiler.Language
 
         public override void ValidateTree(IValidationContext context)
         {
-            using (context.CreateCodeContextScope())
+            using (context.CreateVariableScope())
             {
                 base.ValidateTree(context);
             }

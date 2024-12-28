@@ -12,11 +12,19 @@ namespace Lexy.Compiler.Language
 
             foreach (var node in nodes)
             {
-                action(node);
-
-                var children = node.GetChildren();
-                Walk(children, action);
+                Walk(node, action);
             }
+        }
+
+        public static void Walk(INode node, Action<INode> action)
+        {
+            if (node == null) throw new ArgumentNullException(nameof(node));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+
+            action(node);
+
+            var children = node.GetChildren();
+            Walk(children, action);
         }
 
         public static bool Walk(IEnumerable<INode> nodes, Func<INode, bool> function)

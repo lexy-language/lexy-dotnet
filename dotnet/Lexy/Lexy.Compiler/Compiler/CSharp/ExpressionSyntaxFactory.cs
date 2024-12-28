@@ -165,6 +165,17 @@ namespace Lexy.Compiler.Compiler.CSharp
                     .WithVariables(SingletonSeparatedList(variable)));
         }
 
+        public static ExpressionSyntax ExpressionSyntax(Expression line)
+        {
+            return line switch
+            {
+                LiteralExpression expression => TokenValuesSyntax.Expression(expression.Literal),
+                IdentifierExpression expression => IdentifierNameSyntax(expression),
+                MemberAccessExpression expression => TranslateMemberAccessExpression(expression),
+                _ => throw new InvalidOperationException($"Wrong expression type {line?.GetType()}: {line}")
+            };
+        }
+
         public static ExpressionSyntax ExpressionSyntax(Expression line, ICompileFunctionContext context)
         {
             return line switch
@@ -236,38 +247,41 @@ namespace Lexy.Compiler.Compiler.CSharp
 
         private static ExpressionSyntax TranslateMemberAccessExpression(MemberAccessExpression expression)
         {
-            var parts = expression.Value.Split(TokenValues.MemberAccess);
-            if (parts.Length < 2)
+            if (expression.Variable.Parts < 2)
             {
                 throw new InvalidOperationException($"Invalid MemberAccessExpression: {expression}");
             }
 
-            var rootType = VariableClassName(expression, parts);
+            var rootType = VariableClassName(expression, expression.Variable);
+
+            var childReference = expression.Variable.ChildrenReference();
 
             ExpressionSyntax result = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 IdentifierName(rootType),
-                IdentifierName(parts[1]));
+                IdentifierName(childReference.ParentIdentifier));
 
-            for (var index = 2; index < parts.Length; index++)
+            while (childReference.HasChildIdentifiers)
             {
+                expression.Variable.ChildrenReference();
                 result = MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     result,
-                    IdentifierName(parts[1]));
+                    IdentifierName(childReference.ParentIdentifier));
             }
 
             return result;
         }
 
-        private static string VariableClassName(MemberAccessExpression expression, string[] parts)
+        private static string VariableClassName(MemberAccessExpression expression, VariableReference reference)
         {
             return expression.RootType switch
             {
-                TableType _ => ClassNames.TableClassName(parts[0]),
-                FunctionType _ => ClassNames.TableClassName(parts[0]),
-                EnumType _ => ClassNames.EnumClassName(parts[0]),
-                _ => parts[0]
+                TableType _ => ClassNames.TableClassName(reference.ParentIdentifier),
+                FunctionType _ => ClassNames.TableClassName(reference.ParentIdentifier),
+                EnumType _ => ClassNames.EnumClassName(reference.ParentIdentifier),
+                CustomType _ => ClassNames.TypeClassName(reference.ParentIdentifier),
+                _ => reference.ParentIdentifier
             };
         }
     }

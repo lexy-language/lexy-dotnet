@@ -2,6 +2,7 @@ using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
+using Lexy.Poc.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
 
@@ -36,11 +37,11 @@ namespace Lexy.Poc.Parser
             scenario.Name.Value.ShouldBe("TestScenario");
             scenario.FunctionName.Value.ShouldBe("TestScenarioFunction");
             scenario.Parameters.Assignments.Count.ShouldBe(1);
-            scenario.Parameters.Assignments[0].Name.ShouldBe("Value");
-            scenario.Parameters.Assignments[0].Expression.ToString().ShouldBe("123");
+            scenario.Parameters.Assignments[0].Variable.ParentIdentifier.ShouldBe("Value");
+            scenario.Parameters.Assignments[0].ConstantValue.Value.ShouldBe(123m);
             scenario.Results.Assignments.Count.ShouldBe(1);
-            scenario.Results.Assignments[0].Name.ShouldBe("Result");
-            scenario.Results.Assignments[0].Expression.ToString().ShouldBe("456");
+            scenario.Results.Assignments[0].Variable.ParentIdentifier.ShouldBe("Result");
+            scenario.Results.Assignments[0].ConstantValue.Value.ShouldBe(456m);
         }
 
         [Test]
@@ -62,10 +63,10 @@ namespace Lexy.Poc.Parser
             logger.NodeHasErrors(scenario).ShouldBeTrue();
 
             errors.Length.ShouldBe(4, logger.ErrorMessages().Format(2));
-            errors[0].ShouldBe("tests.lexy(2, 2): ERROR - Invalid token 'Functtion'. Keyword expected.");
-            errors[1].ShouldBe("tests.lexy(1, 0): ERROR - Scenario has no function, enum, table or expect errors.");
-            errors[2].ShouldBe("tests.lexy(4, 4): ERROR - Unknown variable 'Value'.");
-            errors[3].ShouldBe("tests.lexy(6, 4): ERROR - Unknown variable 'Result'.");
+            errors[0].ShouldBe("tests.lexy(2, 3): ERROR - Invalid token 'Functtion'. Keyword expected.");
+            errors[1].ShouldBe("tests.lexy(1, 1): ERROR - Scenario has no function, enum, table or expect errors.");
+            errors[2].ShouldBe("tests.lexy(4, 5): ERROR - Unknown variable name: 'Value'.");
+            errors[3].ShouldBe("tests.lexy(6, 5): ERROR - Unknown variable name: 'Result'.");
         }
 
         [Test]
@@ -119,37 +120,41 @@ namespace Lexy.Poc.Parser
             scenario.Function.ShouldNotBeNull();
             scenario.Function.Parameters.Variables.Count.ShouldBe(2);
             scenario.Function.Parameters.Variables[0].Name.ShouldBe("Value1");
-            scenario.Function.Parameters.Variables[0].Type.ShouldBeOfType<PrimitiveVariableDeclarationType>();
-            (scenario.Function.Parameters.Variables[0].Type as PrimitiveVariableDeclarationType).Type.ShouldBe("number");
-            scenario.Function.Parameters.Variables[0].Default.ToString().ShouldBe("123");
+            scenario.Function.Parameters.Variables[0].Type.ValidateOfType<PrimitiveVariableDeclarationType>(value =>
+                value.Type.ShouldBe("number")
+            );
+            scenario.Function.Parameters.Variables[0].DefaultExpression.ToString().ShouldBe("123");
             scenario.Function.Parameters.Variables[1].Name.ShouldBe("Value2");
-            scenario.Function.Parameters.Variables[1].Type.ShouldBeOfType<PrimitiveVariableDeclarationType>();
-            (scenario.Function.Parameters.Variables[1].Type as PrimitiveVariableDeclarationType).Type.ShouldBe("number");
-            scenario.Function.Parameters.Variables[1].Default.ToString().ShouldBe("456");
+            scenario.Function.Parameters.Variables[1].Type.ValidateOfType<PrimitiveVariableDeclarationType>(value =>
+                value.Type.ShouldBe("number")
+            );
+            scenario.Function.Parameters.Variables[1].DefaultExpression.ToString().ShouldBe("456");
             scenario.Function.Results.Variables.Count.ShouldBe(2);
             scenario.Function.Results.Variables[0].Name.ShouldBe("Result1");
-            scenario.Function.Results.Variables[0].Type.ShouldBeOfType<PrimitiveVariableDeclarationType>();
-            (scenario.Function.Results.Variables[0].Type as PrimitiveVariableDeclarationType).Type.ShouldBe("number");
-            scenario.Function.Results.Variables[0].Default.ShouldBeNull();
+            scenario.Function.Results.Variables[0].Type.ValidateOfType<PrimitiveVariableDeclarationType>(value =>
+                value.Type.ShouldBe("number")
+            );
+            scenario.Function.Results.Variables[0].DefaultExpression.ShouldBeNull();
             scenario.Function.Results.Variables[1].Name.ShouldBe("Result2");
-            scenario.Function.Results.Variables[1].Type.ShouldBeOfType<PrimitiveVariableDeclarationType>();
-            (scenario.Function.Results.Variables[1].Type as PrimitiveVariableDeclarationType).Type.ShouldBe("number");
-            scenario.Function.Results.Variables[1].Default.ShouldBeNull();
+            scenario.Function.Results.Variables[1].Type.ValidateOfType<PrimitiveVariableDeclarationType>(value =>
+                value.Type.ShouldBe("number")
+            );
+            scenario.Function.Results.Variables[1].DefaultExpression.ShouldBeNull();
             scenario.Function.Code.Expressions.Count.ShouldBe(2);
             scenario.Function.Code.Expressions[0].ToString().ShouldBe("Result1=Value1");
             scenario.Function.Code.Expressions[1].ToString().ShouldBe("Result2=Value2");
 
             scenario.Parameters.Assignments.Count.ShouldBe(2);
-            scenario.Parameters.Assignments[0].Name.ShouldBe("Value1");
-            scenario.Parameters.Assignments[0].Expression.ToString().ShouldBe("987");
-            scenario.Parameters.Assignments[1].Name.ShouldBe("Value2");
-            scenario.Parameters.Assignments[1].Expression.ToString().ShouldBe("654");
+            scenario.Parameters.Assignments[0].Variable.ParentIdentifier.ShouldBe("Value1");
+            scenario.Parameters.Assignments[0].ConstantValue.Value.ShouldBe(987m);
+            scenario.Parameters.Assignments[1].Variable.ParentIdentifier.ShouldBe("Value2");
+            scenario.Parameters.Assignments[1].ConstantValue.Value.ShouldBe(654m);
 
             scenario.Results.Assignments.Count.ShouldBe(2);
-            scenario.Results.Assignments[0].Name.ShouldBe("Result1");
-            scenario.Results.Assignments[0].Expression.ToString().ShouldBe("123");
-            scenario.Results.Assignments[1].Name.ShouldBe("Result2");
-            scenario.Results.Assignments[1].Expression.ToString().ShouldBe("456");
+            scenario.Results.Assignments[0].Variable.ParentIdentifier.ShouldBe("Result1");
+            scenario.Results.Assignments[0].ConstantValue.Value.ShouldBe(123m);
+            scenario.Results.Assignments[1].Variable.ParentIdentifier.ShouldBe("Result2");
+            scenario.Results.Assignments[1].ConstantValue.Value.ShouldBe(456m);
         }
 
         [Test]

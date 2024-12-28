@@ -81,7 +81,7 @@ namespace Lexy.Compiler.Parser
                 }
             }
 
-            return null;
+            return 0;
         }
     }
 }

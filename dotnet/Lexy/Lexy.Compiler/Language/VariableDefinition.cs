@@ -1,25 +1,28 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language
 {
-    public class VariableDefinition : Node
+    public class VariableDefinition : Node, IHasNodeDependencies
     {
-        public ILiteralToken Default { get; }
+        public Expression DefaultExpression{ get; }
         public VariableSource Source { get; }
         public VariableDeclarationType Type { get; }
+        public VariableType VariableType { get; private set; }
         public string Name { get; }
 
         private VariableDefinition(string name, VariableDeclarationType type,
-            VariableSource Source, SourceReference reference, ILiteralToken @default = null) : base(reference)
+            VariableSource Source, SourceReference reference, Expression defaultExpression = null) : base(reference)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Name = name ?? throw new ArgumentNullException(nameof(name));
 
-            Default = @default;
+            DefaultExpression = defaultExpression;
             this.Source = Source;
         }
 
@@ -40,7 +43,7 @@ namespace Lexy.Compiler.Language
             var name = tokens.TokenValue(1);
             var type = tokens.TokenValue(0);
 
-            var variableType = VariableDeclarationType.Parse(type);
+            var variableType = VariableDeclarationType.Parse(type, context.TokenReference(0));
             if (variableType == null) return null;
 
             if (tokens.Length == 2)
@@ -61,22 +64,38 @@ namespace Lexy.Compiler.Language
                 return null;
             }
 
-            var defaultValue = tokens.LiteralToken(3);
-            return new VariableDefinition(name, variableType, source, context.LineStartReference(), defaultValue);
+            var defaultValue = ExpressionFactory.Parse(context.SourceCode.File, tokens.TokensFrom(3), line);
+            if (context.Failed(defaultValue, context.TokenReference(3))) return null;
+
+            return new VariableDefinition(name, variableType, source, context.LineStartReference(), defaultValue.Result);
         }
 
         public override IEnumerable<INode> GetChildren()
         {
-            yield break;
+            if (DefaultExpression != null)
+            {
+                yield return DefaultExpression;
+            }
+            yield return Type;
         }
 
         protected override void Validate(IValidationContext context)
         {
-            var variableType = Type.CreateVariableType(context);
+            VariableType = Type.CreateVariableType(context);
 
-            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType, Source);
+            context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, VariableType, Source);
 
-            context.ValidateTypeAndDefault(Reference, Type, Default);
+            context.ValidateTypeAndDefault(Reference, Type, DefaultExpression);
+        }
+
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
+        {
+            if (VariableType is not CustomType customType)
+            {
+                yield break;
+            }
+
+            yield return customType.TypeDefinition;
         }
     }
 }

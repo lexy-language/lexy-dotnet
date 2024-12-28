@@ -6,12 +6,13 @@ namespace Lexy.Compiler.Language
 {
     public class SourceCodeNode : RootNode
     {
-        private readonly IList<IRootNode> nodes = new List<IRootNode>();
+        private readonly RootNodeList rootNodes = new();
         private readonly IList<Include> includes = new List<Include>();
 
         public override string NodeName => "SourceCodeNode";
 
         public Comments Comments { get; }
+        public RootNodeList RootNodes => rootNodes;
 
         public SourceCodeNode() : base(new SourceReference(new SourceFile("SourceCodeNode"), 1, 1))
         {
@@ -35,7 +36,7 @@ namespace Lexy.Compiler.Language
             var rootNode = ParseRootNode(context, line);
             if (rootNode == null) return this;
 
-            nodes.Add(rootNode);
+            rootNodes.Add(rootNode);
             context.ProcessNode(rootNode);
 
             return rootNode;
@@ -64,6 +65,7 @@ namespace Lexy.Compiler.Language
                 Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
                 Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
                 Keywords.TableKeyword => Table.Parse(tokenName, reference),
+                Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, reference),
                 _ => InvalidNode(tokenName, context, reference)
             };
 
@@ -76,7 +78,7 @@ namespace Lexy.Compiler.Language
             return null;
         }
 
-        public override IEnumerable<INode> GetChildren() => nodes;
+        public override IEnumerable<INode> GetChildren() => rootNodes;
 
         protected override void Validate(IValidationContext context)
         {
@@ -85,7 +87,7 @@ namespace Lexy.Compiler.Language
                 node => node.Reference,
                 node => node.NodeName,
                 node => $"Duplicated node name: '{node.NodeName}'",
-                nodes);
+                rootNodes);
         }
 
         public IEnumerable<Include> GetDueIncludes() => includes.Where(include => !include.IsProcessed).ToList();

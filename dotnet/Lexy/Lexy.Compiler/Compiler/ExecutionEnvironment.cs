@@ -13,6 +13,7 @@ namespace Lexy.Compiler.Compiler
         private readonly IDictionary<string, ExecutableFunction> executables = new Dictionary<string, ExecutableFunction>();
         private readonly IDictionary<string, Type> enums = new Dictionary<string, Type>();
         private readonly IDictionary<string, Type> tables = new Dictionary<string, Type>();
+        private readonly IDictionary<string, Type> types = new Dictionary<string, Type>();
 
         private readonly IExecutionContext executionContext;
 
@@ -27,32 +28,49 @@ namespace Lexy.Compiler.Compiler
 
             foreach (var generatedClass in generatedTypes)
             {
-                switch (generatedClass.Node)
-                {
-                    case Function _:
-                    {
-                        var instanceType = assembly.GetType(generatedClass.FullClassName);
-                        var executable = new ExecutableFunction(instanceType, executionContext);
+                CreateExecutable(assembly, generatedClass);
+            }
+        }
 
-                        executables.Add(generatedClass.Node.NodeName, executable);
-                        break;
-                    }
-                    case EnumDefinition _:
-                    {
-                        var enumType = assembly.GetType(generatedClass.FullClassName);
-                        enums.Add(generatedClass.Node.NodeName, enumType);
-                        break;
-                    }
-                    case Table _:
-                    {
-                        var table = assembly.GetType(generatedClass.FullClassName);
-                        tables.Add(generatedClass.Node.NodeName, table);
-                        break;
-                    }
-                    default:
-                        throw new InvalidOperationException("Unknown generated type: " + generatedClass.Node.GetType());
+        private void CreateExecutable(Assembly assembly, GeneratedClass generatedClass)
+        {
+            switch (generatedClass.Node)
+            {
+                case Function _:
+                {
+                    var instanceType = assembly.GetType(generatedClass.FullClassName);
+                    var executable = new ExecutableFunction(instanceType, executionContext);
+
+                    executables.Add(generatedClass.Node.NodeName, executable);
+                    break;
+                }
+                case EnumDefinition _:
+                {
+                    CreateExecutable(assembly, generatedClass, enums);
+                    break;
+                }
+                case Table _:
+                {
+                    CreateExecutable(assembly, generatedClass, tables);
+                    break;
+                }
+                case TypeDefinition _:
+                {
+                    CreateExecutable(assembly, generatedClass, types);
+                    break;
+                }
+                default:
+                {
+                    throw new InvalidOperationException("Unknown generated type: " + generatedClass.Node.GetType());
                 }
             }
+        }
+
+        private void CreateExecutable(Assembly assembly, GeneratedClass generatedClass, IDictionary<string, Type> dictionary)
+        {
+            var instanceType = assembly.GetType(generatedClass.FullClassName);
+
+            dictionary.Add(generatedClass.Node.NodeName, instanceType);
         }
 
         public void AddType(GeneratedClass generatedType)

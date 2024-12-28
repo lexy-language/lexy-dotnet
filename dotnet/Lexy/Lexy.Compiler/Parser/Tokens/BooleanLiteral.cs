@@ -10,6 +10,8 @@ namespace Lexy.Compiler.Parser.Tokens
 
         public override string Value => BooleanValue ? TokenValues.BooleanTrue : TokenValues.BooleanFalse;
 
+        public object TypedValue => BooleanValue;
+
         public BooleanLiteral(bool value, TokenCharacter character) : base(character)
         {
             BooleanValue = value;

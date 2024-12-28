@@ -139,5 +139,21 @@ namespace Lexy.Compiler.Parser
 
             return values[tokenIndex].FirstCharacter.Position;
         }
+
+        public int Find<T>(Func<T, bool> func) where T: Token
+        {
+            if (func == null) throw new ArgumentNullException(nameof(func));
+
+            for (var index = 0; index < values.Length; index++)
+            {
+                var value = values[index];
+                if (value is T specificToken && func(specificToken))
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
     }
 }

@@ -24,15 +24,11 @@ namespace Lexy.Compiler.Language
             }
 
             var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line);
-            if (expression.Status == ParseExpressionStatus.Failed)
-            {
-                context.Logger.Fail(context.LineStartReference(), expression.ErrorMessage);
-                return this;
-            }
+            if (context.Failed(expression, context.LineStartReference())) return this;
 
-            expressions.Add(expression.Expression, context);
+            expressions.Add(expression.Result, context);
 
-            return expression.Expression is IParsableNode node ? node : this;
+            return expression.Result is IParsableNode node ? node : this;
         }
 
         public override IEnumerable<INode> GetChildren() => Expressions;

@@ -3,22 +3,14 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions
 {
-    public class ArgumentTokenParseResult
+    public sealed class ArgumentTokenParseResult : ParseResult<IEnumerable<TokenList>>
     {
-        public string ErrorMessage { get; }
-        public bool IsSuccess { get; }
-        public IEnumerable<TokenList> Result { get; }
-
-        private ArgumentTokenParseResult(IEnumerable<TokenList> result)
+        private ArgumentTokenParseResult(IEnumerable<TokenList> result) : base(result)
         {
-            Result = result;
-            IsSuccess = true;
         }
 
-        private ArgumentTokenParseResult(bool success, string errorMessage)
+        private ArgumentTokenParseResult(bool success, string errorMessage) : base(success, errorMessage)
         {
-            ErrorMessage = errorMessage;
-            IsSuccess = success;
         }
 
         public static ArgumentTokenParseResult Success(IEnumerable<TokenList> result = null)

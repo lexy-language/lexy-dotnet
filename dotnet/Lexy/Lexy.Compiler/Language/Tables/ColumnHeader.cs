@@ -17,13 +17,13 @@ namespace Lexy.Compiler.Language
 
         public static ColumnHeader Parse(string name, string typeName, SourceReference reference)
         {
-            var type = VariableDeclarationType.Parse(typeName);
+            var type = VariableDeclarationType.Parse(typeName, reference);
             return new ColumnHeader(name, type, reference);
         }
 
         public override IEnumerable<INode> GetChildren()
         {
-            yield break;
+            yield return Type;
         }
 
         protected override void Validate(IValidationContext context)

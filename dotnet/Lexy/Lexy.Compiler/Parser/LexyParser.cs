@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Expressions.Functions;
 
 namespace Lexy.Compiler.Parser
 {
@@ -32,14 +30,13 @@ namespace Lexy.Compiler.Parser
         {
             if (code == null) throw new ArgumentNullException(nameof(code));
 
-            var sourceCodeNode = new SourceCodeNode();
             context.AddFileIncluded(fullFileName);
 
-            ParseDocument(sourceCodeNode, code, fullFileName);
+            ParseDocument(code, fullFileName);
 
             logger.LogNodes(context.Nodes);
 
-            ValidateNodesTree(sourceCodeNode);
+            ValidateNodesTree();
             DetectCircularDependencies();
 
             if (throwException)
@@ -50,12 +47,12 @@ namespace Lexy.Compiler.Parser
             return new ParserResult(context.Nodes);
         }
 
-        private void ParseDocument(SourceCodeNode sourceCodeNode, string[] code, string fullFileName)
+        private void ParseDocument(string[] code, string fullFileName)
         {
             sourceCodeDocument.SetCode(code, Path.GetFileName(fullFileName));
 
             var currentIndent = 0;
-            var nodes = new ParsableNodeArray(sourceCodeNode);
+            var nodes = new ParsableNodeArray(context.RootNode);
 
             while (sourceCodeDocument.HasMoreLines())
             {
@@ -92,21 +89,21 @@ namespace Lexy.Compiler.Parser
                 nodes.Set(currentIndent, node);
             }
 
-            Finalize();
+            Reset();
 
-            LoadIncludedFiles(fullFileName, sourceCodeNode);
+            LoadIncludedFiles(fullFileName);
         }
 
-        private void LoadIncludedFiles(string parentFullFileName, SourceCodeNode sourceCodeNode)
+        private void LoadIncludedFiles(string parentFullFileName)
         {
-            var includes = sourceCodeNode.GetDueIncludes();
+            var includes = context.RootNode.GetDueIncludes();
             foreach (var include in includes)
             {
-                IncludeFiles(parentFullFileName, sourceCodeNode, include);
+                IncludeFiles(parentFullFileName, include);
             }
         }
 
-        private void IncludeFiles(string parentFullFileName, SourceCodeNode sourceCodeNode, Include include)
+        private void IncludeFiles(string parentFullFileName, Include include)
         {
             var fileName = include.Process(parentFullFileName, context);
             if (fileName == null) return;
@@ -119,81 +116,28 @@ namespace Lexy.Compiler.Parser
 
             context.AddFileIncluded(fileName);
 
-            ParseDocument(sourceCodeNode, code, fileName);
+            ParseDocument(code, fileName);
         }
 
-        private void ValidateNodesTree(SourceCodeNode sourceCodeNode)
+        private void ValidateNodesTree()
         {
             var validationContext = new ValidationContext(context);
-            sourceCodeNode.ValidateTree(validationContext);
+            context.RootNode.ValidateTree(validationContext);
         }
 
         private void DetectCircularDependencies()
         {
-            var visitedNodes = new List<IRootNode>();
-            var node = DetectCircularDependencies(context.Nodes.OfType<IRootNode>(), visitedNodes);
-            if (node != null)
+            var dependencies = DependencyGraphFactory.Create(context.Nodes);
+            if (!dependencies.HasCircularReferences) return;
+
+            foreach (var circularReference in dependencies.CircularReferences)
             {
-                context.Logger.SetCurrentNode(node as IRootNode);
-                context.Logger.Fail(node.Reference, $"Circular reference detected in: '{node.NodeName}'");
+                context.Logger.SetCurrentNode(circularReference);
+                context.Logger.Fail(circularReference.Reference, $"Circular reference detected in: '{circularReference.NodeName}'");
             }
         }
 
-        private IRootNode DetectCircularDependencies(IEnumerable<IRootNode> nodes, List<IRootNode> visitedNodes)
-        {
-            foreach (var node in nodes)
-            {
-                if (visitedNodes.Contains(node))
-                {
-                    return node;
-                }
-                visitedNodes.Add(node);
-
-                var circularNode = DetectCircularDependencies(node, visitedNodes);
-                if (circularNode != null)
-                {
-                    return circularNode;
-                }
-            }
-
-            return null;
-        }
-
-        private IRootNode DetectCircularDependencies(IRootNode node, List<IRootNode> visitedNodes)
-        {
-            var dependencies = GetDependenciesNodes(node);
-
-            if (dependencies == null) return null;
-
-            return DetectCircularDependencies(dependencies, visitedNodes);
-        }
-
-        private IEnumerable<IRootNode> GetDependenciesNodes(IRootNode node)
-        {
-            var resultDependencies = new List<IRootNode>();
-            var nodeDependencies = (node as IHasNodeDependencies)?.GetDependencies(context.Nodes);
-            if (nodeDependencies != null)
-            {
-                resultDependencies.AddRange(nodeDependencies);
-            }
-
-            var children = node.GetChildren();
-            NodesWalker.Walk(children, childNode =>
-            {
-                var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(context.Nodes);
-                if (nodeDependencies == null) return;
-
-                foreach (var dependency in nodeDependencies)
-                {
-                    if (dependency == null) throw new InvalidOperationException("node.GetNodes() should never return null");
-
-                    resultDependencies.Add(dependency);
-                }
-            });
-            return resultDependencies;
-        }
-
-        private void Finalize()
+        private void Reset()
         {
             sourceCodeDocument.Reset();
             logger.Reset();

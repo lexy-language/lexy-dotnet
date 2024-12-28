@@ -8,6 +8,8 @@ namespace Lexy.Compiler.Parser.Tokens
     {
         private bool quoteClosed;
 
+        public object TypedValue => Value;
+
         public QuotedLiteralToken(TokenCharacter character) : base(null, character)
         {
             var value = character.Value;

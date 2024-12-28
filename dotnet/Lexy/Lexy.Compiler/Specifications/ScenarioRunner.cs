@@ -6,6 +6,7 @@ using System.Linq;
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ namespace Lexy.Compiler.Specifications
         private string fileName;
         private Scenario scenario;
         private Function function;
-        private Nodes nodes;
+        private RootNodeList rootNodeList;
         private IParserLogger parserLogger;
         private IServiceScope serviceScope;
 
@@ -32,7 +33,7 @@ namespace Lexy.Compiler.Specifications
             this.lexyCompiler = lexyCompiler;
         }
 
-        public void Initialize(string fileName, Nodes nodes, Scenario scenario,
+        public void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
             ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger)
         {
             //parserContext and runnerContext are managed by a parent ServiceProvider scope,
@@ -46,12 +47,12 @@ namespace Lexy.Compiler.Specifications
             this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
             this.context = context;
 
-            this.nodes = nodes ?? throw new ArgumentNullException(nameof(nodes));
+            this.rootNodeList = rootNodeList ?? throw new ArgumentNullException(nameof(rootNodeList));
             this.scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
             this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
             this.serviceScope = serviceScope ?? throw new ArgumentNullException(nameof(serviceScope));
 
-            function = scenario.Function ?? nodes.GetFunction(scenario.FunctionName.Value);
+            function = scenario.Function ?? rootNodeList.GetFunction(scenario.FunctionName.Value);
         }
 
         public static IScenarioRunner Create(string fileName, Scenario scenario,
@@ -78,7 +79,7 @@ namespace Lexy.Compiler.Specifications
 
             if (!ValidateErrors(context)) return;
 
-            var compilerResult = lexyCompiler.Compile(nodes, function);
+            var compilerResult = lexyCompiler.Compile(rootNodeList, function);
             var executable = compilerResult.GetFunction(function);
             var values = GetValues(scenario.Parameters, function.Parameters, compilerResult);
 
@@ -106,27 +107,24 @@ namespace Lexy.Compiler.Specifications
             var validationResult = new StringWriter();
             foreach (var expected in scenario.Results.Assignments)
             {
-                var parameterType = function.Results.GetParameterType(expected.Name);
-                if (parameterType == null)
-                {
-                    throw new InvalidOperationException($"Parameter '{expected.Name}' doesn't exists");
-                }
+                var actual = result.GetValue(expected.Variable);
+                var expectedValue = TypeConverter.Convert(compilerResult, expected.ConstantValue.Value, expected.VariableType);
 
-                var expectedValue = TypeConverter.Convert(compilerResult, expected.Expression.ToString(), parameterType);
-
-                var actual = result[expected.Name];
-                if (Comparer.Default.Compare(actual, expectedValue) != 0)
+                if (actual == null || expectedValue == null
+                || actual.GetType() != expectedValue.GetType()
+                || Comparer.Default.Compare(actual, expectedValue) != 0)
                 {
-                    validationResult.WriteLine($"'{expected.Name}' should be '{expectedValue ?? "<null>"}' but is '{actual ?? "<null>"}'");
+                    validationResult.WriteLine($"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
+
                 }
             }
 
             return validationResult.ToString();
         }
 
-        private bool ValidateErrors(ISpecificationRunnerContext context)
+        private bool ValidateErrors(ISpecificationRunnerContext runnerContext)
         {
-            if (scenario.ExpectRootErrors.HasValues) return ValidateRootErrors(context);
+            if (scenario.ExpectRootErrors.HasValues) return ValidateRootErrors();
 
             var node = function ?? scenario.Function ?? scenario.Enum ?? (IRootNode) scenario.Table;
             var failedMessages = parserLogger.ErrorNodeMessages(node);
@@ -148,7 +146,7 @@ namespace Lexy.Compiler.Specifications
 
             if (failedMessages.Any(message => message.Contains(scenario.ExpectError.Message)))
             {
-                context.Success(scenario);
+                runnerContext.Success(scenario);
                 return false;
             }
 
@@ -158,7 +156,7 @@ namespace Lexy.Compiler.Specifications
             return false;
         }
 
-        private bool ValidateRootErrors(ISpecificationRunnerContext specificationRunnerContext)
+        private bool ValidateRootErrors()
         {
             var failedMessages = parserLogger.ErrorMessages().ToList();
             if (!failedMessages.Any())
@@ -204,20 +202,20 @@ namespace Lexy.Compiler.Specifications
             var result = new Dictionary<string, object>();
             foreach (var parameter in scenarioParameters.Assignments)
             {
-                var type = functionParameters.Variables.FirstOrDefault(variable => variable.Name == parameter.Name);
+                var type = functionParameters.Variables.FirstOrDefault(variable => variable.Name == parameter.Variable.ParentIdentifier);
                 if (type == null)
                 {
-                    throw new InvalidOperationException($"Function '{function.NodeName}' parameter '{parameter.Name}' not found.");
+                    throw new InvalidOperationException($"Function '{function.NodeName}' parameter '{parameter.Variable.ParentIdentifier}' not found.");
                 }
-                var value = GetValue(compilerResult, parameter.Expression.ToString(), type);
-                result.Add(parameter.Name, value);
+                var value = GetValue(compilerResult, parameter.ConstantValue.Value, parameter.VariableType);
+                result.Add(parameter.Variable.ParentIdentifier, value);
             }
             return result;
         }
 
-        private object GetValue(CompilerResult compilerResult, string value, VariableDefinition definition)
+        private object GetValue(CompilerResult compilerResult, object value, VariableType type)
         {
-            return TypeConverter.Convert(compilerResult, value, definition.Type);
+            return TypeConverter.Convert(compilerResult, value, type);
         }
 
         public string ParserLogging()

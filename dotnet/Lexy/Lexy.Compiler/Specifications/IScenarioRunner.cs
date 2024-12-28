@@ -9,7 +9,7 @@ namespace Lexy.Compiler.Specifications
         bool Failed { get; }
         Scenario Scenario { get; }
 
-        void Initialize(string fileName, Nodes nodes, Scenario scenario,
+        void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
             ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger);
 
         void Run();

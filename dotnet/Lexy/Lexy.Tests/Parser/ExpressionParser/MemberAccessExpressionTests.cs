@@ -14,7 +14,7 @@ namespace Lexy.Poc.Parser.ExpressionParser
             {
                 assignmentExpression.Variable.ValidateIdentifierExpression("A");
                 assignmentExpression.Assignment.ValidateOfType<MemberAccessExpression>(memberAccess =>
-                    memberAccess.Value.ShouldBe("B.C"));
+                    memberAccess.Variable.ToString().ShouldBe("B.C"));
             });
         }
     }

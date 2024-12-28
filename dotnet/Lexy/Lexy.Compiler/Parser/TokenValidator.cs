@@ -55,28 +55,6 @@ namespace Lexy.Compiler.Parser
             return this;
         }
 
-        /* public TokenValidator Literal(int index, string literal = null)
-        {
-            Type<LiteralToken>(index);
-            if (literal != null)
-            {
-                Value(index, literal);
-            }
-            return this;
-        } */
-
-        /*
-        public TokenValidator TypeLiteral(int index, Types? type = null)
-        {
-            var token = ValidateType<TypeLiteralToken>(index);
-            if (token != null && type.HasValue && token.TypeValue != type.Value)
-            {
-                parserContext.Fail($"Invalid token value. Expected: '{type}' Actual: '{token.Value}'");
-                IsValid = false;
-            }
-            return this;
-        } */
-
         public TokenValidator StringLiteral(int index, string value = null)
         {
             Type<StringLiteralToken>(index);
@@ -186,7 +164,7 @@ namespace Lexy.Compiler.Parser
             var type = token.GetType();
             if (type != typeof(T))
             {
-                Fail($"Invalid token {index}  type. Expected: '{typeof(T).Name}' Actual: '{type.Name}({token.Value})'");
+                Fail($"Invalid token {index} type. Expected: '{typeof(T).Name}' Actual: '{type.Name}({token.Value})'");
                 IsValid = false;
 
                 return null;
@@ -201,7 +179,7 @@ namespace Lexy.Compiler.Parser
             var token = tokens[index];
             if (token.Value != expectedValue)
             {
-                Fail($"Invalid token value as {index} . Expected: '{expectedValue}' Actual: '{token.Value}'");
+                Fail($"Invalid token value as {index}. Expected: '{expectedValue}' Actual: '{token.Value}'");
                 IsValid = false;
             }
             return this;

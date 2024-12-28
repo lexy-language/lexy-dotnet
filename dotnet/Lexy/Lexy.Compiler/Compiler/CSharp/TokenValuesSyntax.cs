@@ -1,5 +1,4 @@
 using System;
-using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -28,9 +27,7 @@ namespace Lexy.Compiler.Compiler.CSharp
             var parts = memberAccess.Parts;
             if (parts.Length != 2) throw new InvalidOperationException("Only 2 parts expected.");
 
-            var identifierNameSyntax = memberAccess.Type is CustomVariableDeclarationType
-                ? SyntaxFactory.IdentifierName(ClassNames.EnumClassName(parts[0]))
-                : SyntaxFactory.IdentifierName(parts[0]);
+            var identifierNameSyntax = SyntaxFactory.IdentifierName(parts[0]);
 
             return SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,

@@ -35,25 +35,25 @@ namespace Lexy.Compiler.Language.Expressions
             }
         }
 
-        private static readonly IList<OperatorEntry> supportedOperatorsByPriority = new List<OperatorEntry>
+        private static readonly IList<OperatorEntry> SupportedOperatorsByPriority = new List<OperatorEntry>
         {
-            new OperatorEntry(OperatorType.Multiplication, ExpressionOperator.Multiplication),
-            new OperatorEntry(OperatorType.Division, ExpressionOperator.Division),
-            new OperatorEntry(OperatorType.Modulus, ExpressionOperator.Modulus),
+            new(OperatorType.Multiplication, ExpressionOperator.Multiplication),
+            new(OperatorType.Division, ExpressionOperator.Division),
+            new(OperatorType.Modulus, ExpressionOperator.Modulus),
 
-            new OperatorEntry(OperatorType.Addition, ExpressionOperator.Addition),
-            new OperatorEntry(OperatorType.Subtraction, ExpressionOperator.Subtraction),
+            new(OperatorType.Addition, ExpressionOperator.Addition),
+            new(OperatorType.Subtraction, ExpressionOperator.Subtraction),
 
-            new OperatorEntry(OperatorType.GreaterThan, ExpressionOperator.GreaterThan),
-            new OperatorEntry(OperatorType.GreaterThanOrEqual, ExpressionOperator.GreaterThanOrEqual),
-            new OperatorEntry(OperatorType.LessThan, ExpressionOperator.LessThan),
-            new OperatorEntry(OperatorType.LessThanOrEqual, ExpressionOperator.LessThanOrEqual),
+            new(OperatorType.GreaterThan, ExpressionOperator.GreaterThan),
+            new(OperatorType.GreaterThanOrEqual, ExpressionOperator.GreaterThanOrEqual),
+            new(OperatorType.LessThan, ExpressionOperator.LessThan),
+            new(OperatorType.LessThanOrEqual, ExpressionOperator.LessThanOrEqual),
 
-            new OperatorEntry(OperatorType.Equals, ExpressionOperator.Equals),
-            new OperatorEntry(OperatorType.NotEqual, ExpressionOperator.NotEqual),
+            new(OperatorType.Equals, ExpressionOperator.Equals),
+            new(OperatorType.NotEqual, ExpressionOperator.NotEqual),
 
-            new OperatorEntry(OperatorType.And, ExpressionOperator.And),
-            new OperatorEntry(OperatorType.Or, ExpressionOperator.Or),
+            new(OperatorType.And, ExpressionOperator.And),
+            new(OperatorType.Or, ExpressionOperator.Or),
         };
 
         public Expression Left { get; }
@@ -92,21 +92,21 @@ namespace Lexy.Compiler.Language.Expressions
             }
 
             var left = ExpressionFactory.Parse(source.File, leftTokens, source.Line);
-            if (left.Status == ParseExpressionStatus.Failed) return left;
+            if (!left.IsSuccess) return left;
 
             var right = ExpressionFactory.Parse(source.File, rightTokens, source.Line);
-            if (right.Status == ParseExpressionStatus.Failed) return left;
+            if (!right.IsSuccess) return left;
 
             var operatorValue = lowestPriorityOperation.ExpressionOperator;
             var reference = source.CreateReference(lowestPriorityOperation.Index);
 
-            var binaryExpression = new BinaryExpression(left.Expression, right.Expression, operatorValue, source, reference);
+            var binaryExpression = new BinaryExpression(left.Result, right.Result, operatorValue, source, reference);
             return ParseExpressionResult.Success(binaryExpression) ;
         }
 
         private static TokenIndex GetLowestPriorityOperation(IList<TokenIndex> supportedTokens)
         {
-            foreach (var supportedOperator in supportedOperatorsByPriority.Reverse())
+            foreach (var supportedOperator in SupportedOperatorsByPriority.Reverse())
             {
                 foreach (var supportedToken in supportedTokens)
                 {
@@ -166,7 +166,7 @@ namespace Lexy.Compiler.Language.Expressions
         }
 
         private static OperatorEntry IsSupported(OperatorType operatorTokenType) =>
-            supportedOperatorsByPriority.FirstOrDefault(entry => entry.OperatorType == operatorTokenType);
+            SupportedOperatorsByPriority.FirstOrDefault(entry => entry.OperatorType == operatorTokenType);
 
 
         public override IEnumerable<INode> GetChildren()

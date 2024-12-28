@@ -49,9 +49,9 @@ namespace Lexy.Compiler.Language.Expressions
             foreach (var argumentTokens in argumentsTokenList.Result)
             {
                 var argumentExpression = ExpressionFactory.Parse(source.File, argumentTokens, source.Line);
-                if (argumentExpression.Status == ParseExpressionStatus.Failed) return argumentExpression;
+                if (!argumentExpression.IsSuccess) return argumentExpression;
 
-                arguments.Add(argumentExpression.Expression);
+                arguments.Add(argumentExpression.Result);
             }
 
             var reference = source.CreateReference();

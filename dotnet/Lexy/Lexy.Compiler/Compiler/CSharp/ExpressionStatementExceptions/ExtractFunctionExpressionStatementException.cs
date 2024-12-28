@@ -32,23 +32,28 @@ namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatementExceptions
 
             foreach (var mapping in mappings)
             {
-                var left = mapping.VariableSource == VariableSource.Code
-                    ? IdentifierName(mapping.VariableName)
-                    : mapping.VariableSource == VariableSource.Results
-                        ? (ExpressionSyntax)MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(LexyCodeConstants.ResultsVariable),
-                            IdentifierName(mapping.VariableName))
-                        : throw new InvalidOperationException("Invalid source: " + mapping.VariableSource);
-
-                var right = MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(functionResultVariable),
-                    IdentifierName(mapping.VariableName));
-
-                yield return ExpressionStatement(
-                    AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, left, right));
+                yield return StatementSyntax(functionResultVariable, mapping);
             }
+        }
+
+        private static StatementSyntax StatementSyntax(string functionResultVariable, Mapping mapping)
+        {
+            var left = mapping.VariableSource == VariableSource.Code
+                ? IdentifierName(mapping.VariableName)
+                : mapping.VariableSource == VariableSource.Results
+                    ? (ExpressionSyntax)MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(LexyCodeConstants.ResultsVariable),
+                        IdentifierName(mapping.VariableName))
+                    : throw new InvalidOperationException($"Invalid source: {mapping.VariableSource}");
+
+            var right = MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                IdentifierName(functionResultVariable),
+                IdentifierName(mapping.VariableName));
+
+            return ExpressionStatement(
+                AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, left, right));
         }
     }
 }

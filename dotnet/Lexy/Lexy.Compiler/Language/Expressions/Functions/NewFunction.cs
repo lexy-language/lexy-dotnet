@@ -48,16 +48,16 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         public override VariableType DeriveReturnType(IValidationContext context)
         {
-            var nodeType = context.Nodes.GetType(TypeLiteral.Parent);
+            var nodeType = context.RootNodes.GetType(TypeLiteral.Parent);
             var typeReference = nodeType?.MemberType(TypeLiteral.Member, context) as ComplexTypeReference;
             return typeReference?.GetComplexType(context);
         }
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
         {
             if (Type != null)
             {
-                yield return nodes.GetNode(Type.Name);
+                yield return rootNodeList.GetNode(Type.Name);
             }
         }
     }

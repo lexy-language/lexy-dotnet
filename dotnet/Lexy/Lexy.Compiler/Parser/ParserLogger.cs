@@ -77,7 +77,7 @@ namespace Lexy.Compiler.Parser
             var nodeLogger = new NodesLogger();
             nodeLogger.Log(nodes);
 
-            logger.LogDebug("Parsed nodes: " + nodeLogger.ToString());
+            logger.LogDebug("Parsed nodes: {Nodes}", nodeLogger.ToString());
         }
 
         public bool HasErrorMessage(string expectedError)

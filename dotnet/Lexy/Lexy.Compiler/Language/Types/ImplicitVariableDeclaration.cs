@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
@@ -13,6 +14,19 @@ namespace Lexy.Compiler.Language.Types
         public void Define(VariableType variableType)
         {
             VariableType = variableType;
+        }
+
+        public ImplicitVariableDeclaration(SourceReference reference) : base(reference)
+        {
+        }
+
+        public override IEnumerable<INode> GetChildren()
+        {
+            yield break;
+        }
+
+        protected override void Validate(IValidationContext context)
+        {
         }
     }
 }

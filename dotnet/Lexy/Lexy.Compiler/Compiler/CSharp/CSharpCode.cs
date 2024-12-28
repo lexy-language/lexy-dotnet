@@ -12,6 +12,7 @@ namespace Lexy.Compiler.Compiler.CSharp
                 Function _ => new FunctionWriter(),
                 EnumDefinition _ => new EnumWriter(),
                 Table _ => new TableWriter(),
+                TypeDefinition _ => new TypeWriter(),
                 Scenario _ => null,
                 _ => throw new InvalidOperationException("No writer defined: " + rootNode.GetType())
             };

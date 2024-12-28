@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
@@ -6,7 +7,7 @@ namespace Lexy.Compiler.Language.Types
     {
         public string Type { get; }
 
-        public CustomVariableDeclarationType(string type)
+        public CustomVariableDeclarationType(string type, SourceReference reference) : base(reference)
         {
             Type = type;
         }
@@ -25,20 +26,16 @@ namespace Lexy.Compiler.Language.Types
 
         public override string ToString() => Type;
 
-        public override VariableType CreateVariableType(IValidationContext context)
-        {
-            var enumDefinition = context.Nodes.GetEnum(Type);
-            if (enumDefinition != null)
-            {
-                return new EnumType(Type, enumDefinition);
-            }
-            var tableDefinition = context.Nodes.GetTable(Type);
-            if (tableDefinition != null)
-            {
-                return new TableType(Type, tableDefinition);
-            }
+        public override VariableType CreateVariableType(IValidationContext context) => context.RootNodes.GetType(Type);
 
-            return null;
+        public override IEnumerable<INode> GetChildren()
+        {
+            yield break;
+        }
+
+        protected override void Validate(IValidationContext context)
+        {
+            VariableType = CreateVariableType(context);
         }
     }
 }

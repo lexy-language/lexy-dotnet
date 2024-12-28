@@ -8,6 +8,8 @@ namespace Lexy.Compiler.Parser.Tokens
     {
         public override string Value { get; }
 
+        public object TypedValue => Value;
+
         public StringLiteralToken(string value, TokenCharacter character) : base(character)
         {
             Value = value;

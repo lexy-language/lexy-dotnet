@@ -18,7 +18,7 @@ namespace Lexy.Compiler.Language
             var variableDefinition = VariableDefinition.Parse(VariableSource.Results, context);
             if (variableDefinition == null) return this;
 
-            if (variableDefinition.Default != null)
+            if (variableDefinition.DefaultExpression != null)
             {
                 context.Logger.Fail(Reference,
                     $"Result variable '{variableDefinition.Name}' should not have a default value.");
@@ -28,11 +28,6 @@ namespace Lexy.Compiler.Language
             Variables.Add(variableDefinition);
 
             return this;
-        }
-
-        public VariableDeclarationType GetParameterType(string expectedName)
-        {
-            return Variables.FirstOrDefault(variable => variable.Name == expectedName)?.Type;
         }
 
         public override IEnumerable<INode> GetChildren() => Variables;

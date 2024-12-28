@@ -24,6 +24,8 @@ namespace Lexy.Compiler.Parser.Tokens
 
         public DateTime DateTimeValue { get; set; }
 
+        public object TypedValue => DateTimeValue;
+
         public DateTimeLiteral(TokenCharacter character) : base(null, character)
         {
             validators = new List<Func<char, ParseTokenResult>>

@@ -38,7 +38,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
                 return;
             }
 
-            var variableType = context.FunctionCodeContext.GetVariableType(FunctionResultVariable);
+            var variableType = context.VariableContext.GetVariableType(FunctionResultVariable);
             if (variableType == null)
             {
                 context.Logger.Fail(Reference, $"Unknown variable: '{FunctionResultVariable}'. {FunctionHelp}");
@@ -66,7 +66,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
             foreach (var member in complexType.Members)
             {
-                var variable = context.FunctionCodeContext.GetVariable(member.Name);
+                var variable = context.VariableContext.GetVariable(member.Name);
                 if (variable == null || variable.VariableSource == VariableSource.Parameters) continue;
 
                 if (!variable.VariableType.Equals(member.Type))

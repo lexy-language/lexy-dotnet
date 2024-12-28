@@ -22,5 +22,7 @@ namespace Lexy.Compiler.Compiler.CSharp
 
         public const string EnumClassPrefix = "Enum__";
         public const string EnumDefaultField = "__Default";
+
+        public const string TypeClassPrefix = "Type__";
     }
 }

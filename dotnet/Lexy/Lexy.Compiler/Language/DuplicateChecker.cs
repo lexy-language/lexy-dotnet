@@ -32,7 +32,7 @@ namespace Lexy.Compiler.Language
             }
         }
 
-        public static void ValidateNode<T>(IValidationContext context, Func<T, SourceReference> getReference, Func<T, string> getName, Func<T, string> getErrorMessage, params IList<T>[] lists)
+        public static void ValidateNode<T>(IValidationContext context, Func<T, SourceReference> getReference, Func<T, string> getName, Func<T, string> getErrorMessage, params IEnumerable<T>[] lists)
             where T : INode
         {
             if (context == null) throw new ArgumentNullException(nameof(context));

@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Lexy.Compiler.Parser
 {
@@ -7,6 +10,7 @@ namespace Lexy.Compiler.Parser
         public const string FunctionKeyword = "Function:";
         public const string EnumKeyword = "Enum:";
         public const string TableKeyword = "Table:";
+        public const string TypeKeyword = "Type:";
         public const string ScenarioKeyword = "Scenario:";
 
         public const string Function = "Function";
@@ -33,43 +37,17 @@ namespace Lexy.Compiler.Parser
 
         public const string ImplicitVariableDeclaration = "var";
 
-        public const string Comment = "#";
+        private static readonly Lazy<IList<string>> values = new(LoadValues);
 
-        private static readonly IList<string> values = new List<string>
+        private static IList<String> LoadValues()
         {
-            FunctionKeyword,
-            EnumKeyword,
-            TableKeyword,
-            ScenarioKeyword,
+            return typeof(Keywords).GetFields(BindingFlags.Public | BindingFlags.Static |
+                           BindingFlags.FlattenHierarchy)
+                .Where(field => field.IsLiteral && !field.IsInitOnly)
+                .Select(field => (string) field.GetRawConstantValue())
+                .ToList();
+        }
 
-            Function,
-            ValidationTable,
-
-            If,
-            Else,
-
-            Switch,
-            Case,
-            Default,
-
-            For,
-            From,
-            To,
-
-            While,
-
-            Include,
-            Parameters,
-            Results,
-            Code,
-            ExpectError,
-            ExpectRootErrors,
-
-            ImplicitVariableDeclaration,
-
-            Comment,
-        };
-
-        public static bool Contains(string keyword) => values.Contains(keyword);
+        public static bool Contains(string keyword) => values.Value.Contains(keyword);
     }
 }

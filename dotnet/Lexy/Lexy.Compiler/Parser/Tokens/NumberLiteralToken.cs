@@ -44,6 +44,8 @@ namespace Lexy.Compiler.Parser.Tokens
             ? numberValue.Value.ToString(CultureInfo.InvariantCulture)
             : base.Value;
 
+        public object TypedValue => NumberValue;
+
         public NumberLiteralToken(decimal value, TokenCharacter character) : base(character)
         {
             numberValue = value;

@@ -172,7 +172,7 @@ namespace Lexy.Compiler.Language
 
         private void ValidateParameterOrResultNode(IValidationContext context, INode child)
         {
-            using (context.CreateCodeContextScope())
+            using (context.CreateVariableScope())
             {
                 AddFunctionParametersAndResultsForValidation(context);
                 base.ValidateNodeTree(context, child);
@@ -181,7 +181,7 @@ namespace Lexy.Compiler.Language
 
         private void AddFunctionParametersAndResultsForValidation(IValidationContext context)
         {
-            var function = Function ?? (FunctionName != null ? context.Nodes.GetFunction(FunctionName.Value) : null);
+            var function = Function ?? (FunctionName != null ? context.RootNodes.GetFunction(FunctionName.Value) : null);
             if (function == null) return;
 
             AddVariablesForValidation(context, function.Parameters.Variables, VariableSource.Parameters);
@@ -194,7 +194,7 @@ namespace Lexy.Compiler.Language
             foreach (var result in definitions)
             {
                 var variableType = result.Type.CreateVariableType(context);
-                context.FunctionCodeContext.AddVariable(result.Name, variableType, source);
+                context.VariableContext.AddVariable(result.Name, variableType, source);
             }
         }
 

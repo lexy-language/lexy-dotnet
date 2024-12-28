@@ -35,11 +35,11 @@ namespace Lexy.Compiler.Language.Expressions
             var functionName = tokens.TokenValue(0);
             var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
             var innerExpression = ExpressionFactory.Parse(source.File, innerExpressionTokens, source.Line);
-            if (innerExpression.Status == ParseExpressionStatus.Failed) return innerExpression;
+            if (!innerExpression.IsSuccess) return innerExpression;
 
             var reference = source.CreateReference();
 
-            var expression = new BracketedExpression(functionName, innerExpression.Expression, source, reference);
+            var expression = new BracketedExpression(functionName, innerExpression.Result, source, reference);
             return ParseExpressionResult.Success(expression);
         }
 
@@ -50,7 +50,7 @@ namespace Lexy.Compiler.Language.Expressions
                 && tokens.OperatorToken(1, OperatorType.OpenBrackets);
         }
 
-        internal static int FindMatchingClosingBracket(TokenList tokens)
+        private static int FindMatchingClosingBracket(TokenList tokens)
         {
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
 

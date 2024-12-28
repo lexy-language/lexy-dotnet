@@ -113,9 +113,20 @@ namespace Lexy.Compiler.Compiler.CSharp
             return type switch
             {
                 PrimitiveVariableDeclarationType primitive => Syntax(primitive.Type),
-                CustomVariableDeclarationType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
+                CustomVariableDeclarationType customVariable => IdentifierNameSyntax(customVariable),
                 ImplicitVariableDeclaration implicitVariable => Syntax(implicitVariable.VariableType),
                 _ => throw new InvalidOperationException("Couldn't map type: " + type)
+            };
+        }
+
+        private static IdentifierNameSyntax IdentifierNameSyntax(CustomVariableDeclarationType customVariable)
+        {
+            return customVariable.VariableType switch
+            {
+                EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
+                TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.Type)),
+                CustomType customType => IdentifierName(ClassNames.TypeClassName(customType.Type)),
+                _ => throw new InvalidOperationException("Couldn't map type: " + customVariable.VariableType)
             };
         }
 
@@ -124,10 +135,19 @@ namespace Lexy.Compiler.Compiler.CSharp
             return variableDeclarationType switch
             {
                 PrimitiveVariableDeclarationType expression => PrimitiveTypeDefaultExpression(expression),
-                CustomVariableDeclarationType enumType => DefaultExpression(IdentifierName(ClassNames.EnumClassName(enumType.Type))),
+                CustomVariableDeclarationType customType => DefaultExpressionSyntax(customType),
                 _ => throw new InvalidOperationException(
                     $"Wrong VariableDeclarationType {variableDeclarationType.GetType()}")
             };
+        }
+
+        private static ExpressionSyntax DefaultExpressionSyntax(CustomVariableDeclarationType customType)
+        {
+            if (customType.VariableType is CustomType)
+            {
+                return ObjectCreationExpression(IdentifierNameSyntax(customType));
+            }
+            return DefaultExpression(IdentifierNameSyntax(customType));
         }
 
         public static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableDeclarationType type)

@@ -6,14 +6,14 @@ namespace Lexy.Poc
 {
     public static class ParserExtensions
     {
-        public static Nodes ParseNodes(this ILexyParser parser, string code)
+        public static RootNodeList ParseNodes(this ILexyParser parser, string code)
         {
             if (parser == null) throw new ArgumentNullException(nameof(parser));
 
             var codeLines = code.Split(Environment.NewLine);
             var context = parser.Parse(codeLines, "tests.lexy", false);
 
-            return context.Nodes;
+            return context.RootNodes;
         }
 
         public static Function ParseFunction(this ILexyParser parser, string code) => parser.ParseNode<Function>(code);

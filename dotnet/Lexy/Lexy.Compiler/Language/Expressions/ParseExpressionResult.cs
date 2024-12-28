@@ -1,32 +1,24 @@
 namespace Lexy.Compiler.Language.Expressions
 {
-    public class ParseExpressionResult
-    {
-        public Expression Expression { get; }
-        public string ErrorMessage { get; }
-        public ParseExpressionStatus Status { get; }
 
-        private ParseExpressionResult(ParseExpressionStatus status, string errorMessage)
+    public sealed class ParseExpressionResult : ParseResult<Expression>
+    {
+        private ParseExpressionResult(Expression result) : base(result)
         {
-            Status = status;
-            ErrorMessage = errorMessage;
-            Status = status;
         }
 
-        private ParseExpressionResult(ParseExpressionStatus status, Expression expression = null)
+        private ParseExpressionResult(bool success, string errorMessage) : base(success, errorMessage)
         {
-            Expression = expression;
-            Status = status;
         }
 
         public static ParseExpressionResult Invalid<T>(string error)
         {
-            return new ParseExpressionResult(ParseExpressionStatus.Failed, $"({typeof(T).Name}) {error}");
+            return new ParseExpressionResult(false, $"({typeof(T).Name}) {error}");
         }
 
         public static ParseExpressionResult Success(Expression expression)
         {
-            return new ParseExpressionResult(ParseExpressionStatus.Success, expression);
+            return new ParseExpressionResult(expression);
         }
     }
 }

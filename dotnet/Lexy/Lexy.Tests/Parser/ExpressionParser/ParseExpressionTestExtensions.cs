@@ -21,8 +21,8 @@ namespace Lexy.Poc.Parser.ExpressionParser
             }
 
             var result = ExpressionFactory.Parse(sourceFile, line.Tokens, line);
-            result.Status.ShouldBe(ParseExpressionStatus.Success, result.ErrorMessage);
-            return result.Expression;
+            result.IsSuccess.ShouldBeTrue(result.ErrorMessage);
+            return result.Result;
         }
 
         public static void ParseExpressionExpectException(this ScopedServicesTestFixture fixture,
@@ -38,14 +38,14 @@ namespace Lexy.Poc.Parser.ExpressionParser
             {
                 if (!context.Logger.HasErrorMessage(errorMessage))
                 {
-                    throw new InvalidOperationException("Tokenizing failed: " +
-                                                        context.Logger.ErrorMessages().Format(2));
+                    throw new InvalidOperationException(
+                        $"Tokenizing failed: {context.Logger.ErrorMessages().Format(2)}");
                 }
                 return;
             }
 
             var result = ExpressionFactory.Parse(sourceFile, line.Tokens, line);
-            result.Status.ShouldBe(ParseExpressionStatus.Failed);
+            result.IsSuccess.ShouldBeFalse();
             result.ErrorMessage.ShouldBe(errorMessage);
         }
     }

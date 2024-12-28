@@ -62,14 +62,14 @@ namespace Lexy.Compiler.Language.Expressions
             }
 
             var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line);
-            if (expression.Status == ParseExpressionStatus.Failed)
+            if (!expression.IsSuccess)
             {
                 context.Logger.Fail(context.LineStartReference(), expression.ErrorMessage);
                 return null;
             }
 
-            falseExpressions.Add(expression.Expression, context);
-            return expression.Expression is IParsableNode node ? node : this;
+            falseExpressions.Add(expression.Result, context);
+            return expression.Result is IParsableNode node ? node : this;
         }
 
         public void LinkPreviousExpression(Expression expression, IParserContext context)

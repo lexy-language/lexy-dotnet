@@ -8,7 +8,9 @@ namespace Lexy.Compiler.Parser
 
         Line CurrentLine { get; }
 
-        Nodes Nodes { get; }
+        RootNodeList Nodes { get; }
+        SourceCodeNode RootNode { get; }
+
         ISourceCodeDocument SourceCode { get; }
 
         void ProcessNode(IRootNode node);

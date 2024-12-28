@@ -28,14 +28,14 @@ namespace Lexy.Compiler.Language.Expressions
                 return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
             }
 
-            var type = VariableDeclarationType.Parse(tokens.TokenValue(0));
+            var type = VariableDeclarationType.Parse(tokens.TokenValue(0), source.CreateReference(0));
             var name = tokens.TokenValue(1);
             var assignment = tokens.Length > 3 ? ExpressionFactory.Parse(source.File, tokens.TokensFrom(3), source.Line) : null;
-            if (assignment?.Status == ParseExpressionStatus.Failed) return assignment;
+            if (assignment is { IsSuccess: false }) return assignment;
 
             var reference = source.CreateReference();
 
-            var expression = new VariableDeclarationExpression(type, name, assignment?.Expression, source, reference);
+            var expression = new VariableDeclarationExpression(type, name, assignment?.Result, source, reference);
 
             return ParseExpressionResult.Success(expression);
         }
@@ -64,6 +64,7 @@ namespace Lexy.Compiler.Language.Expressions
             {
                 yield return Assignment;
             }
+            yield return Type;
         }
 
         protected override void Validate(IValidationContext context)
@@ -74,13 +75,13 @@ namespace Lexy.Compiler.Language.Expressions
                 context.Logger.Fail(Reference, "Invalid expression. Could not derive type.");
             }
 
-            var variableType = GetVariableType(context, assignmentType);
+            var variableType =  GetVariableType(context, assignmentType);
             if (variableType == null)
             {
                 context.Logger.Fail(Reference, $"Invalid variable type '{Type}'");
             }
 
-            context.FunctionCodeContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType, VariableSource.Code);
+            context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType, VariableSource.Code);
         }
 
         private VariableType GetVariableType(IValidationContext context, VariableType assignmentType)

@@ -29,7 +29,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         protected override void Validate(IValidationContext context)
         {
-            var function = context.Nodes.GetFunction(FunctionName);
+            var function = context.RootNodes.GetFunction(FunctionName);
             if (function == null)
             {
                 context.Logger.Fail(Reference, $"Invalid function name: '{FunctionName}'");
@@ -56,7 +56,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
             var argumentType = Arguments[0].DeriveType(context);
             var parametersType = function.GetParametersType(context);
 
-            if (!argumentType.Equals(parametersType))
+            if (argumentType == null || !argumentType.Equals(parametersType))
             {
                 context.Logger.Fail(Reference, $"Invalid function argument: '{FunctionName}'. " +
                                                $"Argument should be of type function parameters. Use new(Function) of fill(Function) to create an variable of the function result type.");
@@ -68,13 +68,13 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         public override VariableType DeriveReturnType(IValidationContext context)
         {
-            var function = context.Nodes.GetFunction(FunctionName);
+            var function = context.RootNodes.GetFunction(FunctionName);
             return function?.GetResultsType(context);
         }
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
         {
-            var function = nodes.GetFunction(FunctionName);
+            var function = rootNodeList.GetFunction(FunctionName);
             if (function != null)
             {
                 yield return function;

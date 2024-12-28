@@ -26,12 +26,12 @@ namespace Lexy.Compiler.Compiler.CSharp
             var builtInFunctionCalls = GetBuiltInFunctionCalls(function);
             var context = new CompileFunctionContext(function, builtInFunctionCalls);
 
-            var members = new List<MemberDeclarationSyntax>();
-            members.Add(TranslateVariablesClass(LexyCodeConstants.ParametersType, function.Parameters.Variables));
-            members.Add(TranslateVariablesClass( LexyCodeConstants.ResultsType, function.Results.Variables));
-
-            members.Add(RunMethod(function, context));
-
+            var members = new List<MemberDeclarationSyntax>
+            {
+                VariableClassFactory.TranslateVariablesClass(LexyCodeConstants.ParametersType, function.Parameters.Variables),
+                VariableClassFactory.TranslateVariablesClass( LexyCodeConstants.ResultsType, function.Results.Variables),
+                RunMethod(function, context)
+            };
             members.AddRange(CustomBuiltInFunctions(context));
 
             var name = context.FunctionClassName();
@@ -54,42 +54,6 @@ namespace Lexy.Compiler.Compiler.CSharp
         {
             return NodesWalker.WalkWithResult(function.Code.Expressions,
                 node => node is FunctionCallExpression expression ? FunctionCall.Create(expression) : null);
-        }
-
-        private MemberDeclarationSyntax TranslateVariablesClass(string className, IList<VariableDefinition> variables)
-        {
-            var fields = TranslateVariablesClass(variables);
-            return ClassDeclaration(className)
-                .WithModifiers(Modifiers.Public())
-                .WithMembers(List(fields));
-        }
-
-        private IEnumerable<MemberDeclarationSyntax> TranslateVariablesClass(IList<VariableDefinition> variables)
-        {
-            foreach (var variable in variables)
-            {
-                var variableDeclaration = VariableDeclarator(Identifier(variable.Name));
-                var defaultValue = TokenValuesSyntax.Expression(variable.Default);
-                if (defaultValue != null)
-                {
-                    variableDeclaration = variableDeclaration.WithInitializer(
-                        EqualsValueClause(defaultValue));
-                }
-                else
-                {
-                    var initializer = Types.TypeDefaultExpression(variable.Type);
-                    if (initializer != null)
-                    {
-                        variableDeclaration = variableDeclaration.WithInitializer(EqualsValueClause(initializer));
-                    }
-                }
-
-                var fieldDeclaration = FieldDeclaration(VariableDeclaration(Types.Syntax(variable))
-                        .WithVariables(SingletonSeparatedList(variableDeclaration)))
-                    .WithModifiers(Modifiers.Public());
-
-                yield return fieldDeclaration;
-            }
         }
 
         private MethodDeclarationSyntax RunMethod(Function function,

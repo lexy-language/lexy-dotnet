@@ -4,6 +4,7 @@ using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions
 {
@@ -11,28 +12,27 @@ namespace Lexy.Compiler.Language.Expressions
     {
         public MemberAccessLiteral MemberAccessLiteral { get; }
 
-        public string Value { get; }
-
+        public VariableReference Variable { get; }
+        public VariableType VariableType { get; private set; }
         public VariableType RootType { get; private set; }
 
-        private MemberAccessExpression(MemberAccessLiteral literal, ExpressionSource source, SourceReference reference) : base(source, reference)
+        private MemberAccessExpression(VariableReference variable, MemberAccessLiteral literal, ExpressionSource source, SourceReference reference) : base(source, reference)
         {
             MemberAccessLiteral = literal ?? throw new ArgumentNullException(nameof(literal));
-            Value = literal.Value;
+            Variable = variable;
         }
 
         public static ParseExpressionResult Parse(ExpressionSource source)
         {
             var tokens = source.Tokens;
-            if (!IsValid(tokens))
-            {
-                return ParseExpressionResult.Invalid<MemberAccessExpression>("Invalid expression.");
-            }
+            if (!IsValid(tokens)) return ParseExpressionResult.Invalid<MemberAccessExpression>("Invalid expression.");
 
             var literal = tokens.Token<MemberAccessLiteral>(0);
+            var variable = new VariableReference(literal.Parts);
+
             var reference = source.CreateReference();
 
-            var accessExpression = new MemberAccessExpression(literal, source, reference);
+            var accessExpression = new MemberAccessExpression(variable, literal, source, reference);
             return ParseExpressionResult.Success(accessExpression);
         }
 
@@ -49,35 +49,35 @@ namespace Lexy.Compiler.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
-            if (MemberAccessLiteral.Parts.Length != 2)
+            VariableType = context.VariableContext.GetVariableType(Variable, context);
+            RootType = context.RootNodes.GetType(Variable.ParentIdentifier);
+
+            if (VariableType != null) return;
+
+            if (VariableType == null && RootType == null)
             {
-                context.Logger.Fail(Reference, "Invalid member access. Only 2 levels supported.");
+                context.Logger.Fail(Reference, $"Invalid member access '{Variable}'. Variable '{Variable}' not found.");
                 return;
             }
 
-            var parent = MemberAccessLiteral.Parent;
-            RootType = context.FunctionCodeContext.GetVariableType(MemberAccessLiteral.Parent)
-                            ?? context.Nodes.GetType(parent);
-
-            if (!(RootType is ITypeWithMembers typeWithMembers))
+            if (RootType is not ITypeWithMembers typeWithMembers)
             {
-                context.Logger.Fail(Reference, $"Invalid member access. Variable '{parent}' not found.");
+                context.Logger.Fail(Reference, $"Invalid member access '{Variable}'. Variable '{Variable.ParentIdentifier}' not found.");
                 return;
             }
 
-            var memberName = MemberAccessLiteral.Member;
-            var memberType = typeWithMembers.MemberType(memberName, context);
+            var memberType = typeWithMembers.MemberType(MemberAccessLiteral.Member, context);
             if (memberType == null)
             {
-                context.Logger.Fail(Reference, $"Invalid member access. Member '{memberName}' not found on '{parent}'.");
+                context.Logger.Fail(Reference, $"Invalid member access '{Variable}'. Member '{MemberAccessLiteral.Member}' not found on '{Variable.ParentIdentifier}'.");
             }
         }
 
         public override VariableType DeriveType(IValidationContext context) => MemberAccessLiteral.DeriveType(context);
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
         {
-            var rootNode = nodes.GetNode(MemberAccessLiteral.Parent);
+            var rootNode = rootNodeList.GetNode(MemberAccessLiteral.Parent);
             if (rootNode != null)
             {
                 yield return rootNode;

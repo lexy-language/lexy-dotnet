@@ -1,18 +1,14 @@
 using System;
+using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types
 {
     public sealed class PrimitiveVariableDeclarationType : VariableDeclarationType
     {
-        public static PrimitiveVariableDeclarationType Boolean => new PrimitiveVariableDeclarationType(TypeNames.Boolean);
-        public static PrimitiveVariableDeclarationType String => new PrimitiveVariableDeclarationType(TypeNames.String);
-        public static PrimitiveVariableDeclarationType Number => new PrimitiveVariableDeclarationType(TypeNames.Number);
-        public static PrimitiveVariableDeclarationType DateTime => new PrimitiveVariableDeclarationType(TypeNames.Date);
-
         public string Type { get; }
 
-        public PrimitiveVariableDeclarationType(string type)
+        public PrimitiveVariableDeclarationType(string type, SourceReference reference) : base(reference)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
         }
@@ -35,5 +31,14 @@ namespace Lexy.Compiler.Language.Types
         public override string ToString() => Type;
 
         public override VariableType CreateVariableType(IValidationContext context) => new PrimitiveType(Type);
+
+        public override IEnumerable<INode> GetChildren()
+        {
+            yield break;
+        }
+
+        protected override void Validate(IValidationContext context)
+        {
+        }
     }
 }

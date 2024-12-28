@@ -45,13 +45,13 @@ namespace Lexy.Compiler.Language.Expressions
 
         protected override void Validate(IValidationContext context)
         {
-            context.FunctionCodeContext.EnsureVariableExists(Reference, Identifier);
+            context.VariableContext.EnsureVariableExists(Reference, Identifier);
 
-            VariableSource = context.FunctionCodeContext.GetVariableSource(Identifier) ?? VariableSource.Unknown;
+            VariableSource = context.VariableContext.GetVariableSource(Identifier) ?? VariableSource.Unknown;
         }
 
         public override VariableType DeriveType(IValidationContext context) =>
-            context.FunctionCodeContext.GetVariableType(Identifier);
+            context.VariableContext.GetVariableType(Identifier);
     }
 
 }

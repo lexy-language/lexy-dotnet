@@ -25,14 +25,14 @@ namespace Lexy.Compiler.Language.Expressions
             }
 
             var variableExpression = ExpressionFactory.Parse(source.File, tokens.TokensFromStart(1), source.Line);
-            if (variableExpression.Status == ParseExpressionStatus.Failed) return variableExpression;
+            if (!variableExpression.IsSuccess) return variableExpression;
 
             var assignment = ExpressionFactory.Parse(source.File, tokens.TokensFrom(2), source.Line);
-            if (assignment.Status == ParseExpressionStatus.Failed) return assignment;
+            if (!assignment.IsSuccess) return assignment;
 
             var reference = source.CreateReference();
 
-            var expression = new AssignmentExpression(variableExpression.Expression, assignment.Expression, source, reference);
+            var expression = new AssignmentExpression(variableExpression.Result, assignment.Result, source, reference);
 
             return ParseExpressionResult.Success(expression);
         }
@@ -60,10 +60,10 @@ namespace Lexy.Compiler.Language.Expressions
 
             var variableName = identifierExpression.Identifier;
 
-            var variableType = context.FunctionCodeContext.GetVariableType(variableName);
+            var variableType = context.VariableContext.GetVariableType(variableName);
             if (variableType == null)
             {
-                context.Logger.Fail(Reference, $"Unknown variable name: '{variableName}'");
+                context.Logger.Fail(Reference, $"Unknown variable name: '{variableName}'.");
                 return;
             }
 
@@ -82,8 +82,8 @@ namespace Lexy.Compiler.Language.Expressions
             }
 
             var literal = memberAccessExpression.MemberAccessLiteral;
-            var parentType = context.FunctionCodeContext.GetVariableType(literal.Parent)
-                             ?? context.Nodes.GetType(literal.Parent);
+            var parentType = context.VariableContext.GetVariableType(literal.Parent)
+                             ?? context.RootNodes.GetType(literal.Parent);
 
             if (!(parentType is ITypeWithMembers typeWithMembers))
             {

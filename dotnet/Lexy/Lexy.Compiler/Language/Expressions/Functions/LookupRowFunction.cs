@@ -69,7 +69,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions
         {
             ValidateColumn(context, SearchValueColumn, ArgumentSearchValueColumn);
 
-            var tableType = context.Nodes.GetTable(Table);
+            var tableType = context.RootNodes.GetTable(Table);
             if (tableType == null)
             {
                 context.Logger.Fail(Reference, $"Invalid argument {ArgumentTable}. Table name '{Table}' not found. {FunctionHelp}");
@@ -112,13 +112,13 @@ namespace Lexy.Compiler.Language.Expressions.Functions
 
         public override VariableType DeriveReturnType(IValidationContext context)
         {
-            var tableType = context.Nodes.GetTable(Table);
+            var tableType = context.RootNodes.GetTable(Table);
             return tableType?.GetRowType(context);
         }
 
-        public IEnumerable<IRootNode> GetDependencies(Nodes nodes)
+        public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
         {
-            var table = nodes.GetTable(Table);
+            var table = rootNodeList.GetTable(Table);
             if (table != null)
             {
                 yield return table;

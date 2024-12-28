@@ -8,9 +8,9 @@ namespace Lexy.Compiler.Parser
     {
         IParserContext ParserContext { get; }
         IParserLogger Logger { get; }
-        IFunctionCodeContext FunctionCodeContext { get; }
-        Nodes Nodes { get; }
+        IVariableContext VariableContext { get; }
+        RootNodeList RootNodes { get; }
 
-        IDisposable CreateCodeContextScope();
+        IDisposable CreateVariableScope();
     }
 }

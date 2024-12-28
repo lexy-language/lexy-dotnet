@@ -31,11 +31,11 @@ namespace Lexy.Compiler.Language.Expressions
 
             var condition = tokens.TokensFrom(1);
             var conditionExpression = ExpressionFactory.Parse(source.File, condition, source.Line);
-            if (conditionExpression.Status == ParseExpressionStatus.Failed) return conditionExpression;
+            if (!conditionExpression.IsSuccess) return conditionExpression;
 
             var reference = source.CreateReference();
 
-            var expression = new SwitchExpression(conditionExpression.Expression, source, reference);
+            var expression = new SwitchExpression(conditionExpression.Result, source, reference);
 
             return ParseExpressionResult.Success(expression);
         }
@@ -54,19 +54,19 @@ namespace Lexy.Compiler.Language.Expressions
             }
 
             var expression = ExpressionFactory.Parse(context.SourceCode.File, line.Tokens, line) ;
-            if (expression.Status == ParseExpressionStatus.Failed)
+            if (!expression.IsSuccess)
             {
                 context.Logger.Fail(context.LineStartReference(), expression.ErrorMessage);
                 return this;
             }
 
-            if (expression.Expression is CaseExpression caseExpression)
+            if (expression.Result is CaseExpression caseExpression)
             {
                 caseExpression.LinkPreviousExpression(this, context);
                 return caseExpression;
             }
 
-            context.Logger.Fail(expression.Expression.Reference, "Invalid expression. 'case' or 'default' expected.");
+            context.Logger.Fail(expression.Result.Reference, "Invalid expression. 'case' or 'default' expected.");
             return this;
         }
 

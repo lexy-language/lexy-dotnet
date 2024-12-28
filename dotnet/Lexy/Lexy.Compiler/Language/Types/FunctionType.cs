@@ -45,13 +45,13 @@ namespace Lexy.Compiler.Language.Types
 
         private FunctionParametersType FunctionParametersType(IValidationContext context)
         {
-            var complexType = context.Nodes.GetFunction(Type)?.GetParametersType(context);
+            var complexType = context.RootNodes.GetFunction(Type)?.GetParametersType(context);
             return new FunctionParametersType(Type, complexType);
         }
 
         private FunctionResultsType FunctionResultsType(IValidationContext context)
         {
-            var complexType = context.Nodes.GetFunction(Type)?.GetResultsType(context);
+            var complexType = context.RootNodes.GetFunction(Type)?.GetResultsType(context);
             return new FunctionResultsType(Type, complexType);
         }
     }

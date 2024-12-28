@@ -31,11 +31,11 @@ namespace Lexy.Compiler.Language.Expressions
 
             var innerExpressionTokens = tokens.TokensRange(1, matchingClosingParenthesis - 1);
             var innerExpression = ExpressionFactory.Parse(source.File, innerExpressionTokens, source.Line);
-            if (innerExpression.Status == ParseExpressionStatus.Failed) return innerExpression;
+            if (!innerExpression.IsSuccess) return innerExpression;
 
             var reference = source.CreateReference();
 
-            var expression = new ParenthesizedExpression(innerExpression.Expression, source, reference);
+            var expression = new ParenthesizedExpression(innerExpression.Result, source, reference);
             return ParseExpressionResult.Success(expression);
         }
 
