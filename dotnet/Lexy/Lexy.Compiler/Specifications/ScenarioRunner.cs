@@ -150,15 +150,15 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
             return false;
         }
 
-        if (failedMessages.Any(message => message.Contains(Scenario.ExpectError.Message)))
+        if (!failedMessages.Any(message => message.Contains(Scenario.ExpectError.Message)))
         {
-            runnerContext.Success(Scenario);
+            Fail($"Wrong exception {Environment.NewLine}" +
+                 $"  Expected: {Scenario.ExpectError.Message}{Environment.NewLine}" +
+                 $"  Actual: {failedMessages.Format(4)}");
             return false;
         }
 
-        Fail($"Wrong exception {Environment.NewLine}" +
-             $"  Expected: {Scenario.ExpectError.Message}{Environment.NewLine}" +
-             $"  Actual: {failedMessages.Format(4)}");
+        runnerContext.Success(Scenario);
         return false;
     }
 
@@ -183,12 +183,11 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
                 failed = true;
         }
 
-        if (!failedMessages.Any())
-            if (!failed)
-            {
-                context.Success(Scenario);
-                return false; // don't compile and run rest of scenario
-            }
+        if (!failedMessages.Any() && !failed)
+        {
+            context.Success(Scenario);
+            return false; // don't compile and run rest of scenario
+        }
 
         Fail($"Wrong exception {Environment.NewLine}" +
              $"  Expected: {Scenario.ExpectRootErrors.Messages.Format(4)}{Environment.NewLine}" +

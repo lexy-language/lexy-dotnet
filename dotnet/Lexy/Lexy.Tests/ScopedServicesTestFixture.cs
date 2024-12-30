@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Lexy.Poc;
+namespace Lexy.Tests;
 
 public abstract class ScopedServicesTestFixture
 {

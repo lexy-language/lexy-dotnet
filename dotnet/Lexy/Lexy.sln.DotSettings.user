@@ -1,26 +1,11 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6dede103_002Deb47_002D4c35_002D9329_002D2994742ff334/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1139066d_002D97a9_002D4237_002Da103_002D3a2337def14b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=83f2efa8_002Db8e2_002D4a35_002D9180_002D4dbe8d8fac14/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Or&gt;
-    &lt;ProjectFile&gt;2166E7F5-376E-48C8-9819-E8C9F9437C3D/d:Specifications/f:RunLexySpecifications.cs&lt;/ProjectFile&gt;
-    &lt;TestAncestor&gt;
-      &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Poc.Parser.ParseEnumTests&lt;/TestId&gt;
-    &lt;/TestAncestor&gt;
-  &lt;/Or&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8f528bbe_002D6ca8_002D4b8e_002Da634_002D3da4912f7a9c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SpecificFile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Poc.Specifications.RunLexySpecifications.SpecificFile&lt;/TestId&gt;
-    &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Poc.DependencyGraph.FactoryTests.CircularTypes&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=fd91c7bd_002D192c_002D4254_002Da8bd_002D4a865f12bf8f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SwissPersonalTaxTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Poc.Specifications.SwissPersonalTaxTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
+	
+	
+	
+	
 	
 	
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=7f9936a1_002D2982_002D4e84_002Dadb1_002Dc42cf768f380_0023Lexy/@EntryIndexedValue">True</s:Boolean>

@@ -9,12 +9,15 @@ public class ValidationContext : IValidationContext
     private readonly Stack<IVariableContext> contexts = new();
     private IVariableContext variableContext;
 
-    public ValidationContext(IParserContext context)
+    public IParserLogger Logger { get; }
+    public RootNodeList RootNodes { get; }
+
+    public ValidationContext(IParserLogger logger, RootNodeList rootNodes)
     {
-        ParserContext = context ?? throw new ArgumentNullException(nameof(context));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        RootNodes = rootNodes ?? throw new ArgumentNullException(nameof(rootNodes));
     }
 
-    public IParserContext ParserContext { get; }
 
     public IVariableContext VariableContext
     {
@@ -25,8 +28,6 @@ public class ValidationContext : IValidationContext
         }
     }
 
-    public IParserLogger Logger => ParserContext.Logger;
-    public RootNodeList RootNodes => ParserContext.Nodes;
 
     public IDisposable CreateVariableScope()
     {

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public class ParseEnumTests : ScopedServicesTestFixture
 {

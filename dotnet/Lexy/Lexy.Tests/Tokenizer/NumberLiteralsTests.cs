@@ -1,7 +1,8 @@
 using Lexy.Compiler.Parser.Tokens;
 using NUnit.Framework;
+using Shouldly;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class NumberLiteralsTests : ScopedServicesTestFixture
 {
@@ -9,7 +10,7 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void IntLiteral()
     {
         ServiceProvider
-            .TestLine(@"   0")
+            .Tokenize(@"   0")
             .ValidateTokens()
             .Count(1)
             .NumberLiteral(0, 0)
@@ -20,7 +21,7 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void Int3CharLiteral()
     {
         ServiceProvider
-            .TestLine(@"   456")
+            .Tokenize(@"   456")
             .ValidateTokens()
             .Count(1)
             .NumberLiteral(0, 456)
@@ -32,7 +33,7 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void NegativeIntLiteral()
     {
         ServiceProvider
-            .TestLine(@"   -456")
+            .Tokenize(@"   -456")
             .ValidateTokens()
             .Count(2)
             .Operator(0, OperatorType.Subtraction)
@@ -44,7 +45,7 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void DecimalLiteral()
     {
         ServiceProvider
-            .TestLine(@"   456.78")
+            .Tokenize(@"   456.78")
             .ValidateTokens()
             .Count(1)
             .NumberLiteral(0, 456.78m)
@@ -55,7 +56,7 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void NegativeDecimalLiteral()
     {
         ServiceProvider
-            .TestLine(@"   -456.78")
+            .Tokenize(@"   -456.78")
             .ValidateTokens()
             .Count(2)
             .Operator(0, OperatorType.Subtraction)
@@ -67,7 +68,7 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void InvalidDecimalSubtract()
     {
         ServiceProvider
-            .TestLine(@"   456-78")
+            .Tokenize(@"   456-78")
             .ValidateTokens()
             .Count(3)
             .NumberLiteral(0, 456)
@@ -80,15 +81,15 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     public void InvalidDecimalLiteral()
     {
         ServiceProvider
-            .TestLine(@"   456d78", false)
-            .ValidateError("ERROR - Invalid number token character: 'd'");
+            .TokenizeExpectError(@"   456d78")
+            .ErrorMessage.ShouldContain("Invalid number token character: 'd'");
     }
 
     [Test]
     public void InvalidDecimalOpenParLiteral()
     {
         ServiceProvider
-            .TestLine(@"   456(78", false)
-            .ValidateError("ERROR - Invalid number token character: '('");
+            .TokenizeExpectError(@"   456(78")
+            .ErrorMessage.ShouldContain("Invalid number token character: '('");
     }
 }

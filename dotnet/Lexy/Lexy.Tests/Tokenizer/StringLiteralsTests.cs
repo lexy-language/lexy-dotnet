@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class StringLiteralsTests : ScopedServicesTestFixture
 {
@@ -8,7 +8,7 @@ public class StringLiteralsTests : ScopedServicesTestFixture
     public void TestQuotedLiteral()
     {
         ServiceProvider
-            .TestLine(@"   ""This is a quoted literal""")
+            .Tokenize(@"   ""This is a quoted literal""")
             .ValidateTokens()
             .Count(1)
             .QuotedString(0, "This is a quoted literal")
@@ -19,7 +19,7 @@ public class StringLiteralsTests : ScopedServicesTestFixture
     public void TestStringLiteral()
     {
         ServiceProvider
-            .TestLine(@"   ThisIsAStringLiteral")
+            .Tokenize(@"   ThisIsAStringLiteral")
             .ValidateTokens()
             .Count(1)
             .StringLiteral(0, "ThisIsAStringLiteral")

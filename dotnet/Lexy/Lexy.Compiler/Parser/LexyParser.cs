@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.Language;
 
@@ -7,15 +8,17 @@ namespace Lexy.Compiler.Parser;
 
 public class LexyParser : ILexyParser
 {
+    private readonly ITokenizer tokenizer;
     private readonly IParserContext context;
     private readonly IParserLogger logger;
     private readonly ISourceCodeDocument sourceCodeDocument;
 
-    public LexyParser(IParserContext parserContext, ISourceCodeDocument sourceCodeDocument, IParserLogger logger)
+    public LexyParser(IParserContext parserContext, ISourceCodeDocument sourceCodeDocument, IParserLogger logger, ITokenizer tokenizer)
     {
         context = parserContext ?? throw new ArgumentNullException(nameof(parserContext));
         this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
     }
 
     public ParserResult ParseFile(string fileName, bool throwException = true)
@@ -53,16 +56,16 @@ public class LexyParser : ILexyParser
 
         while (sourceCodeDocument.HasMoreLines())
         {
-            if (!context.ProcessLine())
+            if (!ProcessLine())
             {
-                currentIndent = sourceCodeDocument.CurrentLine?.Indent(context) ?? currentIndent;
+                currentIndent = sourceCodeDocument.CurrentLine?.Indent(logger) ?? currentIndent;
                 continue;
             }
 
             var line = sourceCodeDocument.CurrentLine;
             if (line.IsEmpty()) continue;
 
-            var indentResult = line.Indent(context);
+            var indentResult = line.Indent(logger);
             if (!indentResult.HasValue) continue;
 
             var indent = indentResult.Value;
@@ -83,6 +86,26 @@ public class LexyParser : ILexyParser
         Reset();
 
         LoadIncludedFiles(fullFileName);
+    }
+
+    private bool ProcessLine()
+    {
+        var line = context.SourceCode.NextLine();
+        logger.Log(line.LineStartReference(), $"'{line.Content}'");
+
+        var tokens = line.Tokenize(tokenizer);
+        if (!tokens.IsSuccess)
+        {
+            logger.Fail(tokens.Reference, tokens.ErrorMessage);
+            return false;
+        }
+
+        var tokenNames = string.Join(" ", context.CurrentLine.Tokens.Select(token =>
+            $"{token.GetType().Name}({token.Value})").ToArray());
+
+        logger.Log(line.LineStartReference(), "  Tokens: " + tokenNames);
+
+        return tokens.IsSuccess;
     }
 
     private void LoadIncludedFiles(string parentFullFileName)
@@ -109,7 +132,7 @@ public class LexyParser : ILexyParser
 
     private void ValidateNodesTree()
     {
-        var validationContext = new ValidationContext(context);
+        var validationContext = new ValidationContext(logger, context.Nodes);
         context.RootNode.ValidateTree(validationContext);
     }
 
@@ -147,36 +170,5 @@ public class LexyParser : ILexyParser
         }
 
         return node;
-    }
-}
-
-public interface IParseLineContext
-{
-    Line Line { get; }
-    IParserLogger Logger { get; }
-
-    TokenValidator ValidateTokens<T>();
-    TokenValidator ValidateTokens(string name);
-}
-
-public class ParseLineContext : IParseLineContext
-{
-    public Line Line { get; }
-    public IParserLogger Logger { get; }
-
-    public ParseLineContext(Line line, IParserLogger logger)
-    {
-        Line = line ?? throw new ArgumentNullException(nameof(line));
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    public TokenValidator ValidateTokens<T>()
-    {
-        return new TokenValidator(typeof(T).Name, Line, Logger);
-    }
-
-    public TokenValidator ValidateTokens(string name)
-    {
-        return new TokenValidator(name, Line, Logger);
     }
 }

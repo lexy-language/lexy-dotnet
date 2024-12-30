@@ -7,16 +7,15 @@ public class SourceCodeDocument : ISourceCodeDocument
 {
     private Line[] code;
     private int index;
-
-    public SourceFile File { get; private set; }
+    private SourceFile file;
 
     public Line CurrentLine { get; private set; }
 
     public void SetCode(string[] lines, string fileName)
     {
         index = -1;
-        File = new SourceFile(fileName);
-        code = lines.Select((line, index) => new Line(index, line, File)).ToArray();
+        file = new SourceFile(fileName);
+        code = lines.Select((line, index) => new Line(index, line, file)).ToArray();
     }
 
     public bool HasMoreLines()

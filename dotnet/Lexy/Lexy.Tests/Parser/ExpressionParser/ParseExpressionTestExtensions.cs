@@ -4,7 +4,7 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Shouldly;
 
-namespace Lexy.Poc.Parser.ExpressionParser;
+namespace Lexy.Tests.Parser.ExpressionParser;
 
 public static class ParseExpressionTestExtensions
 {
@@ -15,13 +15,11 @@ public static class ParseExpressionTestExtensions
         var sourceFile = new SourceFile("tests.lexy");
         var line = new Line(0, expression, sourceFile);
 
-        var tokens = tokenizer.Tokenize(line);
+        var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)
         {
             throw new InvalidOperationException("Tokenizing failed: " + context.Logger.ErrorMessages().Format(2));
         }
-
-        line.SetTokens(tokens.Result);
 
         var result = ExpressionFactory.Parse(line.Tokens, line);
         result.IsSuccess.ShouldBeTrue(result.ErrorMessage);
@@ -37,13 +35,11 @@ public static class ParseExpressionTestExtensions
         var sourceFile = new SourceFile("tests.lexy");
         var line = new Line(0, expression, sourceFile);
 
-        var tokens = tokenizer.Tokenize(line);
+        var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)
         {
             throw new InvalidOperationException("Tokenizing failed: " + context.Logger.ErrorMessages().Format(2));
         }
-
-        line.SetTokens(tokens.Result);
 
         var result = ExpressionFactory.Parse(line.Tokens, line);
         result.IsSuccess.ShouldBeFalse();

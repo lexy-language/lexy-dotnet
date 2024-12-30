@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Lexy.Poc;
+namespace Lexy.Tests;
 
 [SetUpFixture]
 public class TestServiceProvider

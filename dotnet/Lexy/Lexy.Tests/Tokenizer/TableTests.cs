@@ -1,7 +1,7 @@
 using Lexy.Compiler.Parser.Tokens;
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class TableTests : ScopedServicesTestFixture
 {
@@ -9,7 +9,7 @@ public class TableTests : ScopedServicesTestFixture
     public void TestTableHeader()
     {
         ServiceProvider
-            .TestLine(@"  | int Value | string Result |")
+            .Tokenize(@"  | int Value | string Result |")
             .ValidateTokens()
             .Count(7)
             .Type<TableSeparatorToken>(0)
@@ -26,7 +26,7 @@ public class TableTests : ScopedServicesTestFixture
     public void TestTableRow()
     {
         ServiceProvider
-            .TestLine(@"  | 7 | 8 |")
+            .Tokenize(@"  | 7 | 8 |")
             .ValidateTokens()
             .Count(5)
             .Type<TableSeparatorToken>(0)

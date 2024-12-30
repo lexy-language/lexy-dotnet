@@ -2,7 +2,7 @@ using Lexy.Compiler.Parser;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public class ParseFunctionTests : ScopedServicesTestFixture
 {

@@ -6,7 +6,7 @@ using Lexy.Compiler.Language.Tables;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.DependencyGraph;
+namespace Lexy.Tests.DependencyGraph;
 
 public class FactoryTests : ScopedServicesTestFixture
 {

@@ -5,8 +5,6 @@
 
         <IsPackable>false</IsPackable>
 
-        <RootNamespace>Lexy.Poc</RootNamespace>
-
         <LangVersion>10</LangVersion>
     </PropertyGroup>
 

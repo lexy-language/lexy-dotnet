@@ -8,10 +8,9 @@ public interface IParserContext
 
     Line CurrentLine { get; }
 
+    ISourceCodeDocument SourceCode { get; }
     RootNodeList Nodes { get; }
     SourceCodeNode RootNode { get; }
-
-    bool ProcessLine();
 
     void AddFileIncluded(string fileName);
     bool IsFileIncluded(string fileName);

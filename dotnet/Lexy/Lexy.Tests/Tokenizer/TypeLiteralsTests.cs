@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class TypeLiteralsTests : ScopedServicesTestFixture
 {
@@ -8,7 +8,7 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     public void TestIntTypeLiteral()
     {
         ServiceProvider
-            .TestLine(@"   int Value")
+            .Tokenize(@"   int Value")
             .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "int")
@@ -20,7 +20,7 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     public void TestNumberTypeLiteral()
     {
         ServiceProvider
-            .TestLine(@"   number Value")
+            .Tokenize(@"   number Value")
             .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "number")
@@ -32,7 +32,7 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     public void TestStringTypeLiteral()
     {
         ServiceProvider
-            .TestLine(@"   string Value")
+            .Tokenize(@"   string Value")
             .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "string")
@@ -44,7 +44,7 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     public void TestDateTimeTypeLiteral()
     {
         ServiceProvider
-            .TestLine(@"   date Value")
+            .Tokenize(@"   date Value")
             .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "date")
@@ -56,7 +56,7 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     public void TestBooleanTypeLiteral()
     {
         ServiceProvider
-            .TestLine(@"   boolean Value")
+            .Tokenize(@"   boolean Value")
             .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "boolean")

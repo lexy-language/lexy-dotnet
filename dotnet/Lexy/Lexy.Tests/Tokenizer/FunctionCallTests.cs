@@ -1,7 +1,7 @@
 using Lexy.Compiler.Parser.Tokens;
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class FunctionCallTests : ScopedServicesTestFixture
 {
@@ -9,7 +9,7 @@ public class FunctionCallTests : ScopedServicesTestFixture
     public void TestIntTypeLiteral()
     {
         ServiceProvider
-            .TestLine(@"   LOOKUP(SimpleTable, Value, ""Result"")")
+            .Tokenize(@"   LOOKUP(SimpleTable, Value, ""Result"")")
             .ValidateTokens()
             .Count(8)
             .StringLiteral(0, "LOOKUP")

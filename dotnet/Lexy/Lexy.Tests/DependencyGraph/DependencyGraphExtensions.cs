@@ -3,7 +3,7 @@ using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.Parser;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lexy.Poc.DependencyGraph;
+namespace Lexy.Tests.DependencyGraph;
 
 public static class DependencyGraphExtensions
 {

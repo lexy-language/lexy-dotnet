@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Lexy.Poc.Specifications;
+namespace Lexy.Tests.Specifications;
 
 public class SwissPersonalTaxTests
 {

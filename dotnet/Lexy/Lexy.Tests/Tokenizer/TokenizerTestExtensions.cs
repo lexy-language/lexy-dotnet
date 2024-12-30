@@ -2,14 +2,12 @@ using System;
 using System.Diagnostics;
 using Lexy.Compiler.Parser;
 using Microsoft.Extensions.DependencyInjection;
-using Shouldly;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public static class TokenizerTestExtensions
 {
-    public static IParserContext TestLine(this IServiceProvider serviceProvider, string value,
-        bool expectSuccess = true)
+    public static IParserContext Tokenize(this IServiceProvider serviceProvider, string value)
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
@@ -18,28 +16,43 @@ public static class TokenizerTestExtensions
         var codeContext = serviceProvider.GetRequiredService<ISourceCodeDocument>();
         codeContext.SetCode(code, "tests.lexy");
 
-        var context = serviceProvider.GetRequiredService<IParserContext>();
-        var result = context.ProcessLine();
-        if (result != expectSuccess)
+        var tokenizer = serviceProvider.GetRequiredService<ITokenizer>();
+
+        var line = codeContext.NextLine();
+        var tokens = line.Tokenize(tokenizer);
+        if (!tokens.IsSuccess)
         {
-            throw new InvalidOperationException(result
-                ? "Process didn't fail, but should have: " + context.Logger.FormatMessages()
-                : "Process line failed: " + context.Logger.FormatMessages());
+            throw new InvalidOperationException("Process line failed: " + tokens.ErrorMessage);
         }
 
-        return context;
+        return serviceProvider.GetRequiredService<IParserContext>();
     }
 
-    public static void ValidateError(this IParserContext context, string error)
+    public static TokenizeResult TokenizeExpectError(this IServiceProvider serviceProvider, string value)
     {
-        context.Logger.HasErrorMessage(error)
-            .ShouldBeTrue(context.Logger.FormatMessages());
+        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+
+        var code = new[] { value };
+
+        var codeContext = serviceProvider.GetRequiredService<ISourceCodeDocument>();
+        codeContext.SetCode(code, "tests.lexy");
+
+        var tokenizer = serviceProvider.GetRequiredService<ITokenizer>();
+
+        var line = codeContext.NextLine();
+        var tokenizeResult = line.Tokenize(tokenizer);
+        if (tokenizeResult.IsSuccess)
+        {
+            throw new InvalidOperationException( "Process didn't fail, but should have: " + tokenizeResult.ErrorMessage);
+        }
+
+        return tokenizeResult;
     }
 
     public static TokenValidator ValidateTokens(this IParserContext context)
     {
         var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger);
-        var methodInfo = new StackTrace().GetFrame(1).GetMethod();
-        return parseLineContext.ValidateTokens(methodInfo.ReflectedType.Name);
+        var methodInfo = new StackTrace()?.GetFrame(1)?.GetMethod();
+        return parseLineContext.ValidateTokens(methodInfo?.ReflectedType?.Name);
     }
 }

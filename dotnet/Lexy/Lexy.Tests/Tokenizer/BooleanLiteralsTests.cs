@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class BooleanLiteralsTests : ScopedServicesTestFixture
 {
@@ -8,7 +8,7 @@ public class BooleanLiteralsTests : ScopedServicesTestFixture
     public void TestBooleanTrueLiteral()
     {
         ServiceProvider
-            .TestLine(@"   true")
+            .Tokenize(@"   true")
             .ValidateTokens()
             .Count(1)
             .Boolean(0, true)
@@ -19,7 +19,7 @@ public class BooleanLiteralsTests : ScopedServicesTestFixture
     public void TestBooleanFalseLiteral()
     {
         ServiceProvider
-            .TestLine(@"   false")
+            .Tokenize(@"   false")
             .ValidateTokens()
             .Count(1)
             .Boolean(0, false)

@@ -1,10 +1,8 @@
 using Lexy.Compiler.Parser;
-using Lexy.Compiler.Parser.Tokens;
-using Lexy.Poc.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public class TokensListTests
 {

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Filters;
 
-namespace Lexy.Poc;
+namespace Lexy.Tests;
 
 public static class LoggingConfiguration
 {

@@ -7,7 +7,6 @@ public class Line
     public int Index { get; }
 
     internal string Content { get; }
-    private string TrimmedContent { get; }
     public SourceFile File { get; }
 
     public TokenList Tokens { get; private set; }
@@ -17,10 +16,9 @@ public class Line
         Index = index;
         Content = line ?? throw new ArgumentNullException(nameof(line));
         File = file ?? throw new ArgumentNullException(nameof(file));
-        TrimmedContent = line.Trim();
     }
 
-    public int? Indent(IParserContext parserContext)
+    public int? Indent(IParserLogger logger)
     {
         var spaces = 0;
         var tabs = 0;
@@ -39,14 +37,14 @@ public class Line
 
         if (spaces > 0 && tabs > 0)
         {
-            parserContext.Logger.Fail(LineReference(index),
+            logger.Fail(LineReference(index),
                 "Don't mix spaces and tabs for indentations. Use 2 spaces or tabs.");
             return null;
         }
 
         if (spaces % 2 != 0)
         {
-            parserContext.Logger.Fail(LineReference(index),
+            logger.Fail(LineReference(index),
                 $"Wrong number of indent spaces {spaces}. Should be multiplication of 2. (line: {Index} line: {Content})");
             return null;
         }
@@ -67,8 +65,12 @@ public class Line
     public int? FirstCharacter()
     {
         for (var index = 0; index < Content.Length; index++)
+        {
             if (Content[index] != ' ' && Content[index] != '\\')
+            {
                 return index;
+            }
+        }
 
         return 0;
     }
@@ -103,8 +105,13 @@ public class Line
             characterIndex + 1);
     }
 
-    public void SetTokens(TokenList tokens)
+    public TokenizeResult Tokenize(ITokenizer tokenizer)
     {
-        Tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+        var tokenizeResult = tokenizer.Tokenize(this);
+        if (tokenizeResult.IsSuccess)
+        {
+            Tokens = tokenizeResult.Result;
+        }
+        return tokenizeResult;
     }
 }

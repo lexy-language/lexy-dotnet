@@ -3,7 +3,7 @@ using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Parser;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lexy.Poc.Compiler;
+namespace Lexy.Tests.Compiler;
 
 public static class LexyScript
 {

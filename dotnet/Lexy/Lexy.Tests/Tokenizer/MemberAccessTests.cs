@@ -1,7 +1,7 @@
 using Lexy.Compiler.Parser.Tokens;
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class MemberAccessTests : ScopedServicesTestFixture
 {
@@ -9,7 +9,7 @@ public class MemberAccessTests : ScopedServicesTestFixture
     public void TestTableHeader()
     {
         ServiceProvider
-            .TestLine(@"    Source.Member")
+            .Tokenize(@"    Source.Member")
             .ValidateTokens()
             .Count(1)
             .Type<MemberAccessLiteral>(0)

@@ -1,7 +1,7 @@
 using Lexy.Compiler.Parser.Tokens;
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class ExpressionsOperatorsTests : ScopedServicesTestFixture
 {
@@ -9,7 +9,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestAdditionOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = Y + 1")
+            .Tokenize(@"  X = Y + 1")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -24,7 +24,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestSubtractionOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = Y - 1")
+            .Tokenize(@"  X = Y - 1")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -39,7 +39,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestMultiplicationOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = Y * 1")
+            .Tokenize(@"  X = Y * 1")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -54,7 +54,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestDivisionOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = Y / 1")
+            .Tokenize(@"  X = Y / 1")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -69,7 +69,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestModulusOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = Y % 1")
+            .Tokenize(@"  X = Y % 1")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -84,7 +84,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestParenthesesOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = (Y)")
+            .Tokenize(@"  X = (Y)")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -99,7 +99,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestBracketsOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = A[1]")
+            .Tokenize(@"  X = A[1]")
             .ValidateTokens()
             .Count(6)
             .StringLiteral(0, "X")
@@ -115,7 +115,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestLessThanOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = A < 7")
+            .Tokenize(@"  X = A < 7")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -130,7 +130,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestLessOrEqualThanOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = A <= 7")
+            .Tokenize(@"  X = A <= 7")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -145,7 +145,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestGreaterThanOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = A > 7")
+            .Tokenize(@"  X = A > 7")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -160,7 +160,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestGreaterOrEqualThanOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = A >= 7")
+            .Tokenize(@"  X = A >= 7")
             .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
@@ -175,7 +175,7 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     public void TestFunctionCallOperator()
     {
         ServiceProvider
-            .TestLine(@"  X = abs(Y + 8)")
+            .Tokenize(@"  X = abs(Y + 8)")
             .ValidateTokens()
             .Count(8)
             .StringLiteral(0, "X")

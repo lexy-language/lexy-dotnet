@@ -2,7 +2,7 @@ using Lexy.Compiler.Language.Expressions;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser.ExpressionParser;
+namespace Lexy.Tests.Parser.ExpressionParser;
 
 public class AssignmentExpressionTests : ScopedServicesTestFixture
 {

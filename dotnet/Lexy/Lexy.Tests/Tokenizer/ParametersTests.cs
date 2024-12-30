@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Lexy.Poc.Tokenizer;
+namespace Lexy.Tests.Tokenizer;
 
 public class ParametersTests : ScopedServicesTestFixture
 {
@@ -8,7 +8,7 @@ public class ParametersTests : ScopedServicesTestFixture
     public void TestParameterDeclaration()
     {
         ServiceProvider
-            .TestLine("  number Result")
+            .Tokenize("  number Result")
             .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "number")

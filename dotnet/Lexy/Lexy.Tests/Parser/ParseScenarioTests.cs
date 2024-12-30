@@ -2,11 +2,11 @@ using System;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
-using Lexy.Poc.Parser.ExpressionParser;
+using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public class ParseScenarioTests : ScopedServicesTestFixture
 {
@@ -121,7 +121,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         scenario.Function.Parameters.Variables.Count.ShouldBe(2);
         scenario.Function.Parameters.Variables[0].Name.ShouldBe("Value1");
         scenario.Function.Parameters.Variables[0].Type.ValidateOfType<PrimitiveVariableDeclarationType>(value =>
-            value.Type.ShouldBe("number"));
+            ShouldBeStringTestExtensions.ShouldBe(value.Type, "number"));
         scenario.Function.Parameters.Variables[0].DefaultExpression.ToString().ShouldBe("123");
         scenario.Function.Parameters.Variables[1].Name.ShouldBe("Value2");
         scenario.Function.Parameters.Variables[1].Type.ValidateOfType<PrimitiveVariableDeclarationType>(value =>

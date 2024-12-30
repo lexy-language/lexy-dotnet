@@ -1,11 +1,11 @@
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
-using Lexy.Poc.Parser.ExpressionParser;
+using Lexy.Tests.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public class LexyParserTests : ScopedServicesTestFixture
 {
@@ -25,7 +25,7 @@ public class LexyParserTests : ScopedServicesTestFixture
         script.Results.Variables.Count.ShouldBe(1);
         script.Results.Variables[0].Name.ShouldBe("Result");
         script.Results.Variables[0].Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
-            type.Type.ShouldBe("number"));
+            ShouldBeStringTestExtensions.ShouldBe(type.Type, "number"));
         script.Code.Expressions.Count.ShouldBe(1);
         script.Code.Expressions[0].ToString().ShouldBe("Result=777");
     }

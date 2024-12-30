@@ -5,10 +5,10 @@ namespace Lexy.Compiler.Parser;
 
 public interface IValidationContext
 {
-    IParserContext ParserContext { get; }
     IParserLogger Logger { get; }
-    IVariableContext VariableContext { get; }
     RootNodeList RootNodes { get; }
+
+    IVariableContext VariableContext { get; }
 
     IDisposable CreateVariableScope();
 }

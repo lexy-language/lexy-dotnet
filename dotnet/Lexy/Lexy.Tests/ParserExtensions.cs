@@ -6,7 +6,7 @@ using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Poc;
+namespace Lexy.Tests;
 
 public static class ParserExtensions
 {

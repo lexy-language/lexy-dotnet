@@ -1,6 +1,6 @@
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public static class TokenFactory
 {

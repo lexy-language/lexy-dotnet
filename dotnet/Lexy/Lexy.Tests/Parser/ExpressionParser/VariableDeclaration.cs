@@ -4,7 +4,7 @@ using Lexy.Compiler.Language.Types;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser.ExpressionParser;
+namespace Lexy.Tests.Parser.ExpressionParser;
 
 public class VariableDeclaration : ScopedServicesTestFixture
 {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Compiler;
+namespace Lexy.Tests.Compiler;
 
 public class LexyScriptTests : ScopedServicesTestFixture
 {

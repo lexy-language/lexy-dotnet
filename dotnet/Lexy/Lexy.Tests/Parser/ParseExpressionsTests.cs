@@ -1,11 +1,11 @@
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
-using Lexy.Poc.Parser.ExpressionParser;
+using Lexy.Tests.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 public class ParseExpressionsTests : ScopedServicesTestFixture
 {

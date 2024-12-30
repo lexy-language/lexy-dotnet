@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Parser;
@@ -133,56 +132,5 @@ public class Tokenizer : ITokenizer
         }
 
         return ParsableTokenResult.Failed(line.LineReference(index), $"Invalid character at {index} '{value}'") ;
-    }
-}
-
-public class ParsableTokenResult : ParseResult<ParsableToken>
-{
-    public SourceReference Reference { get; }
-
-    private ParsableTokenResult(ParsableToken result) : base(result)
-    {
-    }
-
-    private ParsableTokenResult(bool success, SourceReference sourceReference, string errorMessage) : base(success, errorMessage)
-    {
-        Reference = sourceReference;
-    }
-
-    public static ParsableTokenResult Success(ParsableToken result)
-    {
-        if (result == null) throw new ArgumentNullException(nameof(result));
-
-        return new ParsableTokenResult(result);
-    }
-
-    public static ParsableTokenResult Failed(SourceReference reference, string errorMessage)
-    {
-        return new ParsableTokenResult(false, reference, errorMessage);
-    }
-}
-public class TokenizeResult : ParseResult<TokenList>
-{
-    public SourceReference Reference { get; }
-
-    private TokenizeResult(TokenList result) : base(result)
-    {
-    }
-
-    private TokenizeResult(bool success, SourceReference sourceReference, string errorMessage) : base(success, errorMessage)
-    {
-        Reference = sourceReference;
-    }
-
-    public static TokenizeResult Success(TokenList result)
-    {
-        if (result == null) throw new ArgumentNullException(nameof(result));
-
-        return new TokenizeResult(result);
-    }
-
-    public static TokenizeResult Failed(SourceReference reference, string errorMessage)
-    {
-        return new TokenizeResult(false, reference, errorMessage);
     }
 }

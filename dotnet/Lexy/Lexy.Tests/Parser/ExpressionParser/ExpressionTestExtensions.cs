@@ -3,7 +3,7 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Tokens;
 using Shouldly;
 
-namespace Lexy.Poc.Parser.ExpressionParser;
+namespace Lexy.Tests.Parser.ExpressionParser;
 
 public static class ExpressionTestExtensions
 {

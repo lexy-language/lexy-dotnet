@@ -1,7 +1,7 @@
 using Lexy.Compiler.Language.Types;
 using Shouldly;
 
-namespace Lexy.Poc.Parser;
+namespace Lexy.Tests.Parser;
 
 internal static class VariableTypeExtensions
 {

@@ -1,7 +1,7 @@
 using Lexy.Compiler;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Lexy.Poc;
+namespace Lexy.Tests;
 
 public static class ServiceProviderConfiguration
 {
