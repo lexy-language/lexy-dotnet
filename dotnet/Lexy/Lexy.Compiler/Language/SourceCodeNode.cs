@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Tables;
@@ -22,34 +23,25 @@ public class SourceCodeNode : RootNode
         Comments = new Comments(Reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
 
-        if (line.IsEmpty()) return this;
         if (line.Tokens.IsComment()) return Comments;
 
-        var indent = line.Indent(context);
-        if (indent == null || indent > 0)
-        {
-            context.Logger.Fail(context.LineReference(0), $"Unexpected line: {line}");
-            return this;
-        }
-
-        var rootNode = ParseRootNode(context, line);
+        var rootNode = ParseRootNode(context);
         if (rootNode == null) return this;
 
         RootNodes.Add(rootNode);
-        context.ProcessNode(rootNode);
 
         return rootNode;
     }
 
-    private IRootNode ParseRootNode(IParserContext context, Line line)
+    private IRootNode ParseRootNode(IParseLineContext context)
     {
-        if (Include.IsValid(line))
+        if (Include.IsValid(context.Line))
         {
-            var include = Include.Parse(line, context);
+            var include = Include.Parse(context);
             if (include != null)
             {
                 includes.Add(include);
@@ -57,10 +49,10 @@ public class SourceCodeNode : RootNode
             }
         }
 
-        var tokenName = Parser.NodeName.Parse(line, context);
+        var tokenName = Parser.NodeName.Parse(context);
         if (tokenName == null) return null;
 
-        var reference = context.LineStartReference();
+        var reference = context.Line.LineStartReference();
         var rootNode = tokenName.Keyword switch
         {
             null => null,
@@ -75,7 +67,7 @@ public class SourceCodeNode : RootNode
         return rootNode;
     }
 
-    private IRootNode InvalidNode(NodeName tokenName, IParserContext context, SourceReference reference)
+    private IRootNode InvalidNode(NodeName tokenName, IParseLineContext context, SourceReference reference)
     {
         context.Logger.Fail(reference, $"Unknown keyword: {tokenName.Keyword}");
         return null;

@@ -47,9 +47,9 @@ public class Function : RootNode, IHasNodeDependencies
         return new Function(name, reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
         var name = line.Tokens.TokenValue(0);
         if (!line.Tokens.IsTokenType<KeywordToken>(0)) return InvalidToken(name, context);
 
@@ -62,7 +62,7 @@ public class Function : RootNode, IHasNodeDependencies
         };
     }
 
-    private IParsableNode InvalidToken(string name, IParserContext parserContext)
+    private IParsableNode InvalidToken(string name, IParseLineContext parserContext)
     {
         parserContext.Logger.Fail(Reference, $"Invalid token '{name}'.");
         return this;

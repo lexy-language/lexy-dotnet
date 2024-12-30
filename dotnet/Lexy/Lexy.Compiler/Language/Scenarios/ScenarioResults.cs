@@ -11,11 +11,8 @@ public class ScenarioResults : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
-        if (line.IsEmpty()) return this;
-
         var assignment = AssignmentDefinition.Parse(context);
         if (assignment != null) Assignments.Add(assignment);
         return this;

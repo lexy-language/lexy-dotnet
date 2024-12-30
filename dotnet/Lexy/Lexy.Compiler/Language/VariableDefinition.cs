@@ -39,11 +39,9 @@ public class VariableDefinition : Node, IHasNodeDependencies
         yield return customType.TypeDefinition;
     }
 
-    public static VariableDefinition Parse(VariableSource source, IParserContext context)
+    public static VariableDefinition Parse(VariableSource source, IParseLineContext context)
     {
-        var line = context.CurrentLine;
-        if (line.IsEmpty()) return null;
-
+        var line = context.Line;
         var result = context.ValidateTokens<VariableDefinition>()
             .CountMinimum(2)
             .StringLiteral(0)
@@ -56,28 +54,28 @@ public class VariableDefinition : Node, IHasNodeDependencies
         var name = tokens.TokenValue(1);
         var type = tokens.TokenValue(0);
 
-        var variableType = VariableDeclarationType.Parse(type, context.TokenReference(0));
+        var variableType = VariableDeclarationType.Parse(type, line.TokenReference(0));
         if (variableType == null) return null;
 
-        if (tokens.Length == 2) return new VariableDefinition(name, variableType, source, context.LineStartReference());
+        if (tokens.Length == 2) return new VariableDefinition(name, variableType, source, line.LineStartReference());
 
         if (tokens.Token<OperatorToken>(2).Type != OperatorType.Assignment)
         {
-            context.Logger.Fail(context.TokenReference(2), "Invalid variable declaration token. Expected '='.");
+            context.Logger.Fail(line.TokenReference(2), "Invalid variable declaration token. Expected '='.");
             return null;
         }
 
         if (tokens.Length != 4)
         {
-            context.Logger.Fail(context.LineEndReference(),
+            context.Logger.Fail(line.LineEndReference(),
                 "Invalid variable declaration. Expected literal token.");
             return null;
         }
 
         var defaultValue = ExpressionFactory.Parse(tokens.TokensFrom(3), line);
-        if (context.Failed(defaultValue, context.TokenReference(3))) return null;
+        if (context.Failed(defaultValue, line.TokenReference(3))) return null;
 
-        return new VariableDefinition(name, variableType, source, context.LineStartReference(), defaultValue.Result);
+        return new VariableDefinition(name, variableType, source, line.LineStartReference(), defaultValue.Result);
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -24,7 +24,7 @@ public class EnumDefinition : RootNode
         return new EnumDefinition(name.Name, reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var lastIndex = Members.LastOrDefault()?.NumberValue ?? -1;
         var member = EnumMember.Parse(context, lastIndex);

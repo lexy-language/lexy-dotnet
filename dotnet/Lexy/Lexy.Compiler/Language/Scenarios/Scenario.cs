@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
@@ -47,11 +46,11 @@ public class Scenario : RootNode
         return new Scenario(name.Name, reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
         var name = line.Tokens.TokenValue(0);
-        var reference = context.LineStartReference();
+        var reference = line.LineStartReference();
         if (!line.Tokens.IsTokenType<KeywordToken>(0))
         {
             context.Logger.Fail(reference, $"Invalid token '{name}'. Keyword expected.");
@@ -75,19 +74,19 @@ public class Scenario : RootNode
         };
     }
 
-    private IParsableNode ResetRootNode(IParserContext parserContext, IParsableNode node)
+    private IParsableNode ResetRootNode(IParseLineContext parserContext, IParsableNode node)
     {
-        parserContext.ProcessNode(this);
+        parserContext.Logger.SetCurrentNode(this);
         return node;
     }
 
-    private IParsableNode ParseFunctionName(IParserContext context)
+    private IParsableNode ParseFunctionName(IParseLineContext context)
     {
         FunctionName.Parse(context);
         return this;
     }
 
-    private IParsableNode ParseFunction(IParserContext context, SourceReference reference)
+    private IParsableNode ParseFunction(IParseLineContext context, SourceReference reference)
     {
         if (Function != null)
         {
@@ -95,9 +94,9 @@ public class Scenario : RootNode
             return null;
         }
 
-        var tokenName = Parser.NodeName.Parse(context.CurrentLine, context);
+        var tokenName = Parser.NodeName.Parse(context);
         if (tokenName.Name != null)
-            context.Logger.Fail(context.TokenReference(1),
+            context.Logger.Fail(context.Line.TokenReference(1),
                 $"Unexpected function name. Inline function should not have a name: '{tokenName.Name}'");
 
         Function = Function.Create($"{Name.Value}Function", reference);
@@ -105,7 +104,7 @@ public class Scenario : RootNode
         return Function;
     }
 
-    private IParsableNode ParseEnum(IParserContext context, SourceReference reference)
+    private IParsableNode ParseEnum(IParseLineContext context, SourceReference reference)
     {
         if (Enum != null)
         {
@@ -113,14 +112,14 @@ public class Scenario : RootNode
             return null;
         }
 
-        var tokenName = Parser.NodeName.Parse(context.CurrentLine, context);
+        var tokenName = Parser.NodeName.Parse(context);
 
         Enum = EnumDefinition.Parse(tokenName, reference);
         context.Logger.SetCurrentNode(Enum);
         return Enum;
     }
 
-    private IParsableNode ParseTable(IParserContext context, SourceReference reference)
+    private IParsableNode ParseTable(IParseLineContext context, SourceReference reference)
     {
         if (Table != null)
         {
@@ -128,16 +127,16 @@ public class Scenario : RootNode
             return null;
         }
 
-        var tokenName = Parser.NodeName.Parse(context.CurrentLine, context);
+        var tokenName = Parser.NodeName.Parse(context);
 
         Table = Table.Parse(tokenName, reference);
         context.Logger.SetCurrentNode(Table);
         return Table;
     }
 
-    private IParsableNode InvalidToken(IParserContext parserContext, string name, SourceReference reference)
+    private IParsableNode InvalidToken(IParseLineContext context, string name, SourceReference reference)
     {
-        parserContext.Logger.Fail(reference, $"Invalid token '{name}'.");
+        context.Logger.Fail(reference, $"Invalid token '{name}'.");
         return this;
     }
 
@@ -158,7 +157,7 @@ public class Scenario : RootNode
 
     protected override void ValidateNodeTree(IValidationContext context, INode child)
     {
-        if (child == Parameters || child == Results)
+        if (ReferenceEquals(child, Parameters) || ReferenceEquals(child, Results))
         {
             ValidateParameterOrResultNode(context, child);
             return;

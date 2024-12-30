@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Expressions;
 
 internal static class ParseResultContextExtensions
 {
-    internal static bool Failed<T>(this IParserContext context, ParseResult<T> result, SourceReference reference)
+    internal static bool Failed<T>(this IParseLineContext context, ParseResult<T> result, SourceReference reference)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
         if (result == null) throw new ArgumentNullException(nameof(result));

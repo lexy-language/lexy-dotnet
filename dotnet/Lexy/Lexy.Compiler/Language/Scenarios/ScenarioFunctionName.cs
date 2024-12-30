@@ -11,11 +11,10 @@ public class ScenarioFunctionName : Node
     {
     }
 
-    public INode Parse(IParserContext context)
+    public void Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
         Value = line.Tokens.TokenValue(1);
-        return this;
     }
 
     public override string ToString()

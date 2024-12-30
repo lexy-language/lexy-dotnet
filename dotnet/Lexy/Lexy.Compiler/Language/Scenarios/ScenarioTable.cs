@@ -13,12 +13,8 @@ public class ScenarioTable : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
-
-        if (line.IsEmpty()) return this;
-
         if (Header == null)
         {
             Header = TableHeader.Parse(context);

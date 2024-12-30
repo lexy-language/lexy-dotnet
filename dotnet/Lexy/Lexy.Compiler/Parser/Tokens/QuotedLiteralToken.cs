@@ -21,7 +21,7 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
         return PrimitiveType.String;
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
         if (quoteClosed) throw new InvalidOperationException("No characters allowed after closing quote.");
@@ -36,7 +36,7 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
         return ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
+    public override ParseTokenResult Finalize()
     {
         if (!quoteClosed) return ParseTokenResult.Invalid("Closing quote expected.");
 

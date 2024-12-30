@@ -11,7 +11,7 @@ public class FunctionParameters : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context);
         if (variableDefinition != null) Variables.Add(variableDefinition);

@@ -20,9 +20,9 @@ public class CaseExpression : Expression, IParsableNode, IDependantExpression
         expressions = new ExpressionList(reference);
     }
 
-    public void LinkPreviousExpression(Expression expression, IParserContext context)
+    public void LinkPreviousExpression(Expression expression, IParseLineContext context)
     {
-        if (!(expression is SwitchExpression switchExpression))
+        if (expression is not SwitchExpression switchExpression)
         {
             context.Logger.Fail(Reference,
                 "'case' should be following a 'switch' statement. No 'switch' statement found.");
@@ -32,7 +32,7 @@ public class CaseExpression : Expression, IParsableNode, IDependantExpression
         switchExpression.LinkElse(this);
     }
 
-    public IParsableNode Parse(IParserContext context)
+    public IParsableNode Parse(IParseLineContext context)
     {
         var expression = expressions.Parse(context);
         return expression.Result is IParsableNode node ? node : this;

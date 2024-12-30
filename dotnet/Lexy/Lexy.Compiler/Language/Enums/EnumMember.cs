@@ -19,7 +19,7 @@ public class EnumMember : Node
         ValueLiteral = valueLiteral;
     }
 
-    public static EnumMember Parse(IParserContext context, int lastIndex)
+    public static EnumMember Parse(IParseLineContext context, int lastIndex)
     {
         var valid = context.ValidateTokens<EnumMember>()
             .CountMinimum(1)
@@ -28,15 +28,16 @@ public class EnumMember : Node
 
         if (!valid) return null;
 
-        var tokens = context.CurrentLine.Tokens;
+        var line = context.Line;
+        var tokens = line.Tokens;
         var name = tokens.TokenValue(0);
-        var reference = context.LineStartReference();
+        var reference = line.LineStartReference();
 
         if (tokens.Length == 1) return new EnumMember(name, reference, null, lastIndex + 1);
 
         if (tokens.Length != 3)
         {
-            context.Logger.Fail(context.LineEndReference(),
+            context.Logger.Fail(line.LineEndReference(),
                 $"Invalid number of tokens: {tokens.Length}. Should be 1 or 3.");
             return null;
         }
@@ -49,7 +50,7 @@ public class EnumMember : Node
 
         var value = tokens.Token<NumberLiteralToken>(2);
 
-        return new EnumMember(name, reference, value, (int)value?.NumberValue);
+        return new EnumMember(name, reference, value, (int)value.NumberValue);
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -43,13 +43,13 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
         }
     }
 
-    public ParseExpressionResult Parse(IParserContext context)
+    public ParseExpressionResult Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
         var expression = ExpressionFactory.Parse(line.Tokens, line);
         if (!expression.IsSuccess)
         {
-            context.Logger.Fail(context.LineStartReference(), expression.ErrorMessage);
+            context.Logger.Fail(line.LineStartReference(), expression.ErrorMessage);
             return expression;
         }
 
@@ -57,7 +57,7 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
         return expression;
     }
 
-    private void Add(Expression expression, IParserContext context)
+    private void Add(Expression expression, IParseLineContext context)
     {
         if (expression is IDependantExpression childExpression)
             childExpression.LinkPreviousExpression(values.LastOrDefault(), context);

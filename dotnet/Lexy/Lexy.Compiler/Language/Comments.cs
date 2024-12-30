@@ -12,7 +12,7 @@ public class Comments : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var valid = context.ValidateTokens<Comments>()
             .Count(1)
@@ -21,7 +21,7 @@ public class Comments : ParsableNode
 
         if (!valid) return null;
 
-        var comment = context.CurrentLine.Tokens.Token<CommentToken>(0);
+        var comment = context.Line.Tokens.Token<CommentToken>(0);
         lines.Add(comment.Value);
         return this;
     }

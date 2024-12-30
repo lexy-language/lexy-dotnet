@@ -20,7 +20,7 @@ public class TypeDefinition : RootNode
         return new TypeDefinition(name.Name, reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context);
         if (variableDefinition != null) Variables.Add(variableDefinition);

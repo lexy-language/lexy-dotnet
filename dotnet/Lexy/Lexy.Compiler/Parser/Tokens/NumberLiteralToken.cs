@@ -57,7 +57,7 @@ public class NumberLiteralToken : ParsableToken, ILiteralToken
         return PrimitiveType.Number;
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
         if (char.IsDigit(value))
@@ -76,16 +76,11 @@ public class NumberLiteralToken : ParsableToken, ILiteralToken
         }
 
         return allowedNextTokensValues.Contains(value)
-            ? Finish()
+            ? Finalize()
             : ParseTokenResult.Invalid($"Invalid number token character: '{value}'");
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
-    {
-        return Finish();
-    }
-
-    private ParseTokenResult Finish()
+    public override ParseTokenResult Finalize()
     {
         numberValue = decimal.Parse(base.Value, CultureInfo.InvariantCulture);
         return ParseTokenResult.Finished(false);

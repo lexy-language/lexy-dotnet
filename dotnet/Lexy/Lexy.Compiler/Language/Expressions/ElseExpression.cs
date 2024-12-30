@@ -15,9 +15,9 @@ public class ElseExpression : Expression, IParsableNode, IDependantExpression
         falseExpressions = new ExpressionList(reference);
     }
 
-    public void LinkPreviousExpression(Expression expression, IParserContext context)
+    public void LinkPreviousExpression(Expression expression, IParseLineContext context)
     {
-        if (!(expression is IfExpression ifExpression))
+        if (expression is not IfExpression ifExpression)
         {
             context.Logger.Fail(Reference, "Else should be following an If statement. No if statement found.");
             return;
@@ -31,7 +31,7 @@ public class ElseExpression : Expression, IParsableNode, IDependantExpression
         foreach (var expression in FalseExpressions) yield return expression;
     }
 
-    public IParsableNode Parse(IParserContext context)
+    public IParsableNode Parse(IParseLineContext context)
     {
         var expression = falseExpressions.Parse(context);
         return expression.Result is IParsableNode node ? node : this;

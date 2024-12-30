@@ -28,11 +28,11 @@ public class AssignmentDefinition : Node
         this.valueExpression = valueExpression;
     }
 
-    public static AssignmentDefinition Parse(IParserContext context)
+    public static AssignmentDefinition Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
         var tokens = line.Tokens;
-        var reference = context.LineStartReference();
+        var reference = line.LineStartReference();
 
         var assignmentIndex = tokens.Find<OperatorToken>(token => token.Type == OperatorType.Assignment);
         if (assignmentIndex <= 0 || assignmentIndex == tokens.Length - 1)

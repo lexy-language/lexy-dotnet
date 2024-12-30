@@ -15,7 +15,7 @@ public class FunctionCode : ParsableNode
         expressions = new ExpressionList(reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var expression = expressions.Parse(context);
         return expression.Result is IParsableNode node ? node : this;

@@ -16,12 +16,9 @@ public class ScenarioExpectRootErrors : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
-
-        if (line.IsEmpty()) return this;
-
+        var line = context.Line;
         var valid = context.ValidateTokens<ScenarioExpectError>()
             .Count(1)
             .QuotedString(0)

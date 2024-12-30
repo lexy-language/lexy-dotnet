@@ -4,5 +4,5 @@ namespace Lexy.Compiler.Language;
 
 public interface IParsableNode : INode
 {
-    IParsableNode Parse(IParserContext context);
+    IParsableNode Parse(IParseLineContext context);
 }

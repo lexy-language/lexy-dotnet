@@ -6,12 +6,12 @@ public class TableSeparatorToken : ParsableToken
     {
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext context)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         return ParseTokenResult.Finished(true);
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
+    public override ParseTokenResult Finalize()
     {
         return ParseTokenResult.Finished(true);
     }

@@ -44,7 +44,7 @@ public class KeywordTests : ScopedServicesTestFixture
     public void TestExpectErrorKeywordWithQuotedAndInvalidChar()
     {
         ServiceProvider
-            .TestLine(@"  ExpectError ""Invalid token 'Paraeters'"".")
+            .TestLine(@"  ExpectError ""Invalid token 'Paraeters'"".", false)
             .ValidateTokens()
             .ExpectError(@"ERROR - Invalid character at 41 '.'")
             .Assert();

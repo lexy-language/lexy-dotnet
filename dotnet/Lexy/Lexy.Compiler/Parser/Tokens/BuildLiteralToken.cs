@@ -21,7 +21,7 @@ public class BuildLiteralToken : ParsableToken
     {
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
 
@@ -53,7 +53,7 @@ public class BuildLiteralToken : ParsableToken
         return ParseTokenResult.Invalid($"Unexpected character: '{value}'");
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
+    public override ParseTokenResult Finalize()
     {
         if (lastMemberAccessor)
             return ParseTokenResult.Invalid(

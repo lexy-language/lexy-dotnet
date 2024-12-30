@@ -49,7 +49,7 @@ public class OperatorToken : ParsableToken
                 Type = combination.Type;
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext context)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
         if (Value.Length == 1)
@@ -73,7 +73,7 @@ public class OperatorToken : ParsableToken
         return ParseTokenResult.Invalid($"Invalid token: {value}");
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
+    public override ParseTokenResult Finalize()
     {
         if (Value == TokenValues.TableSeparator.ToString())
             return ParseTokenResult.Finished(false, new TableSeparatorToken(FirstCharacter));

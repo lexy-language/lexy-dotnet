@@ -5,7 +5,8 @@ namespace Lexy.Compiler.Parser;
 
 public class TokenValidator
 {
-    private readonly IParserContext parserContext;
+    private readonly IParserLogger logger;
+    private readonly Line line;
     private readonly string parserName;
     private readonly TokenList tokens;
 
@@ -13,12 +14,13 @@ public class TokenValidator
 
     public bool IsValid { get; private set; }
 
-    public TokenValidator(string parserName, IParserContext parserContext)
+    public TokenValidator(string parserName, Line line, IParserLogger logger)
     {
         this.parserName = parserName;
-        this.parserContext = parserContext ?? throw new ArgumentNullException(nameof(parserContext));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        tokens = parserContext.CurrentLine.Tokens;
+        this.line = line ?? throw new ArgumentNullException(nameof(line));
+        tokens = line.Tokens;
 
         IsValid = true;
     }
@@ -187,7 +189,7 @@ public class TokenValidator
     public TokenValidator ExpectError(string expectedError)
     {
         errorsExpected = true;
-        if (!parserContext.Logger.HasErrorMessage(expectedError))
+        if (!logger.HasErrorMessage(expectedError))
         {
             Fail($"Error expected but not found: {Environment.NewLine}" +
                  $"  Expected: {expectedError}");
@@ -209,14 +211,14 @@ public class TokenValidator
 
     private void Fail(string error)
     {
-        parserContext.Logger.Fail(parserContext.LineStartReference(), $"({parserName}) {error}");
+        logger.Fail(line.LineStartReference(), $"({parserName}) {error}");
     }
 
     public void Assert()
     {
-        if (!errorsExpected && parserContext.Logger.HasErrors())
-            throw new InvalidOperationException(parserContext.Logger.FormatMessages());
+        if (!errorsExpected && logger.HasErrors())
+            throw new InvalidOperationException(logger.FormatMessages());
 
-        if (!IsValid) throw new InvalidOperationException(parserContext.Logger.FormatMessages());
+        if (!IsValid) throw new InvalidOperationException(logger.FormatMessages());
     }
 }

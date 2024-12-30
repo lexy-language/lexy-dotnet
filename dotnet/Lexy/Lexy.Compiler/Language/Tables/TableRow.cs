@@ -16,7 +16,7 @@ public class TableRow : Node
         Values = values ?? throw new ArgumentNullException(nameof(values));
     }
 
-    public static TableRow Parse(IParserContext context)
+    public static TableRow Parse(IParseLineContext context)
     {
         var index = 0;
         var validator = context.ValidateTokens<TableRow>();
@@ -24,7 +24,7 @@ public class TableRow : Node
         if (!validator.Type<TableSeparatorToken>(index).IsValid) return null;
 
         var tokens = new List<Expression>();
-        var currentLineTokens = context.CurrentLine.Tokens;
+        var currentLineTokens = context.Line.Tokens;
         while (++index < currentLineTokens.Length)
         {
             var valid = !validator
@@ -34,15 +34,15 @@ public class TableRow : Node
 
             if (valid) return null;
 
-            var reference = context.TokenReference(index);
+            var reference = context.Line.TokenReference(index);
             var token = currentLineTokens.Token<Token>(index++);
-            var expression = ExpressionFactory.Parse(new TokenList(new[] { token }), context.CurrentLine);
+            var expression = ExpressionFactory.Parse(new TokenList(new[] { token }), context.Line);
             if (context.Failed(expression, reference)) return null;
 
             tokens.Add(expression.Result);
         }
 
-        return new TableRow(tokens.ToArray(), context.LineStartReference());
+        return new TableRow(tokens.ToArray(), context.Line.LineStartReference());
     }
 
     public override IEnumerable<INode> GetChildren()

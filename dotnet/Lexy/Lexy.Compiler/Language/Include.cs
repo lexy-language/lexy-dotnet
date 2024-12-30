@@ -23,19 +23,20 @@ public class Include
         return line.Tokens.IsKeyword(0, Keywords.Include);
     }
 
-    public static Include Parse(Line line, IParserContext parserContext)
+    public static Include Parse(IParseLineContext context)
     {
+        var line = context.Line;
         var lineTokens = line.Tokens;
         if (lineTokens.Length != 2 || !lineTokens.IsQuotedString(1))
         {
-            parserContext.Logger.Fail(parserContext.LineStartReference(),
+            context.Logger.Fail(line.LineStartReference(),
                 "Invalid syntax. Expected: 'Include \"FileName\"");
             return null;
         }
 
         var quotedString = lineTokens.Token<QuotedLiteralToken>(1);
 
-        return new Include(quotedString.Value, parserContext.LineStartReference());
+        return new Include(quotedString.Value, line.LineStartReference());
     }
 
     public string Process(string parentFullFileName, IParserContext context)

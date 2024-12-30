@@ -6,7 +6,7 @@ internal class WhitespaceToken : ParsableToken
     {
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext parserContext)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
         return !char.IsWhiteSpace(value)
@@ -14,7 +14,7 @@ internal class WhitespaceToken : ParsableToken
             : ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
+    public override ParseTokenResult Finalize()
     {
         return ParseTokenResult.Finished(true);
     }

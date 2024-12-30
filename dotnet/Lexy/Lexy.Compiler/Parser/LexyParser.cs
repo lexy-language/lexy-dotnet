@@ -60,7 +60,7 @@ public class LexyParser : ILexyParser
             }
 
             var line = sourceCodeDocument.CurrentLine;
-            if (line.IsComment() || line.IsEmpty()) continue;
+            if (line.IsEmpty()) continue;
 
             var indentResult = line.Indent(context);
             if (!indentResult.HasValue) continue;
@@ -68,7 +68,7 @@ public class LexyParser : ILexyParser
             var indent = indentResult.Value;
             if (indent > currentIndent)
             {
-                context.Logger.Fail(context.LineStartReference(), $"Invalid indent: {indent}");
+                context.Logger.Fail(line.LineStartReference(), $"Invalid indent: {indent}");
                 continue;
             }
 
@@ -134,13 +134,49 @@ public class LexyParser : ILexyParser
 
     private IParsableNode ParseLine(IParsableNode currentNode)
     {
-        //var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger);
-        var node = currentNode.Parse(context);
+        var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger);
+        var node = currentNode.Parse(parseLineContext);
         if (node == null)
         {
             throw new InvalidOperationException($"({currentNode}) Parse should return child node or itself.");
         }
 
+        if (node is IRootNode rootNode)
+        {
+            context.Logger.SetCurrentNode(rootNode);
+        }
+
         return node;
+    }
+}
+
+public interface IParseLineContext
+{
+    Line Line { get; }
+    IParserLogger Logger { get; }
+
+    TokenValidator ValidateTokens<T>();
+    TokenValidator ValidateTokens(string name);
+}
+
+public class ParseLineContext : IParseLineContext
+{
+    public Line Line { get; }
+    public IParserLogger Logger { get; }
+
+    public ParseLineContext(Line line, IParserLogger logger)
+    {
+        Line = line ?? throw new ArgumentNullException(nameof(line));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    public TokenValidator ValidateTokens<T>()
+    {
+        return new TokenValidator(typeof(T).Name, Line, Logger);
+    }
+
+    public TokenValidator ValidateTokens(string name)
+    {
+        return new TokenValidator(name, Line, Logger);
     }
 }

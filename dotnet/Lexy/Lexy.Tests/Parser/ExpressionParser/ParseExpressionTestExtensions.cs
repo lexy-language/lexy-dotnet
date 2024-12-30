@@ -15,8 +15,13 @@ public static class ParseExpressionTestExtensions
         var sourceFile = new SourceFile("tests.lexy");
         var line = new Line(0, expression, sourceFile);
 
-        if (!line.Tokenize(tokenizer, context))
+        var tokens = tokenizer.Tokenize(line);
+        if (!tokens.IsSuccess)
+        {
             throw new InvalidOperationException("Tokenizing failed: " + context.Logger.ErrorMessages().Format(2));
+        }
+
+        line.SetTokens(tokens.Result);
 
         var result = ExpressionFactory.Parse(line.Tokens, line);
         result.IsSuccess.ShouldBeTrue(result.ErrorMessage);
@@ -32,13 +37,13 @@ public static class ParseExpressionTestExtensions
         var sourceFile = new SourceFile("tests.lexy");
         var line = new Line(0, expression, sourceFile);
 
-        if (!line.Tokenize(tokenizer, context))
+        var tokens = tokenizer.Tokenize(line);
+        if (!tokens.IsSuccess)
         {
-            if (!context.Logger.HasErrorMessage(errorMessage))
-                throw new InvalidOperationException(
-                    $"Tokenizing failed: {context.Logger.ErrorMessages().Format(2)}");
-            return;
+            throw new InvalidOperationException("Tokenizing failed: " + context.Logger.ErrorMessages().Format(2));
         }
+
+        line.SetTokens(tokens.Result);
 
         var result = ExpressionFactory.Parse(line.Tokens, line);
         result.IsSuccess.ShouldBeFalse();

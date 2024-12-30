@@ -11,8 +11,9 @@ internal class NodeName
         Keyword = keyword;
     }
 
-    public static NodeName Parse(Line line, IParserContext context)
+    public static NodeName Parse(IParseLineContext context)
     {
+        var line = context.Line;
         var tokens = line.Tokens;
         if (tokens.Length < 1 || tokens.Length > 2) return null;
 

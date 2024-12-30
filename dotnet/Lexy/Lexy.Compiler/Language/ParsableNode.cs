@@ -8,5 +8,5 @@ public abstract class ParsableNode : Node, IParsableNode
     {
     }
 
-    public abstract IParsableNode Parse(IParserContext context);
+    public abstract IParsableNode Parse(IParseLineContext context);
 }

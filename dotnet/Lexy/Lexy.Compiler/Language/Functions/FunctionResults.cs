@@ -11,7 +11,7 @@ public class FunctionResults : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var variableDefinition = VariableDefinition.Parse(VariableSource.Results, context);
         if (variableDefinition == null) return this;

@@ -23,7 +23,7 @@ public abstract class ParsableToken : Token
         valueBuilder.Append(value);
     }
 
-    public abstract ParseTokenResult Parse(TokenCharacter character, IParserContext context);
+    public abstract ParseTokenResult Parse(TokenCharacter character);
 
-    public abstract ParseTokenResult Finalize(IParserContext context);
+    public abstract ParseTokenResult Finalize();
 }

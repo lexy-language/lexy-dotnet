@@ -17,13 +17,13 @@ public class SwitchExpression : Expression, IParsableNode
         Condition = condition;
     }
 
-    public IParsableNode Parse(IParserContext context)
+    public IParsableNode Parse(IParseLineContext context)
     {
-        var line = context.CurrentLine;
+        var line = context.Line;
         var expression = ExpressionFactory.Parse(line.Tokens, line);
         if (!expression.IsSuccess)
         {
-            context.Logger.Fail(context.LineStartReference(), expression.ErrorMessage);
+            context.Logger.Fail(line.LineStartReference(), expression.ErrorMessage);
             return this;
         }
 

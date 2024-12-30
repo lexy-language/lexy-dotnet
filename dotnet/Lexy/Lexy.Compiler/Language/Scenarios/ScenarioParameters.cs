@@ -11,7 +11,7 @@ public class ScenarioParameters : ParsableNode
     {
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         var assignment = AssignmentDefinition.Parse(context);
         if (assignment != null) Assignments.Add(assignment);

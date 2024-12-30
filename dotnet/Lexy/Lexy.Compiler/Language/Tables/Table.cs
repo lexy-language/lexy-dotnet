@@ -25,7 +25,7 @@ public class Table : RootNode
         return new Table(name.Name, reference);
     }
 
-    public override IParsableNode Parse(IParserContext context)
+    public override IParsableNode Parse(IParseLineContext context)
     {
         if (IsFirstLine())
         {

@@ -21,7 +21,7 @@ public class IfExpression : Expression, IParsableNode
         trueExpressions = new ExpressionList(reference);
     }
 
-    public IParsableNode Parse(IParserContext context)
+    public IParsableNode Parse(IParseLineContext context)
     {
         var expression = trueExpressions.Parse(context);
         return expression.Result is IParsableNode node ? node : this;

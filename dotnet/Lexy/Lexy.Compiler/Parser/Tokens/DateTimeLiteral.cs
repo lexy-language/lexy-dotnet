@@ -41,7 +41,7 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
         return PrimitiveType.Date;
     }
 
-    public override ParseTokenResult Parse(TokenCharacter character, IParserContext context)
+    public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
         if (value == TokenValues.Quote)
@@ -88,7 +88,7 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
         return ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize(IParserContext parserContext)
+    public override ParseTokenResult Finalize()
     {
         return ParseTokenResult.Invalid(
             @"Unexpected end of line. Closing quote expected. Format: d""2024/12/18 14:17:30""");

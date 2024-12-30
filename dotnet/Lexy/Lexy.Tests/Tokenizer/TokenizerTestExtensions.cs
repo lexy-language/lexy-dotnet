@@ -21,9 +21,11 @@ public static class TokenizerTestExtensions
         var context = serviceProvider.GetRequiredService<IParserContext>();
         var result = context.ProcessLine();
         if (result != expectSuccess)
+        {
             throw new InvalidOperationException(result
                 ? "Process didn't fail, but should have: " + context.Logger.FormatMessages()
                 : "Process line failed: " + context.Logger.FormatMessages());
+        }
 
         return context;
     }
@@ -36,7 +38,8 @@ public static class TokenizerTestExtensions
 
     public static TokenValidator ValidateTokens(this IParserContext context)
     {
+        var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger);
         var methodInfo = new StackTrace().GetFrame(1).GetMethod();
-        return context.ValidateTokens(methodInfo.ReflectedType.Name);
+        return parseLineContext.ValidateTokens(methodInfo.ReflectedType.Name);
     }
 }

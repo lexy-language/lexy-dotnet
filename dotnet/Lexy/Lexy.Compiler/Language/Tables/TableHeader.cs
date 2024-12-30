@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Parser;
@@ -7,14 +8,14 @@ namespace Lexy.Compiler.Language.Tables;
 
 public class TableHeader : Node
 {
-    public IList<ColumnHeader> Columns { get; } = new List<ColumnHeader>();
+    public IList<ColumnHeader> Columns { get; }
 
     private TableHeader(ColumnHeader[] columns, SourceReference reference) : base(reference)
     {
-        Columns = columns;
+        Columns = columns ?? throw new ArgumentNullException(nameof(columns));
     }
 
-    public static TableHeader Parse(IParserContext context)
+    public static TableHeader Parse(IParseLineContext context)
     {
         var index = 0;
         var validator = context.ValidateTokens<TableHeader>();
@@ -22,7 +23,7 @@ public class TableHeader : Node
         if (!validator.Type<TableSeparatorToken>(index).IsValid) return null;
 
         var headers = new List<ColumnHeader>();
-        var tokens = context.CurrentLine.Tokens;
+        var tokens = context.Line.Tokens;
         while (++index < tokens.Length)
         {
             if (!validator
@@ -34,7 +35,7 @@ public class TableHeader : Node
 
             var typeName = tokens.TokenValue(index);
             var name = tokens.TokenValue(++index);
-            var reference = context.TokenReference(index);
+            var reference = context.Line.TokenReference(index);
 
             var header = ColumnHeader.Parse(name, typeName, reference);
             headers.Add(header);
@@ -42,7 +43,7 @@ public class TableHeader : Node
             ++index;
         }
 
-        return new TableHeader(headers.ToArray(), context.LineStartReference());
+        return new TableHeader(headers.ToArray(), context.Line.LineStartReference());
     }
 
     public override IEnumerable<INode> GetChildren()

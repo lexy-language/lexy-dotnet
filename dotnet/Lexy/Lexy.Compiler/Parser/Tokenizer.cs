@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Parser;
@@ -43,11 +44,10 @@ public class Tokenizer : ITokenizer
             { char.IsWhiteSpace, value => new WhitespaceToken(value) }
         };
 
-    public TokenList Tokenize(Line line, IParserContext parserContext, out bool errors)
+    public TokenizeResult Tokenize(Line line)
     {
         if (line == null) throw new ArgumentNullException(nameof(line));
 
-        errors = false;
         var tokens = new List<Token>();
         ParsableToken current = null;
 
@@ -58,47 +58,53 @@ public class Tokenizer : ITokenizer
             var valueProcessed = false;
             if (current != null)
             {
-                var result = current.Parse(tokenCharacter, parserContext);
-                if (result.Status == TokenStatus.InvalidToken)
+                var result = current.Parse(tokenCharacter);
+                switch (result.Status)
                 {
-                    parserContext.Logger.Fail(parserContext.LineReference(index), result.ValidationError);
-                    errors = true;
-                    break;
-                }
-
-                if (result.Status == TokenStatus.Finished)
-                {
-                    tokens.Add(result.NewToken ?? current);
-                    current = null;
-                    valueProcessed = result.CharProcessed;
-                }
-                else if (result.Status == TokenStatus.InProgress && result.NewToken != null)
-                {
-                    var parsableToken = result.NewToken as ParsableToken;
-                    current = parsableToken ?? throw new InvalidOperationException(
-                        "New token can only be a parsable token when in progress");
+                    case TokenStatus.InvalidToken:
+                    {
+                        return TokenizeResult.Failed(line.LineReference(index), result.ValidationError);
+                    }
+                    case TokenStatus.Finished:
+                    {
+                        tokens.Add(result.NewToken ?? current);
+                        current = null;
+                        valueProcessed = result.CharProcessed;
+                        break;
+                    }
+                    case TokenStatus.InProgress when result.NewToken != null:
+                    {
+                        var parsableToken = result.NewToken as ParsableToken;
+                        current = parsableToken ?? throw new InvalidOperationException(
+                            "New token can only be a parsable token when in progress");
+                        break;
+                    }
                 }
             }
 
-            if (current == null && !valueProcessed) current = StartToken(tokenCharacter, index, parserContext);
+            if (current == null && !valueProcessed)
+            {
+                var parsableTokenResult = StartToken(tokenCharacter, index, line);
+                if (!parsableTokenResult.IsSuccess)
+                {
+                    return TokenizeResult.Failed(parsableTokenResult.Reference, parsableTokenResult.ErrorMessage);
+                }
+                current = parsableTokenResult.Result;
+            }
         }
 
-        if (!errors && current != null)
+        if (current != null)
         {
-            var result = current.Finalize(parserContext);
+            var result = current.Finalize();
             if (result.Status != TokenStatus.Finished)
             {
-                parserContext.Logger.Fail(parserContext.LineEndReference(),
-                    $"Invalid token at end of line. {result.ValidationError}");
-                errors = true;
+                return TokenizeResult.Failed(line.LineEndReference(), $"Invalid token at end of line. {result.ValidationError}");
             }
-            else
-            {
-                tokens.Add(result.NewToken ?? current);
-            }
+
+            tokens.Add(result.NewToken ?? current);
         }
 
-        return DiscardWhitespace(tokens);
+        return TokenizeResult.Success(DiscardWhitespace(tokens));
     }
 
     private static TokenList DiscardWhitespace(List<Token> tokens)
@@ -113,16 +119,70 @@ public class Tokenizer : ITokenizer
         return new TokenList(newTokens.ToArray());
     }
 
-    private ParsableToken StartToken(TokenCharacter character, int index, IParserContext parserContext)
+    private ParsableTokenResult StartToken(TokenCharacter character, int index, Line line)
     {
         var value = character.Value;
-        if (knownTokens.ContainsKey(value)) return knownTokens[value](character);
+        if (knownTokens.ContainsKey(value)) return ParsableTokenResult.Success(knownTokens[value](character));
 
         foreach (var validator in tokensValidators)
+        {
             if (validator.Key(value))
-                return validator.Value(character);
+            {
+                return ParsableTokenResult.Success(validator.Value(character));
+            }
+        }
 
-        parserContext.Logger.Fail(parserContext.LineReference(index), $"Invalid character at {index} '{value}'");
-        return null;
+        return ParsableTokenResult.Failed(line.LineReference(index), $"Invalid character at {index} '{value}'") ;
+    }
+}
+
+public class ParsableTokenResult : ParseResult<ParsableToken>
+{
+    public SourceReference Reference { get; }
+
+    private ParsableTokenResult(ParsableToken result) : base(result)
+    {
+    }
+
+    private ParsableTokenResult(bool success, SourceReference sourceReference, string errorMessage) : base(success, errorMessage)
+    {
+        Reference = sourceReference;
+    }
+
+    public static ParsableTokenResult Success(ParsableToken result)
+    {
+        if (result == null) throw new ArgumentNullException(nameof(result));
+
+        return new ParsableTokenResult(result);
+    }
+
+    public static ParsableTokenResult Failed(SourceReference reference, string errorMessage)
+    {
+        return new ParsableTokenResult(false, reference, errorMessage);
+    }
+}
+public class TokenizeResult : ParseResult<TokenList>
+{
+    public SourceReference Reference { get; }
+
+    private TokenizeResult(TokenList result) : base(result)
+    {
+    }
+
+    private TokenizeResult(bool success, SourceReference sourceReference, string errorMessage) : base(success, errorMessage)
+    {
+        Reference = sourceReference;
+    }
+
+    public static TokenizeResult Success(TokenList result)
+    {
+        if (result == null) throw new ArgumentNullException(nameof(result));
+
+        return new TokenizeResult(result);
+    }
+
+    public static TokenizeResult Failed(SourceReference reference, string errorMessage)
+    {
+        return new TokenizeResult(false, reference, errorMessage);
     }
 }

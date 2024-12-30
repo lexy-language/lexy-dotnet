@@ -39,25 +39,19 @@ public class Line
 
         if (spaces > 0 && tabs > 0)
         {
-            parserContext.Logger.Fail(parserContext.LineReference(index),
+            parserContext.Logger.Fail(LineReference(index),
                 "Don't mix spaces and tabs for indentations. Use 2 spaces or tabs.");
             return null;
         }
 
         if (spaces % 2 != 0)
         {
-            parserContext.Logger.Fail(parserContext.LineReference(index),
+            parserContext.Logger.Fail(LineReference(index),
                 $"Wrong number of indent spaces {spaces}. Should be multiplication of 2. (line: {Index} line: {Content})");
             return null;
         }
 
         return tabs > 0 ? tabs : spaces / 2;
-    }
-
-    public bool Tokenize(ITokenizer tokenizer, IParserContext parserContext)
-    {
-        Tokens = tokenizer.Tokenize(this, parserContext, out var errors);
-        return !errors;
     }
 
     public override string ToString()
@@ -70,11 +64,6 @@ public class Line
         return Tokens.Length == 0;
     }
 
-    public bool IsComment()
-    {
-        return Tokens.IsComment();
-    }
-
     public int? FirstCharacter()
     {
         for (var index = 0; index < Content.Length; index++)
@@ -82,5 +71,40 @@ public class Line
                 return index;
 
         return 0;
+    }
+
+    public SourceReference TokenReference(int tokenIndex)
+    {
+        return new SourceReference(
+            File,
+            Index + 1,
+            Tokens.CharacterPosition(tokenIndex) + 1);
+    }
+
+    public SourceReference LineEndReference()
+    {
+        return new SourceReference(File,
+            Index + 1,
+            Content.Length);
+    }
+
+    public SourceReference LineStartReference()
+    {
+        var lineStart = FirstCharacter();
+        return new SourceReference(File,
+            Index + 1,
+            lineStart + 1);
+    }
+
+    public SourceReference LineReference(int characterIndex)
+    {
+        return new SourceReference(File ?? new SourceFile("runtime"),
+            Index + 1,
+            characterIndex + 1);
+    }
+
+    public void SetTokens(TokenList tokens)
+    {
+        Tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
     }
 }
