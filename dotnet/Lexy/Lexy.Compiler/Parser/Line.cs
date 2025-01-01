@@ -62,7 +62,7 @@ public class Line
         return Tokens.Length == 0;
     }
 
-    public int? FirstCharacter()
+    public int FirstCharacter()
     {
         for (var index = 0; index < Content.Length; index++)
         {

@@ -20,7 +20,6 @@ public static class ServiceProviderExtensions
         services.TryAdd(ServiceDescriptor.Scoped<IExecutionEnvironment, ExecutionEnvironment>());
         services.TryAdd(ServiceDescriptor.Scoped<IExecutionContext, ExecutionContext>());
 
-        services.TryAdd(ServiceDescriptor.Scoped<ICompilerContext, CompilerContext>());
         services.TryAdd(ServiceDescriptor.Scoped<ILexyCompiler, LexyCompiler>());
 
         services.TryAdd(ServiceDescriptor.Scoped<ISpecificationRunnerContext, SpecificationRunnerContext>());

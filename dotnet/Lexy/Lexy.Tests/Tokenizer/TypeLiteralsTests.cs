@@ -9,7 +9,6 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   int Value")
-            .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "int")
             .StringLiteral(1, "Value")
@@ -21,7 +20,6 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   number Value")
-            .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "number")
             .StringLiteral(1, "Value")
@@ -33,7 +31,6 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   string Value")
-            .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "string")
             .StringLiteral(1, "Value")
@@ -45,7 +42,6 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   date Value")
-            .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "date")
             .StringLiteral(1, "Value")
@@ -57,7 +53,6 @@ public class TypeLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   boolean Value")
-            .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "boolean")
             .StringLiteral(1, "Value")

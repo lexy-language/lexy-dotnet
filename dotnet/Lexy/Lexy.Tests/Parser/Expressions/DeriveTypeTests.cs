@@ -40,7 +40,7 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     [Test]
     public void DateTimeLiteral()
     {
-        var type = DeriveType(@"d""2024/12/24 10:05:00""");
+        var type = DeriveType(@"d""2024-12-24T10:05:00""");
         type.ShouldBe(PrimitiveType.Date);
     }
 

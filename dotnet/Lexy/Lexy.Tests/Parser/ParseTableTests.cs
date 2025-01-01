@@ -38,8 +38,8 @@ public class ParseTableTests : ScopedServicesTestFixture
     {
         var code = @"Table: TestTable
   | date Value | boolean Result |
-  | d""2024/12/18 17:07:45"" | false |
-  | d""2024/12/18 17:08:12"" | true |";
+  | d""2024-12-18T17:07:45"" | false |
+  | d""2024-12-18T17:08:12"" | true |";
 
         var parser = ServiceProvider.GetService<ILexyParser>();
         var table = parser.ParseTable(code);
@@ -51,9 +51,9 @@ public class ParseTableTests : ScopedServicesTestFixture
         table.Header.Columns[1].Name.ShouldBe("Result");
         table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
         table.Rows.Count.ShouldBe(2);
-        table.Rows[0].Values[0].ValidateDateTimeLiteralExpression("2024/12/18 17:07:45");
+        table.Rows[0].Values[0].ValidateDateTimeLiteralExpression("2024-12-18T17:07:45");
         table.Rows[0].Values[1].ValidateBooleanLiteralExpression(false);
-        table.Rows[1].Values[0].ValidateDateTimeLiteralExpression("2024/12/18 17:08:12");
+        table.Rows[1].Values[0].ValidateDateTimeLiteralExpression("2024-12-18T17:08:12");
         table.Rows[1].Values[1].ValidateBooleanLiteralExpression(true);
     }
 }

@@ -9,7 +9,6 @@ public class BooleanLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   true")
-            .ValidateTokens()
             .Count(1)
             .Boolean(0, true)
             .Assert();
@@ -20,7 +19,6 @@ public class BooleanLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   false")
-            .ValidateTokens()
             .Count(1)
             .Boolean(0, false)
             .Assert();

@@ -91,7 +91,13 @@ public class TokenValidator
 
     public TokenValidator QuotedString(int index, string literal = null)
     {
-        Type<QuotedLiteralToken>(index);
+        var token = ValidateType<QuotedLiteralToken>(index);
+        if (token != null && literal != null && token.Value != literal)
+        {
+            Fail($"Invalid token {index} value. Expected: '{literal}' Actual: '{token.Value}'");
+            IsValid = false;
+        }
+
         return this;
     }
 
@@ -180,19 +186,6 @@ public class TokenValidator
         if (token.Value != expectedValue)
         {
             Fail($"Invalid token value as {index}. Expected: '{expectedValue}' Actual: '{token.Value}'");
-            IsValid = false;
-        }
-
-        return this;
-    }
-
-    public TokenValidator ExpectError(string expectedError)
-    {
-        errorsExpected = true;
-        if (!logger.HasErrorMessage(expectedError))
-        {
-            Fail($"Error expected but not found: {Environment.NewLine}" +
-                 $"  Expected: {expectedError}");
             IsValid = false;
         }
 

@@ -11,7 +11,6 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   0")
-            .ValidateTokens()
             .Count(1)
             .NumberLiteral(0, 0)
             .Assert();
@@ -22,7 +21,6 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   456")
-            .ValidateTokens()
             .Count(1)
             .NumberLiteral(0, 456)
             .Assert();
@@ -34,7 +32,6 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   -456")
-            .ValidateTokens()
             .Count(2)
             .Operator(0, OperatorType.Subtraction)
             .NumberLiteral(1, 456)
@@ -46,7 +43,6 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   456.78")
-            .ValidateTokens()
             .Count(1)
             .NumberLiteral(0, 456.78m)
             .Assert();
@@ -57,7 +53,6 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   -456.78")
-            .ValidateTokens()
             .Count(2)
             .Operator(0, OperatorType.Subtraction)
             .NumberLiteral(1, 456.78m)
@@ -69,7 +64,6 @@ public class NumberLiteralsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   456-78")
-            .ValidateTokens()
             .Count(3)
             .NumberLiteral(0, 456)
             .Operator(1, OperatorType.Subtraction)

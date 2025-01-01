@@ -18,12 +18,12 @@ namespace Lexy.Compiler.Compiler;
 
 public class LexyCompiler : ILexyCompiler
 {
-    private readonly ICompilerContext compilerContext;
+    private readonly ILogger<LexyCompiler> logger;
     private readonly IExecutionEnvironment environment;
 
-    public LexyCompiler(ICompilerContext compilerContext, IExecutionEnvironment environment)
+    public LexyCompiler(ILogger<LexyCompiler> logger, IExecutionEnvironment environment)
     {
-        this.compilerContext = compilerContext ?? throw new ArgumentNullException(nameof(compilerContext));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
     }
 
@@ -31,11 +31,19 @@ public class LexyCompiler : ILexyCompiler
     {
         if (nodes == null) throw new ArgumentNullException(nameof(nodes));
 
-        var syntaxNode = GenerateSyntaxNode(nodes);
-        var assembly = CreateAssembly(syntaxNode);
+        try
+        {
+            var syntaxNode = GenerateSyntaxNode(nodes);
+            var assembly = CreateAssembly(syntaxNode);
 
-        environment.CreateExecutables(assembly);
-        return environment.Result();
+            environment.CreateExecutables(assembly);
+            return environment.Result();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Exception occured during compilation");
+            throw;
+        }
     }
 
     private Assembly CreateAssembly(SyntaxNode syntax)
@@ -43,10 +51,10 @@ public class LexyCompiler : ILexyCompiler
         var compilation = CreateSyntaxTree(syntax);
 
         string fullString = null;
-        if (compilerContext.Logger.IsEnabled(LogLevel.Debug))
+        if (logger.IsEnabled(LogLevel.Debug))
         {
             fullString = syntax.ToFullString();
-            compilerContext.Logger.LogDebug(fullString);
+            logger.LogDebug(fullString);
         }
 
         using var dllStream = new MemoryStream();
@@ -74,7 +82,8 @@ public class LexyCompiler : ILexyCompiler
     {
         var compilationFailed = $"Compilation failed: {FormatCompilationErrors(emitResult.Diagnostics)}";
 
-        compilerContext.Logger.LogError(compilationFailed);
+        logger.LogError(compilationFailed);
+
         throw new InvalidOperationException($"{compilationFailed}{Environment.NewLine}code: {code}");
     }
 

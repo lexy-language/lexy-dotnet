@@ -103,7 +103,7 @@ public class VariableDeclaration : ScopedServicesTestFixture
     [Test]
     public void DateTimeWithDefaultValue()
     {
-        var expression = this.ParseExpression(@"date temp = d""2024/12/16 16:51:12""");
+        var expression = this.ParseExpression(@"date temp = d""2024-12-16T16:51:12""");
         expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
         {
             assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>

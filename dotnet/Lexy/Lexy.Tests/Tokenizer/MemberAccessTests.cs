@@ -10,7 +10,6 @@ public class MemberAccessTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"    Source.Member")
-            .ValidateTokens()
             .Count(1)
             .Type<MemberAccessLiteral>(0)
             .MemberAccess(0, "Source.Member")

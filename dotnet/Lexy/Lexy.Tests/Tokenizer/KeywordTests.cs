@@ -11,7 +11,6 @@ public class KeywordTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize("Function: TestSimpleReturn")
-            .ValidateTokens()
             .Count(2)
             .Keyword(0, "Function:")
             .StringLiteral(1, "TestSimpleReturn")
@@ -23,7 +22,6 @@ public class KeywordTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize("  Results")
-            .ValidateTokens()
             .Count(1)
             .Keyword(0, "Results")
             .Assert();
@@ -34,7 +32,6 @@ public class KeywordTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  ExpectError ""Invalid token 'Paraeters'""")
-            .ValidateTokens()
             .Count(2)
             .Keyword(0, "ExpectError")
             .QuotedString(1, "Invalid token 'Paraeters'")
@@ -54,7 +51,6 @@ public class KeywordTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  Value = ValidateEnumKeyword.Second")
-            .ValidateTokens()
             .Count(3)
             .StringLiteral(0, "Value")
             .Operator(1, OperatorType.Assignment)

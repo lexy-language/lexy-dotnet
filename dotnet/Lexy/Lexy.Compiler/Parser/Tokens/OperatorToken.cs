@@ -45,15 +45,21 @@ public class OperatorToken : ParsableToken
     {
         var operatorValue = character.Value;
         foreach (var combination in operatorCombinations)
+        {
             if (!combination.SecondChar.HasValue && combination.FirstChar == operatorValue)
+            {
                 Type = combination.Type;
+            }
+        }
     }
 
     public override ParseTokenResult Parse(TokenCharacter character)
     {
         var value = character.Value;
         if (Value.Length == 1)
+        {
             foreach (var combination in operatorCombinations)
+            {
                 if (combination.SecondChar.HasValue
                     && combination.SecondChar.Value == value
                     && combination.FirstChar == Value[0])
@@ -61,6 +67,8 @@ public class OperatorToken : ParsableToken
                     Type = combination.Type;
                     return ParseTokenResult.Finished(true);
                 }
+            }
+        }
 
         if (char.IsLetterOrDigit(value)
             || TerminatorValues.Contains(value))

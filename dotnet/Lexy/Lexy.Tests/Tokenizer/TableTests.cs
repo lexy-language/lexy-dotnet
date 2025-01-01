@@ -10,7 +10,6 @@ public class TableTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  | int Value | string Result |")
-            .ValidateTokens()
             .Count(7)
             .Type<TableSeparatorToken>(0)
             .StringLiteral(1, "int")
@@ -27,7 +26,6 @@ public class TableTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  | 7 | 8 |")
-            .ValidateTokens()
             .Count(5)
             .Type<TableSeparatorToken>(0)
             .NumberLiteral(1, 7)

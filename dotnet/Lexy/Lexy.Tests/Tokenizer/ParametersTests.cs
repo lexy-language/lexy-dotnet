@@ -9,7 +9,6 @@ public class ParametersTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize("  number Result")
-            .ValidateTokens()
             .Count(2)
             .StringLiteral(0, "number")
             .StringLiteral(1, "Result")

@@ -9,12 +9,12 @@ namespace Lexy.Compiler.Parser.Tokens;
 
 public class DateTimeLiteral : ParsableToken, ILiteralToken
 {
-    private const string DateTimeFormat = "yyyy/MM/dd HH:mm:ss";
+    private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 
-    //format d"0123/56/89 12:45:78"
+    //format d"0123-56-89T12:45:78"
     private static readonly int[] DigitIndexes = { 0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18 };
-    private static readonly int[] SlashIndexes = { 4, 7 };
-    private static readonly int[] SpaceIndexes = { 10 };
+    private static readonly int[] DashIndexes = { 4, 7 };
+    private static readonly int[] TIndexes = { 10 };
     private static readonly int[] ColonIndexes = { 13, 16 };
     private static readonly int[] ValidLengths = { 19 };
     private readonly IList<Func<char, ParseTokenResult>> validators;
@@ -28,9 +28,9 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
         validators = new List<Func<char, ParseTokenResult>>
         {
             value => Validate(value, char.IsDigit(value), DigitIndexes),
-            value => Validate(value, TokenValues.Slash, SlashIndexes),
+            value => Validate(value, TokenValues.Dash, DashIndexes),
             value => Validate(value, TokenValues.Colon, ColonIndexes),
-            value => Validate(value, TokenValues.Space, SpaceIndexes)
+            value => Validate(value, 'T', TIndexes)
         };
     }
 
@@ -65,7 +65,7 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
             }
         }
 
-        return ParseTokenResult.Invalid($@"Unexpected character: '{value}'. Format: d""2024/12/18 14:17:30""");
+        return ParseTokenResult.Invalid($@"Unexpected character: '{value}'. Format: d""2024-12-18T14:17:30""");
     }
 
     private void ParseValue()
@@ -83,7 +83,9 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
         if (!match) return null;
 
         if (!indexes.Contains(index))
-            return ParseTokenResult.Invalid($@"Unexpected character: '{value}'. Format: d""2024/12/18 14:17:30""");
+        {
+            return ParseTokenResult.Invalid($@"Unexpected character: '{value}'. Format: d""2024-12-18T14:17:30""");
+        }
 
         return ParseTokenResult.InProgress();
     }
@@ -91,7 +93,7 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
     public override ParseTokenResult Finalize()
     {
         return ParseTokenResult.Invalid(
-            @"Unexpected end of line. Closing quote expected. Format: d""2024/12/18 14:17:30""");
+            @"Unexpected end of line. Closing quote expected. Format: d""2024-12-18T14:17:30""");
     }
 
     public override string ToString()

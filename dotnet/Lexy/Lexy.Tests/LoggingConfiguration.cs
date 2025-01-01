@@ -34,14 +34,14 @@ public static class LoggingConfiguration
                 .Filter.ByIncludingOnly(Matching.FromSource<ParserLogger>())
                 .WriteTo.File(FullLogFile(ParserLogFile)))
             .WriteTo.Logger(lc => lc
-                .Filter.ByIncludingOnly(Matching.FromSource<CompilerContext>())
+                .Filter.ByIncludingOnly(Matching.FromSource<LexyCompiler>())
                 .WriteTo.File(FullLogFile(CompilerLogFile)))
             .WriteTo.Logger(lc => lc
                 .Filter.ByIncludingOnly(Matching.FromSource<ExecutionContext>())
                 .WriteTo.File(FullLogFile(ExecutionLogFile)))
             .WriteTo.Logger(lc => lc
                 .Filter.ByExcluding(Matching.FromSource<ParserLogger>())
-                .Filter.ByExcluding(Matching.FromSource<CompilerContext>())
+                .Filter.ByExcluding(Matching.FromSource<LexyCompiler>())
                 .Filter.ByExcluding(Matching.FromSource<ExecutionContext>())
                 .WriteTo.File(FullLogFile(TestsLogFile)))
             .CreateLogger();
@@ -76,8 +76,12 @@ public static class LoggingConfiguration
             var datePart = Path.GetFileName(logFile).Split("-")[0];
             if (DateTime.TryParseExact(datePart, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None,
                     out var value))
+            {
                 if (DateTime.Now.Subtract(value).Hours > 1)
+                {
                     File.Delete(logFile);
+                }
+            }
         }
     }
 

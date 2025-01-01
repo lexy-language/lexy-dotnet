@@ -141,7 +141,10 @@ public class TokenList : IEnumerable<Token>
         for (var index = 0; index < values.Length; index++)
         {
             var value = values[index];
-            if (value is T specificToken && func(specificToken)) return index;
+            if (value is T specificToken && func(specificToken))
+            {
+                return index;
+            }
         }
 
         return -1;

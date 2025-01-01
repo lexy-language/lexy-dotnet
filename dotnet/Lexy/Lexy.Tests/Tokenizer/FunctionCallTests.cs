@@ -10,7 +10,6 @@ public class FunctionCallTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"   LOOKUP(SimpleTable, Value, ""Result"")")
-            .ValidateTokens()
             .Count(8)
             .StringLiteral(0, "LOOKUP")
             .Operator(1, OperatorType.OpenParentheses)

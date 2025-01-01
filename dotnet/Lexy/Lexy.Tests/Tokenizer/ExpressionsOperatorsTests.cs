@@ -10,7 +10,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = Y + 1")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -25,7 +24,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = Y - 1")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -40,7 +38,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = Y * 1")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -55,7 +52,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = Y / 1")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -70,7 +66,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = Y % 1")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -85,7 +80,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = (Y)")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -100,7 +94,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = A[1]")
-            .ValidateTokens()
             .Count(6)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -116,7 +109,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = A < 7")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -131,7 +123,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = A <= 7")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -146,7 +137,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = A > 7")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -161,7 +151,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = A >= 7")
-            .ValidateTokens()
             .Count(5)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
@@ -176,7 +165,6 @@ public class ExpressionsOperatorsTests : ScopedServicesTestFixture
     {
         ServiceProvider
             .Tokenize(@"  X = abs(Y + 8)")
-            .ValidateTokens()
             .Count(8)
             .StringLiteral(0, "X")
             .Operator(1, OperatorType.Assignment)
