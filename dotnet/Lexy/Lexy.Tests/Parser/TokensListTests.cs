@@ -1,4 +1,5 @@
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Tokens;
 using NUnit.Framework;
 using Shouldly;
 

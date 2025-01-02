@@ -93,7 +93,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies
 
         var variableSource = context.VariableContext.GetVariableSource(Variable.ParentIdentifier);
         if (variableSource == null)
-            context.Logger.Fail(Reference, "Can't define source of variable: " + Variable.ParentIdentifier);
+            context.Logger.Fail(Reference, $"Can't define source of variable: {Variable.ParentIdentifier}");
         else
             VariableSource = variableSource.Value;
     }

@@ -1,3 +1,5 @@
+using Lexy.Compiler.Parser.Tokens;
+
 namespace Lexy.Compiler.Parser;
 
 public interface IParseLineContext

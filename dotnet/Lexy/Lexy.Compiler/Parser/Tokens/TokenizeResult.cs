@@ -1,8 +1,7 @@
 using System;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Expressions;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Tokens;
 
 public class TokenizeResult : ParseResult<TokenList>
 {

@@ -48,7 +48,7 @@ public class IdentifierExpression : Expression
         var variableSource = context.VariableContext.GetVariableSource(Identifier);
         if (variableSource == null)
         {
-            context.Logger.Fail(Reference, "Can't define source of variable: " + Identifier);
+            context.Logger.Fail(Reference, $"Can't define source of variable: {Identifier}");
             return;
         }
 

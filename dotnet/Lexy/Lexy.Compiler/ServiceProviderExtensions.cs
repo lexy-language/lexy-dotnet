@@ -1,5 +1,6 @@
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Tokens;
 using Lexy.Compiler.Specifications;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;

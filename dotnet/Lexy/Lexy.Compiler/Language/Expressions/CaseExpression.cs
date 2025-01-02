@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -48,7 +49,7 @@ public class CaseExpression : Expression, IParsableNode, IDependantExpression
     public static ParseExpressionResult Parse(ExpressionSource source)
     {
         var tokens = source.Tokens;
-        if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
+        if (!IsValid(tokens)) return ParseExpressionResult.Invalid<CaseExpression>("Not valid.");
 
         if (tokens.IsKeyword(0, Keywords.Default)) return ParseDefaultCase(source, tokens);
 

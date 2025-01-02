@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -12,7 +13,7 @@ public class IfExpression : Expression, IParsableNode
     public Expression Condition { get; }
     public IEnumerable<Expression> TrueExpressions => trueExpressions;
 
-    public ElseExpression Else { get; set; }
+    public ElseExpression Else { get; private set; }
 
     private IfExpression(Expression condition, ExpressionSource source, SourceReference reference) : base(source,
         reference)

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Tokens;
 
 public class Tokenizer : ITokenizer
 {

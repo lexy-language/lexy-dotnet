@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Lexy.Compiler.Language.Expressions.Functions;
+namespace Lexy.Compiler.Language;
 
 internal interface IHasNodeDependencies
 {

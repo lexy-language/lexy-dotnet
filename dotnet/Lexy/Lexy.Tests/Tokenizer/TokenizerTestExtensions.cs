@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Tokens;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexy.Tests.Tokenizer;
@@ -11,7 +12,7 @@ public static class TokenizerTestExtensions
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
-        var tokenizer = new Lexy.Compiler.Parser.Tokenizer();
+        var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
         var file = new SourceFile("tests.lexy");
         var line = new Line(0, value, file);
         var tokens = line.Tokenize(tokenizer);
