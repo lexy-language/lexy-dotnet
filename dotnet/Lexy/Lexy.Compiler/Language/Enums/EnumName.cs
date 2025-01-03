@@ -25,7 +25,13 @@ public class EnumName : Node
     protected override void Validate(IValidationContext context)
     {
         if (string.IsNullOrEmpty(Value))
+        {
             context.Logger.Fail(Reference, $"Invalid enum name: {Value}. Name should not be empty.");
-        if (!SyntaxFacts.IsValidIdentifier(Value)) context.Logger.Fail(Reference, $"Invalid enum name: {Value}.");
+        }
+
+        if (!SyntaxFacts.IsValidIdentifier(Value))
+        {
+            context.Logger.Fail(Reference, $"Invalid enum name: {Value}.");
+        }
     }
 }

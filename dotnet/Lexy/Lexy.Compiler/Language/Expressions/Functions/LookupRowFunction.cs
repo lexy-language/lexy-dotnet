@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -45,15 +45,21 @@ internal class LookupRowFunction : ExpressionFunction, IHasNodeDependencies
         IReadOnlyList<Expression> arguments)
     {
         if (arguments.Count != Arguments)
+        {
             return ParseExpressionFunctionsResult.Failed($"Invalid number of arguments. {FunctionHelp}");
+        }
 
-        if (!(arguments[ArgumentTable] is IdentifierExpression tableNameExpression))
+        if (arguments[ArgumentTable] is not IdentifierExpression tableNameExpression)
+        {
             return ParseExpressionFunctionsResult.Failed(
                 $"Invalid argument {ArgumentTable}. Should be valid table name. {FunctionHelp}");
+        }
 
-        if (!(arguments[ArgumentSearchValueColumn] is MemberAccessExpression searchValueColumnHeader))
+        if (arguments[ArgumentSearchValueColumn] is not MemberAccessExpression searchValueColumnHeader)
+        {
             return ParseExpressionFunctionsResult.Failed(
                 $"Invalid argument {ArgumentSearchValueColumn}. Should be search column. {FunctionHelp}");
+        }
 
         var tableName = tableNameExpression.Identifier;
         var valueExpression = arguments[ArgumentLookupValue];
@@ -93,8 +99,10 @@ internal class LookupRowFunction : ExpressionFunction, IHasNodeDependencies
         SearchValueColumnType = searchColumnHeader.Type.CreateVariableType(context);
 
         if (conditionValueType == null || !conditionValueType.Equals(SearchValueColumnType))
+        {
             context.Logger.Fail(Reference,
                 $"Invalid argument {ArgumentSearchValueColumn}. Column type '{SearchValueColumn}': '{SearchValueColumnType}' doesn't match condition type '{conditionValueType}'. {FunctionHelp}");
+        }
 
         RowType = tableType?.GetRowType(context);
     }
@@ -103,12 +111,16 @@ internal class LookupRowFunction : ExpressionFunction, IHasNodeDependencies
     private void ValidateColumn(IValidationContext context, MemberAccessLiteral column, int index)
     {
         if (column.Parent != Table)
+        {
             context.Logger.Fail(Reference,
                 $"Invalid argument {index}. Result column table '{column.Parent}' should be table name '{Table}'");
+        }
 
         if (column.Parts.Length != 2)
+        {
             context.Logger.Fail(Reference,
                 $"Invalid argument {index}. Result column table '{column.Parent}' should be table name '{Table}'");
+        }
     }
 
     public override VariableType DeriveReturnType(IValidationContext context)

@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

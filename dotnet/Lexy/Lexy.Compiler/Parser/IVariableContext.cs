@@ -1,4 +1,5 @@
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;

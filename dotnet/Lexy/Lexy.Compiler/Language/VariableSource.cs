@@ -1,4 +1,4 @@
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Language;
 
 public enum VariableSource
 {

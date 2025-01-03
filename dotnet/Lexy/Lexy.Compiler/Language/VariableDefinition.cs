@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -17,13 +17,13 @@ public class VariableDefinition : Node, IHasNodeDependencies
     public string Name { get; }
 
     private VariableDefinition(string name, VariableDeclarationType type,
-        VariableSource Source, SourceReference reference, Expression defaultExpression = null) : base(reference)
+        VariableSource source, SourceReference reference, Expression defaultExpression = null) : base(reference)
     {
         Type = type ?? throw new ArgumentNullException(nameof(type));
         Name = name ?? throw new ArgumentNullException(nameof(name));
 
         DefaultExpression = defaultExpression;
-        this.Source = Source;
+        Source = source;
     }
 
     public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)

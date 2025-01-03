@@ -1,4 +1,4 @@
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Tests.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;

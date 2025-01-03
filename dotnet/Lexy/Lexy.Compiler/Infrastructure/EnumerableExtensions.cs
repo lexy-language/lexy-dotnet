@@ -20,7 +20,7 @@ public static class EnumerableExtensions
     {
         if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
 
-        var indent = indentLevel > 0 ? new string(' ', 4) : string.Empty;
+        var indent = indentLevel > 0 ? new string(' ', indentLevel * 2) : string.Empty;
         var builder = new StringBuilder();
         builder.AppendLine();
         foreach (var item in enumerable) builder.AppendLine(indent + item);
@@ -41,5 +41,22 @@ public static class EnumerableExtensions
         }
 
         return builder.ToString();
+    }
+
+    public static bool IsValidIdentifier(this string value)
+    {
+        if (string.IsNullOrEmpty(value)) return false;
+
+        var startCharacter = value[0];
+        if (!char.IsLetter(startCharacter)) return false;
+
+        for (var index = 1 ; index < value.Length ; index++) {
+            var character = value[index];
+            if (!char.IsLetter(character)) {   //todo allow digits and underscore
+                return false;
+            }
+        }
+
+        return true;
     }
 }

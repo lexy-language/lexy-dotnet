@@ -5,6 +5,7 @@ using Lexy.Compiler.Compiler.CSharp;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
+using Lexy.Compiler.Language.Types;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Compiler;

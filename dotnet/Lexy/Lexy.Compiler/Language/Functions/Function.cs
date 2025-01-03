@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -77,7 +77,10 @@ public class Function : RootNode, IHasNodeDependencies
         while (processed != result.Count)
         {
             processed = result.Count;
-            foreach (var node in result.ToList()) AddDependentNodes(node, rootNodeList, result);
+            foreach (var node in result.ToList())
+            {
+                AddDependentNodes(node, rootNodeList, result);
+            }
         }
 
         return result;
@@ -98,8 +101,12 @@ public class Function : RootNode, IHasNodeDependencies
 
         var dependencies = hasDependencies.GetDependencies(rootNodeList);
         foreach (var dependency in dependencies)
+        {
             if (!result.Contains(dependency))
+            {
                 result.Add(dependency);
+            }
+        }
     }
 
     private static void AddEnumTypes(RootNodeList rootNodeList, IList<VariableDefinition> variableDefinitions,
@@ -107,7 +114,7 @@ public class Function : RootNode, IHasNodeDependencies
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (!(parameter.Type is CustomVariableDeclarationType enumVariableType)) continue;
+            if (parameter.Type is not CustomVariableDeclarationType enumVariableType) continue;
 
             var dependency = rootNodeList.GetEnum(enumVariableType.Type);
             if (dependency != null) result.Add(dependency);

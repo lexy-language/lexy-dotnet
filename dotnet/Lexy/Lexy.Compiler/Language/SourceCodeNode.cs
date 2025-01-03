@@ -5,6 +5,7 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Tables;
+using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language;
@@ -80,7 +81,7 @@ public class SourceCodeNode : RootNode
 
     protected override void Validate(IValidationContext context)
     {
-        DuplicateChecker.ValidateNode(
+        DuplicateChecker.Validate(
             context,
             node => node.Reference,
             node => node.NodeName,

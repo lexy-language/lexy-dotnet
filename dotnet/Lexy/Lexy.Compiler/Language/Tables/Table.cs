@@ -1,17 +1,19 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Tables;
 
 public class Table : RootNode
 {
+    private readonly List<TableRow> rows = new();
+
     public const string RowName = "Row";
     public TableName Name { get; } = new();
     public TableHeader Header { get; private set; }
-    public IList<TableRow> Rows { get; } = new List<TableRow>();
+
+    public IReadOnlyList<TableRow> Rows => rows;
 
     public override string NodeName => Name.Value;
 
@@ -33,7 +35,8 @@ public class Table : RootNode
         }
         else
         {
-            Rows.Add(TableRow.Parse(context));
+            var tableRow = TableRow.Parse(context);
+            if (tableRow != null) rows.Add(tableRow);
         }
 
         return this;

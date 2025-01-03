@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -31,7 +31,7 @@ public abstract class EndStartDateFunction : ExpressionFunction
     {
         context
             .ValidateType(EndDateExpression, 1, "EndDate", PrimitiveType.Date, Reference, FunctionHelp)
-            .ValidateType(StartDateExpression, 2, "EndDate", PrimitiveType.Date, Reference, FunctionHelp);
+            .ValidateType(StartDateExpression, 2, "StartDate", PrimitiveType.Date, Reference, FunctionHelp);
     }
 
     public override VariableType DeriveReturnType(IValidationContext context)

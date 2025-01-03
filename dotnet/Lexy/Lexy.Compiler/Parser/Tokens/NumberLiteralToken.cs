@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Parser.Tokens;
 

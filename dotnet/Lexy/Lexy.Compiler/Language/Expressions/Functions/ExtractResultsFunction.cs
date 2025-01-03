@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -45,13 +45,16 @@ public class ExtractResultsFunction : ExpressionFunction
             return;
         }
 
-        if (!(variableType is ComplexType))
+        var complexType = variableType as ComplexType;
+        if (complexType == null)
+        {
             context.Logger.Fail(Reference,
                 $"Invalid variable type: '{FunctionResultVariable}'. " +
                 "Should be Function Results. " +
                 $"Use new(Function.Results) or fill(Function.Results) to create new function results. {FunctionHelp}");
+        }
 
-        GetMapping(Reference, context, variableType as ComplexType, mapping);
+        GetMapping(Reference, context, complexType, mapping);
     }
 
     internal static void GetMapping(SourceReference reference, IValidationContext context, ComplexType complexType,
@@ -69,15 +72,21 @@ public class ExtractResultsFunction : ExpressionFunction
             if (variable == null || variable.VariableSource == VariableSource.Parameters) continue;
 
             if (!variable.VariableType.Equals(member.Type))
+            {
                 context.Logger.Fail(reference,
                     $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.VariableType}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
+            }
             else
+            {
                 mapping.Add(new Mapping(member.Name, variable.VariableType, variable.VariableSource));
+            }
         }
 
         if (mapping.Count == 0)
+        {
             context.Logger.Fail(reference,
                 "Invalid parameter mapping. No parameter could be mapped from variables.");
+        }
     }
 
     public override VariableType DeriveReturnType(IValidationContext context)

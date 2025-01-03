@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -50,19 +50,27 @@ internal class LookupFunction : ExpressionFunction, IHasNodeDependencies
         IReadOnlyList<Expression> arguments)
     {
         if (arguments.Count != Arguments)
+        {
             return ParseExpressionFunctionsResult.Failed($"Invalid number of arguments. {FunctionHelp}");
+        }
 
         if (!(arguments[ArgumentTable] is IdentifierExpression tableNameExpression))
+        {
             return ParseExpressionFunctionsResult.Failed(
                 $"Invalid argument {ArgumentTable}. Should be valid table name. {FunctionHelp}");
+        }
 
         if (!(arguments[ArgumentSearchValueColumn] is MemberAccessExpression searchValueColumnHeader))
+        {
             return ParseExpressionFunctionsResult.Failed(
                 $"Invalid argument {ArgumentSearchValueColumn}. Should be search column. {FunctionHelp}");
+        }
 
         if (!(arguments[ArgumentResultColumn] is MemberAccessExpression resultColumnExpression))
+        {
             return ParseExpressionFunctionsResult.Failed(
                 $"Invalid argument {ArgumentResultColumn}. Should be result column. {FunctionHelp}");
+        }
 
         var tableName = tableNameExpression.Identifier;
         var valueExpression = arguments[ArgumentLookupValue];
@@ -120,12 +128,16 @@ internal class LookupFunction : ExpressionFunction, IHasNodeDependencies
     private void ValidateColumn(IValidationContext context, MemberAccessLiteral column, int index)
     {
         if (column.Parent != Table)
+        {
             context.Logger.Fail(Reference,
                 $"Invalid argument {index}. Result column table '{column.Parent}' should be table name '{Table}'");
+        }
 
         if (column.Parts.Length != 2)
+        {
             context.Logger.Fail(Reference,
                 $"Invalid argument {index}. Result column table '{column.Parent}' should be table name '{Table}'");
+        }
     }
 
     public override VariableType DeriveReturnType(IValidationContext context)

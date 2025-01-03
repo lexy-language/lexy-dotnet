@@ -1,4 +1,4 @@
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -9,11 +9,8 @@ public class IntFunction : SingleArgumentFunction
 
     protected override string FunctionHelp => $"{Name} expects 1 argument (Value)";
 
-    protected override VariableType ArgumentType => PrimitiveType.Number;
-    protected override VariableType ResultType => PrimitiveType.Number;
-
     private IntFunction(Expression valueExpression, SourceReference reference)
-        : base(valueExpression, reference)
+        : base(valueExpression, reference, PrimitiveType.Number, PrimitiveType.Number)
     {
     }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -79,15 +79,21 @@ public class FillParametersFunction : ExpressionFunction, IHasNodeDependencies
             if (variable == null) continue;
 
             if (!variable.VariableType.Equals(member.Type))
+            {
                 context.Logger.Fail(reference,
                     $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.VariableType}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
+            }
             else
+            {
                 mapping.Add(new Mapping(member.Name, variable.VariableType, variable.VariableSource));
+            }
         }
 
         if (mapping.Count == 0)
+        {
             context.Logger.Fail(reference,
                 "Invalid parameter mapping. No parameter could be mapped from variables.");
+        }
     }
 
     public override VariableType DeriveReturnType(IValidationContext context)

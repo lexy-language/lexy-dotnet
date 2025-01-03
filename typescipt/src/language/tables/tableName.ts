@@ -1,9 +1,13 @@
 
-
 export class TableName {
-   public string Value { get; private set; } = Guid.NewGuid().toString(`D`);
+
+  private valueValue: string = crypto.randomUUID().replace("-", "");
+
+   public get value(): string {
+    return this.valueValue;
+   }
 
    public parseName(parameter: string): void {
-     Value = parameter;
+     this.valueValue = parameter;
    }
 }

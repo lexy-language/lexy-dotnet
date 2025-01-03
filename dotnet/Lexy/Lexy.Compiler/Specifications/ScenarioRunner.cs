@@ -8,7 +8,7 @@ using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
-using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;

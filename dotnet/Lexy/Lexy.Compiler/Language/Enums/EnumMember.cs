@@ -77,9 +77,13 @@ public class EnumMember : Node
         if (ValueLiteral == null) return;
 
         if (ValueLiteral.NumberValue < 0)
+        {
             context.Logger.Fail(Reference, $"Enum member value should not be < 0: {ValueLiteral}");
+        }
 
         if (ValueLiteral.IsDecimal())
+        {
             context.Logger.Fail(Reference, $"Enum member value should not be decimal: {ValueLiteral}");
+        }
     }
 }

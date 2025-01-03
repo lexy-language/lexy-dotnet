@@ -7,6 +7,7 @@ using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Language;
 
