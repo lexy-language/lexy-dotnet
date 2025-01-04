@@ -28,15 +28,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
     public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
     {
-        if (VariableType is EnumType enumType)
-        {
-            yield return rootNodeList.GetEnum(enumType.Type);
-            yield break;
-        }
-
-        if (VariableType is not CustomType customType) yield break;
-
-        yield return customType.TypeDefinition;
+        return VariableType?.GetDependencies(rootNodeList);
     }
 
     public static VariableDefinition Parse(VariableSource source, IParseLineContext context)
@@ -54,7 +46,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
         var name = tokens.TokenValue(1);
         var type = tokens.TokenValue(0);
 
-        var variableType = VariableDeclarationType.Parse(type, line.TokenReference(0));
+        var variableType = VariableDeclarationTypeParser.Parse(type, line.TokenReference(0));
         if (variableType == null) return null;
 
         if (tokens.Length == 2) return new VariableDefinition(name, variableType, source, line.LineStartReference());
@@ -72,7 +64,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
             return null;
         }
 
-        var defaultValue = ExpressionFactory.Parse(tokens.TokensFrom(3), line);
+        var defaultValue = context.ExpressionFactory.Parse(tokens.TokensFrom(3), line);
         if (context.Failed(defaultValue, line.TokenReference(3))) return null;
 
         return new VariableDefinition(name, variableType, source, line.LineStartReference(), defaultValue.Result);

@@ -42,7 +42,7 @@ public class BinaryExpression : Expression
         Operator = operatorValue;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         var supportedTokens = GetCurrentLevelSupportedTokens(tokens);
@@ -59,10 +59,10 @@ public class BinaryExpression : Expression
             return ParseExpressionResult.Invalid<BinaryExpression>(
                 $"No tokens right from: {lowestPriorityOperation.Index} ({tokens})");
 
-        var left = ExpressionFactory.Parse(leftTokens, source.Line);
+        var left = factory.Parse(leftTokens, source.Line);
         if (!left.IsSuccess) return left;
 
-        var right = ExpressionFactory.Parse(rightTokens, source.Line);
+        var right = factory.Parse(rightTokens, source.Line);
         if (!right.IsSuccess) return left;
 
         var operatorValue = lowestPriorityOperation.ExpressionOperator;
@@ -75,9 +75,15 @@ public class BinaryExpression : Expression
     private static TokenIndex GetLowestPriorityOperation(IList<TokenIndex> supportedTokens)
     {
         foreach (var supportedOperator in SupportedOperatorsByPriority.Reverse())
-        foreach (var supportedToken in supportedTokens)
-            if (supportedOperator.OperatorType == supportedToken.OperatorType)
-                return supportedToken;
+        {
+            foreach (var supportedToken in supportedTokens)
+            {
+                if (supportedOperator.OperatorType == supportedToken.OperatorType)
+                {
+                    return supportedToken;
+                }
+            }
+        }
 
         return null;
     }

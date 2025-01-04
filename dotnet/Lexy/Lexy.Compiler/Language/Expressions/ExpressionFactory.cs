@@ -5,11 +5,11 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public static class ExpressionFactory
+public class ExpressionFactory : IExpressionFactory
 {
-    private static readonly IDictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>>
+    private static readonly IDictionary<Func<TokenList, bool>, Func<ExpressionSource, IExpressionFactory, ParseExpressionResult>>
         factories =
-            new Dictionary<Func<TokenList, bool>, Func<ExpressionSource, ParseExpressionResult>>
+            new Dictionary<Func<TokenList, bool>, Func<ExpressionSource, IExpressionFactory, ParseExpressionResult>>
             {
                 { IfExpression.IsValid, IfExpression.Parse },
                 { ElseExpression.IsValid, ElseExpression.Parse },
@@ -26,13 +26,13 @@ public static class ExpressionFactory
                 { FunctionCallExpression.IsValid, FunctionCallExpression.Parse }
             };
 
-    public static ParseExpressionResult Parse(TokenList tokens, Line currentLine)
+    public ParseExpressionResult Parse(TokenList tokens, Line currentLine)
     {
         foreach (var factory in factories)
             if (factory.Key(tokens))
             {
                 var source = new ExpressionSource(currentLine, tokens);
-                return factory.Value(source);
+                return factory.Value(source, this);
             }
 
         return ParseExpressionResult.Invalid<Expression>($"Invalid expression: {tokens}");

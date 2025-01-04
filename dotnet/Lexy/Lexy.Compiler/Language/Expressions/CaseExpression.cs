@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public class CaseExpression : Expression, IParsableNode, IDependantExpression
+public class CaseExpression : Expression, IParsableNode
 {
     private readonly ExpressionList expressions;
 
@@ -13,24 +13,22 @@ public class CaseExpression : Expression, IParsableNode, IDependantExpression
     public IEnumerable<Expression> Expressions => expressions;
     public bool IsDefault { get; }
 
-    private CaseExpression(Expression value, bool isDefault, ExpressionSource source, SourceReference reference) : base(
+    private CaseExpression(Expression value, bool isDefault, ExpressionSource source, SourceReference reference,
+        IExpressionFactory factory) : base(
         source, reference)
     {
         Value = value;
         IsDefault = isDefault;
-        expressions = new ExpressionList(reference);
+        expressions = new ExpressionList(reference, factory);
     }
 
-    public void LinkPreviousExpression(Expression expression, IParseLineContext context)
+    public bool ValidatePreviousExpression(Expression expression, IParseLineContext context)
     {
-        if (expression is not SwitchExpression switchExpression)
-        {
-            context.Logger.Fail(Reference,
-                "'case' should be following a 'switch' statement. No 'switch' statement found.");
-            return;
-        }
+        if (expression is SwitchExpression) return true;
 
-        switchExpression.LinkElse(this);
+        context.Logger.Fail(Reference,
+            "'case' should be following a 'switch' statement. No 'switch' statement found.");
+        return false;
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -46,34 +44,35 @@ public class CaseExpression : Expression, IParsableNode, IDependantExpression
         yield return expressions;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<CaseExpression>("Not valid.");
 
-        if (tokens.IsKeyword(0, Keywords.Default)) return ParseDefaultCase(source, tokens);
+        if (tokens.IsKeyword(0, Keywords.Default)) return ParseDefaultCase(source, tokens, factory);
 
         if (tokens.Length == 1)
             return ParseExpressionResult.Invalid<CaseExpression>("Invalid 'case'. No parameters found.");
 
         var value = tokens.TokensFrom(1);
-        var valueExpression = ExpressionFactory.Parse(value, source.Line);
+        var valueExpression = factory.Parse(value, source.Line);
         if (!valueExpression.IsSuccess) return valueExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new CaseExpression(valueExpression.Result, false, source, reference);
+        var expression = new CaseExpression(valueExpression.Result, false, source, reference, factory);
 
         return ParseExpressionResult.Success(expression);
     }
 
-    private static ParseExpressionResult ParseDefaultCase(ExpressionSource source, TokenList tokens)
+    private static ParseExpressionResult ParseDefaultCase(ExpressionSource source, TokenList tokens,
+        IExpressionFactory factory)
     {
         if (tokens.Length != 1)
             return ParseExpressionResult.Invalid<CaseExpression>("Invalid 'default' case. No parameters expected.");
 
         var reference = source.CreateReference();
-        var expression = new CaseExpression(null, true, source, reference);
+        var expression = new CaseExpression(null, true, source, reference, factory);
         return ParseExpressionResult.Success(expression);
     }
 

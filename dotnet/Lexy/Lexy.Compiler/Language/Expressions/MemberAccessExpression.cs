@@ -30,7 +30,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies
         if (rootNode != null) yield return rootNode;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<MemberAccessExpression>("Invalid expression.");
@@ -93,9 +93,13 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies
 
         var variableSource = context.VariableContext.GetVariableSource(Variable.ParentIdentifier);
         if (variableSource == null)
+        {
             context.Logger.Fail(Reference, $"Can't define source of variable: {Variable.ParentIdentifier}");
+        }
         else
+        {
             VariableSource = variableSource.Value;
+        }
     }
 
     public override VariableType DeriveType(IValidationContext context)

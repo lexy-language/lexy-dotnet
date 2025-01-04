@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
@@ -24,12 +25,12 @@ public class Function : RootNode, IHasNodeDependencies
 
     public override string NodeName => Name.Value;
 
-    private Function(string name, SourceReference reference) : base(reference)
+    private Function(string name, SourceReference reference, IExpressionFactory factory) : base(reference)
     {
         Name = new FunctionName(reference);
         Parameters = new FunctionParameters(reference);
         Results = new FunctionResults(reference);
-        Code = new FunctionCode(reference);
+        Code = new FunctionCode(reference, factory);
 
         Name.ParseName(name);
     }
@@ -42,9 +43,9 @@ public class Function : RootNode, IHasNodeDependencies
         return result;
     }
 
-    internal static Function Create(string name, SourceReference reference)
+    internal static Function Create(string name, SourceReference reference, IExpressionFactory factory)
     {
-        return new Function(name, reference);
+        return new Function(name, reference, factory);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -109,7 +110,7 @@ public class Function : RootNode, IHasNodeDependencies
         }
     }
 
-    private static void AddEnumTypes(RootNodeList rootNodeList, IList<VariableDefinition> variableDefinitions,
+    private static void AddEnumTypes(RootNodeList rootNodeList, IReadOnlyList<VariableDefinition> variableDefinitions,
         List<IRootNode> result)
     {
         foreach (var parameter in variableDefinitions)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Parser;
@@ -41,5 +42,10 @@ public class EnumType : TypeWithMembers
     public override VariableType MemberType(string name, IValidationContext context)
     {
         return Enum.Members.Any(member => member.Name == name) ? this : null;
+    }
+
+    public override IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
+    {
+        yield return rootNodeList.GetEnum(Type);
     }
 }

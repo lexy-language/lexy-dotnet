@@ -16,7 +16,7 @@ public class ParenthesizedExpression : Expression
         Expression = expression ?? throw new ArgumentNullException(nameof(expression));
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParenthesizedExpression>("Not valid.");
@@ -26,7 +26,7 @@ public class ParenthesizedExpression : Expression
             return ParseExpressionResult.Invalid<ParenthesizedExpression>("No closing parentheses found.");
 
         var innerExpressionTokens = tokens.TokensRange(1, matchingClosingParenthesis - 1);
-        var innerExpression = ExpressionFactory.Parse(innerExpressionTokens, source.Line);
+        var innerExpression = factory.Parse(innerExpressionTokens, source.Line);
         if (!innerExpression.IsSuccess) return innerExpression;
 
         var reference = source.CreateReference();

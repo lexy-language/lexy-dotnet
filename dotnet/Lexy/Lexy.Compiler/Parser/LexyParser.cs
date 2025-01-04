@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Expressions;
 
 namespace Lexy.Compiler.Parser;
 
@@ -11,14 +12,16 @@ public class LexyParser : ILexyParser
     private readonly ITokenizer tokenizer;
     private readonly IParserContext context;
     private readonly IParserLogger logger;
+    private readonly IExpressionFactory expressionFactory;
     private readonly ISourceCodeDocument sourceCodeDocument;
 
-    public LexyParser(IParserContext parserContext, ISourceCodeDocument sourceCodeDocument, IParserLogger logger, ITokenizer tokenizer)
+    public LexyParser(IParserContext parserContext, ISourceCodeDocument sourceCodeDocument, IParserLogger logger, ITokenizer tokenizer, IExpressionFactory expressionFactory)
     {
         context = parserContext ?? throw new ArgumentNullException(nameof(parserContext));
         this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
+        this.expressionFactory = expressionFactory ?? throw new ArgumentNullException(nameof(expressionFactory));
     }
 
     public ParserResult ParseFile(string fileName, bool throwException = true)
@@ -157,7 +160,7 @@ public class LexyParser : ILexyParser
 
     private IParsableNode ParseLine(IParsableNode currentNode)
     {
-        var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger);
+        var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger, expressionFactory);
         var node = currentNode.Parse(parseLineContext);
         if (node == null)
         {

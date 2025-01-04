@@ -5,26 +5,23 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public class ElseExpression : Expression, IParsableNode, IDependantExpression
+public class ElseExpression : Expression, IParsableNode, IChildExpression
 {
     private readonly ExpressionList falseExpressions;
 
     public IEnumerable<Expression> FalseExpressions => falseExpressions;
 
-    private ElseExpression(ExpressionSource source, SourceReference reference) : base(source, reference)
+    private ElseExpression(ExpressionSource source, SourceReference reference, IExpressionFactory factory) : base(source, reference)
     {
-        falseExpressions = new ExpressionList(reference);
+        falseExpressions = new ExpressionList(reference,factory);
     }
 
-    public void LinkPreviousExpression(Expression expression, IParseLineContext context)
+    public bool ValidatePreviousExpression(IParentExpression expression, IParseLineContext context)
     {
-        if (expression is not IfExpression ifExpression)
-        {
-            context.Logger.Fail(Reference, "Else should be following an If statement. No if statement found.");
-            return;
-        }
+        if (expression is IfExpression) return true;
+        context.Logger.Fail(Reference, "Else should be following an If statement. No if statement found.");
 
-        ifExpression.LinkElse(this);
+        return false;
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -38,7 +35,7 @@ public class ElseExpression : Expression, IParsableNode, IDependantExpression
         return expression.Result is IParsableNode node ? node : this;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ElseExpression>("Not valid.");
@@ -47,7 +44,7 @@ public class ElseExpression : Expression, IParsableNode, IDependantExpression
 
         var reference = source.CreateReference();
 
-        var expression = new ElseExpression(source, reference);
+        var expression = new ElseExpression(source, reference, factory);
 
         return ParseExpressionResult.Success(expression);
     }

@@ -21,16 +21,16 @@ public class VariableDeclarationExpression : Expression
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens))
             return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
 
-        var type = VariableDeclarationType.Parse(tokens.TokenValue(0), source.CreateReference());
+        var type = VariableDeclarationTypeParser.Parse(tokens.TokenValue(0), source.CreateReference());
         var name = tokens.TokenValue(1);
         var assignment = tokens.Length > 3
-            ? ExpressionFactory.Parse(tokens.TokensFrom(3), source.Line)
+            ? factory.Parse(tokens.TokensFrom(3), source.Line)
             : null;
         if (assignment is { IsSuccess: false }) return assignment;
 
@@ -46,14 +46,14 @@ public class VariableDeclarationExpression : Expression
         return tokens.Length == 2
                && tokens.IsKeyword(0, Keywords.ImplicitVariableDeclaration)
                && tokens.IsTokenType<StringLiteralToken>(1)
-               || tokens.Length == 2
+            || tokens.Length == 2
                && tokens.IsTokenType<StringLiteralToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
-               || tokens.Length >= 4
+            || tokens.Length >= 4
                && tokens.IsKeyword(0, Keywords.ImplicitVariableDeclaration)
                && tokens.IsTokenType<StringLiteralToken>(1)
                && tokens.IsOperatorToken(2, OperatorType.Assignment)
-               || tokens.Length >= 4
+            || tokens.Length >= 4
                && tokens.IsTokenType<StringLiteralToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
                && tokens.IsOperatorToken(2, OperatorType.Assignment);

@@ -12,12 +12,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void Number()
     {
         var expression = this.ParseExpression("number temp");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("number"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ShouldBeNull();
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ShouldBeNull();
         });
     }
 
@@ -25,12 +25,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void NumberWithDefaultValue()
     {
         var expression = this.ParseExpression("number temp = 123.45");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("number"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ValidateNumericLiteralExpression(123.45m);
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ValidateNumericLiteralExpression(123.45m);
         });
     }
 
@@ -38,12 +38,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void String()
     {
         var expression = this.ParseExpression("string temp");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("string"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ShouldBeNull();
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ShouldBeNull();
         });
     }
 
@@ -51,12 +51,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void StringWithDefaultValue()
     {
         var expression = this.ParseExpression(@"string temp = ""abc""");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("string"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ValidateQuotedLiteralExpression("abc");
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ValidateQuotedLiteralExpression("abc");
         });
     }
 
@@ -65,12 +65,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void Boolean()
     {
         var expression = this.ParseExpression("boolean temp");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("boolean"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ShouldBeNull();
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ShouldBeNull();
         });
     }
 
@@ -78,12 +78,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void BooleanWithDefaultValue()
     {
         var expression = this.ParseExpression(@"boolean temp = true");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("boolean"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ValidateBooleanLiteralExpression(true);
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ValidateBooleanLiteralExpression(true);
         });
     }
 
@@ -91,12 +91,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void DateTime()
     {
         var expression = this.ParseExpression("date temp");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("date"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ShouldBeNull();
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ShouldBeNull();
         });
     }
 
@@ -104,12 +104,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void DateTimeWithDefaultValue()
     {
         var expression = this.ParseExpression(@"date temp = d""2024-12-16T16:51:12""");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
                 type.Type.ShouldBe("date"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ValidateDateTimeLiteralExpression(new DateTime(2024, 12, 16, 16, 51, 12));
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ValidateDateTimeLiteralExpression(new DateTime(2024, 12, 16, 16, 51, 12));
         });
     }
 
@@ -117,12 +117,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void CustomType()
     {
         var expression = this.ParseExpression("Custom temp");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<CustomVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<CustomVariableDeclarationType>(type =>
                 type.Type.ShouldBe("Custom"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ShouldBeNull();
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ShouldBeNull();
         });
     }
 
@@ -130,12 +130,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     public void CustomTypeWithDefault()
     {
         var expression = this.ParseExpression("Custom temp = Custom.First");
-        expression.ValidateOfType<VariableDeclarationExpression>(assignmentExpression =>
+        expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            assignmentExpression.Type.ValidateOfType<CustomVariableDeclarationType>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<CustomVariableDeclarationType>(type =>
                 type.Type.ShouldBe("Custom"));
-            assignmentExpression.Name.ShouldBe("temp");
-            assignmentExpression.Assignment.ValidateMemberAccessExpression("Custom.First");
+            variableDeclarationExpression.Name.ShouldBe("temp");
+            variableDeclarationExpression.Assignment.ValidateMemberAccessExpression("Custom.First");
         });
     }
 }

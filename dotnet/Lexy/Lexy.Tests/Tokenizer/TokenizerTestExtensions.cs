@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,8 @@ public static class TokenizerTestExtensions
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
+        var expressionFactory = new ExpressionFactory();
+
         var file = new SourceFile("tests.lexy");
         var line = new Line(0, value, file);
         var tokens = line.Tokenize(tokenizer);
@@ -23,7 +26,7 @@ public static class TokenizerTestExtensions
 
         var logger = serviceProvider.GetRequiredService<IParserLogger>();
 
-        var parseLineContext = new ParseLineContext(line, logger);
+        var parseLineContext = new ParseLineContext(line, logger, expressionFactory);
         var methodInfo = new StackTrace()?.GetFrame(1)?.GetMethod();
 
         return parseLineContext.ValidateTokens(methodInfo?.ReflectedType?.Name);

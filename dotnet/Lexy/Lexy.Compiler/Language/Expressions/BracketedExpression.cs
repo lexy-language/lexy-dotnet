@@ -18,7 +18,7 @@ public class BracketedExpression : Expression
         Expression = expression;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<BracketedExpression>("Not valid.");
@@ -29,7 +29,7 @@ public class BracketedExpression : Expression
 
         var functionName = tokens.TokenValue(0);
         var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
-        var innerExpression = ExpressionFactory.Parse(innerExpressionTokens, source.Line);
+        var innerExpression = factory.Parse(innerExpressionTokens, source.Line);
         if (!innerExpression.IsSuccess) return innerExpression;
 
         var reference = source.CreateReference();

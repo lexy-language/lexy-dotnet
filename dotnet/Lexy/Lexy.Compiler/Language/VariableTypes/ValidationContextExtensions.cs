@@ -1,6 +1,5 @@
 using System;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -42,7 +41,7 @@ public static class ValidationContextExtensions
 
         if (defaultValueExpression == null) return;
 
-        if (!(type is EnumType))
+        if (type is not EnumType)
         {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. Type: '{customVariableDeclarationType.Type}' does not support a default value.");

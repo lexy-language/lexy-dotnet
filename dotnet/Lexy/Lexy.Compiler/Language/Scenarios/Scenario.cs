@@ -99,7 +99,7 @@ public class Scenario : RootNode
             context.Logger.Fail(context.Line.TokenReference(1),
                 $"Unexpected function name. Inline function should not have a name: '{tokenName.Name}'");
 
-        Function = Function.Create($"{Name.Value}Function", reference);
+        Function = Function.Create($"{Name.Value}Function", reference, context.ExpressionFactory);
         context.Logger.SetCurrentNode(Function);
         return Function;
     }
@@ -184,7 +184,7 @@ public class Scenario : RootNode
         AddVariablesForValidation(context, function.Results.Variables, VariableSource.Results);
     }
 
-    private static void AddVariablesForValidation(IValidationContext context, IList<VariableDefinition> definitions,
+    private static void AddVariablesForValidation(IValidationContext context, IReadOnlyList<VariableDefinition> definitions,
         VariableSource source)
     {
         foreach (var result in definitions)

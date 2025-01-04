@@ -18,7 +18,10 @@ public abstract class Node : INode
         Validate(context);
 
         var children = GetChildren();
-        foreach (var child in children) ValidateNodeTree(context, child);
+        foreach (var child in children)
+        {
+            ValidateNodeTree(context, child);
+        }
     }
 
     public abstract IEnumerable<INode> GetChildren();
@@ -26,12 +29,7 @@ public abstract class Node : INode
     protected virtual void ValidateNodeTree(IValidationContext context, INode child)
     {
         if (child == null) throw new InvalidOperationException($"({GetType().Name}) Child is null");
-
-        if (child is IRootNode node) context.Logger.SetCurrentNode(node);
-
         child.ValidateTree(context);
-
-        if (this is IRootNode) context.Logger.SetCurrentNode(this as IRootNode);
     }
 
     protected abstract void Validate(IValidationContext context);

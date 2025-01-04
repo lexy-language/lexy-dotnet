@@ -8,7 +8,7 @@ namespace Lexy.Compiler.Compiler.CSharp.Writers;
 
 public static class VariableClassFactory
 {
-    public static MemberDeclarationSyntax TranslateVariablesClass(string className, IList<VariableDefinition> variables)
+    public static MemberDeclarationSyntax TranslateVariablesClass(string className, IReadOnlyList<VariableDefinition> variables)
     {
         var fields = TranslateVariablesClass(variables);
         return SyntaxFactory.ClassDeclaration(className)
@@ -16,7 +16,7 @@ public static class VariableClassFactory
             .WithMembers(SyntaxFactory.List(fields));
     }
 
-    private static IEnumerable<MemberDeclarationSyntax> TranslateVariablesClass(IList<VariableDefinition> variables)
+    private static IEnumerable<MemberDeclarationSyntax> TranslateVariablesClass(IReadOnlyList<VariableDefinition> variables)
     {
         return variables.Select(TranslateVariable);
     }

@@ -14,6 +14,7 @@ public class ExpressionSource
     {
         Line = line ?? throw new ArgumentNullException(nameof(line));
         File = line.File ?? throw new InvalidOperationException($"{nameof(line.File)} should not be null.");
+        if (tokens?.Length == 0) throw new InvalidOperationException("No tokens.");
         Tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
     }
 

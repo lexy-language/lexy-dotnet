@@ -6,7 +6,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public class IfExpression : Expression, IParsableNode
+public class IfExpression : Expression, IParsableNode, IParentExpression
 {
     private readonly ExpressionList trueExpressions;
 
@@ -15,11 +15,11 @@ public class IfExpression : Expression, IParsableNode
 
     public ElseExpression Else { get; private set; }
 
-    private IfExpression(Expression condition, ExpressionSource source, SourceReference reference) : base(source,
+    private IfExpression(Expression condition, ExpressionSource source, SourceReference reference, IExpressionFactory factory) : base(source,
         reference)
     {
         Condition = condition;
-        trueExpressions = new ExpressionList(reference);
+        trueExpressions = new ExpressionList(reference, factory);
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -35,7 +35,7 @@ public class IfExpression : Expression, IParsableNode
         if (Else != null) yield return Else;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
@@ -43,12 +43,12 @@ public class IfExpression : Expression, IParsableNode
         if (tokens.Length == 1) return ParseExpressionResult.Invalid<IfExpression>("No condition found");
 
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = ExpressionFactory.Parse(condition, source.Line);
+        var conditionExpression = factory.Parse(condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new IfExpression(conditionExpression.Result, source, reference);
+        var expression = new IfExpression(conditionExpression.Result, source, reference, factory);
 
         return ParseExpressionResult.Success(expression);
     }
@@ -66,11 +66,15 @@ public class IfExpression : Expression, IParsableNode
                 $"'if' condition expression should be 'boolean', is of wrong type '{type}'.");
     }
 
-    internal void LinkElse(ElseExpression elseExpression)
+    public void LinkChildExpression(IChildExpression expression)
     {
+        if (expression == null) throw new ArgumentNullException(nameof(expression));
+
         if (Else != null) throw new InvalidOperationException("'else' already linked.");
 
-        Else = elseExpression;
+        var elseExpression = expression as ElseExpression;
+
+        Else = elseExpression ?? throw new InvalidOperationException($"Invalid node type: {expression.GetType().Name}");
     }
 
     public override VariableType DeriveType(IValidationContext context)

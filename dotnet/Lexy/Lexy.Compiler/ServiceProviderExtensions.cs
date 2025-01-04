@@ -1,4 +1,5 @@
 using Lexy.Compiler.Compiler;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.Compiler.Specifications;
@@ -17,6 +18,7 @@ public static class ServiceProviderExtensions
         services.TryAdd(ServiceDescriptor.Scoped<IParserContext, ParserContext>());
         services.TryAdd(ServiceDescriptor.Scoped<ISourceCodeDocument, SourceCodeDocument>());
         services.TryAdd(ServiceDescriptor.Scoped<ITokenizer, Tokenizer>());
+        services.TryAdd(ServiceDescriptor.Scoped<IExpressionFactory, ExpressionFactory>());
 
         services.TryAdd(ServiceDescriptor.Scoped<IExecutionEnvironment, ExecutionEnvironment>());
         services.TryAdd(ServiceDescriptor.Scoped<IExecutionContext, ExecutionContext>());

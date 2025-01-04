@@ -5,10 +5,12 @@ namespace Lexy.Compiler.Language.Types;
 
 public class TypeDefinition : RootNode
 {
+    private readonly List<VariableDefinition> variables = new();
+
     public TypeName Name { get; } = new();
     public override string NodeName => Name.Value;
 
-    public IList<VariableDefinition> Variables { get; } = new List<VariableDefinition>();
+    public IReadOnlyList<VariableDefinition> Variables => variables;
 
     private TypeDefinition(string name, SourceReference reference) : base(reference)
     {
@@ -23,7 +25,7 @@ public class TypeDefinition : RootNode
     public override IParsableNode Parse(IParseLineContext context)
     {
         var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context);
-        if (variableDefinition != null) Variables.Add(variableDefinition);
+        if (variableDefinition != null) variables.Add(variableDefinition);
         return this;
     }
 

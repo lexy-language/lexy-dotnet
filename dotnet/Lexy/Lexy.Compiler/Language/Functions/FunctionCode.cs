@@ -10,9 +10,9 @@ public class FunctionCode : ParsableNode
 
     public IReadOnlyList<Expression> Expressions => expressions;
 
-    public FunctionCode(SourceReference reference) : base(reference)
+    public FunctionCode(SourceReference reference, IExpressionFactory factory) : base(reference)
     {
-        expressions = new ExpressionList(reference);
+        expressions = new ExpressionList(reference, factory);
     }
 
     public override IParsableNode Parse(IParseLineContext context)

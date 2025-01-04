@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
@@ -42,5 +43,10 @@ public class CustomType : TypeWithMembers
     {
         var definition = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
         return definition?.Type.CreateVariableType(context);
+    }
+
+    public override IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
+    {
+        yield return TypeDefinition;
     }
 }

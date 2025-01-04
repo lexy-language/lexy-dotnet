@@ -36,7 +36,7 @@ public class TableRow : Node
 
             var reference = context.Line.TokenReference(index);
             var token = currentLineTokens.Token<Token>(index++);
-            var expression = ExpressionFactory.Parse(new TokenList(new[] { token }), context.Line);
+            var expression = context.ExpressionFactory.Parse(new TokenList(new[] { token }), context.Line);
             if (context.Failed(expression, reference)) return null;
 
             tokens.Add(expression.Result);

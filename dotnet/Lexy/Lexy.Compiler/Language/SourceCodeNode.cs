@@ -57,7 +57,7 @@ public class SourceCodeNode : RootNode
         var rootNode = tokenName.Keyword switch
         {
             null => null,
-            Keywords.FunctionKeyword => Function.Create(tokenName.Name, reference),
+            Keywords.FunctionKeyword => Function.Create(tokenName.Name, reference, context.ExpressionFactory),
             Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
             Keywords.TableKeyword => Table.Parse(tokenName, reference),

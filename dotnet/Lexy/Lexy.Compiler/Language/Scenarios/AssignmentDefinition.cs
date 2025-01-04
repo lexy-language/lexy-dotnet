@@ -42,11 +42,11 @@ public class AssignmentDefinition : Node
         }
 
         var targetExpression =
-            ExpressionFactory.Parse(tokens.TokensFromStart(assignmentIndex), line);
+            context.ExpressionFactory.Parse(tokens.TokensFromStart(assignmentIndex), line);
         if (context.Failed(targetExpression, reference)) return null;
 
         var valueExpression =
-            ExpressionFactory.Parse(tokens.TokensFrom(assignmentIndex + 1), line);
+            context.ExpressionFactory.Parse(tokens.TokensFrom(assignmentIndex + 1), line);
         if (context.Failed(valueExpression, reference)) return null;
 
         var variableReference = VariableReferenceParser.Parse(targetExpression.Result);

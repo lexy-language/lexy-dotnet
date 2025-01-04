@@ -16,7 +16,7 @@ public class LiteralExpression : Expression
         Literal = literal ?? throw new ArgumentNullException(nameof(literal));
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<LiteralExpression>("Invalid expression.");

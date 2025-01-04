@@ -5,7 +5,9 @@ namespace Lexy.Compiler.Language.Functions;
 
 public class FunctionResults : ParsableNode
 {
-    public IList<VariableDefinition> Variables { get; } = new List<VariableDefinition>();
+    private readonly List<VariableDefinition> variables = new();
+
+    public IReadOnlyList<VariableDefinition> Variables => variables;
 
     public FunctionResults(SourceReference reference) : base(reference)
     {
@@ -23,7 +25,7 @@ public class FunctionResults : ParsableNode
             return this;
         }
 
-        Variables.Add(variableDefinition);
+        variables.Add(variableDefinition);
 
         return this;
     }

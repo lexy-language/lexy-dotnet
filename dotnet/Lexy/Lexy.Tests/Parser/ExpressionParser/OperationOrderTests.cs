@@ -60,17 +60,17 @@ public class OperationOrderTests : ScopedServicesTestFixture
     [Test]
     public void OrAndAn()
     {
-        var expression = this.ParseExpression("a && b || c");
+        var expression = this.ParseExpression("a || b && c");
         expression.ValidateOfType<BinaryExpression>(add =>
         {
             add.Operator.ShouldBe(ExpressionOperator.Or);
-            add.Left.ValidateOfType<BinaryExpression>(multiplication =>
+            add.Left.ValidateVariableExpression("a");
+            add.Right.ValidateOfType<BinaryExpression>(multiplication =>
             {
                 multiplication.Operator.ShouldBe(ExpressionOperator.And);
-                multiplication.Left.ValidateVariableExpression("a");
-                multiplication.Right.ValidateVariableExpression("b");
+                multiplication.Left.ValidateVariableExpression("b");
+                multiplication.Right.ValidateVariableExpression("c");
             });
-            add.Right.ValidateVariableExpression("c");
         });
     }
 }

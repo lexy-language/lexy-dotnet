@@ -7,13 +7,15 @@ namespace Lexy.Compiler.Language.Expressions;
 
 internal class ExpressionList : Node, IReadOnlyList<Expression>
 {
+    private readonly IExpressionFactory factory;
     private readonly List<Expression> values = new();
 
     public int Count => values.Count;
     public Expression this[int index] => values[index];
 
-    public ExpressionList(SourceReference reference) : base(reference)
+    public ExpressionList(SourceReference reference, IExpressionFactory factory) : base(reference)
     {
+        this.factory = factory;
     }
 
     public IEnumerator<Expression> GetEnumerator()
@@ -46,7 +48,7 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
     public ParseExpressionResult Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var expression = ExpressionFactory.Parse(line.Tokens, line);
+        var expression = factory.Parse(line.Tokens, line);
         if (!expression.IsSuccess)
         {
             context.Logger.Fail(line.LineStartReference(), expression.ErrorMessage);
@@ -59,9 +61,20 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
 
     private void Add(Expression expression, IParseLineContext context)
     {
-        if (expression is IDependantExpression childExpression)
-            childExpression.LinkPreviousExpression(values.LastOrDefault(), context);
-        else
+        if (expression is not IChildExpression childExpression)
+        {
             values.Add(expression);
+        }
+        else
+        {
+            AddToParent(childExpression, context);
+        }
+    }
+
+    private void AddToParent(IChildExpression childExpression, IParseLineContext context) {
+        var parentExpression = values.LastOrDefault() as IParentExpression;
+        if (childExpression.ValidatePreviousExpression(parentExpression, context)) {
+            parentExpression.LinkChildExpression(childExpression);
+        }
     }
 }

@@ -23,7 +23,7 @@ public class FunctionCallExpression : Expression
         ExpressionFunction = expressionFunction;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source)
+    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<FunctionCallExpression>("Not valid.");
@@ -41,7 +41,7 @@ public class FunctionCallExpression : Expression
         var arguments = new List<Expression>();
         foreach (var argumentTokens in argumentsTokenList.Result)
         {
-            var argumentExpression = ExpressionFactory.Parse(argumentTokens, source.Line);
+            var argumentExpression = factory.Parse(argumentTokens, source.Line);
             if (!argumentExpression.IsSuccess) return argumentExpression;
 
             arguments.Add(argumentExpression.Result);
