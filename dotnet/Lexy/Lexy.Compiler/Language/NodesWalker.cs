@@ -10,7 +10,10 @@ internal static class NodesWalker
         if (nodes == null) throw new ArgumentNullException(nameof(nodes));
         if (action == null) throw new ArgumentNullException(nameof(action));
 
-        foreach (var node in nodes) Walk(node, action);
+        foreach (var node in nodes)
+        {
+            Walk(node, action);
+        }
     }
 
     public static void Walk(INode node, Action<INode> action)
@@ -47,7 +50,6 @@ internal static class NodesWalker
 
         var result = new List<T>();
         WalkWithResult(nodes, action, result);
-
         return result;
     }
 
@@ -63,6 +65,9 @@ internal static class NodesWalker
 
     private static void WalkWithResult<T>(IEnumerable<INode> nodes, Func<INode, T> action, IList<T> result)
     {
-        foreach (var node in nodes) WalkWithResult(node, action, result);
+        foreach (var node in nodes)
+        {
+            WalkWithResult(node, action, result);
+        }
     }
 }

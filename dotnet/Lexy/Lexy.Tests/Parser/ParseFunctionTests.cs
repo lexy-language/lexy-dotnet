@@ -9,7 +9,7 @@ public class ParseFunctionTests : ScopedServicesTestFixture
     [Test]
     public void TestDuplicatedFunctionName()
     {
-        var code = @"Function: ValidateTableKeyword
+        const string code = @"Function: ValidateTableKeyword
 # Validate table keywords
   Include
     table ValidateTableKeyword
@@ -29,8 +29,7 @@ Function: ValidateTableKeyword
   Code
     Result = ValidateTableKeyword.Count";
 
-        var parser = GetService<ILexyParser>();
-        parser.ParseNodes(code);
+        ServiceProvider.ParseNodes(code);
 
         var logger = GetService<IParserLogger>();
         logger.HasErrorMessage("Duplicated node name: 'ValidateTableKeyword'")

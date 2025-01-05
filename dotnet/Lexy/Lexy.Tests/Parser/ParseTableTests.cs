@@ -14,13 +14,12 @@ public class ParseTableTests : ScopedServicesTestFixture
     [Test]
     public void TestInAndStringColumns()
     {
-        var code = @"Table: TestTable
+        const string code = @"Table: TestTable
   | number Value | string Result |
   | 7 | ""Test quoted"" |
   | 8 | ""Test"" |";
 
-        var parser = ServiceProvider.GetRequiredService<ILexyParser>();
-        var table = parser.ParseTable(code);
+        var (table, _) = ServiceProvider.ParseTable(code);
 
         table.Name.Value.ShouldBe("TestTable");
         table.Header.Columns.Count.ShouldBe(2);
@@ -38,13 +37,12 @@ public class ParseTableTests : ScopedServicesTestFixture
     [Test]
     public void TestDateTimeAndBoolean()
     {
-        var code = @"Table: TestTable
+        const string code = @"Table: TestTable
   | date Value | boolean Result |
   | d""2024-12-18T17:07:45"" | false |
   | d""2024-12-18T17:08:12"" | true |";
 
-        var parser = ServiceProvider.GetService<ILexyParser>();
-        var table = parser.ParseTable(code);
+        var (table, _) = ServiceProvider.ParseTable(code);
 
         table.Name.Value.ShouldBe("TestTable");
         table.Header.Columns.Count.ShouldBe(2);

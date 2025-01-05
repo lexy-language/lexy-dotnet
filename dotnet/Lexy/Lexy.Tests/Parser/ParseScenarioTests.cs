@@ -15,8 +15,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"Scenario: TestScenario";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         scenario.Name.Value.ShouldBe("TestScenario");
     }
@@ -31,8 +30,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   Results
     Result = 456";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         scenario.Name.Value.ShouldBe("TestScenario");
         scenario.FunctionName.Value.ShouldBe("TestScenarioFunction");
@@ -54,8 +52,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   Results
     Result = 456";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         var logger = GetService<IParserLogger>();
         var errors = logger.ErrorNodeMessages(scenario);
@@ -81,8 +78,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   Results
     Result = 456";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         var context = GetService<IParserContext>();
         context.Logger.NodeHasErrors(scenario).ShouldBeTrue();
@@ -113,8 +109,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     Result1 = 123
     Result2 = 456";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code) ?? throw new ArgumentNullException("parser.ParseScenario(code)");
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         scenario.Name.Value.ShouldBe("ValidNumberIntAsParameter");
         scenario.Function.ShouldNotBeNull();
@@ -161,8 +156,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   Function ValidateFunctionKeywords
   Parameters
   Results";
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         scenario.FunctionName.Value.ShouldBe("ValidateFunctionKeywords");
         scenario.Parameters.Assignments.Count.ShouldBe(0);
@@ -180,8 +175,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
       Result = 123A
   ExpectError ""Invalid token at 18: Invalid number token character: A""";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+        var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         var logger = GetService<IParserLogger>();
 
@@ -198,10 +192,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         const string code = @"Scenario: TestScenario
   Function: ThisShouldNotBeAllowed";
 
-        var parser = GetService<ILexyParser>();
-        var scenario = parser.ParseScenario(code);
+        var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
-        var logger = GetService<IParserLogger>();
         var errors = logger.ErrorNodeMessages(scenario);
 
         logger.NodeHasErrors(scenario).ShouldBeTrue();

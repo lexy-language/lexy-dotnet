@@ -9,17 +9,14 @@ public class ParserContext : IParserContext
 {
     private readonly IList<string> includedFiles = new List<string>();
 
-    public Line CurrentLine => SourceCode.CurrentLine;
     public RootNodeList Nodes => RootNode.RootNodes;
 
     public SourceCodeNode RootNode { get; }
-    public ISourceCodeDocument SourceCode { get; }
     public IParserLogger Logger { get; }
 
-    public ParserContext(IParserLogger logger, ISourceCodeDocument sourceCodeDocument)
+    public ParserContext(IParserLogger logger)
     {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        SourceCode = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
 
         RootNode = new SourceCodeNode();
     }

@@ -26,7 +26,12 @@ public class FunctionName : Node
     protected override void Validate(IValidationContext context)
     {
         if (string.IsNullOrEmpty(Value))
+        {
             context.Logger.Fail(Reference, $"Invalid function name: '{Value}'. Name should not be empty.");
-        if (!SyntaxFacts.IsValidIdentifier(Value)) context.Logger.Fail(Reference, $"Invalid function name: '{Value}'.");
+        }
+        else if (!SyntaxFacts.IsValidIdentifier(Value))
+        {
+            context.Logger.Fail(Reference, $"Invalid function name: '{Value}'.");
+        }
     }
 }

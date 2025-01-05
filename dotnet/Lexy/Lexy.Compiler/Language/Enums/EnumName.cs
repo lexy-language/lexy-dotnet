@@ -28,8 +28,7 @@ public class EnumName : Node
         {
             context.Logger.Fail(Reference, $"Invalid enum name: {Value}. Name should not be empty.");
         }
-
-        if (!SyntaxFacts.IsValidIdentifier(Value))
+        else if (!SyntaxFacts.IsValidIdentifier(Value))
         {
             context.Logger.Fail(Reference, $"Invalid enum name: {Value}.");
         }

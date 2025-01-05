@@ -1,56 +1,62 @@
 using System;
+using System.Linq;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexy.Tests;
 
+public record ParseResult<T>(T Result, IParserLogger Logger);
+
 public static class ParserExtensions
 {
-    public static RootNodeList ParseNodes(this ILexyParser parser, string code)
+    public static ParseResult<RootNodeList> ParseNodes(this IServiceProvider serviceProvider, string code)
     {
-        if (parser == null) throw new ArgumentNullException(nameof(parser));
+        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+
+        var parser = serviceProvider.GetRequiredService<ILexyParser>();
+        var logger = serviceProvider.GetRequiredService<IParserLogger>();
 
         var codeLines = code.Split(Environment.NewLine);
         var context = parser.Parse(codeLines, "tests.lexy", false);
 
-        return context.RootNodes;
+        return new ParseResult<RootNodeList>(context.RootNodes, logger);
     }
 
-    public static Function ParseFunction(this ILexyParser parser, string code)
+    public static ParseResult<Function> ParseFunction(this IServiceProvider serviceProvider, string code)
     {
-        return parser.ParseNode<Function>(code);
+        return serviceProvider.ParseNode<Function>(code);
     }
 
-    public static Table ParseTable(this ILexyParser parser, string code)
+    public static ParseResult<Table> ParseTable(this IServiceProvider serviceProvider, string code)
     {
-        return parser.ParseNode<Table>(code);
+        return serviceProvider.ParseNode<Table>(code);
     }
 
-    public static Scenario ParseScenario(this ILexyParser parser, string code)
+    public static ParseResult<Scenario> ParseScenario(this IServiceProvider serviceProvider, string code)
     {
-        return parser.ParseNode<Scenario>(code);
+        return serviceProvider.ParseNode<Scenario>(code);
     }
 
-    public static EnumDefinition ParseEnum(this ILexyParser parser, string code)
+    public static ParseResult<EnumDefinition> ParseEnum(this IServiceProvider serviceProvider, string code)
     {
-        return parser.ParseNode<EnumDefinition>(code);
+        return serviceProvider.ParseNode<EnumDefinition>(code);
     }
 
-    public static T ParseNode<T>(this ILexyParser parser, string code) where T : RootNode
+    private static ParseResult<T> ParseNode<T>(this IServiceProvider serviceProvider, string code) where T : RootNode
     {
-        if (parser == null) throw new ArgumentNullException(nameof(parser));
+        var (nodes, logger) = serviceProvider.ParseNodes(code);
 
-        var nodes = parser.ParseNodes(code);
-        if (nodes.Count != 1) throw new InvalidOperationException("Only 1 node expected. Actual: " + nodes.Count);
+        var node = nodes.OfType<T>().FirstOrDefault();
+        if (node == null)
+        {
+            throw new InvalidOperationException($"Node not a {typeof(T).Name}. Actual: {string.Join(", ", nodes.Select(value => value.GetType().Name).ToArray())}");
+        }
 
-        var first = nodes.First();
-        if (!(first is T node))
-            throw new InvalidOperationException($"Node not a {typeof(T).Name}. Actual: {first?.GetType()}");
-
-        return node;
+        return new ParseResult<T>(node, logger);
     }
 }

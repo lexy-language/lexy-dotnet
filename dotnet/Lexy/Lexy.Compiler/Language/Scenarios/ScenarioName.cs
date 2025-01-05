@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Language.Scenarios;
 
 public class ScenarioName : Node
 {
-    public string Value { get; private set; } = Guid.NewGuid().ToString("D");
+    public string Value { get; private set; }
 
     public ScenarioName(SourceReference reference) : base(reference)
     {

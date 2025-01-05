@@ -24,8 +24,8 @@ internal class SimpleLexyFunctionFunctionExpressionStatementException : IExpress
             throw new InvalidOperationException(
                 "functionCallExpression.ExpressionFunction should be ExtractResultsFunction");
 
-        var parameterVariable = $"{LexyCodeConstants.ParameterVariable}{Guid.NewGuid():N}";
-        var resultsVariable = $"{LexyCodeConstants.ResultsVariable}{Guid.NewGuid():N}";
+        var parameterVariable = $"{LexyCodeConstants.ParameterVariable}_{expression.Reference.LineNumber}";
+        var resultsVariable = $"{LexyCodeConstants.ResultsVariable}_{expression.Reference.LineNumber}";
 
         var result = new List<StatementSyntax>();
         result.AddRange(FillFunctionExpressionStatementException.FillStatementSyntax(

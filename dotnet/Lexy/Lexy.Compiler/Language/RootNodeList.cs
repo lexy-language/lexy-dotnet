@@ -72,13 +72,6 @@ public class RootNodeList : IEnumerable<IRootNode>
             .FirstOrDefault(function => function.Name.Value == name);
     }
 
-    public Function GetSingleFunction()
-    {
-        return values
-            .OfType<Function>()
-            .SingleOrDefault();
-    }
-
     public IEnumerable<Scenario> GetScenarios()
     {
         return values.OfType<Scenario>();

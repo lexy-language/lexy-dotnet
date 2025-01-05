@@ -91,7 +91,7 @@ public class ParserLogger : IParserLogger
         currentNode = node ?? throw new ArgumentNullException(nameof(node));
     }
 
-    public void Reset()
+    public void ResetCurrentNode()
     {
         currentNode = null;
     }

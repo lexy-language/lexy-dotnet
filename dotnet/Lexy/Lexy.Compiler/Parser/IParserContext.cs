@@ -6,9 +6,6 @@ public interface IParserContext
 {
     IParserLogger Logger { get; }
 
-    Line CurrentLine { get; }
-
-    ISourceCodeDocument SourceCode { get; }
     RootNodeList Nodes { get; }
     SourceCodeNode RootNode { get; }
 

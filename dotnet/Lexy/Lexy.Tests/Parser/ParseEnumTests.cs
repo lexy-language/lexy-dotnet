@@ -10,12 +10,11 @@ public class ParseEnumTests : ScopedServicesTestFixture
     [Test]
     public void SimpleEnum()
     {
-        var code = @"Enum: Enum1
+        const string code = @"Enum: Enum1
   First
   Second";
 
-        var parser = ServiceProvider.GetRequiredService<ILexyParser>();
-        var enumValue = parser.ParseEnum(code);
+        var (enumValue, _) = ServiceProvider.ParseEnum(code);
 
         enumValue.Name.Value.ShouldBe("Enum1");
         enumValue.Members.Count.ShouldBe(2);
@@ -30,12 +29,11 @@ public class ParseEnumTests : ScopedServicesTestFixture
     [Test]
     public void EnumWithValues()
     {
-        var code = @"Enum: Enum2
+        const string code = @"Enum: Enum2
   First = 5
   Second = 6";
 
-        var parser = ServiceProvider.GetRequiredService<ILexyParser>();
-        var enumValue = parser.ParseEnum(code);
+        var (enumValue, _) = ServiceProvider.ParseEnum(code);
 
         enumValue.Name.Value.ShouldBe("Enum2");
         enumValue.Members.Count.ShouldBe(2);

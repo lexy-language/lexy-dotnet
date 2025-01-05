@@ -9,7 +9,7 @@ public class LexyScriptTests : ScopedServicesTestFixture
     [Test]
     public void TestSimpleReturn()
     {
-        var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
+        var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
   Results
     number Result
   Code
@@ -21,7 +21,7 @@ public class LexyScriptTests : ScopedServicesTestFixture
     [Test]
     public void TestParameterDefaultReturn()
     {
-        var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
+        var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
   Parameters
     number Input = 5
   Results
@@ -35,7 +35,7 @@ public class LexyScriptTests : ScopedServicesTestFixture
     [Test]
     public void TestAssignmentReturn()
     {
-        var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
+        var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
   Parameters
     number Input = 5
 
@@ -54,7 +54,7 @@ public class LexyScriptTests : ScopedServicesTestFixture
     [Test]
     public void TestMemberAccessAssignment()
     {
-        var script = ServiceScope.CompileFunction(@"Table: ValidateTableKeyword
+        var script = ServiceProvider.CompileFunction(@"Table: ValidateTableKeyword
 # Validate table keywords
   | number Value | number Result |
   | 0 | 0 |
@@ -62,8 +62,6 @@ public class LexyScriptTests : ScopedServicesTestFixture
 
 Function: ValidateTableKeywordFunction
 # Validate table keywords
-  Include
-    table ValidateTableKeyword
   Parameters
   Results
     number Result
@@ -77,7 +75,7 @@ Function: ValidateTableKeywordFunction
     [Test]
     public void VariableDeclarationInCode()
     {
-        var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
+        var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
   Parameters
     number Value = 5 
   Results
@@ -94,7 +92,7 @@ Function: ValidateTableKeywordFunction
     [Test]
     public void VariableDeclarationWithDefaultInCode()
     {
-        var script = ServiceScope.CompileFunction(@"Function: TestSimpleReturn
+        var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
   Results
     number Result
   Code

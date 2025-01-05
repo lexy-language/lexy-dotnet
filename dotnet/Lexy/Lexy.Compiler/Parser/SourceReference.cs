@@ -4,20 +4,20 @@ namespace Lexy.Compiler.Parser;
 
 public class SourceReference
 {
-    private readonly int? characterNumber;
-    private readonly int? lineNumber;
+    public int? CharacterNumber { get; }
+    public int? LineNumber { get; }
 
     public SourceFile File { get; }
 
     public SourceReference(SourceFile file, int? lineNumber, int? characterNumber)
     {
         File = file ?? throw new ArgumentNullException(nameof(file));
-        this.characterNumber = characterNumber;
-        this.lineNumber = lineNumber;
+        this.CharacterNumber = characterNumber;
+        this.LineNumber = lineNumber;
     }
 
     public override string ToString()
     {
-        return $"{File.FileName}({lineNumber}, {characterNumber})";
+        return $"{File.FileName}({LineNumber}, {CharacterNumber})";
     }
 }

@@ -27,14 +27,20 @@ public class Dependencies
 
     private void ProcessNodes(IEnumerable<IRootNode> nodes, DependencyNode parentNode)
     {
-        foreach (var node in nodes) Nodes.Add(ProcessNode(node, parentNode));
+        foreach (var node in nodes)
+        {
+            Nodes.Add(ProcessNode(node, parentNode));
+        }
     }
 
     private DependencyNode ProcessNode(INode node, DependencyNode parentNode)
     {
         var dependencyNode = NewDependencyNode(node, parentNode);
         var dependencies = GetDependencies(node, dependencyNode);
-        foreach (var dependency in dependencies) dependencyNode.AddDependency(dependency);
+        foreach (var dependency in dependencies)
+        {
+            dependencyNode.AddDependency(dependency);
+        }
         return dependencyNode;
     }
 
@@ -57,7 +63,10 @@ public class Dependencies
         var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(rootNodes);
         if (nodeDependencies == null) return;
 
-        foreach (var dependency in nodeDependencies) ValidateDependency(parentNode, resultDependencies, dependency);
+        foreach (var dependency in nodeDependencies)
+        {
+            ValidateDependency(parentNode, resultDependencies, dependency);
+        }
     }
 
     private void ValidateDependency(DependencyNode parentNode, List<DependencyNode> resultDependencies,

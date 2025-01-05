@@ -1,7 +1,5 @@
 using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Parser;
 using Lexy.Tests.Parser.ExpressionParser;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
@@ -12,34 +10,33 @@ public class LexyParserTests : ScopedServicesTestFixture
     [Test]
     public void TestSimpleReturn()
     {
-        var code = @"Function: TestSimpleReturn
+        const string code = @"Function: TestSimpleReturn
   Results
     number Result
   Code
     Result = 777";
 
-        var parser = ServiceProvider.GetRequiredService<ILexyParser>();
-        var script = parser.ParseFunction(code);
+        var (function, _) = ServiceProvider.ParseFunction(code);
 
-        script.Name.Value.ShouldBe("TestSimpleReturn");
-        script.Results.Variables.Count.ShouldBe(1);
-        script.Results.Variables[0].Name.ShouldBe("Result");
-        script.Results.Variables[0].Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
-            ShouldBeStringTestExtensions.ShouldBe(type.Type, "number"));
-        script.Code.Expressions.Count.ShouldBe(1);
-        script.Code.Expressions[0].ToString().ShouldBe("Result=777");
+        function.Name.Value.ShouldBe("TestSimpleReturn");
+        function.Results.Variables.Count.ShouldBe(1);
+        function.Results.Variables[0].Name.ShouldBe("Result");
+        function.Results.Variables[0].Type.ValidateOfType<PrimitiveVariableDeclarationType>(type =>
+            type.Type.ShouldBe("number"));
+        function.Code.Expressions.Count.ShouldBe(1);
+        function.Code.Expressions[0].ToString().ShouldBe("Result=777");
     }
 
     [Test]
     public void TestFunctionKeywords()
     {
-        var code = @"Function: ValidateFunctionKeywords
+        const string code = @"Function: ValidateFunctionKeywords
 # Validate function keywords
   Parameters
   Results
   Code";
 
-        var parser = ServiceProvider.GetRequiredService<ILexyParser>();
-        parser.ParseFunction(code);
+        var (_, logger) = ServiceProvider.ParseFunction(code);
+        logger.HasErrors().ShouldBeFalse();
     }
 }

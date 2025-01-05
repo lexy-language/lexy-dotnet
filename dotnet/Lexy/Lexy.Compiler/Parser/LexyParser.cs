@@ -93,7 +93,7 @@ public class LexyParser : ILexyParser
 
     private bool ProcessLine()
     {
-        var line = context.SourceCode.NextLine();
+        var line = sourceCodeDocument.NextLine();
         logger.Log(line.LineStartReference(), $"'{line.Content}'");
 
         var tokens = line.Tokenize(tokenizer);
@@ -103,7 +103,7 @@ public class LexyParser : ILexyParser
             return false;
         }
 
-        var tokenNames = string.Join(" ", context.CurrentLine.Tokens.Select(token =>
+        var tokenNames = string.Join(" ", sourceCodeDocument.CurrentLine.Tokens.Select(token =>
             $"{token.GetType().Name}({token.Value})").ToArray());
 
         logger.Log(line.LineStartReference(), "  Tokens: " + tokenNames);
@@ -155,12 +155,12 @@ public class LexyParser : ILexyParser
     private void Reset()
     {
         sourceCodeDocument.Reset();
-        logger.Reset();
+        logger.ResetCurrentNode();
     }
 
     private IParsableNode ParseLine(IParsableNode currentNode)
     {
-        var parseLineContext = new ParseLineContext(context.CurrentLine, context.Logger, expressionFactory);
+        var parseLineContext = new ParseLineContext(sourceCodeDocument.CurrentLine, context.Logger, expressionFactory);
         var node = currentNode.Parse(parseLineContext);
         if (node == null)
         {

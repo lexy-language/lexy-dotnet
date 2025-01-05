@@ -9,7 +9,6 @@ public interface IParserLogger
 
     void Log(SourceReference reference, string message);
     void Fail(SourceReference reference, string message);
-    void Fail(INode node, SourceReference reference, string message);
 
     void LogNodes(IEnumerable<INode> nodes);
 
@@ -29,5 +28,5 @@ public interface IParserLogger
     void AssertNoErrors();
 
     void SetCurrentNode(IRootNode node);
-    void Reset();
+    void ResetCurrentNode();
 }

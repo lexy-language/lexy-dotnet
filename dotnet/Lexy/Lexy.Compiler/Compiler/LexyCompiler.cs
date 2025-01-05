@@ -72,7 +72,7 @@ public class LexyCompiler : ILexyCompiler
         var references = GetDllReferences();
 
         return CSharpCompilation.Create(
-            $"{LexyCodeConstants.Namespace}.{Guid.NewGuid():D}",
+            $"{LexyCodeConstants.Namespace}.{DateTime.Now:yyyyMMddHHmmss}",
             new[] { syntaxTree },
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
