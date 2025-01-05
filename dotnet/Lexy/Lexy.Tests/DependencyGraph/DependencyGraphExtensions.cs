@@ -10,9 +10,9 @@ public static class DependencyGraphExtensions
     public static Dependencies BuildGraph(this IServiceProvider serviceProvider, string code,
         bool throwException = true)
     {
-        var parser = serviceProvider.GetRequiredService<ILexyParser>();
-        var codeLines = code.Split(Environment.NewLine);
-        var result = parser.Parse(codeLines, "tests", throwException);
-        return DependencyGraphFactory.Create(result.RootNodes);
+        var(nodes, logger) = serviceProvider.ParseNodes(code);
+        if (throwException) logger.AssertNoErrors();
+
+        return DependencyGraphFactory.Create(nodes);
     }
 }
