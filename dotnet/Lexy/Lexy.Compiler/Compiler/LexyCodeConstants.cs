@@ -10,6 +10,7 @@ public static class LexyCodeConstants
     public const string ParametersType = "__Parameters";
 
     public const string RowType = "__Row";
+    public const string ValueVariable = "_value";
 
     public const string ParameterVariable = "__parameters";
     public const string ResultsVariable = "__result";

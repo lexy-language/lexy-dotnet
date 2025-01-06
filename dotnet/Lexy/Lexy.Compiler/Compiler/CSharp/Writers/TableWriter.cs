@@ -64,7 +64,7 @@ internal class TableWriter : IRootTokenWriter
                                     IdentifierName(rowName)))))
                     .WithVariables(
                         SingletonSeparatedList(
-                            VariableDeclarator(Identifier("_value")))))
+                            VariableDeclarator(Identifier(LexyCodeConstants.ValueVariable)))))
             .WithModifiers(Modifiers.PrivateStatic());
 
         return fieldDeclaration;
@@ -89,7 +89,7 @@ internal class TableWriter : IRootTokenWriter
                         ExpressionStatement(
                             AssignmentExpression(
                                 SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName("_value"),
+                                IdentifierName(LexyCodeConstants.ValueVariable),
                                 ObjectCreationExpression(
                                         GenericName(Identifier("List"))
                                             .WithTypeArgumentList(
@@ -137,7 +137,7 @@ internal class TableWriter : IRootTokenWriter
                 ArrowExpressionClause(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName("_value"),
+                        IdentifierName(LexyCodeConstants.ValueVariable),
                         IdentifierName("Count"))))
             .WithSemicolonToken(
                 Token(SyntaxKind.SemicolonToken));
@@ -153,7 +153,7 @@ internal class TableWriter : IRootTokenWriter
                 .WithModifiers(Modifiers.PublicStatic())
                 .WithExpressionBody(
                     ArrowExpressionClause(
-                        IdentifierName("_value")))
+                        IdentifierName(LexyCodeConstants.ValueVariable)))
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken));
     }
