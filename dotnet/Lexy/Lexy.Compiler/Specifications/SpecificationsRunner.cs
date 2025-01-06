@@ -1,37 +1,43 @@
 using System;
 using System.IO;
 using System.Linq;
+using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
+using Microsoft.Extensions.Logging;
 
 namespace Lexy.Compiler.Specifications;
 
 public class SpecificationsRunner : ISpecificationsRunner
 {
-    private readonly ISpecificationRunnerContext context;
-    private readonly IServiceProvider serviceProvider;
+    private readonly ILexyParser parser;
+    private readonly ILexyCompiler compiler;
+    private readonly ILogger<SpecificationsRunner> logger;
 
-    public SpecificationsRunner(IServiceProvider serviceProvider, ISpecificationRunnerContext context)
+    public SpecificationsRunner(ILexyParser parser, ILexyCompiler compiler, ILogger<SpecificationsRunner> logger)
     {
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        this.context = context;
+        this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
+        this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public void Run(string file)
     {
-        CreateFileRunner(file);
+        var context = new SpecificationRunnerContext(logger);
 
-        RunScenarios();
+        CreateFileRunner(file, context);
+        RunScenarios(context);
     }
 
     public void RunAll(string folder)
     {
-        GetRunners(folder);
+        var context = new SpecificationRunnerContext(logger);
 
-        RunScenarios();
+        GetRunners(folder, context);
+        RunScenarios(context);
     }
 
-    private void RunScenarios()
+    private void RunScenarios(ISpecificationRunnerContext context)
     {
         var runners = context.FileRunners;
         var countScenarios = context.CountScenarios();
@@ -48,36 +54,40 @@ public class SpecificationsRunner : ISpecificationsRunner
     private static void Failed(ISpecificationRunnerContext context)
     {
         Console.WriteLine("--------------- FAILED PARSER LOGGING ---------------");
-        foreach (var runner in context.FailedScenariosRunners()) Console.WriteLine(runner.ParserLogging());
+        foreach (var runner in context.FailedScenariosRunners())
+        {
+            Console.WriteLine(runner.ParserLogging());
+        }
 
         throw new InvalidOperationException($"Specifications failed: {context.Failed}");
     }
 
-    private void GetRunners(string folder)
+    private void GetRunners(string folder, ISpecificationRunnerContext context)
     {
         var absoluteFolder = GetAbsoluteFolder(folder);
 
         Console.WriteLine($"Specifications folder: {absoluteFolder}");
 
-        AddFolder(absoluteFolder);
+        AddFolder(absoluteFolder, context);
     }
 
-    private void AddFolder(string folder)
+    private void AddFolder(string folder, ISpecificationRunnerContext context)
     {
         var files = Directory.GetFiles(folder, $"*.{LexySourceDocument.FileExtension}");
 
         files
             .OrderBy(name => name)
-            .ForEach(CreateFileRunner);
+            .ForEach(file => CreateFileRunner(file, context));
 
         Directory.GetDirectories(folder)
             .OrderBy(name => name)
-            .ForEach(AddFolder);
+            .ForEach(folder => AddFolder(folder, context));
     }
 
-    private void CreateFileRunner(string fileName)
+    private void CreateFileRunner(string fileName, ISpecificationRunnerContext context)
     {
-        var runner = SpecificationFileRunner.Create(fileName, serviceProvider, context);
+        var runner = new SpecificationFileRunner(fileName, parser, context, compiler);
+        runner.Initialize();
         context.Add(runner);
     }
 
@@ -86,8 +96,11 @@ public class SpecificationsRunner : ISpecificationsRunner
         var absoluteFolder = Path.IsPathRooted(folder)
             ? folder
             : Path.GetFullPath(folder);
+
         if (!Directory.Exists(absoluteFolder))
+        {
             throw new InvalidOperationException($"Specifications folder doesn't exist: {absoluteFolder}");
+        }
 
         return absoluteFolder;
     }

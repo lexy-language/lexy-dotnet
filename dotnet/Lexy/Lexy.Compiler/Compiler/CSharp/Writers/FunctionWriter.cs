@@ -25,8 +25,7 @@ public class FunctionWriter : IRootTokenWriter
 
         var members = new List<MemberDeclarationSyntax>
         {
-            VariableClassFactory.TranslateVariablesClass(LexyCodeConstants.ParametersType,
-                function.Parameters.Variables),
+            VariableClassFactory.TranslateVariablesClass(LexyCodeConstants.ParametersType, function.Parameters.Variables),
             VariableClassFactory.TranslateVariablesClass(LexyCodeConstants.ResultsType, function.Results.Variables),
             RunMethod(function, context)
         };

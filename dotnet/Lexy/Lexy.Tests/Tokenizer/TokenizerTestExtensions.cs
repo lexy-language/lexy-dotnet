@@ -4,6 +4,7 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Lexy.Tests.Tokenizer;
 
@@ -14,7 +15,6 @@ public static class TokenizerTestExtensions
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
-        var expressionFactory = new ExpressionFactory();
 
         var file = new SourceFile("tests.lexy");
         var line = new Line(0, value, file);
@@ -24,26 +24,21 @@ public static class TokenizerTestExtensions
             throw new InvalidOperationException("Process line failed: " + tokens.ErrorMessage);
         }
 
-        var logger = serviceProvider.GetRequiredService<IParserLogger>();
-
-        var parseLineContext = new ParseLineContext(line, logger, expressionFactory);
+        var logger = serviceProvider.GetRequiredService<ILogger<ParserLogger>>();
+        var parserLogger = new ParserLogger(logger);
         var methodInfo = new StackTrace()?.GetFrame(1)?.GetMethod();
 
-        return parseLineContext.ValidateTokens(methodInfo?.ReflectedType?.Name);
+        return new TokenValidator(methodInfo?.ReflectedType?.Name, line, parserLogger);
     }
 
     public static TokenizeResult TokenizeExpectError(this IServiceProvider serviceProvider, string value)
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
-        var code = new[] { value };
-
-        var codeContext = serviceProvider.GetRequiredService<ISourceCodeDocument>();
-        codeContext.SetCode(code, "tests.lexy");
-
         var tokenizer = serviceProvider.GetRequiredService<ITokenizer>();
 
-        var line = codeContext.NextLine();
+        var file = new SourceFile("tests.lexy");
+        var line = new Line(0, value, file);
         var tokenizeResult = line.Tokenize(tokenizer);
         if (tokenizeResult.IsSuccess)
         {

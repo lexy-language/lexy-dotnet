@@ -286,7 +286,7 @@ internal static class ExpressionSyntaxFactory
         return expression.RootType switch
         {
             TableType _ => ClassNames.TableClassName(reference.ParentIdentifier),
-            FunctionType _ => ClassNames.TableClassName(reference.ParentIdentifier),
+            FunctionType _ => ClassNames.FunctionClassName(reference.ParentIdentifier),
             EnumType _ => ClassNames.EnumClassName(reference.ParentIdentifier),
             CustomType _ => ClassNames.TypeClassName(reference.ParentIdentifier),
             _ => reference.ParentIdentifier

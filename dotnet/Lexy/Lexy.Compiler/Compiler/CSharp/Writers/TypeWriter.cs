@@ -9,7 +9,7 @@ internal class TypeWriter : IRootTokenWriter
 {
     public GeneratedClass CreateCode(IRootNode node)
     {
-        if (node is not TypeDefinition typeDefinition) throw new InvalidOperationException("Root token not table");
+        if (node is not TypeDefinition typeDefinition) throw new InvalidOperationException("Root token not type");
 
         var className = ClassNames.TypeClassName(typeDefinition.Name.Value);
 

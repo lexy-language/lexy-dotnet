@@ -1,59 +1,52 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexy.Compiler.Specifications;
 
 public class SpecificationFileRunner : ISpecificationFileRunner
 {
+    private readonly ILexyCompiler compiler;
     private readonly ILexyParser parser;
-    private readonly IParserContext parserContext;
 
-    private string fileName;
-    private ISpecificationRunnerContext runnerContext;
+    private readonly string fileName;
+    private readonly ISpecificationRunnerContext runnerContext;
 
-    private IList<IScenarioRunner> scenarioRunners = new List<IScenarioRunner>();
-
-    private IServiceScope serviceScope;
-
-    public SpecificationFileRunner(ILexyParser parser, IParserContext parserContext)
-    {
-        this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
-        this.parserContext = parserContext ?? throw new ArgumentNullException(nameof(parserContext));
-    }
-
-    public void Initialize(IServiceScope serviceScope, ISpecificationRunnerContext runnerContext, string fileName)
-    {
-        //runnerContext is managed by a parent ServiceProvider scope,
-        //thus they can't be injected via the constructor
-
-        if (this.fileName != null)
-            throw new InvalidOperationException("Each SpecificationFileRunner should only be initialized once. " +
-                                                "Use ServiceProvider.CreateScope to manage scope op each SpecificationFileRunner");
-
-        this.runnerContext = runnerContext ?? throw new ArgumentNullException(nameof(runnerContext));
-        this.serviceScope = serviceScope;
-        this.fileName = fileName;
-
-        parser.ParseFile(fileName, false);
-
-        scenarioRunners = parserContext
-            .Nodes
-            .GetScenarios()
-            .Select(scenario => ScenarioRunner.Create(fileName, scenario, parserContext, runnerContext,
-                this.serviceScope.ServiceProvider))
-            .ToList();
-
-        ValidateHasScenarioCheckingRootErrors(fileName);
-    }
+    private readonly List<IScenarioRunner> scenarioRunners = new();
+    private ParserResult result;
 
     public IEnumerable<IScenarioRunner> ScenarioRunners => scenarioRunners;
 
+    public SpecificationFileRunner(string fileName, ILexyParser parser, ISpecificationRunnerContext runnerContext, ILexyCompiler compiler)
+    {
+        this.fileName = fileName;
+        this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
+        this.runnerContext = runnerContext ?? throw new ArgumentNullException(nameof(runnerContext));
+        this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
+    }
+
+    public void Initialize()
+    {
+        result = parser.ParseFile(fileName, false);
+
+        var runners = result
+            .Nodes
+            .GetScenarios()
+            .Select(scenario => CreateScenarioRunner(scenario, runnerContext, result.Nodes, result.Logger))
+            .ToList();
+
+        scenarioRunners.AddRange(runners);
+    }
+
     public void Run()
     {
+        ValidateHasScenarioCheckingRootErrors(result.Logger);
+
         if (scenarioRunners.Count == 0) return;
 
         runnerContext.LogGlobal($"Filename: {fileName}");
@@ -61,10 +54,10 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         foreach (var scenario in scenarioRunners) scenario.Run();
     }
 
-    public void Dispose()
-    {
-        serviceScope?.Dispose();
-        serviceScope = null;
+    private ScenarioRunner CreateScenarioRunner(Scenario scenario, ISpecificationRunnerContext context,
+        RootNodeList nodes, IParserLogger logger)
+    {   
+        return new ScenarioRunner(fileName, compiler, nodes, scenario, context, logger);
     }
 
     public int CountScenarioRunners()
@@ -72,24 +65,15 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         return scenarioRunners.Count;
     }
 
-    private void ValidateHasScenarioCheckingRootErrors(string fileName)
+    private void ValidateHasScenarioCheckingRootErrors(IParserLogger logger)
     {
-        if (!parserContext.Logger.HasRootErrors()) return;
+        if (!logger.HasRootErrors()) return;
 
         var rootScenarioRunner =
             scenarioRunners.FirstOrDefault(runner => runner.Scenario.ExpectRootErrors.HasValues);
 
         if (rootScenarioRunner == null)
             throw new InvalidOperationException(
-                $"{fileName} has root errors but no scenario that verifies expected root errors. Errors: {parserContext.Logger.ErrorRootMessages().Format(2)}");
-    }
-
-    public static ISpecificationFileRunner Create(string fileName, IServiceProvider serviceProvider
-        , ISpecificationRunnerContext runnerContext)
-    {
-        var serviceScope = serviceProvider.CreateScope();
-        var runner = serviceScope.ServiceProvider.GetRequiredService<ISpecificationFileRunner>();
-        runner.Initialize(serviceScope, runnerContext, fileName);
-        return runner;
+                $"{fileName} has root errors but no scenario that verifies expected root errors. Errors: {logger.ErrorRootMessages().Format(2)}");
     }
 }

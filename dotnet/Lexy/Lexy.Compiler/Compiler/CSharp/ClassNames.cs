@@ -10,11 +10,6 @@ public static class ClassNames
         return Normalize(functionName, LexyCodeConstants.FunctionClassPrefix);
     }
 
-    public static string CustomClassName(string complexTypeName)
-    {
-        return Normalize(complexTypeName, LexyCodeConstants.ComplexTypeClassPrefix);
-    }
-
     public static string TableClassName(string tableTypeName)
     {
         return Normalize(tableTypeName, LexyCodeConstants.TableClassPrefix);

@@ -8,13 +8,13 @@ namespace Lexy.Compiler.Parser;
 
 public class ParserLogger : IParserLogger
 {
+    private readonly ILogger logger;
     private readonly IList<LogEntry> logEntries = new List<LogEntry>();
 
-    private readonly ILogger<ParserLogger> logger;
     private IRootNode currentNode;
     private int failedMessages;
 
-    public ParserLogger(ILogger<ParserLogger> logger)
+    public ParserLogger(ILogger logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }

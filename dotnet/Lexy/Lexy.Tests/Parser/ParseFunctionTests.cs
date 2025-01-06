@@ -29,9 +29,8 @@ Function: ValidateTableKeyword
   Code
     Result = ValidateTableKeyword.Count";
 
-        ServiceProvider.ParseNodes(code);
+        var(_, logger) = ServiceProvider.ParseNodes(code);
 
-        var logger = GetService<IParserLogger>();
         logger.HasErrorMessage("Duplicated node name: 'ValidateTableKeyword'")
           .ShouldBeTrue(logger.FormatMessages());
     }

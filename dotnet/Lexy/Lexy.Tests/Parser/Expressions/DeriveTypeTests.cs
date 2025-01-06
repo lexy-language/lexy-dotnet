@@ -3,7 +3,10 @@ using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Tests.Parser.ExpressionParser;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using Shouldly;
 
 namespace Lexy.Tests.Parser.Expressions;
@@ -151,8 +154,9 @@ public class DeriveTypeTests : ScopedServicesTestFixture
 
     private VariableType DeriveType(string expressionValue, Action<IValidationContext> validationContextHandler = null)
     {
-        var parserContext = GetService<IParserContext>();
-        var validationContext = new ValidationContext(parserContext.Logger, parserContext.Nodes);
+        var logger = new ParserLogger(ServiceProvider.GetRequiredService<ILogger<LexyParser>>());
+        var validationContext = new ValidationContext(logger, new RootNodeList());
+
         using var _ = validationContext.CreateVariableScope();
 
         validationContextHandler?.Invoke(validationContext);

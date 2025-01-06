@@ -4,10 +4,12 @@ namespace Lexy.Compiler.Parser;
 
 public class ParserResult
 {
-    public RootNodeList RootNodes { get; }
+    public RootNodeList Nodes { get; }
+    public IParserLogger Logger { get; }
 
-    public ParserResult(RootNodeList rootNodes)
+    public ParserResult(RootNodeList nodes, IParserLogger logger)
     {
-        RootNodes = rootNodes;
+        Nodes = nodes;
+        Logger = logger;
     }
 }

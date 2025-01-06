@@ -52,9 +52,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   Results
     Result = 456";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
-        var logger = GetService<IParserLogger>();
         var errors = logger.ErrorNodeMessages(scenario);
 
         logger.NodeHasErrors(scenario).ShouldBeTrue();
@@ -78,13 +77,12 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   Results
     Result = 456";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
-        var context = GetService<IParserContext>();
-        context.Logger.NodeHasErrors(scenario).ShouldBeTrue();
+        logger.NodeHasErrors(scenario).ShouldBeTrue();
 
-        var errors = context.Logger.ErrorNodeMessages(scenario);
-        errors.Length.ShouldBe(1, context.Logger.FormatMessages());
+        var errors = logger.ErrorNodeMessages(scenario);
+        errors.Length.ShouldBe(1, logger.FormatMessages());
         errors[0].ShouldBe("tests.lexy(6, 15): ERROR - Invalid number token character: 'd'");
     }
 
@@ -175,9 +173,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
       Result = 123A
   ExpectError ""Invalid token at 18: Invalid number token character: A""";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
-
-        var logger = GetService<IParserLogger>();
+        var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
         logger.NodeHasErrors(scenario).ShouldBeFalse();
         logger.NodeHasErrors(scenario.Function).ShouldBeTrue();

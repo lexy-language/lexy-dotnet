@@ -107,7 +107,7 @@ internal static class Types
                     IdentifierName(ClassNames.TableClassName(complexType.Name)),
                     IdentifierName(LexyCodeConstants.RowType));
             case ComplexTypeSource.Custom:
-                return IdentifierName(ClassNames.CustomClassName(complexType.Name));
+                return IdentifierName(ClassNames.TypeClassName(complexType.Name));
             default:
                 throw new InvalidOperationException($"Invalid type: {complexType}");
         }

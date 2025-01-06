@@ -6,27 +6,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Lexy.Compiler.Specifications;
 
-public class SpecificationRunnerContext : ISpecificationRunnerContext, IDisposable
+public class SpecificationRunnerContext : ISpecificationRunnerContext
 {
     private readonly List<ISpecificationFileRunner> fileRunners = new();
 
-    private readonly ILogger<SpecificationRunnerContext> logger;
+    private readonly ILogger<SpecificationsRunner> logger;
 
-    public SpecificationRunnerContext(ILogger<SpecificationRunnerContext> logger)
+    public int Failed { get; private set; }
+    public IReadOnlyCollection<ISpecificationFileRunner> FileRunners => fileRunners;
+
+    public SpecificationRunnerContext(ILogger<SpecificationsRunner> logger)
     {
         this.logger = logger;
     }
-
-    public void Dispose()
-    {
-        foreach (var fileRunner in fileRunners) fileRunner.Dispose();
-    }
-
-    //public IList<string> Messages { get; } = new List<string>();
-
-    public int Failed { get; private set; }
-
-    public IReadOnlyCollection<ISpecificationFileRunner> FileRunners => fileRunners;
 
     public void Fail(Scenario scenario, string message)
     {

@@ -31,7 +31,7 @@ public static class LoggingConfiguration
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Logger(lc => lc
-                .Filter.ByIncludingOnly(Matching.FromSource<ParserLogger>())
+                .Filter.ByIncludingOnly(Matching.FromSource<LexyParser>())
                 .WriteTo.File(FullLogFile(ParserLogFile)))
             .WriteTo.Logger(lc => lc
                 .Filter.ByIncludingOnly(Matching.FromSource<LexyCompiler>())
@@ -40,7 +40,7 @@ public static class LoggingConfiguration
                 .Filter.ByIncludingOnly(Matching.FromSource<ExecutionContext>())
                 .WriteTo.File(FullLogFile(ExecutionLogFile)))
             .WriteTo.Logger(lc => lc
-                .Filter.ByExcluding(Matching.FromSource<ParserLogger>())
+                .Filter.ByExcluding(Matching.FromSource<LexyParser>())
                 .Filter.ByExcluding(Matching.FromSource<LexyCompiler>())
                 .Filter.ByExcluding(Matching.FromSource<ExecutionContext>())
                 .WriteTo.File(FullLogFile(TestsLogFile)))

@@ -1,41 +1,36 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Lexy.Compiler.Compiler.CSharp;
+using Lexy.Compiler.Language;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Compiler;
 
 public class ExecutableFunction
 {
-    private readonly IExecutionContext context;
+    private record ParameterSetter(Type FieldType, Action<object> SetValue);
+
     private readonly Type parametersType;
 
     private readonly MethodInfo runMethod;
-    private readonly IDictionary<string, FieldInfo> variables = new Dictionary<string, FieldInfo>();
+    private readonly IDictionary<string, ParameterSetter> parameterFields = new Dictionary<string, ParameterSetter>();
 
-    public ExecutableFunction(Type functionType, IExecutionContext context)
+    public ExecutableFunction(Type functionType)
     {
-        this.context = context ?? throw new ArgumentNullException(nameof(context));
-
         runMethod = functionType.GetMethod(LexyCodeConstants.RunMethod, BindingFlags.Static | BindingFlags.Public);
         parametersType = functionType.GetNestedType(LexyCodeConstants.ParametersType);
     }
 
-    public FunctionResult Run()
+    public FunctionResult Run(IExecutionContext context, IDictionary<string, object> values = null)
     {
-        return Run(new Dictionary<string, object>());
-    }
-
-    public FunctionResult Run(IDictionary<string, object> values)
-    {
+        values ??= new Dictionary<string, object>();
         var parameters = CreateParameters();
 
         foreach (var value in values)
         {
-            var field = GetParameterField(parameters, value.Key);
+            var field = GetParameterSetter(parameters, value.Key);
             var convertedValue = Convert.ChangeType(value.Value, field.FieldType);
-            field.SetValue(parameters, convertedValue);
+            field.SetValue(convertedValue);
         }
 
         var results = runMethod.Invoke(null, new[] { parameters, context });
@@ -48,16 +43,37 @@ public class ExecutableFunction
         return Activator.CreateInstance(parametersType);
     }
 
-    private FieldInfo GetParameterField(object parameters, string name)
+    private ParameterSetter GetParameterSetter(object parameters, string name)
     {
-        if (variables.ContainsKey(name)) return variables[name];
+        if (parameterFields.ContainsKey(name)) return parameterFields[name];
 
-        var type = parameters.GetType();
+        var currentReference = VariableReference.Parse(name);
+        var currentValue = parameters;
+        var field = GetField(currentReference.ParentIdentifier, parameters);
+
+        while (currentReference.HasChildIdentifiers)
+        {
+            currentReference = currentReference.ChildrenReference();
+            currentValue = field.GetValue(currentValue);
+            field = GetField(currentReference.ParentIdentifier, currentValue);
+        }
+
+        var setter = new ParameterSetter(field.FieldType, (value) => field.SetValue(currentValue, value));
+        parameterFields[name] = setter;
+        return setter;
+    }
+
+    private static FieldInfo? GetField(string name, object valueObject)
+    {
+        if (valueObject == null) throw new ArgumentNullException(nameof(valueObject));
+
+        var type = valueObject.GetType();
         var field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public);
         if (field == null)
+        {
             throw new InvalidOperationException($"Couldn't find parameter field: '{name}' on type: '{type.Name}'");
+        }
 
-        variables[name] = field;
         return field;
     }
 }

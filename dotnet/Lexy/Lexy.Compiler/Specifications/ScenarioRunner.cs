@@ -11,50 +11,31 @@ using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexy.Compiler.Specifications;
 
-public class ScenarioRunner : IScenarioRunner, IDisposable
+public class ScenarioRunner : IScenarioRunner
 {
     private readonly ILexyCompiler lexyCompiler;
-    private ISpecificationRunnerContext context;
+    private readonly ISpecificationRunnerContext context;
+    private readonly IParserLogger parserLogger;
 
-    private string fileName;
-    private Function function;
-    private IParserLogger parserLogger;
-    private RootNodeList rootNodeList;
-    private IServiceScope serviceScope;
-
-    public ScenarioRunner(ILexyCompiler lexyCompiler)
-    {
-        this.lexyCompiler = lexyCompiler;
-    }
-
-    public void Dispose()
-    {
-        serviceScope?.Dispose();
-        serviceScope = null;
-    }
+    private readonly string fileName;
+    private readonly Function function;
+    private readonly RootNodeList rootNodeList;
 
     public bool Failed { get; private set; }
-    public Scenario Scenario { get; private set; }
+    public Scenario Scenario { get; }
 
-    public void Initialize(string fileName, RootNodeList rootNodeList, Scenario scenario,
-        ISpecificationRunnerContext context, IServiceScope serviceScope, IParserLogger parserLogger)
+    public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, RootNodeList rootNodeList, Scenario scenario,
+        ISpecificationRunnerContext context, IParserLogger parserLogger)
     {
-        //parserContext and runnerContext are managed by a parent ServiceProvider scope,
-        //thus they can't be injected via the constructor
-        if (this.fileName != null)
-            throw new InvalidOperationException(
-                "Initialize should only called once. Scope should be managed by ServiceProvider.CreateScope");
-
+        this.lexyCompiler = lexyCompiler;
         this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
         this.context = context;
 
         this.rootNodeList = rootNodeList ?? throw new ArgumentNullException(nameof(rootNodeList));
         this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
-        this.serviceScope = serviceScope ?? throw new ArgumentNullException(nameof(serviceScope));
 
         Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
         function = scenario.Function ?? rootNodeList.GetFunction(scenario.FunctionName.Value);
@@ -72,35 +53,29 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
         if (!ValidateErrors(context)) return;
 
         var nodes = function.GetFunctionAndDependencies(rootNodeList);
-        var compilerResult = lexyCompiler.Compile(nodes);
+
+        using var compilerResult = lexyCompiler.Compile(nodes);
+
         var executable = compilerResult.GetFunction(function);
         var values = GetValues(Scenario.Parameters, function.Parameters, compilerResult);
 
-        var result = executable.Run(values);
+        var executionContext = compilerResult.CreateContext();
+        var result = executable.Run(executionContext, values);
 
         var validationResultText = GetValidationResult(result, compilerResult);
         if (validationResultText.Length > 0)
+        {
             Fail(validationResultText);
+        }
         else
+        {
             context.Success(Scenario);
+        }
     }
 
     public string ParserLogging()
     {
         return $"------- Filename: {fileName}{Environment.NewLine}{parserLogger.ErrorMessages().Format(2)}";
-    }
-
-    public static IScenarioRunner Create(string fileName, Scenario scenario,
-        IParserContext parserContext, ISpecificationRunnerContext context,
-        IServiceProvider serviceProvider)
-    {
-        if (scenario == null) throw new ArgumentNullException(nameof(scenario));
-
-        var serviceScope = serviceProvider.CreateScope();
-        var scenarioRunner = serviceScope.ServiceProvider.GetRequiredService<IScenarioRunner>();
-        scenarioRunner.Initialize(fileName, parserContext.Nodes, scenario, context, serviceScope, parserContext.Logger);
-
-        return scenarioRunner;
     }
 
     private void Fail(string message)
@@ -109,20 +84,22 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
         context.Fail(Scenario, message);
     }
 
-    private string GetValidationResult(FunctionResult result, CompilerResult compilerResult)
+    private string GetValidationResult(FunctionResult result, CompilationResult compilationResult)
     {
         var validationResult = new StringWriter();
         foreach (var expected in Scenario.Results.Assignments)
         {
             var actual = result.GetValue(expected.Variable);
             var expectedValue =
-                TypeConverter.Convert(compilerResult, expected.ConstantValue.Value, expected.VariableType);
+                TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.VariableType);
 
             if (actual == null || expectedValue == null
                                || actual.GetType() != expectedValue.GetType()
                                || Comparer.Default.Compare(actual, expectedValue) != 0)
+            {
                 validationResult.WriteLine(
                     $"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
+            }
         }
 
         return validationResult.ToString();
@@ -137,7 +114,7 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
 
         if (failedMessages.Length > 0 && !Scenario.ExpectError.HasValue)
         {
-            Fail("Exception occured: " + failedMessages.Format(2));
+            Fail("Exception occurred: " + failedMessages.Format(2));
             return false;
         }
 
@@ -196,7 +173,7 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
     }
 
     private IDictionary<string, object> GetValues(ScenarioParameters scenarioParameters,
-        FunctionParameters functionParameters, CompilerResult compilerResult)
+        FunctionParameters functionParameters, CompilationResult compilationResult)
     {
         var result = new Dictionary<string, object>();
         foreach (var parameter in scenarioParameters.Assignments)
@@ -204,17 +181,20 @@ public class ScenarioRunner : IScenarioRunner, IDisposable
             var type = functionParameters.Variables.FirstOrDefault(variable =>
                 variable.Name == parameter.Variable.ParentIdentifier);
             if (type == null)
+            {
                 throw new InvalidOperationException(
                     $"Function '{function.NodeName}' parameter '{parameter.Variable.ParentIdentifier}' not found.");
-            var value = GetValue(compilerResult, parameter.ConstantValue.Value, parameter.VariableType);
-            result.Add(parameter.Variable.ParentIdentifier, value);
+            }
+
+            var value = GetValue(compilationResult, parameter.ConstantValue.Value, parameter.VariableType);
+            result.Add(parameter.Variable.ToString(), value);
         }
 
         return result;
     }
 
-    private object GetValue(CompilerResult compilerResult, object value, VariableType type)
+    private object GetValue(CompilationResult compilationResult, object value, VariableType type)
     {
-        return TypeConverter.Convert(compilerResult, value, type);
+        return TypeConverter.Convert(compilationResult, value, type);
     }
 }

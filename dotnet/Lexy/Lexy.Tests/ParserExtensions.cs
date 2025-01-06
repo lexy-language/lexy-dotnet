@@ -19,12 +19,11 @@ public static class ParserExtensions
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
         var parser = serviceProvider.GetRequiredService<ILexyParser>();
-        var logger = serviceProvider.GetRequiredService<IParserLogger>();
 
         var codeLines = code.Split(Environment.NewLine);
         var context = parser.Parse(codeLines, "tests.lexy", false);
 
-        return new ParseResult<RootNodeList>(context.RootNodes, logger);
+        return new ParseResult<RootNodeList>(context.Nodes, context.Logger);
     }
 
     public static ParseResult<Function> ParseFunction(this IServiceProvider serviceProvider, string code)

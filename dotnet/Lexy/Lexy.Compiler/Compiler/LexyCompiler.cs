@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Lexy.Compiler.Compiler.CSharp;
@@ -10,7 +8,6 @@ using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Extensions.Logging;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -18,73 +15,46 @@ namespace Lexy.Compiler.Compiler;
 
 public class LexyCompiler : ILexyCompiler
 {
-    private readonly ILogger<LexyCompiler> logger;
-    private readonly IExecutionEnvironment environment;
+    private readonly ILogger<LexyCompiler> compilationLogger;
+    private readonly ILogger<ExecutionContext> executionLogger;
 
-    public LexyCompiler(ILogger<LexyCompiler> logger, IExecutionEnvironment environment)
+    public LexyCompiler(ILogger<LexyCompiler> logger, ILogger<ExecutionContext> executionLogger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.environment = environment ?? throw new ArgumentNullException(nameof(environment));
+        this.compilationLogger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.executionLogger = executionLogger ?? throw new ArgumentNullException(nameof(executionLogger));
     }
 
-    public CompilerResult Compile(IEnumerable<IRootNode> nodes)
+    public CompilationResult Compile(IEnumerable<IRootNode> nodes)
     {
         if (nodes == null) throw new ArgumentNullException(nameof(nodes));
 
+        var environment = new CompilationEnvironment(compilationLogger, executionLogger);
         try
         {
-            var syntaxNode = GenerateSyntaxNode(nodes);
-            var assembly = CreateAssembly(syntaxNode);
+            var syntaxNode = GenerateSyntaxNode(nodes, environment);
+            var compilation = CreateSyntaxTree(syntaxNode, environment);
+            environment.CreateAssembly(syntaxNode, compilation, environment);
 
-            environment.CreateExecutables(assembly);
             return environment.Result();
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Exception occured during compilation");
+            compilationLogger.LogError(e, "Exception occurred during compilation");
             throw;
         }
     }
 
-    private Assembly CreateAssembly(SyntaxNode syntax)
-    {
-        var compilation = CreateSyntaxTree(syntax);
 
-        string fullString = null;
-        if (logger.IsEnabled(LogLevel.Debug))
-        {
-            fullString = syntax.ToFullString();
-            logger.LogDebug(fullString);
-        }
-
-        using var dllStream = new MemoryStream();
-        using var pdbStream = new MemoryStream();
-
-        var emitResult = compilation.Emit(dllStream, pdbStream);
-        if (!emitResult.Success) CompilationFailed(fullString ?? syntax.ToFullString(), emitResult);
-
-        return Assembly.Load(dllStream.ToArray());
-    }
-
-    private static CSharpCompilation CreateSyntaxTree(SyntaxNode root)
+    private static CSharpCompilation CreateSyntaxTree(SyntaxNode root, ICompilationEnvironment compilationEnvironment)
     {
         var syntaxTree = SyntaxTree(root);
         var references = GetDllReferences();
 
         return CSharpCompilation.Create(
-            $"{LexyCodeConstants.Namespace}.{DateTime.Now:yyyyMMddHHmmss}",
+            compilationEnvironment.Namespace,
             new[] { syntaxTree },
             references,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-    }
-
-    private void CompilationFailed(string code, EmitResult emitResult)
-    {
-        var compilationFailed = $"Compilation failed: {FormatCompilationErrors(emitResult.Diagnostics)}";
-
-        logger.LogError(compilationFailed);
-
-        throw new InvalidOperationException($"{compilationFailed}{Environment.NewLine}code: {code}");
     }
 
     private static List<MetadataReference> GetDllReferences()
@@ -92,7 +62,7 @@ public class LexyCompiler : ILexyCompiler
         var references = new List<MetadataReference>
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(FunctionResult).Assembly.Location)
+            MetadataReference.CreateFromFile(typeof(ExecutionContext).Assembly.Location)
         };
 
         Assembly.GetEntryAssembly().GetReferencedAssemblies()
@@ -103,17 +73,18 @@ public class LexyCompiler : ILexyCompiler
         return references;
     }
 
-    private SyntaxNode GenerateSyntaxNode(IEnumerable<IRootNode> generateNodes)
+    private SyntaxNode GenerateSyntaxNode(IEnumerable<IRootNode> generateNodes, ICompilationEnvironment compilationEnvironment)
     {
-        var root = GenerateCompilationUnitS(generateNodes);
+        var root = GenerateCompilationUnit(generateNodes, compilationEnvironment);
 
         return root.NormalizeWhitespace();
     }
 
-    private CompilationUnitSyntax GenerateCompilationUnitS(IEnumerable<IRootNode> generateNodes)
+    private CompilationUnitSyntax GenerateCompilationUnit(IEnumerable<IRootNode> generateNodes,
+        ICompilationEnvironment compilationEnvironment)
     {
         var members = generateNodes
-            .Select(GenerateMember)
+            .Select(value => GenerateMember(value, compilationEnvironment))
             .ToList();
 
         var namespaceDeclaration = NamespaceDeclaration(IdentifierName(LexyCodeConstants.Namespace))
@@ -131,7 +102,7 @@ public class LexyCompiler : ILexyCompiler
         return root;
     }
 
-    private MemberDeclarationSyntax GenerateMember(IRootNode node)
+    private MemberDeclarationSyntax GenerateMember(IRootNode node, ICompilationEnvironment environment)
     {
         var writer = CSharpCode.GetWriter(node);
 
@@ -145,13 +116,5 @@ public class LexyCompiler : ILexyCompiler
     private static UsingDirectiveSyntax Using(string ns)
     {
         return UsingDirective(ParseName(ns));
-    }
-
-    private static string FormatCompilationErrors(ImmutableArray<Diagnostic> emitResult)
-    {
-        var stringWriter = new StringWriter();
-        foreach (var diagnostic in emitResult) stringWriter.WriteLine($"  {diagnostic}");
-
-        return stringWriter.ToString();
     }
 }

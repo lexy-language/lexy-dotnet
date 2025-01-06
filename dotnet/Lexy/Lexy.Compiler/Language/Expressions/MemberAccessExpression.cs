@@ -79,8 +79,10 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies
 
         var memberType = typeWithMembers.MemberType(MemberAccessLiteral.Member, context);
         if (memberType == null)
+        {
             context.Logger.Fail(Reference,
                 $"Invalid member access '{Variable}'. Member '{MemberAccessLiteral.Member}' not found on '{Variable.ParentIdentifier}'.");
+        }
     }
 
     private void SetVariableSource(IValidationContext context)
