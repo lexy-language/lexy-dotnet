@@ -15,7 +15,8 @@ internal class FillFunctionExpressionStatementException : IExpressionStatementEx
 {
     public bool Matches(Expression expression)
     {
-        return expression is VariableDeclarationExpression { Assignment: FunctionCallExpression functionCallExpression } assignmentExpression && functionCallExpression.ExpressionFunction is FillParametersFunction;
+        return expression is VariableDeclarationExpression { Assignment: FunctionCallExpression functionCallExpression }
+            && functionCallExpression.ExpressionFunction is FillParametersFunction;
     }
 
     public IEnumerable<StatementSyntax> CallExpressionSyntax(Expression expression)
