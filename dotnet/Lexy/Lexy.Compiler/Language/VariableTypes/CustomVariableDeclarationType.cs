@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public sealed class CustomVariableDeclarationType : VariableDeclarationType
+public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHasNodeDependencies
 {
     public string Type { get; }
 
@@ -35,9 +36,38 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType
         return Type;
     }
 
+    public IEnumerable<IRootNode> GetDependencies(RootNodeList rootNodeList)
+    {
+        return VariableType switch
+        {
+            CustomType customType => new[] { customType.TypeDefinition },
+            ComplexType complexType => new[] { complexType.Node },
+            _ => Array.Empty<IRootNode>()
+        };
+    }
+
     public override VariableType CreateVariableType(IValidationContext context)
     {
-        return context.RootNodes.GetType(Type);
+        if (!Type.Contains('.'))
+        {
+            return context.RootNodes.GetType(Type);
+        }
+
+        var parts = Type.Split(".");
+        if (parts.Length > 2)
+        {
+            context.Logger.Fail(Reference, "Invalid type: '" + Type + "'");
+            return null;
+        }
+
+        var parent = context.RootNodes.GetType(parts[0]);
+        if (parent == null)
+        {
+            context.Logger.Fail(Reference, "Invalid type: '" + Type + "'");
+            return null;
+        }
+
+        return parent.MemberType(parts[1], context);
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -150,7 +150,7 @@ public class Function : RootNode, IHasNodeDependencies
             .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.CreateVariableType(context)))
             .ToList();
 
-        return new ComplexType(Name.Value, ComplexTypeSource.FunctionParameters, members);
+        return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionParameters, members);
     }
 
     public ComplexType GetResultsType(IValidationContext context)
@@ -159,6 +159,6 @@ public class Function : RootNode, IHasNodeDependencies
             .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.CreateVariableType(context)))
             .ToList();
 
-        return new ComplexType(Name.Value, ComplexTypeSource.FunctionResults, members);
+        return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionResults, members);
     }
 }

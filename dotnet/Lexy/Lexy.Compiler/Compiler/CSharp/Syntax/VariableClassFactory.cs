@@ -29,7 +29,8 @@ public static class VariableClassFactory
             .WithInitializer(SyntaxFactory.EqualsValueClause(initializer));
 
 
-        var fieldDeclaration = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(Types.Syntax(variable))
+        var typeSyntax = Types.Syntax(variable);
+        var fieldDeclaration = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(typeSyntax)
                 .WithVariables(SyntaxFactory.SingletonSeparatedList(variableDeclaration)))
             .WithModifiers(Modifiers.Public());
         return fieldDeclaration;

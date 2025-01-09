@@ -7,6 +7,5 @@ public interface ISpecificationFileRunner
     IEnumerable<IScenarioRunner> ScenarioRunners { get; }
 
     int CountScenarioRunners();
-    void Initialize();
     void Run();
 }

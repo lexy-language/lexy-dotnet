@@ -1,7 +1,5 @@
 using System;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Tables;
-using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis;
@@ -66,42 +64,26 @@ internal static class Types
         {
             PrimitiveType primitive => Syntax(primitive.Type),
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
-            TableType tableType => IdentifierName(tableType.Type),
+            TableType tableType => IdentifierName(tableType.TableName),
             ComplexType complexType => ComplexTypeSyntax(complexType),
-            FunctionParametersType complexTypeReference => QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(complexTypeReference.Name)),
-                IdentifierName(LexyCodeConstants.ParametersType)),
-            FunctionResultsType complexTypeReference => QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(complexTypeReference.Name)),
-                IdentifierName(LexyCodeConstants.ResultsType)),
-            TableRowType complexTypeReference => QualifiedName(
-                IdentifierName(ClassNames.TableClassName(complexTypeReference.Name)),
-                IdentifierName(LexyCodeConstants.RowType)),
             _ => throw new InvalidOperationException("Couldn't map type: " + variableType)
         };
     }
 
     private static TypeSyntax ComplexTypeSyntax(ComplexType complexType)
     {
-        switch (complexType.Source)
+        return complexType.Source switch
         {
-            case ComplexTypeSource.FunctionParameters:
-                return QualifiedName(
-                    IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
-                    IdentifierName(LexyCodeConstants.ParametersType));
-            case ComplexTypeSource.FunctionResults:
-                return QualifiedName(
-                    IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
-                    IdentifierName(LexyCodeConstants.ResultsType));
-            case ComplexTypeSource.TableRow:
-                return QualifiedName(
-                    IdentifierName(ClassNames.TableClassName(complexType.Name)),
-                    IdentifierName(LexyCodeConstants.RowType));
-            case ComplexTypeSource.Custom:
-                return IdentifierName(ClassNames.TypeClassName(complexType.Name));
-            default:
-                throw new InvalidOperationException($"Invalid type: {complexType}");
-        }
+            ComplexTypeSource.FunctionParameters => QualifiedName(
+                IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
+                IdentifierName(LexyCodeConstants.ParametersType)),
+            ComplexTypeSource.FunctionResults => QualifiedName(
+                IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
+                IdentifierName(LexyCodeConstants.ResultsType)),
+            ComplexTypeSource.TableRow => QualifiedName(IdentifierName(ClassNames.TableClassName(complexType.Name)),
+                IdentifierName(LexyCodeConstants.RowType)),
+            _ => throw new InvalidOperationException($"Invalid type: {complexType}")
+        };
     }
 
     public static TypeSyntax Syntax(VariableDeclarationType type)
@@ -115,14 +97,32 @@ internal static class Types
         };
     }
 
-    private static IdentifierNameSyntax IdentifierNameSyntax(CustomVariableDeclarationType customVariable)
+    private static TypeSyntax IdentifierNameSyntax(CustomVariableDeclarationType customVariable)
     {
         return customVariable.VariableType switch
         {
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
-            TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.Type)),
+            TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.TableName)),
             CustomType customType => IdentifierName(ClassNames.TypeClassName(customType.Type)),
+            ComplexType complexType => ComplexTypeIdentifierNameSyntax(complexType),
             _ => throw new InvalidOperationException("Couldn't map type: " + customVariable.VariableType)
+        };
+    }
+
+    private static TypeSyntax ComplexTypeIdentifierNameSyntax(ComplexType complexType)
+    {
+        return complexType.Source switch
+        {
+            ComplexTypeSource.FunctionParameters => QualifiedName(
+                IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
+                IdentifierName(LexyCodeConstants.ParametersType)),
+            ComplexTypeSource.FunctionResults => QualifiedName(
+                IdentifierName(ClassNames.FunctionClassName(complexType.Name)),
+                IdentifierName(LexyCodeConstants.ResultsType)),
+            ComplexTypeSource.TableRow => QualifiedName(
+                IdentifierName(ClassNames.TableClassName(complexType.Name)),
+                IdentifierName(LexyCodeConstants.RowType)),
+            _ => throw new InvalidOperationException("Invalid ComplexType source: " + complexType.Source)
         };
     }
 
@@ -139,11 +139,19 @@ internal static class Types
 
     private static ExpressionSyntax DefaultExpressionSyntax(CustomVariableDeclarationType customType)
     {
-        if (customType.VariableType is CustomType) return ObjectCreationExpression(IdentifierNameSyntax(customType));
+        if (customType.VariableType is CustomType)
+        {
+            return ObjectCreationExpression(IdentifierNameSyntax(customType)).WithArgumentList(ArgumentList());
+        }
+
+        if (customType.VariableType is ComplexType)
+        {
+            return ObjectCreationExpression(IdentifierNameSyntax(customType)).WithArgumentList(ArgumentList());
+        }
         return DefaultExpression(IdentifierNameSyntax(customType));
     }
 
-    public static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableDeclarationType type)
+    private static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableDeclarationType type)
     {
         switch (type.Type)
         {

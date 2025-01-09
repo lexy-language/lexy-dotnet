@@ -16,7 +16,7 @@ public class NewFunction : ExpressionFunction, IHasNodeDependencies
 
     public Expression ValueExpression { get; }
 
-    public ComplexTypeReference Type { get; private set; }
+    public ComplexType Type { get; private set; }
 
     private NewFunction(Expression valueExpression, SourceReference reference)
         : base(reference)
@@ -43,20 +43,19 @@ public class NewFunction : ExpressionFunction, IHasNodeDependencies
     protected override void Validate(IValidationContext context)
     {
         var valueType = ValueExpression.DeriveType(context);
-        if (!(valueType is ComplexTypeReference complexTypeReference))
+        if (valueType is not ComplexType complexType)
         {
             context.Logger.Fail(Reference,
-                $"Invalid argument 1. 'Value' should be of type 'ComplexTypeType' but is 'ValueType'. {FunctionHelp}");
+                $"Invalid argument 1. 'Value' should be of type 'ComplexType' but is '{valueType.GetType()}'. {FunctionHelp}");
             return;
         }
 
-        Type = complexTypeReference;
+        Type = complexType;
     }
 
     public override VariableType DeriveReturnType(IValidationContext context)
     {
         var nodeType = context.RootNodes.GetType(TypeLiteral.Parent);
-        var typeReference = nodeType?.MemberType(TypeLiteral.Member, context) as ComplexTypeReference;
-        return typeReference?.GetComplexType(context);
+        return nodeType?.MemberType(TypeLiteral.Member, context) as ComplexType;
     }
 }

@@ -72,6 +72,6 @@ public class Table : RootNode
             .Select(column => new ComplexTypeMember(column.Name, column.Type.CreateVariableType(context)))
             .ToList();
 
-        return new ComplexType(Name.Value, ComplexTypeSource.TableRow, members);
+        return new ComplexType(Name.Value, this, ComplexTypeSource.TableRow, members);
     }
 }

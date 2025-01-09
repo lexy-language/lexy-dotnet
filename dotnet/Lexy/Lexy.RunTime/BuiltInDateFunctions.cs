@@ -61,16 +61,16 @@ public static class BuiltInDateFunctions
 
     public static decimal Hours(DateTime end, DateTime start)
     {
-        return DateTimeSpan.CompareDates(end, start).Hours;
+        return (decimal) (end - start).TotalHours;
     }
 
     public static decimal Minutes(DateTime end, DateTime start)
     {
-        return DateTimeSpan.CompareDates(end, start).Minutes;
+        return (decimal) (end - start).TotalMinutes;
     }
 
     public static decimal Seconds(DateTime end, DateTime start)
     {
-        return DateTimeSpan.CompareDates(end, start).Seconds;
+        return (decimal) (end - start).TotalSeconds;
     }
 }

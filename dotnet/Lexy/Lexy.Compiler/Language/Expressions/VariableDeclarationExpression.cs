@@ -49,6 +49,9 @@ public class VariableDeclarationExpression : Expression
             || tokens.Length == 2
                && tokens.IsTokenType<StringLiteralToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
+            || tokens.Length == 2
+               && tokens.IsTokenType<MemberAccessLiteral>(0)
+               && tokens.IsTokenType<StringLiteralToken>(1)
             || tokens.Length >= 4
                && tokens.IsKeyword(0, Keywords.ImplicitVariableDeclaration)
                && tokens.IsTokenType<StringLiteralToken>(1)
@@ -61,8 +64,8 @@ public class VariableDeclarationExpression : Expression
 
     public override IEnumerable<INode> GetChildren()
     {
-        if (Assignment != null) yield return Assignment;
         yield return Type;
+        if (Assignment != null) yield return Assignment;
     }
 
     protected override void Validate(IValidationContext context)

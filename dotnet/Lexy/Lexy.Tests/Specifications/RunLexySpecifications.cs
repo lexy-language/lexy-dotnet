@@ -22,7 +22,7 @@ public class RunLexySpecifications : ScopedServicesTestFixture
         var runner = GetService<ISpecificationsRunner>();
 //            runner.Run("../../../../../../laws/Specifications/Isolate.lexy");
 
-        runner.Run("../../../../../../laws/Specifications/Scenario/NestedParameters.lexy");
+        runner.Run("../../../../../../laws/Specifications/Function/FunctionCall.lexy");
         //runner.Run("../../../../../../laws/Specifications/Function/Variables.lexy");
         //runner.Run("../../../../../../laws/Specifications/BuiltInFunctions/Extract.lexy");
     }

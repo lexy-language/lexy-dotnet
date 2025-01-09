@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 
@@ -7,18 +5,18 @@ namespace Lexy.Compiler.Language.VariableTypes;
 
 public class TableType : TypeWithMembers
 {
-    public string Type { get; }
+    public string TableName { get; }
     public Table Table { get; }
 
-    public TableType(string type, Table table)
+    public TableType(string tableName, Table table)
     {
-        Type = type;
+        TableName = tableName;
         Table = table;
     }
 
     protected bool Equals(TableType other)
     {
-        return Type == other.Type;
+        return TableName == other.TableName;
     }
 
     public override bool Equals(object obj)
@@ -31,12 +29,12 @@ public class TableType : TypeWithMembers
 
     public override int GetHashCode()
     {
-        return Type != null ? Type.GetHashCode() : 0;
+        return TableName != null ? TableName.GetHashCode() : 0;
     }
 
     public override string ToString()
     {
-        return Type;
+        return TableName;
     }
 
     public override VariableType MemberType(string name, IValidationContext context)
@@ -49,9 +47,8 @@ public class TableType : TypeWithMembers
         };
     }
 
-    private TableRowType TableRowType(IValidationContext context)
+    private ComplexType TableRowType(IValidationContext context)
     {
-        var complexType = context.RootNodes.GetTable(Type)?.GetRowType(context);
-        return new TableRowType(Type, complexType);
+        return context.RootNodes.GetTable(TableName)?.GetRowType(context);
     }
 }

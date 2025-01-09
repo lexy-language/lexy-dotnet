@@ -22,7 +22,7 @@ internal class NewFunctionExpressionStatementException : IExpressionStatementExc
             throw new InvalidOperationException("expression should be VariableDeclarationExpression");
         if (!(assignmentExpression.Assignment is FunctionCallExpression functionCallExpression))
             throw new InvalidOperationException("assignmentExpression.Assignment should be FunctionCallExpression");
-        if (!(functionCallExpression.ExpressionFunction is NewFunction _))
+        if (functionCallExpression.ExpressionFunction is not NewFunction)
             throw new InvalidOperationException("functionCallExpression.ExpressionFunction should be NewFunction");
 
         var typeSyntax = Types.Syntax(assignmentExpression.Type);

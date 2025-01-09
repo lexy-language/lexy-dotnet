@@ -47,15 +47,13 @@ public class FunctionType : TypeWithMembers
         };
     }
 
-    private FunctionParametersType FunctionParametersType(IValidationContext context)
+    private ComplexType FunctionParametersType(IValidationContext context)
     {
-        var complexType = context.RootNodes.GetFunction(Type)?.GetParametersType(context);
-        return new FunctionParametersType(Type, complexType);
+        return context.RootNodes.GetFunction(Type)?.GetParametersType(context);
     }
 
-    private FunctionResultsType FunctionResultsType(IValidationContext context)
+    private ComplexType FunctionResultsType(IValidationContext context)
     {
-        var complexType = context.RootNodes.GetFunction(Type)?.GetResultsType(context);
-        return new FunctionResultsType(Type, complexType);
+        return context.RootNodes.GetFunction(Type)?.GetResultsType(context);
     }
 }

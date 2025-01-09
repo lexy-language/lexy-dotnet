@@ -19,7 +19,7 @@ public class FillParametersFunction : ExpressionFunction, IHasNodeDependencies
 
     public Expression ValueExpression { get; }
 
-    public ComplexTypeReference Type { get; private set; }
+    public ComplexType Type { get; private set; }
 
     public IEnumerable<Mapping> Mapping => mapping;
 
@@ -48,16 +48,14 @@ public class FillParametersFunction : ExpressionFunction, IHasNodeDependencies
     protected override void Validate(IValidationContext context)
     {
         var valueType = ValueExpression.DeriveType(context);
-        if (!(valueType is ComplexTypeReference complexTypeReference))
+        if (valueType is not ComplexType complexType)
         {
             context.Logger.Fail(Reference,
-                $"Invalid argument 1. 'Value' should be of type 'ComplexTypeReference' but is '{valueType}'. {FunctionHelp}");
+                $"Invalid argument 1. 'Value' should be of type 'ComplexType' but is '{valueType}'. {FunctionHelp}");
             return;
         }
 
-        Type = complexTypeReference;
-
-        var complexType = complexTypeReference.GetComplexType(context);
+        Type = complexType;
 
         if (complexType == null) return;
 

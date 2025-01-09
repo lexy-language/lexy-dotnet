@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Expressions.Functions;
 
 namespace Lexy.Compiler.DependencyGraph;
 
@@ -76,7 +75,10 @@ public class Dependencies
 
         if (parentNode != null && parentNode.ExistsInLineage(dependency.NodeName, dependency.GetType()))
         {
-            circularReferences.Add(dependency);
+            if (!circularReferences.Any(reference => reference.NodeName == dependency.NodeName))
+            {
+                circularReferences.Add(dependency);
+            }
         }
         else
         {

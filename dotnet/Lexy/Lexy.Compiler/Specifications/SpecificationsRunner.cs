@@ -37,7 +37,7 @@ public class SpecificationsRunner : ISpecificationsRunner
         RunScenarios(context);
     }
 
-    private void RunScenarios(ISpecificationRunnerContext context)
+    private static void RunScenarios(ISpecificationRunnerContext context)
     {
         var runners = context.FileRunners;
         var countScenarios = context.CountScenarios();

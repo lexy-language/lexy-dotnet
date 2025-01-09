@@ -16,7 +16,7 @@ public class CustomType : TypeWithMembers
         TypeDefinition = typeDefinition;
     }
 
-    protected bool Equals(TableType other)
+    protected bool Equals(CustomType other)
     {
         return Type == other.Type;
     }
@@ -26,7 +26,7 @@ public class CustomType : TypeWithMembers
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((TableType)obj);
+        return Equals((CustomType)obj);
     }
 
     public override int GetHashCode()
