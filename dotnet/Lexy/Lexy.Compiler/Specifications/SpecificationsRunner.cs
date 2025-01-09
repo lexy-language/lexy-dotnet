@@ -47,6 +47,7 @@ public class SpecificationsRunner : ISpecificationsRunner
         runners.ForEach(runner => runner.Run());
 
         context.LogGlobal($"Specifications succeed: {countScenarios - context.Failed} / {countScenarios}");
+        context.LogTimeSpent();
 
         if (context.Failed > 0) Failed(context);
     }

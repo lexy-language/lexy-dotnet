@@ -11,6 +11,7 @@
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Compiler.CompileFunctionTests.CustomTypeNestedProperties&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Specifications.RunLexySpecifications.SpecificFile&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Specifications.RunLexySpecifications.AllSpecifications&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	

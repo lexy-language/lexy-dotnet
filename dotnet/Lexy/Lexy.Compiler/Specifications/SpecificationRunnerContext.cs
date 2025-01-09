@@ -11,12 +11,14 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
     private readonly List<ISpecificationFileRunner> fileRunners = new();
 
     private readonly ILogger<SpecificationsRunner> logger;
+    private readonly DateTime startTimestamp;
 
     public int Failed { get; private set; }
     public IReadOnlyCollection<ISpecificationFileRunner> FileRunners => fileRunners;
 
     public SpecificationRunnerContext(ILogger<SpecificationsRunner> logger)
     {
+        this.startTimestamp = DateTime.Now;
         this.logger = logger;
     }
 
@@ -32,6 +34,15 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
 
     public void LogGlobal(string message)
     {
+        Console.WriteLine(Environment.NewLine + message + Environment.NewLine);
+        logger.LogInformation(message);
+    }
+
+    public void LogTimeSpent()
+    {
+        var difference = DateTime.Now.Subtract(this.startTimestamp).TotalMilliseconds;
+        var message = $"Time: {difference} milliseconds";
+
         Console.WriteLine(Environment.NewLine + message + Environment.NewLine);
         logger.LogInformation(message);
     }

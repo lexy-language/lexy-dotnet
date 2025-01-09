@@ -10,6 +10,7 @@ public interface ISpecificationRunnerContext
 
     void Fail(Scenario scenario, string message);
     void LogGlobal(string message);
+    void LogTimeSpent();
     void Log(string message);
     void Success(Scenario scenario);
     void Add(ISpecificationFileRunner fileRunner);
