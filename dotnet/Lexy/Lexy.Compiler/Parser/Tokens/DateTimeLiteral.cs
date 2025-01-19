@@ -27,10 +27,10 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
     {
         validators = new List<Func<char, ParseTokenResult>>
         {
-            value => Validate(value, char.IsDigit(value), DigitIndexes),
-            value => Validate(value, TokenValues.Dash, DashIndexes),
-            value => Validate(value, TokenValues.Colon, ColonIndexes),
-            value => Validate(value, 'T', TIndexes)
+            value => Validate(value, DigitIndexes, char.IsDigit(value)),
+            value => Validate(value, DashIndexes, TokenValues.Dash, TokenValues.Slash),
+            value => Validate(value, ColonIndexes, TokenValues.Colon),
+            value => Validate(value, TIndexes, 'T', ' ')
         };
     }
 
@@ -70,15 +70,16 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
 
     private void ParseValue()
     {
-        DateTimeValue = DateTime.ParseExact(Value, DateTimeFormat, CultureInfo.InvariantCulture);
+        var dateFormat = $"{Value.Substring(0, 4)}-{Value.Substring(5, 2)}-{Value.Substring(8, 2)}T{Value.Substring(11, 2)}:{Value.Substring(14, 2)}:{Value.Substring(17, 2)}";
+        DateTimeValue = DateTime.ParseExact(dateFormat, DateTimeFormat, CultureInfo.InvariantCulture);
     }
 
-    private ParseTokenResult Validate(char value, char match, int[] indexes)
+    private ParseTokenResult Validate(char value, int[] indexes, params char[] matches)
     {
-        return Validate(value, value == match, indexes);
+        return Validate(value, indexes, matches.Contains(value));
     }
 
-    private ParseTokenResult Validate(char value, bool match, int[] indexes)
+    private ParseTokenResult Validate(char value, int[] indexes, bool match)
     {
         if (!match) return null;
 

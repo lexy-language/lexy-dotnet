@@ -67,13 +67,15 @@ public class AssignmentExpression : Expression
 
         var expressionType = Assignment.DeriveType(context);
         if (!variableType.Equals(expressionType))
+        {
             context.Logger.Fail(Reference,
                 $"Variable '{variableName}' of type '{variableType}' is not assignable from expression of type '{expressionType}'.");
+        }
     }
 
     private void ValidateMemberAccess(IValidationContext context)
     {
-        if (!(Variable is MemberAccessExpression memberAccessExpression)) return;
+        if (Variable is not MemberAccessExpression memberAccessExpression) return;
 
         var assignmentType = Assignment.DeriveType(context);
 
@@ -81,15 +83,17 @@ public class AssignmentExpression : Expression
         if (variableType != null)
         {
             if (assignmentType == null || !assignmentType.Equals(variableType))
+            {
                 context.Logger.Fail(Reference,
                     $"Variable '{memberAccessExpression.Variable}' of type '{variableType}' is not assignable from expression of type '{assignmentType}'.");
+            }
             return;
         }
 
         var literal = memberAccessExpression.MemberAccessLiteral;
         var parentType = context.RootNodes.GetType(literal.Parent);
 
-        if (!(parentType is ITypeWithMembers typeWithMembers))
+        if (parentType is not ITypeWithMembers typeWithMembers)
         {
             context.Logger.Fail(Reference, $"Type '{literal.Parent}' has no members.");
             return;

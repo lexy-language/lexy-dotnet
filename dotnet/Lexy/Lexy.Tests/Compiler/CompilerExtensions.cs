@@ -11,10 +11,10 @@ public static class CompilerExtensions
 {
     public class CompileFunctionResult : IDisposable
     {
-        private CompilationResult compilationResult;
-        private ExecutableFunction function;
+        private readonly ExecutableFunction function;
+        private ICompilationResult compilationResult;
 
-        public CompileFunctionResult(ExecutableFunction function, CompilationResult compilationResult)
+        public CompileFunctionResult(ExecutableFunction function, ICompilationResult compilationResult)
         {
             this.compilationResult = compilationResult;
             this.function = function;
@@ -28,8 +28,7 @@ public static class CompilerExtensions
 
         public FunctionResult Run(IDictionary<string, object> values = null)
         {
-            var executionContext = compilationResult.CreateContext();
-            return function.Run(executionContext, values);
+            return function.Run(values);
         }
     }
 

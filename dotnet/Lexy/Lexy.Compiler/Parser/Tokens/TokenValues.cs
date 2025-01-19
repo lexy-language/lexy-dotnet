@@ -37,6 +37,7 @@ public class TokenValues
     public const string BooleanFalse = "false";
 
     public const char Dash = '-';
+    public const char Slash = '/';
     public const char Colon = ':';
     public const char Space = ' ';
 

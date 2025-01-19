@@ -1,15 +1,13 @@
 using System;
 using System.Globalization;
 using Lexy.Compiler.Compiler;
-using Lexy.Compiler.Language.Tables;
-using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Specifications;
 
 internal static class TypeConverter
 {
-    public static object Convert(CompilationResult compilationResult, object value, VariableType type)
+    public static object Convert(ICompilationResult compilationResult, object value, VariableType type)
     {
         if (compilationResult == null) throw new ArgumentNullException(nameof(compilationResult));
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -30,17 +28,18 @@ internal static class TypeConverter
 
     private static object ConvertPrimitive(object value, PrimitiveType primitiveVariableType)
     {
+        var valueAsString = value.ToString();
         return primitiveVariableType.Type switch
         {
-            TypeNames.Number => value as decimal? ?? decimal.Parse(value.ToString(), CultureInfo.InvariantCulture),
-            TypeNames.Date => value as DateTime? ?? DateTime.Parse(value.ToString(), CultureInfo.InvariantCulture),
-            TypeNames.Boolean => value as bool? ?? bool.Parse(value.ToString()),
+            TypeNames.Number => value as decimal? ?? decimal.Parse(valueAsString, CultureInfo.InvariantCulture),
+            TypeNames.Date => value as DateTime? ?? DateTime.Parse(valueAsString, CultureInfo.InvariantCulture),
+            TypeNames.Boolean => value as bool? ?? bool.Parse(valueAsString),
             TypeNames.String => value,
             _ => throw new InvalidOperationException($"Invalid type: '{primitiveVariableType.Type}'")
         };
     }
 
-    private static object ConvertEnum(CompilationResult compilationResult, object value, EnumType enumVariableType)
+    private static object ConvertEnum(ICompilationResult compilationResult, object value, EnumType enumVariableType)
     {
         var enumType = compilationResult.GetEnumType(enumVariableType.Type);
         if (enumType == null) throw new InvalidOperationException($"Unknown enum: {enumVariableType.Type}");

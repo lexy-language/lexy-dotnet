@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
@@ -6,15 +5,11 @@ namespace Lexy.Compiler.Language.Scenarios;
 
 public class ScenarioName : Node
 {
-    public string Value { get; private set; }
+    public string Value { get; }
 
-    public ScenarioName(SourceReference reference) : base(reference)
+    public ScenarioName(string name, SourceReference reference) : base(reference)
     {
-    }
-
-    public void ParseName(string parameter)
-    {
-        Value = parameter;
+        Value = name;
     }
 
     public override string ToString()

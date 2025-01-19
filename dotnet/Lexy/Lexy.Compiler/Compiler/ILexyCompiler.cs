@@ -5,5 +5,5 @@ namespace Lexy.Compiler.Compiler;
 
 public interface ILexyCompiler
 {
-    CompilationResult Compile(IEnumerable<IRootNode> nodes);
+    ICompilationResult Compile(IEnumerable<IRootNode> nodes);
 }

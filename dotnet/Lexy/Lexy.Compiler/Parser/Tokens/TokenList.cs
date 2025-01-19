@@ -40,6 +40,7 @@ public class TokenList : IEnumerable<Token>
 
     public TokenList TokensFrom(int index)
     {
+        if (index == this.values.Length) return new TokenList(Array.Empty<Token>());
         CheckValidTokenIndex(index);
 
         return new TokenList(values[index..]);

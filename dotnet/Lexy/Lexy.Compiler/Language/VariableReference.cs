@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 
 namespace Lexy.Compiler.Language;
@@ -15,17 +16,8 @@ public class VariableReference
         Path = variablePath ?? throw new ArgumentNullException(nameof(variablePath));
     }
 
-    public override string ToString()
-    {
-        var builder = new StringBuilder();
-        foreach (var value in Path)
-        {
-            if (builder.Length > 0) builder.Append('.');
-            builder.Append(value);
-        }
-
-        return builder.ToString();
-    }
+    public string FullPath() => string.Join(".", Path);
+    public override string ToString() => FullPath();
 
     public VariableReference ChildrenReference()
     {
@@ -39,5 +31,11 @@ public class VariableReference
 
         var parts = name.Split(".");
         return new VariableReference(parts);
+    }
+
+    public VariableReference Append(string[] path)
+    {
+        var newPath = Path.Concat(path).ToArray();
+        return new VariableReference(newPath);
     }
 }

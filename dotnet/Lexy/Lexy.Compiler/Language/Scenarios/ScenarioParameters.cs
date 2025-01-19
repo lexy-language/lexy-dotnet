@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
 public class ScenarioParameters : ParsableNode
 {
-    public IList<AssignmentDefinition> Assignments { get; } = new List<AssignmentDefinition>();
+    private readonly IList<IAssignmentDefinition> assignments = new List<IAssignmentDefinition>();
 
     public ScenarioParameters(SourceReference reference) : base(reference)
     {
@@ -14,16 +15,24 @@ public class ScenarioParameters : ParsableNode
     public override IParsableNode Parse(IParseLineContext context)
     {
         var assignment = AssignmentDefinition.Parse(context);
-        if (assignment != null) Assignments.Add(assignment);
-        return this;
+        if (assignment != null)
+        {
+            assignments.Add(assignment);
+        }
+        return assignment is IParsableNode parsableNode ? parsableNode : this;
     }
 
     public override IEnumerable<INode> GetChildren()
     {
-        return Assignments;
+        return assignments;
     }
 
     protected override void Validate(IValidationContext context)
     {
+    }
+
+    public IList<AssignmentDefinition> AllAssignments()
+    {
+        return assignments.Flatten().ToList();
     }
 }

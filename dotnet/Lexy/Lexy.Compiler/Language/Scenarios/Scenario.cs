@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
@@ -15,30 +16,21 @@ public class Scenario : RootNode
     public EnumDefinition Enum { get; private set; }
     public Table Table { get; private set; }
 
-    public ScenarioFunctionName FunctionName { get; }
+    public ScenarioFunctionName FunctionName { get; private set; }
 
-    public ScenarioParameters Parameters { get; }
-    public ScenarioResults Results { get; }
-    public ScenarioTable ValidationTable { get; }
+    public ScenarioParameters Parameters { get; private set; }
+    public ScenarioResults Results { get; private set; }
+    public ScenarioTable ValidationTable { get; private set; }
 
-    public ScenarioExpectError ExpectError { get; }
-    public ScenarioExpectRootErrors ExpectRootErrors { get; }
+    public ScenarioExpectError ExpectError { get; private set; }
+    public ScenarioExpectRootErrors ExpectRootErrors { get; private set; }
+    public ScenarioExpectExecutionErrors ExpectExecutionErrors { get; private set; }
 
     public override string NodeName => Name.Value;
 
     private Scenario(string name, SourceReference reference) : base(reference)
     {
-        Name = new ScenarioName(reference);
-        FunctionName = new ScenarioFunctionName(reference);
-
-        Parameters = new ScenarioParameters(reference);
-        Results = new ScenarioResults(reference);
-        ValidationTable = new ScenarioTable(reference);
-
-        ExpectError = new ScenarioExpectError(reference);
-        ExpectRootErrors = new ScenarioExpectRootErrors(reference);
-
-        Name.ParseName(name);
+        Name = new ScenarioName(name, reference);
     }
 
     internal static Scenario Parse(NodeName name, SourceReference reference)
@@ -63,25 +55,49 @@ public class Scenario : RootNode
             Keywords.EnumKeyword => ParseEnum(context, reference),
             Keywords.TableKeyword => ParseTable(context, reference),
 
-            Keywords.Function => ResetRootNode(context, ParseFunctionName(context)),
-            Keywords.Parameters => ResetRootNode(context, Parameters),
-            Keywords.Results => ResetRootNode(context, Results),
-            Keywords.ValidationTable => ResetRootNode(context, ValidationTable),
-            Keywords.ExpectError => ResetRootNode(context, ExpectError.Parse(context)),
-            Keywords.ExpectRootErrors => ResetRootNode(context, ExpectRootErrors),
+            Keywords.Function => ResetRootNode(context, ParseFunctionName(reference, context)),
+            Keywords.Parameters => ResetRootNode(context, Parameters, () => Parameters = new ScenarioParameters(reference)),
+            Keywords.Results => ResetRootNode(context, Results, () => Results = new ScenarioResults(reference)),
+            Keywords.ValidationTable => ResetRootNode(context, ValidationTable, () => ValidationTable = new ScenarioTable(reference)),
+            Keywords.ExpectError => ResetRootNode(context, ParseExpectError(reference, context)),
+            Keywords.ExpectRootErrors => ResetRootNode(context, ExpectRootErrors, () => ExpectRootErrors = new ScenarioExpectRootErrors(reference)),
+            Keywords.ExpectExecutionErrors => ResetRootNode(context, ExpectExecutionErrors, () => ExpectExecutionErrors = new ScenarioExpectExecutionErrors(reference)),
 
             _ => InvalidToken(context, name, reference)
         };
     }
 
-    private IParsableNode ResetRootNode(IParseLineContext parserContext, IParsableNode node)
+    private IParsableNode ParseExpectError(SourceReference reference, IParseLineContext context)
     {
+        if (ExpectError == null)
+        {
+            ExpectError = new ScenarioExpectError(reference);
+        }
+
+        return ResetRootNode(context, ExpectError.Parse(context));
+    }
+
+    private IParsableNode ResetRootNode(IParseLineContext parserContext, IParsableNode node, Func<IParsableNode> initializer = null)
+    {
+        if (node == null)
+        {
+            if (initializer == null)
+            {
+                throw new InvalidOperationException("node should not be null");
+            }
+
+            node = initializer();
+        }
         parserContext.Logger.SetCurrentNode(this);
         return node;
     }
 
-    private IParsableNode ParseFunctionName(IParseLineContext context)
+    private IParsableNode ParseFunctionName(SourceReference reference, IParseLineContext context)
     {
+        if (FunctionName == null)
+        {
+            FunctionName = new ScenarioFunctionName(reference);
+        }
         FunctionName.Parse(context);
         return this;
     }
@@ -147,12 +163,14 @@ public class Scenario : RootNode
         if (Table != null) yield return Table;
 
         yield return Name;
-        yield return FunctionName;
-        yield return Parameters;
-        yield return Results;
-        yield return ValidationTable;
-        yield return ExpectError;
-        yield return ExpectRootErrors;
+
+        if (FunctionName != null) yield return FunctionName;
+        if (Parameters != null) yield return Parameters;
+        if (Results != null) yield return Results;
+        if (ValidationTable != null) yield return ValidationTable;
+        if (ExpectError != null) yield return ExpectError;
+        if (ExpectRootErrors != null) yield return ExpectRootErrors;
+        if (ExpectExecutionErrors != null) yield return ExpectExecutionErrors;
     }
 
     protected override void ValidateNodeTree(IValidationContext context, INode child)
@@ -187,6 +205,8 @@ public class Scenario : RootNode
     private static void AddVariablesForValidation(IValidationContext context, IReadOnlyList<VariableDefinition> definitions,
         VariableSource source)
     {
+        if (definitions == null) return;
+
         foreach (var result in definitions)
         {
             var variableType = result.Type.CreateVariableType(context);
@@ -196,7 +216,13 @@ public class Scenario : RootNode
 
     protected override void Validate(IValidationContext context)
     {
-        if (FunctionName.IsEmpty() && Function == null && Enum == null && Table == null && !ExpectRootErrors.HasValues)
+        if ((FunctionName == null || FunctionName.IsEmpty())
+            && Function == null
+            && Enum == null
+            && Table == null
+            && (ExpectRootErrors == null || !ExpectRootErrors.HasValues))
+        {
             context.Logger.Fail(Reference, "Scenario has no function, enum, table or expect errors.");
+        }
     }
 }

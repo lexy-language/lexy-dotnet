@@ -24,7 +24,7 @@ public class LexyCompiler : ILexyCompiler
         this.executionLogger = executionLogger ?? throw new ArgumentNullException(nameof(executionLogger));
     }
 
-    public CompilationResult Compile(IEnumerable<IRootNode> nodes)
+    public ICompilationResult Compile(IEnumerable<IRootNode> nodes)
     {
         if (nodes == null) throw new ArgumentNullException(nameof(nodes));
 
@@ -35,7 +35,7 @@ public class LexyCompiler : ILexyCompiler
             var compilation = CreateSyntaxTree(syntaxNode, environment);
             environment.CreateAssembly(syntaxNode, compilation, environment);
 
-            return environment.Result();
+            return environment;
         }
         catch (Exception e)
         {

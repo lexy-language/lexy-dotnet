@@ -8,7 +8,6 @@ using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Specifications;
@@ -37,12 +36,18 @@ public class ScenarioRunner : IScenarioRunner
         this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
 
         Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
-        function = scenario.Function ?? rootNodeList.GetFunction(scenario.FunctionName.Value);
+        function = GetScenarioFunction(rootNodeList, scenario);
+    }
+
+    private static Function GetScenarioFunction(RootNodeList rootNodeList, Scenario scenario)
+    {
+        return scenario.Function
+            ?? (scenario.FunctionName != null ? rootNodeList.GetFunction(scenario.FunctionName.Value) : null);
     }
 
     public void Run()
     {
-        if (parserLogger.NodeHasErrors(Scenario))
+        if (parserLogger.NodeHasErrors(Scenario) && Scenario.ExpectExecutionErrors?.HasValues != true)
         {
             Fail($"  Parsing scenario failed: {Scenario.FunctionName}");
             parserLogger.ErrorNodeMessages(Scenario).ForEach(context.Log);
@@ -56,10 +61,10 @@ public class ScenarioRunner : IScenarioRunner
         using var compilerResult = lexyCompiler.Compile(nodes);
 
         var executable = compilerResult.GetFunction(function);
-        var values = GetValues(Scenario.Parameters, function.Parameters, compilerResult);
+        var values = GetValues(Scenario.Parameters);
 
-        var executionContext = compilerResult.CreateContext();
-        var result = executable.Run(executionContext, values);
+        var result = RunFunction(executable, values);
+        if (result == null) return;
 
         var validationResultText = GetValidationResult(result, compilerResult);
         if (validationResultText.Length > 0)
@@ -69,6 +74,23 @@ public class ScenarioRunner : IScenarioRunner
         else
         {
             context.Success(Scenario);
+        }
+    }
+
+    private FunctionResult RunFunction(ExecutableFunction executable, IDictionary<string, object> values)
+    {
+        try
+        {
+            return executable.Run(values);
+        }
+        catch (Exception exception)
+        {
+            if (!ValidateExecutionErrors(exception))
+            {
+                Fail("No execution error expected. Execution raised: " + exception);
+            }
+
+            return null;
         }
     }
 
@@ -83,18 +105,21 @@ public class ScenarioRunner : IScenarioRunner
         context.Fail(Scenario, message);
     }
 
-    private string GetValidationResult(FunctionResult result, CompilationResult compilationResult)
+    private string GetValidationResult(FunctionResult result, ICompilationResult compilationResult)
     {
+        if (Scenario.Results == null) return string.Empty;
+
         var validationResult = new StringWriter();
-        foreach (var expected in Scenario.Results.Assignments)
+        foreach (var expected in Scenario.Results.AllAssignments())
         {
             var actual = result.GetValue(expected.Variable);
             var expectedValue =
                 TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.VariableType);
 
-            if (actual == null || expectedValue == null
-                               || actual.GetType() != expectedValue.GetType()
-                               || Comparer.Default.Compare(actual, expectedValue) != 0)
+            if (actual == null
+             || expectedValue == null
+             || actual.GetType() != expectedValue.GetType()
+             || Comparer.Default.Compare(actual, expectedValue) != 0)
             {
                 validationResult.WriteLine(
                     $"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
@@ -106,7 +131,7 @@ public class ScenarioRunner : IScenarioRunner
 
     private bool ValidateErrors(ISpecificationRunnerContext runnerContext)
     {
-        if (Scenario.ExpectRootErrors.HasValues) return ValidateRootErrors();
+        if (Scenario.ExpectRootErrors?.HasValues == true) return ValidateRootErrors();
 
         var node = function ?? Scenario.Function ?? Scenario.Enum ?? (IRootNode)Scenario.Table;
         var failedMessages = parserLogger.ErrorNodeMessages(node);
@@ -117,7 +142,7 @@ public class ScenarioRunner : IScenarioRunner
             return false;
         }
 
-        if (!Scenario.ExpectError.HasValue) return true;
+        if (Scenario.ExpectError?.HasValue != true) return true;
 
         if (failedMessages.Length == 0)
         {
@@ -171,29 +196,72 @@ public class ScenarioRunner : IScenarioRunner
         return false;
     }
 
-    private IDictionary<string, object> GetValues(ScenarioParameters scenarioParameters,
-        FunctionParameters functionParameters, CompilationResult compilationResult)
+
+    private bool ValidateExecutionErrors(Exception exception)
+    {
+        if (Scenario.ExpectExecutionErrors?.HasValues != true) return false;
+
+        var errorMessage = exception.ToString();
+        var failedErrors = new List<string>();
+        var expected = Scenario.ExpectExecutionErrors.Messages.ToList();
+
+        foreach (var error in Scenario.ExpectExecutionErrors.Messages)
+        {
+            if (!errorMessage.Contains(error))
+            {
+                failedErrors.Add(error);
+            }
+            else
+            {
+                expected.Remove(error);
+            }
+        }
+
+        if (failedErrors.Count > 0)
+        {
+            Fail($"Execution error not found\n Not found: {expected.Format(2)}\n  Actual: {errorMessage}");
+        }
+
+        return true;
+    }
+
+    private IDictionary<string, object> GetValues(ScenarioParameters scenarioParameters)
     {
         var result = new Dictionary<string, object>();
-        foreach (var parameter in scenarioParameters.Assignments)
-        {
-            var type = functionParameters.Variables.FirstOrDefault(variable =>
-                variable.Name == parameter.Variable.ParentIdentifier);
-            if (type == null)
-            {
-                throw new InvalidOperationException(
-                    $"Function '{function.NodeName}' parameter '{parameter.Variable.ParentIdentifier}' not found.");
-            }
+        if (scenarioParameters == null) return result;
 
-            var value = GetValue(compilationResult, parameter.ConstantValue.Value, parameter.VariableType);
-            result.Add(parameter.Variable.ToString(), value);
+        foreach (var parameter in scenarioParameters.AllAssignments())
+        {
+            SetParametersValue(parameter, result);
         }
 
         return result;
     }
 
-    private object GetValue(CompilationResult compilationResult, object value, VariableType type)
+    private static void SetParametersValue(AssignmentDefinition parameter,
+        Dictionary<string, object> result)
     {
-        return TypeConverter.Convert(compilationResult, value, type);
+        var reference = parameter.Variable;
+        var valueObject = result;
+        while (reference.Parts > 1)
+        {
+            if (!valueObject.ContainsKey(reference.ParentIdentifier))
+            {
+                var childObject = new Dictionary<string, object>();
+                valueObject.Add(reference.ParentIdentifier, childObject);
+            }
+
+            if (valueObject[reference.ParentIdentifier] is not Dictionary<string, object> dictionary)
+            {
+                throw new InvalidOperationException(
+                    $"Parent variable '{reference.ParentIdentifier}' of parameter '{parameter.Variable}' already set to value: {valueObject[reference.ParentIdentifier].GetType()}");
+            }
+
+            valueObject = dictionary;
+            reference = reference.ChildrenReference();
+        }
+
+        var value = parameter.ConstantValue.Value;
+        valueObject.Add(reference.ParentIdentifier, value);
     }
 }

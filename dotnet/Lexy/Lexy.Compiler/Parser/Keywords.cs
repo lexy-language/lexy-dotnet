@@ -34,6 +34,7 @@ public static class Keywords
     public const string Code = "Code";
     public const string ExpectError = "ExpectError";
     public const string ExpectRootErrors = "ExpectRootErrors";
+    public const string ExpectExecutionErrors = "ExpectExecutionErrors";
 
     public const string ImplicitVariableDeclaration = "var";
 

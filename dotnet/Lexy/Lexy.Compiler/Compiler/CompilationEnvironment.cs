@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Lexy.Compiler.Compiler;
 
-public class CompilationEnvironment : ICompilationEnvironment, IDisposable
+public class CompilationEnvironment : ICompilationEnvironment
 {
     private readonly IList<GeneratedClass> generatedTypes = new List<GeneratedClass>();
     private readonly IDictionary<string, ExecutableFunction> executables = new Dictionary<string, ExecutableFunction>();
@@ -31,21 +31,16 @@ public class CompilationEnvironment : ICompilationEnvironment, IDisposable
 
     private Assembly assembly;
 
-    public CompilationEnvironment(ILogger logger, ILogger<ExecutionContext> executionLogger)
+    public CompilationEnvironment(ILogger compilationLogger, ILogger<ExecutionContext> executionLogger)
     {
-        this.compilationLogger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.executionLogger = executionLogger;
-        assemblyLoadContext = new AssemblyLoadContext(Namespace, isCollectible: true);
+        this.compilationLogger = compilationLogger ?? throw new ArgumentNullException(nameof(compilationLogger));
+        this.executionLogger = executionLogger ?? throw new ArgumentNullException(nameof(executionLogger));
+        assemblyLoadContext = new AssemblyLoadContext(Namespace, true);
     }
 
     public void AddType(GeneratedClass generatedType)
     {
         generatedTypes.Add(generatedType);
-    }
-
-    public CompilationResult Result()
-    {
-        return new CompilationResult(executables, enums, this, executionLogger);
     }
 
     public void CreateExecutables(MemoryStream dllStream)
@@ -56,6 +51,16 @@ public class CompilationEnvironment : ICompilationEnvironment, IDisposable
         {
             CreateExecutable(generatedClass);
         }
+    }
+
+    public ExecutableFunction GetFunction(Function function)
+    {
+        return executables[function.NodeName];
+    }
+
+    public Type GetEnumType(string type)
+    {
+        return enums[type];
     }
 
     private void LoadAssembly(Stream dllStream)
@@ -72,10 +77,10 @@ public class CompilationEnvironment : ICompilationEnvironment, IDisposable
     {
         switch (generatedClass.Node)
         {
-            case Function _:
+            case Function function:
             {
                 var instanceType = assembly.GetType(generatedClass.FullClassName);
-                var executable = new ExecutableFunction(instanceType);
+                var executable = new ExecutableFunction(function, instanceType, this, executionLogger);
 
                 executables.Add(generatedClass.Node.NodeName, executable);
                 break;

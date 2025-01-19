@@ -1,7 +1,5 @@
-using System;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Parser;
 using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
@@ -34,12 +32,14 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         scenario.Name.Value.ShouldBe("TestScenario");
         scenario.FunctionName.Value.ShouldBe("TestScenarioFunction");
-        scenario.Parameters.Assignments.Count.ShouldBe(1);
-        scenario.Parameters.Assignments[0].Variable.ParentIdentifier.ShouldBe("Value");
-        scenario.Parameters.Assignments[0].ConstantValue.Value.ShouldBe(123m);
-        scenario.Results.Assignments.Count.ShouldBe(1);
-        scenario.Results.Assignments[0].Variable.ParentIdentifier.ShouldBe("Result");
-        scenario.Results.Assignments[0].ConstantValue.Value.ShouldBe(456m);
+        var parameterAssignments = scenario.Parameters.AllAssignments();
+        parameterAssignments.Count.ShouldBe(1);
+        parameterAssignments[0].Variable.ParentIdentifier.ShouldBe("Value");
+        parameterAssignments[0].ConstantValue.Value.ShouldBe(123m);
+        var resultsAssignments = scenario.Results.AllAssignments();
+        resultsAssignments.Count.ShouldBe(1);
+        resultsAssignments[0].Variable.ParentIdentifier.ShouldBe("Result");
+        resultsAssignments[0].ConstantValue.Value.ShouldBe(456m);
     }
 
     [Test]
@@ -133,17 +133,19 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         scenario.Function.Code.Expressions[0].ToString().ShouldBe("Result1=Value1");
         scenario.Function.Code.Expressions[1].ToString().ShouldBe("Result2=Value2");
 
-        scenario.Parameters.Assignments.Count.ShouldBe(2);
-        scenario.Parameters.Assignments[0].Variable.ParentIdentifier.ShouldBe("Value1");
-        scenario.Parameters.Assignments[0].ConstantValue.Value.ShouldBe(987m);
-        scenario.Parameters.Assignments[1].Variable.ParentIdentifier.ShouldBe("Value2");
-        scenario.Parameters.Assignments[1].ConstantValue.Value.ShouldBe(654m);
+        var parameterAssignments = scenario.Parameters.AllAssignments();
+        parameterAssignments.Count.ShouldBe(2);
+        parameterAssignments[0].Variable.ParentIdentifier.ShouldBe("Value1");
+        parameterAssignments[0].ConstantValue.Value.ShouldBe(987m);
+        parameterAssignments[1].Variable.ParentIdentifier.ShouldBe("Value2");
+        parameterAssignments[1].ConstantValue.Value.ShouldBe(654m);
 
-        scenario.Results.Assignments.Count.ShouldBe(2);
-        scenario.Results.Assignments[0].Variable.ParentIdentifier.ShouldBe("Result1");
-        scenario.Results.Assignments[0].ConstantValue.Value.ShouldBe(123m);
-        scenario.Results.Assignments[1].Variable.ParentIdentifier.ShouldBe("Result2");
-        scenario.Results.Assignments[1].ConstantValue.Value.ShouldBe(456m);
+        var resultsAssignments = scenario.Results.AllAssignments();
+        resultsAssignments.Count.ShouldBe(2);
+        resultsAssignments[0].Variable.ParentIdentifier.ShouldBe("Result1");
+        resultsAssignments[0].ConstantValue.Value.ShouldBe(123m);
+        resultsAssignments[1].Variable.ParentIdentifier.ShouldBe("Result2");
+        resultsAssignments[1].ConstantValue.Value.ShouldBe(456m);
     }
 
     [Test]
@@ -158,8 +160,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         var (scenario, _) = ServiceProvider.ParseScenario(code);
 
         scenario.FunctionName.Value.ShouldBe("ValidateFunctionKeywords");
-        scenario.Parameters.Assignments.Count.ShouldBe(0);
-        scenario.Results.Assignments.Count.ShouldBe(0);
+        scenario.Parameters.AllAssignments().Count.ShouldBe(0);
+        scenario.Results.AllAssignments().Count.ShouldBe(0);
     }
 
     [Test]
