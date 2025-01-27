@@ -54,18 +54,18 @@ public class LexyFunction : ExpressionFunction, IHasNodeDependencies
 
         if (Arguments.Count == 0)
         {
-            FillParametersFunction.GetMapping(Reference, context, function.GetParametersType(context),
+            FillParametersFunction.GetMapping(Reference, context, function.GetParametersType(),
                 mappingParameters);
-            ExtractResultsFunction.GetMapping(Reference, context, function.GetResultsType(context), mappingResults);
+            ExtractResultsFunction.GetMapping(Reference, context, function.GetResultsType(), mappingResults);
 
-            FunctionParametersType = function.GetParametersType(context);
-            FunctionResultsType = function.GetResultsType(context);
+            FunctionParametersType = function.GetParametersType();
+            FunctionResultsType = function.GetResultsType();
 
             return;
         }
 
         var argumentType = Arguments[0].DeriveType(context);
-        var parametersType = function.GetParametersType(context);
+        var parametersType = function.GetParametersType();
 
         if (argumentType == null || !argumentType.Equals(parametersType))
             context.Logger.Fail(Reference, $"Invalid function argument: '{FunctionName}'. " +
@@ -77,7 +77,7 @@ public class LexyFunction : ExpressionFunction, IHasNodeDependencies
     public override VariableType DeriveReturnType(IValidationContext context)
     {
         var function = context.RootNodes.GetFunction(FunctionName);
-        return function?.GetResultsType(context);
+        return function?.GetResultsType();
     }
 
 

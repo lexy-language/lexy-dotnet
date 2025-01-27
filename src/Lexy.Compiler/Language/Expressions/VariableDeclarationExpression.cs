@@ -96,7 +96,7 @@ public class VariableDeclarationExpression : Expression
             return assignmentType;
         }
 
-        variableType = Type.CreateVariableType(context);
+        variableType = Type.VariableType;
         if (Assignment != null && !assignmentType.Equals(variableType))
         {
             context.Logger.Fail(Reference, "Invalid expression. Literal or enum value expression expected.");

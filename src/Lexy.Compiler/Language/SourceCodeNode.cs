@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
@@ -77,7 +78,24 @@ public class SourceCodeNode : RootNode
 
     public override IEnumerable<INode> GetChildren()
     {
-        return RootNodes;
+        return RootNodes.OrderBy(NodeImportance).ToList();
+    }
+
+    private static int NodeImportance(IRootNode rootNode)
+    {
+        switch (rootNode)
+        {
+            case TypeDefinition:
+            case Table:
+            case EnumDefinition:
+                return 0;
+            case Function:
+                return 1;
+            case Scenario:
+                return 2;
+            default:
+                return 3;
+        }
     }
 
     protected override void Validate(IValidationContext context)

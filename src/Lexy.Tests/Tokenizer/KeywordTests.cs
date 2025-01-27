@@ -31,9 +31,9 @@ public class KeywordTests : ScopedServicesTestFixture
     public void TestExpectErrorKeywordWithQuotedLiteral()
     {
         ServiceProvider
-            .Tokenize(@"  ExpectError ""Invalid token 'Paraeters'""")
+            .Tokenize(@"  ExpectErrors ""Invalid token 'Paraeters'""")
             .Count(2)
-            .Keyword(0, "ExpectError")
+            .Keyword(0, "ExpectErrors")
             .QuotedString(1, "Invalid token 'Paraeters'")
             .Assert();
     }

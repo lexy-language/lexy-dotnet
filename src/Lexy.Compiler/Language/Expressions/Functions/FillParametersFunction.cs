@@ -102,8 +102,8 @@ public class FillParametersFunction : ExpressionFunction, IHasNodeDependencies
 
         return TypeLiteral.Member switch
         {
-            Function.ParameterName => function.GetParametersType(context),
-            Function.ResultsName => function.GetResultsType(context),
+            Function.ParameterName => function.GetParametersType(),
+            Function.ResultsName => function.GetResultsType(),
             _ => null
         };
     }

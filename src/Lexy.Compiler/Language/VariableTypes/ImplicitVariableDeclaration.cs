@@ -6,16 +6,13 @@ namespace Lexy.Compiler.Language.VariableTypes;
 
 public sealed class ImplicitVariableDeclaration : VariableDeclarationType
 {
-    public VariableType VariableType { get; private set; }
-
     public ImplicitVariableDeclaration(SourceReference reference) : base(reference)
     {
     }
 
-    public override VariableType CreateVariableType(IValidationContext context)
+    protected override VariableType CreateVariableType(IValidationContext context)
     {
-        return VariableType ??
-               throw new InvalidOperationException("Not supported. Nodes should be Validated first.");
+        throw new InvalidOperationException("Not supported. Nodes should be Validated first.");
     }
 
     public void Define(VariableType variableType)
@@ -30,5 +27,6 @@ public sealed class ImplicitVariableDeclaration : VariableDeclarationType
 
     protected override void Validate(IValidationContext context)
     {
+        //suppress base validator
     }
 }

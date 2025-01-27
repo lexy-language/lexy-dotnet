@@ -96,7 +96,7 @@ internal class LookupRowFunction : ExpressionFunction, IHasNodeDependencies
         }
 
         var conditionValueType = ValueExpression.DeriveType(context);
-        SearchValueColumnType = searchColumnHeader.Type.CreateVariableType(context);
+        SearchValueColumnType = searchColumnHeader.Type.VariableType;
 
         if (conditionValueType == null || !conditionValueType.Equals(SearchValueColumnType))
         {
@@ -104,7 +104,7 @@ internal class LookupRowFunction : ExpressionFunction, IHasNodeDependencies
                 $"Invalid argument {ArgumentSearchValueColumn}. Column type '{SearchValueColumn}': '{SearchValueColumnType}' doesn't match condition type '{conditionValueType}'. {FunctionHelp}");
         }
 
-        RowType = tableType?.GetRowType(context);
+        RowType = tableType?.GetRowType();
     }
 
 
@@ -126,6 +126,6 @@ internal class LookupRowFunction : ExpressionFunction, IHasNodeDependencies
     public override VariableType DeriveReturnType(IValidationContext context)
     {
         var tableType = context.RootNodes.GetTable(Table);
-        return tableType?.GetRowType(context);
+        return tableType?.GetRowType();
     }
 }

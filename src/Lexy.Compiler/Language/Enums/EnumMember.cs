@@ -67,9 +67,13 @@ public class EnumMember : Node
     private void ValidateMemberName(IValidationContext context)
     {
         if (string.IsNullOrEmpty(Name))
+        {
             context.Logger.Fail(Reference, "Enum member name should not be null or empty.");
+        }
         else if (!SyntaxFacts.IsValidIdentifier(Name))
+        {
             context.Logger.Fail(Reference, $"Invalid enum member name: {Name}.");
+        }
     }
 
     private void ValidateMemberValues(IValidationContext context)

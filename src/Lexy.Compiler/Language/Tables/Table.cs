@@ -7,6 +7,7 @@ namespace Lexy.Compiler.Language.Tables;
 
 public class Table : RootNode
 {
+    private bool invalidHeader;
     private readonly List<TableRow> rows = new();
 
     public const string RowName = "Row";
@@ -29,13 +30,19 @@ public class Table : RootNode
 
     public override IParsableNode Parse(IParseLineContext context)
     {
+        if (invalidHeader) return this;
+
         if (IsFirstLine())
         {
             Header = TableHeader.Parse(context);
+            if (Header == null)
+            {
+                invalidHeader = true;
+            }
         }
         else
         {
-            var tableRow = TableRow.Parse(context);
+            var tableRow = TableRow.Parse(context, this.Header);
             if (tableRow != null) rows.Add(tableRow);
         }
 
@@ -70,10 +77,10 @@ public class Table : RootNode
         }
     }
 
-    public ComplexType GetRowType(IValidationContext context)
+    public ComplexType GetRowType()
     {
         var members = Header?.Columns
-            .Select(column => new ComplexTypeMember(column.Name, column.Type.CreateVariableType(context)))
+            .Select(column => new ComplexTypeMember(column.Name, column.Type.VariableType))
             .ToList() ?? new List<ComplexTypeMember>();
 
         return new ComplexType(Name.Value, this, ComplexTypeSource.TableRow, members);

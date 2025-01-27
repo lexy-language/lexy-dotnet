@@ -4,28 +4,29 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public class ExpectError : ParsableNode
+public class ExpectErrors : ParsableNode
 {
-    public string Message { get; private set; }
-    public bool HasValue => Message != null;
+    private readonly IList<string> messages = new List<string>();
 
-    public ExpectError(SourceReference reference) : base(reference)
+    public IEnumerable<string> Messages => messages;
+
+    public bool HasValues => messages.Count > 0;
+
+    public ExpectErrors(SourceReference reference) : base(reference)
     {
     }
 
     public override IParsableNode Parse(IParseLineContext context)
     {
         var line = context.Line;
-
-        var valid = context.ValidateTokens<ExpectError>()
-            .Count(2)
-            .Keyword(0)
-            .QuotedString(1)
+        var valid = context.ValidateTokens<ExpectExecutionErrors>()
+            .Count(1)
+            .QuotedString(0)
             .IsValid;
 
         if (!valid) return this;
 
-        Message = line.Tokens.Token<QuotedLiteralToken>(1).Value;
+        messages.Add(line.Tokens.Token<QuotedLiteralToken>(0).Value);
         return this;
     }
 

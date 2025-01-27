@@ -36,7 +36,7 @@ public sealed class PrimitiveVariableDeclarationType : VariableDeclarationType
         return Type;
     }
 
-    public override VariableType CreateVariableType(IValidationContext context)
+    protected override VariableType CreateVariableType(IValidationContext context)
     {
         return new PrimitiveType(Type);
     }
@@ -44,9 +44,5 @@ public sealed class PrimitiveVariableDeclarationType : VariableDeclarationType
     public override IEnumerable<INode> GetChildren()
     {
         yield break;
-    }
-
-    protected override void Validate(IValidationContext context)
-    {
     }
 }

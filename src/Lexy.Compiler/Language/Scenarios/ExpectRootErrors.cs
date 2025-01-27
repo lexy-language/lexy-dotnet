@@ -19,7 +19,7 @@ public class ExpectRootErrors : ParsableNode
     public override IParsableNode Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var valid = context.ValidateTokens<ExpectError>()
+        var valid = context.ValidateTokens<ExpectRootErrors>()
             .Count(1)
             .QuotedString(0)
             .IsValid;

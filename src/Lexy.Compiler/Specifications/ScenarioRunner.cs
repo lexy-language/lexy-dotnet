@@ -162,26 +162,25 @@ public class ScenarioRunner : IScenarioRunner
         var dependencies = DependencyGraphFactory.NodeAndDependencies(this.rootNodeList, node);
         var failedMessages = parserLogger.ErrorNodesMessages(dependencies);
 
-        if (failedMessages.Length > 0 && !Scenario.ExpectError.HasValue)
+        if (failedMessages.Length > 0 && Scenario.ExpectErrors?.HasValues != true)
         {
             Fail("Exception occurred: ", failedMessages);
             return false;
         }
 
-        if (Scenario.ExpectError?.HasValue != true) return true;
+        if (Scenario.ExpectErrors?.HasValues != true) return true;
 
         if (failedMessages.Length == 0)
         {
-            Fail($"Error expected: '{Scenario.ExpectError.Message}'", Array.Empty<string>());
+            Fail($"No errors but errors expected:", Scenario.ExpectErrors.Messages);
             return false;
         }
 
-        if (!failedMessages.Any(message => message.Contains(Scenario.ExpectError.Message)))
+        if (Scenario.ExpectErrors.Messages.Any(message => !failedMessages.Any(failedMessage => failedMessage.Contains(message))))
         {
-            Fail($"Wrong error occurred", new []{
-                $"Expected: {Scenario.ExpectError.Message}" +
-                $"Actual: "
-            }.Union(failedMessages));
+            Fail($"Wrong error occurred", StringArrayBuilder
+                .New("Expected:").Add(Scenario.ExpectErrors.Messages, 2)
+                .Add("Actual:").Add(failedMessages, 2).Array());
             return false;
         }
 
@@ -194,9 +193,9 @@ public class ScenarioRunner : IScenarioRunner
         var failedMessages = parserLogger.ErrorMessages().ToList();
         if (!failedMessages.Any())
         {
-            Fail($"Root errors expected. No errors occurred", new [] {
-                 "Expected:"
-            }.Union(Scenario.ExpectRootErrors.Messages));
+            Fail($"Root errors expected. No errors occurred", StringArrayBuilder
+                .New("Expected:").Add(Scenario.ExpectRootErrors.Messages, 2)
+                .Array());
             return false;
         }
 
@@ -216,9 +215,10 @@ public class ScenarioRunner : IScenarioRunner
             return false; // don't compile and run rest of scenario
         }
 
-        Fail($"Wrong error(s) occurred.",
-             new [] { "Expected: "}.Union(Scenario.ExpectRootErrors.Messages).Union(
-            new [] {"Actual: "}).Union(parserLogger.ErrorMessages()));
+        Fail($"Wrong error(s) occurred.", StringArrayBuilder
+            .New("Expected:").Add(Scenario.ExpectRootErrors.Messages, 2)
+            .Add("Actual: ").Add(parserLogger.ErrorMessages(), 2)
+            .Array());
         return false;
     }
 
@@ -245,9 +245,10 @@ public class ScenarioRunner : IScenarioRunner
 
         if (failedErrors.Count > 0)
         {
-            Fail($"Execution error not found",
-                new [] {"Not found:"}.Union(expected).Union(
-                    new [] {"Actual:" + errorMessage}));
+            Fail($"Execution error not found", StringArrayBuilder
+                .New("Not found:").Add(expected, 2)
+                .Add("Actual:").Add(errorMessage, 2)
+                .Array());
         }
 
         return true;

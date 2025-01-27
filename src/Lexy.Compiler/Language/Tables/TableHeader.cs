@@ -64,6 +64,11 @@ public class TableHeader : Node
         return GetColumn(name);
     }
 
+    public ColumnHeader GetColumn(int index)
+    {
+        return index >= 0 && index < Columns.Count ? Columns[index] : null;
+    }
+
     public ColumnHeader GetColumn(string name)
     {
         return Columns.FirstOrDefault(value => value.Name == name);

@@ -5,11 +5,9 @@ namespace Lexy.Compiler.Parser.Tokens;
 public class TokenValidator
 {
     private readonly IParserLogger logger;
-    private readonly Line line;
     private readonly string parserName;
     private readonly TokenList tokens;
-
-    private bool errorsExpected;
+    private readonly Line line;
 
     public bool IsValid { get; private set; }
 
@@ -18,7 +16,7 @@ public class TokenValidator
         this.parserName = parserName;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        this.line = line ?? throw new ArgumentNullException(nameof(line));
+        this.line = line;
         tokens = line.Tokens;
 
         IsValid = true;
@@ -28,7 +26,7 @@ public class TokenValidator
     {
         if (tokens.Length != count)
         {
-            Fail($"Invalid number of tokens '{tokens.Length}', should be '{count}'.");
+            Fail(0, $"Invalid number of tokens '{tokens.Length}', should be '{count}'.");
             IsValid = false;
         }
 
@@ -39,7 +37,7 @@ public class TokenValidator
     {
         if (tokens.Length < count)
         {
-            Fail($"Invalid number of tokens '{tokens.Length}', should be at least '{count}'.");
+            Fail(0, $"Invalid number of tokens '{tokens.Length}', should be at least '{count}'.");
             IsValid = false;
         }
 
@@ -62,13 +60,13 @@ public class TokenValidator
 
     public TokenValidator Operator(int index, OperatorType operatorType)
     {
-        if (!CheckValidTokenIndex(index)) return this;
+        if (!CheckValidTokenIndex(index, $"{operatorType} operator")) return this;
 
         Type<OperatorToken>(index);
         var token = tokens[index] as OperatorToken;
         if (token?.Type != operatorType)
         {
-            Fail($"Invalid operator token {index} value. Expected: '{operatorType}' Actual: '{token?.Type}'");
+            Fail(index, $"Invalid operator token {index} value. Expected: '{operatorType}' Actual: '{token?.Type}'");
             IsValid = false;
         }
 
@@ -93,7 +91,7 @@ public class TokenValidator
         var token = ValidateType<QuotedLiteralToken>(index);
         if (token != null && literal != null && token.Value != literal)
         {
-            Fail($"Invalid token {index} value. Expected: '{literal}' Actual: '{token.Value}'");
+            Fail(index, $"Invalid token {index} value. Expected: '{literal}' Actual: '{token.Value}'");
             IsValid = false;
         }
 
@@ -105,7 +103,7 @@ public class TokenValidator
         var token = ValidateType<NumberLiteralToken>(index);
         if (token != null && value != null && token.NumberValue != value)
         {
-            Fail($"Invalid token {index} value. Expected: '{value}' Actual: '{token.Value}'");
+            Fail(index, $"Invalid token {index} value. Expected: '{value}' Actual: '{token.Value}'");
             IsValid = false;
         }
 
@@ -117,7 +115,7 @@ public class TokenValidator
         var token = ValidateType<BooleanLiteral>(index);
         if (token != null && token.BooleanValue != value)
         {
-            Fail($"Invalid token {index} value. Expected: '{value}' Actual: '{token.Value}'");
+            Fail(index, $"Invalid token {index} value. Expected: '{value}' Actual: '{token.Value}'");
             IsValid = false;
         }
 
@@ -130,7 +128,7 @@ public class TokenValidator
         var value = new DateTime(year, month, day, hours, minutes, seconds);
         if (token != null && token.DateTimeValue != value)
         {
-            Fail($"Invalid token value at {index}. Expected: '{value}' Actual: '{token.Value}'");
+            Fail(index, $"Invalid token value at {index}. Expected: '{value}' Actual: '{token.Value}'");
             IsValid = false;
         }
 
@@ -145,13 +143,12 @@ public class TokenValidator
 
     public TokenValidator IsLiteralToken(int index)
     {
-        if (!CheckValidTokenIndex(index)) return this;
+        if (!CheckValidTokenIndex(index, "LiterToken")) return this;
 
-        var token = tokens[index] as ILiteralToken;
-        if (token == null)
+        var token = tokens[index];
+        if (token is not ILiteralToken literalToken)
         {
-            Fail(
-                $"Invalid token type as {index}. Expected: 'ILiteralToken' Actual: '{tokens[index].GetType().Name}({token.Value})'");
+            Fail(index, $"Invalid token type as {index}. Expected: 'LiteralToken' Actual: '{token?.GetType().Name})'");
             IsValid = false;
 
             return this;
@@ -162,13 +159,13 @@ public class TokenValidator
 
     private T ValidateType<T>(int index) where T : Token
     {
-        if (!CheckValidTokenIndex(index)) return null;
+        if (!CheckValidTokenIndex(index, typeof(T).Name)) return null;
 
         var token = tokens[index];
         var type = token.GetType();
         if (type != typeof(T))
         {
-            Fail($"Invalid token {index} type. Expected: '{typeof(T).Name}' Actual: '{type.Name}({token.Value})'");
+            Fail(index, $"Invalid token. Expected: '{typeof(T).Name}' Actual: '{type.Name}({token.Value})'");
             IsValid = false;
 
             return null;
@@ -179,38 +176,43 @@ public class TokenValidator
 
     public TokenValidator Value(int index, string expectedValue)
     {
-        if (!CheckValidTokenIndex(index)) return this;
+        if (!CheckValidTokenIndex(index, string.Empty)) return this;
 
         var token = tokens[index];
         if (token.Value != expectedValue)
         {
-            Fail($"Invalid token value as {index}. Expected: '{expectedValue}' Actual: '{token.Value}'");
+            Fail(index, $"Invalid token value as {index}. Expected: '{expectedValue}' Actual: '{token.Value}'");
             IsValid = false;
         }
 
         return this;
     }
 
-    private bool CheckValidTokenIndex(int index)
+    private bool CheckValidTokenIndex(int index, string name)
     {
         if (index < tokens.Length) return true;
 
-        Fail($"Token expected at '{index}' but not found. Length: '{tokens.Length}'");
+        Fail(line.LineEndReference(),  $"Token expected: '{name}'");
         IsValid = false;
 
         return false;
     }
 
-    private void Fail(string error)
+    private void Fail(SourceReference reference, string error)
     {
-        logger.Fail(line.LineStartReference(), $"({parserName}) {error}");
+        logger.Fail(reference, $"({parserName}) {error}");
+    }
+
+    private void Fail(int index, string error)
+    {
+        logger.Fail(line.TokenReference(index), $"({parserName}) {error}");
     }
 
     public void Assert()
     {
-        if (!errorsExpected && logger.HasErrors())
+        if (!IsValid)
+        {
             throw new InvalidOperationException(logger.FormatMessages());
-
-        if (!IsValid) throw new InvalidOperationException(logger.FormatMessages());
+        }
     }
 }

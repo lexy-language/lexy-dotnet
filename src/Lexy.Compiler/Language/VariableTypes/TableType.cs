@@ -53,6 +53,6 @@ public class TableType : TypeWithMembers
 
     private ComplexType TableRowType(IValidationContext context)
     {
-        return context.RootNodes.GetTable(TableName)?.GetRowType(context);
+        return context.RootNodes.GetTable(TableName)?.GetRowType();
     }
 }

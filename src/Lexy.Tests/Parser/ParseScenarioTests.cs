@@ -173,7 +173,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
       number Result
     Code
       Result = 123A
-  ExpectError ""Invalid token at 18: Invalid number token character: A""";
+  ExpectErrors 
+    ""Invalid token at 18: Invalid number token character: A""";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
@@ -181,7 +182,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         logger.NodeHasErrors(scenario.Function).ShouldBeTrue();
 
         scenario.Function.ShouldNotBeNull();
-        scenario.ExpectError.ShouldNotBeNull();
+        scenario.ExpectErrors.ShouldNotBeNull();
     }
 
     [Test]

@@ -21,9 +21,4 @@ public class ParseLineContext : IParseLineContext
     {
         return new TokenValidator(typeof(T).Name, Line, Logger);
     }
-
-    public TokenValidator ValidateTokens(string name)
-    {
-        return new TokenValidator(name, Line, Logger);
-    }
 }

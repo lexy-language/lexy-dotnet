@@ -46,7 +46,7 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHa
         };
     }
 
-    public override VariableType CreateVariableType(IValidationContext context)
+    protected override VariableType CreateVariableType(IValidationContext context)
     {
         if (!Type.Contains('.'))
         {
@@ -73,10 +73,5 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHa
     public override IEnumerable<INode> GetChildren()
     {
         yield break;
-    }
-
-    protected override void Validate(IValidationContext context)
-    {
-        VariableType = CreateVariableType(context);
     }
 }

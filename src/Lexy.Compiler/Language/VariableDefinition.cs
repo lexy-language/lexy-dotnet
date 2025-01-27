@@ -82,7 +82,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
     protected override void Validate(IValidationContext context)
     {
-        VariableType = Type.CreateVariableType(context);
+        VariableType = Type.VariableType;
         if (VariableType == null)
         {
             context.Logger.Fail(Reference, $"Invalid type '{Type}' for {Source} variable '{Name}'");

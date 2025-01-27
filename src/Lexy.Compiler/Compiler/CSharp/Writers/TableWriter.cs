@@ -113,7 +113,7 @@ internal class TableWriter : IRootTokenWriter
         for (var index = 0; index < header.Columns.Count; index++)
         {
             var columnHeader = header.Columns[index];
-            var value = tableRow.Values[index];
+            var value = tableRow.Values[index].Expression;
 
             if (result.Count > 0) result.Add(Token(SyntaxKind.CommaToken));
 

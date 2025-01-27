@@ -11,5 +11,4 @@ public interface IParseLineContext
     IExpressionFactory ExpressionFactory { get; }
 
     TokenValidator ValidateTokens<T>();
-    TokenValidator ValidateTokens(string name);
 }

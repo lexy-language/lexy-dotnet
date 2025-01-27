@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -23,7 +22,7 @@ public class Scenario : RootNode
     public Table ValidationTable { get; private set; }
     public ExecutionLogging ExecutionLogging { get; private set; }
 
-    public ExpectError ExpectError { get; private set; }
+    public ExpectErrors ExpectErrors { get; private set; }
     public ExpectRootErrors ExpectRootErrors { get; private set; }
     public ExpectExecutionErrors ExpectExecutionErrors { get; private set; }
 
@@ -61,22 +60,12 @@ public class Scenario : RootNode
             Keywords.Results => ResetRootNode(context, Results, () => Results = new Results(reference)),
             Keywords.ExecutionLogging => ResetRootNode(context, ExecutionLogging, () => ExecutionLogging = new ExecutionLogging(reference)),
             Keywords.ValidationTable => ResetRootNode(context, ValidationTable, () => ValidationTable = new Table(reference)),
-            Keywords.ExpectError => ResetRootNode(context, ParseExpectError(reference, context)),
+            Keywords.ExpectErrors => ResetRootNode(context, ExpectErrors, () => ExpectErrors = new ExpectErrors(reference)),
             Keywords.ExpectRootErrors => ResetRootNode(context, ExpectRootErrors, () => ExpectRootErrors = new ExpectRootErrors(reference)),
             Keywords.ExpectExecutionErrors => ResetRootNode(context, ExpectExecutionErrors, () => ExpectExecutionErrors = new ExpectExecutionErrors(reference)),
 
             _ => InvalidToken(context, name, reference)
         };
-    }
-
-    private IParsableNode ParseExpectError(SourceReference reference, IParseLineContext context)
-    {
-        if (ExpectError == null)
-        {
-            ExpectError = new ExpectError(reference);
-        }
-
-        return ResetRootNode(context, ExpectError.Parse(context));
     }
 
     private IParsableNode ResetRootNode(IParseLineContext parserContext, IParsableNode node, Func<IParsableNode> initializer = null)
@@ -170,7 +159,7 @@ public class Scenario : RootNode
         if (Parameters != null) yield return Parameters;
         if (Results != null) yield return Results;
         if (ValidationTable != null) yield return ValidationTable;
-        if (ExpectError != null) yield return ExpectError;
+        if (ExpectErrors != null) yield return ExpectErrors;
         if (ExpectRootErrors != null) yield return ExpectRootErrors;
         if (ExpectExecutionErrors != null) yield return ExpectExecutionErrors;
     }
@@ -211,7 +200,7 @@ public class Scenario : RootNode
 
         foreach (var result in definitions)
         {
-            var variableType = result.Type.CreateVariableType(context);
+            var variableType = result.Type.VariableType;
             context.VariableContext.AddVariable(result.Name, variableType, source);
         }
     }

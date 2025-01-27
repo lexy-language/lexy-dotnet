@@ -49,11 +49,11 @@ public class FunctionType : TypeWithMembers
 
     private ComplexType FunctionParametersType(IValidationContext context)
     {
-        return context.RootNodes.GetFunction(Type)?.GetParametersType(context);
+        return context.RootNodes.GetFunction(Type)?.GetParametersType();
     }
 
     private ComplexType FunctionResultsType(IValidationContext context)
     {
-        return context.RootNodes.GetFunction(Type)?.GetResultsType(context);
+        return context.RootNodes.GetFunction(Type)?.GetResultsType();
     }
 }

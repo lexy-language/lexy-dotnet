@@ -19,7 +19,7 @@ public class ExpectExecutionErrors : ParsableNode
     public override IParsableNode Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var valid = context.ValidateTokens<ExpectError>()
+        var valid = context.ValidateTokens<ExpectExecutionErrors>()
             .Count(1)
             .QuotedString(0)
             .IsValid;

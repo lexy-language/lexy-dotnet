@@ -117,8 +117,8 @@ internal class LookupFunction : ExpressionFunction, IHasNodeDependencies
         }
 
         var conditionValueType = ValueExpression.DeriveType(context);
-        ResultColumnType = resultColumnHeader.Type.CreateVariableType(context);
-        SearchValueColumnType = searchColumnHeader.Type.CreateVariableType(context);
+        ResultColumnType = resultColumnHeader.Type.VariableType;
+        SearchValueColumnType = searchColumnHeader.Type.VariableType;
 
         if (conditionValueType == null || !conditionValueType.Equals(SearchValueColumnType))
             context.Logger.Fail(Reference,
@@ -145,6 +145,6 @@ internal class LookupFunction : ExpressionFunction, IHasNodeDependencies
         var tableType = context.RootNodes.GetTable(Table);
         var resultColumnHeader = tableType?.Header.Get(ResultColumn);
 
-        return resultColumnHeader?.Type.CreateVariableType(context);
+        return resultColumnHeader?.Type.VariableType;
     }
 }

@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
@@ -144,19 +142,19 @@ public class Function : RootNode, IHasNodeDependencies
     {
     }
 
-    public ComplexType GetParametersType(IValidationContext context)
+    public ComplexType GetParametersType()
     {
         var members = Parameters.Variables
-            .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.CreateVariableType(context)))
+            .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionParameters, members);
     }
 
-    public ComplexType GetResultsType(IValidationContext context)
+    public ComplexType GetResultsType()
     {
         var members = Results.Variables
-            .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.CreateVariableType(context)))
+            .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionResults, members);
