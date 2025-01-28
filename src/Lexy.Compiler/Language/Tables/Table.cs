@@ -18,14 +18,9 @@ public class Table : RootNode
 
     public override string NodeName => Name.Value;
 
-    private Table(string name, SourceReference reference) : base(reference)
+    public Table(string name, SourceReference reference) : base(reference)
     {
         Name.ParseName(name);
-    }
-
-    internal static Table Parse(NodeName name, SourceReference reference)
-    {
-        return new Table(name.Name, reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)

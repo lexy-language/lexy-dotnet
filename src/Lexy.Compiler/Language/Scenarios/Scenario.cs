@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
+using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -13,7 +14,7 @@ public class Scenario : RootNode
 
     public Function Function { get; private set; }
     public EnumDefinition Enum { get; private set; }
-    public Tables.Table Table { get; private set; }
+    public Table Table { get; private set; }
 
     public FunctionName FunctionName { get; private set; }
 
@@ -58,8 +59,10 @@ public class Scenario : RootNode
             Keywords.Function => ResetRootNode(context, ParseFunctionName(reference, context)),
             Keywords.Parameters => ResetRootNode(context, Parameters, () => Parameters = new Parameters(reference)),
             Keywords.Results => ResetRootNode(context, Results, () => Results = new Results(reference)),
+            Keywords.ValidationTable => ParseValidationTable(context, reference),
+
             Keywords.ExecutionLogging => ResetRootNode(context, ExecutionLogging, () => ExecutionLogging = new ExecutionLogging(reference)),
-            Keywords.ValidationTable => ResetRootNode(context, ValidationTable, () => ValidationTable = new Table(reference)),
+
             Keywords.ExpectErrors => ResetRootNode(context, ExpectErrors, () => ExpectErrors = new ExpectErrors(reference)),
             Keywords.ExpectRootErrors => ResetRootNode(context, ExpectRootErrors, () => ExpectRootErrors = new ExpectRootErrors(reference)),
             Keywords.ExpectExecutionErrors => ResetRootNode(context, ExpectExecutionErrors, () => ExpectExecutionErrors = new ExpectExecutionErrors(reference)),
@@ -130,15 +133,36 @@ public class Scenario : RootNode
     {
         if (Table != null)
         {
-            context.Logger.Fail(reference, $"Duplicated inline Enum '{NodeName}'.");
+            context.Logger.Fail(reference, $"Duplicated inline table '{NodeName}'.");
             return null;
         }
 
         var tokenName = Parser.NodeName.Parse(context);
 
-        Table = Tables.Table.Parse(tokenName, reference);
+        Table = new Table(tokenName.Name, reference);
         context.Logger.SetCurrentNode(Table);
         return Table;
+    }
+
+    private IParsableNode ParseValidationTable(IParseLineContext context, SourceReference reference)
+    {
+        if (ValidationTable != null)
+        {
+            context.Logger.Fail(reference, $"Duplicated validation table '{NodeName}'.");
+            return null;
+        }
+
+        var tokenName = Parser.NodeName.Parse(context);
+        if (tokenName.Name != null)
+        {
+            context.Logger.Fail(context.Line.TokenReference(1),
+                $"Unexpected table name. 'ValidationTable' should not have a name: '{tokenName.Name}'");
+        }
+
+        var tableName = Name?.Value != null ? Name?.Value  + "ValidationTable" : "ValidationTable";
+        ValidationTable = new Table(tableName, reference);
+        context.Logger.SetCurrentNode(ValidationTable);
+        return ValidationTable;
     }
 
     private IParsableNode InvalidToken(IParseLineContext context, string name, SourceReference reference)

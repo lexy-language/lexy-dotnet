@@ -159,7 +159,7 @@ public class ScenarioRunner : IScenarioRunner
             return false;
         }
 
-        var dependencies = DependencyGraphFactory.NodeAndDependencies(this.rootNodeList, node);
+        var dependencies = DependencyGraphFactory.NodeAndDependencies(rootNodeList, node);
         var failedMessages = parserLogger.ErrorNodesMessages(dependencies);
 
         if (failedMessages.Length > 0 && Scenario.ExpectErrors?.HasValues != true)
@@ -179,8 +179,8 @@ public class ScenarioRunner : IScenarioRunner
         if (Scenario.ExpectErrors.Messages.Any(message => !failedMessages.Any(failedMessage => failedMessage.Contains(message))))
         {
             Fail($"Wrong error occurred", StringArrayBuilder
-                .New("Expected:").Add(Scenario.ExpectErrors.Messages, 2)
-                .Add("Actual:").Add(failedMessages, 2).Array());
+                .New("Expected:").List(Scenario.ExpectErrors.Messages)
+                .Add("Actual:").List(failedMessages).Array());
             return false;
         }
 
@@ -194,7 +194,7 @@ public class ScenarioRunner : IScenarioRunner
         if (!failedMessages.Any())
         {
             Fail($"Root errors expected. No errors occurred", StringArrayBuilder
-                .New("Expected:").Add(Scenario.ExpectRootErrors.Messages, 2)
+                .New("Expected:").List(Scenario.ExpectRootErrors.Messages)
                 .Array());
             return false;
         }
@@ -216,8 +216,8 @@ public class ScenarioRunner : IScenarioRunner
         }
 
         Fail($"Wrong error(s) occurred.", StringArrayBuilder
-            .New("Expected:").Add(Scenario.ExpectRootErrors.Messages, 2)
-            .Add("Actual: ").Add(parserLogger.ErrorMessages(), 2)
+            .New("Expected:").List(Scenario.ExpectRootErrors.Messages)
+            .Add("Actual: ").List(parserLogger.ErrorMessages())
             .Array());
         return false;
     }
@@ -246,7 +246,7 @@ public class ScenarioRunner : IScenarioRunner
         if (failedErrors.Count > 0)
         {
             Fail($"Execution error not found", StringArrayBuilder
-                .New("Not found:").Add(expected, 2)
+                .New("Not found:").List(expected)
                 .Add("Actual:").Add(errorMessage, 2)
                 .Array());
         }

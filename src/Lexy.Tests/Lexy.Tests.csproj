@@ -33,16 +33,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Lexy.Compiler\Lexy.Compiler.csproj" />
-        <ProjectReference Include="..\Lexy.Specifications.Runner\Lexy.Specifications.Runner.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="lexy-language\**" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove="lexy-language\**" />
+      <ProjectReference Include="..\Lexy.Compiler\Lexy.Compiler.csproj" />
     </ItemGroup>
 
 </Project>

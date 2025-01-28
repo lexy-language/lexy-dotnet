@@ -31,32 +31,33 @@ public class TableRow : Node
         var currentLineTokens = context.Line.Tokens;
         while (++tokenIndex < currentLineTokens.Length)
         {
-            if (ParseValue(context, tableHeader, currentLineTokens, values, tokenIndex++))
+            var value = ParseValue(context, tableHeader, currentLineTokens, tokenIndex++, values.Count);
+            if (value == null)
             {
                 return null;
             }
+            values.Add(value);
         }
 
         return new TableRow(tableHeader, values, context.Line.LineStartReference());
     }
 
-    private static bool ParseValue(IParseLineContext context, TableHeader tableHeader,
-        TokenList currentLineTokens, List<TableValue> values, int tokenIndex)
+    private static TableValue ParseValue(IParseLineContext context, TableHeader tableHeader,
+        TokenList currentLineTokens, int tokenIndex, int valueIndex)
     {
         var notValid = !context.ValidateTokens<TableRow>()
             .IsLiteralToken(tokenIndex)
             .Type<TableSeparatorToken>(tokenIndex + 1)
             .IsValid;
 
-        if (notValid) return true;
+        if (notValid) return null;
 
         var reference = context.Line.TokenReference(tokenIndex);
         var token = currentLineTokens.Token<Token>(tokenIndex);
         var expression = context.ExpressionFactory.Parse(new TokenList(new[] { token }), context.Line);
-        if (context.Failed(expression, reference)) return true;
+        if (context.Failed(expression, reference)) return null;
 
-        values.Add(new TableValue(values.Count, expression.Result, tableHeader, reference));
-        return false;
+        return new TableValue(valueIndex, expression.Result, tableHeader, reference);
     }
 
     public override IEnumerable<INode> GetChildren()

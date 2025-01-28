@@ -62,7 +62,7 @@ public class SourceCodeNode : RootNode
             Keywords.FunctionKeyword => Function.Create(tokenName.Name, reference, context.ExpressionFactory),
             Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
-            Keywords.TableKeyword => Table.Parse(tokenName, reference),
+            Keywords.TableKeyword => new Table(tokenName.Name, reference),
             Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, reference),
             _ => InvalidNode(tokenName, context, reference)
         };
@@ -85,16 +85,17 @@ public class SourceCodeNode : RootNode
     {
         switch (rootNode)
         {
-            case TypeDefinition:
-            case Table:
             case EnumDefinition:
                 return 0;
-            case Function:
+            case Table:
+            case TypeDefinition:
                 return 1;
-            case Scenario:
+            case Function:
                 return 2;
-            default:
+            case Scenario:
                 return 3;
+            default:
+                return 0;
         }
     }
 

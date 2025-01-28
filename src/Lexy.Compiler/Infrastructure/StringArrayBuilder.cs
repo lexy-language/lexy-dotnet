@@ -23,9 +23,9 @@ internal class StringArrayBuilder
         return indent > 0 ? new string(' ', indent) : string.Empty;
     }
 
-    public StringArrayBuilder Add(IEnumerable<string> strings, int indent = 0)
+    public StringArrayBuilder List(IEnumerable<string> strings)
     {
-        var indentString = IndentString(indent);
+        var indentString = IndentString(2);
         foreach (var value in strings)
         {
             values.Add(indentString + value);
