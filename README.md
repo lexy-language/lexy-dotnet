@@ -1,8 +1,8 @@
 # lexy-typescript
 
-An implementations of the [lexy-language](https://github.com/lexy-language/lexy-language) in typescript.
+Implementation of the [lexy-language](https://github.com/lexy-language/lexy-language) parser and compiler in typescript.
 Check the [lexy-language](https://github.com/lexy-language/lexy-language) or the online [demo](https://lexy-language.github.io/lexy-demo/)
-to understand the purpose of Lexy.
+to understand the philosophy and use cases of Lexy.
 
 NuGet .NET package: **todo**
 
