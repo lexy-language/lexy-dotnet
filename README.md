@@ -1,19 +1,29 @@
-# Setup
+# lexy-typescript
+
+An implementations of the [lexy-language](https://github.com/lexy-language/lexy-language) in typescript.
+Check the [lexy-language](https://github.com/lexy-language/lexy-language) or the online [demo](https://lexy-language.github.io/lexy-demo/)
+to understand the purpose of Lexy.
+
+NuGet .NET package: **todo**
+
+# Contribution
+
+Check [lexy-language](https://github.com/lexy-language/lexy-language) for more information about how to contribute.
+
+# Known improvements
+
+- [ ] Code: get rid of all warning 
+- [ ] Benchmarking: add performance tests and improve compilation time 
+
+# Implementations notes
 
 ## Run locally
 
-Run editor locally
-`yarn start`
+Ensure .NET (7 or above) and node.js (v16 or above) are installed.
+Tested with .NET 7.0.410 and node.js v16.20.2.~~~~
 
-
-## Known Todo's
-
-- [ ] Publish lexy-typescript as npm package 'lexy-compiler' and include it from the npm repository
-- [ ] Check how state management can be improved. It feels a bit messy.
-- [ ] Develop a backend (preferably in node.js or dotnet) so it can run locally as an editor and publicly as a playground application.
-- [ ] Document versioning strategy for lexy-langage and it's dependencies.
-
-# Implementations notes
+Run build 'dotnet build'
+Run automated tests 'dotnet test'
 
 ## Submodules
 
