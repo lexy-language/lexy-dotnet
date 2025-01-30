@@ -1,6 +1,6 @@
 # lexy-typescript
 
-Implementation of the [lexy-language](https://github.com/lexy-language/lexy-language) parser and compiler in typescript.
+Implementation of the [lexy-language](https://github.com/lexy-language/lexy-language) parser and compiler in dotnet (c#).
 Check the [lexy-language](https://github.com/lexy-language/lexy-language) or the online [demo](https://lexy-language.github.io/lexy-demo/)
 to understand the philosophy and use cases of Lexy.
 
