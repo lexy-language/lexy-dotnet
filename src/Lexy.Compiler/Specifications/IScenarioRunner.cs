@@ -12,4 +12,6 @@ public interface IScenarioRunner
 
     void Run();
     string ParserLogging();
+
+    int CountScenarios();
 }

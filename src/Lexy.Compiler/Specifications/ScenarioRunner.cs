@@ -39,6 +39,11 @@ public class ScenarioRunner : IScenarioRunner
         Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
     }
 
+    public int CountScenarios()
+    {
+        return Scenario.ValidationTable != null ? Scenario.ValidationTable.Rows.Count : 1;
+    }
+
     public void Run()
     {
         function = GetFunctionNode(rootNodeList, Scenario);
@@ -56,21 +61,43 @@ public class ScenarioRunner : IScenarioRunner
         using var compilerResult = lexyCompiler.Compile(nodes);
 
         var executable = compilerResult.GetFunction(function);
-        var values = GetValues(Scenario.Parameters);
+        if (Scenario.ValidationTable != null)
+        {
+            RunFunctionWithValidationTable(executable, compilerResult, function);
+        }
+        else
+        {
+            var values = Scenario.Parameters.GetValues();
+            RunFunctionWithValues(values, null, compilerResult, executable);
+        }
+    }
 
+    private void RunFunctionWithValidationTable(ExecutableFunction executable,
+        ICompilationResult compilationResult,
+        Function functionNode) {
+        if (Scenario.ValidationTable == null || Scenario.ValidationTable.Header == null) return;
+        foreach (var row in Scenario.ValidationTable.Rows) {
+            var values = row.GetValues(functionNode, Scenario.ValidationTable.Header);
+            RunFunctionWithValues(values, row, compilationResult, executable);
+        }
+    }
+
+    private void RunFunctionWithValues(IDictionary<string, object> values, ValidationTableRow tableRow,
+        ICompilationResult compilationResult, ExecutableFunction executable)
+    {
         var result = RunFunction(executable, values);
         if (result == null) return;
 
         if (!ValidateExecutionLogging(result)) return;
 
-        var validationResultText = ValidateResult(result, compilerResult);
+        var validationResultText = ValidateResult(result, compilationResult, tableRow);
         if (validationResultText.Count > 0)
         {
-            Fail("Results validation failed.", validationResultText);
+            Fail("Results validation failed.", validationResultText, tableRow?.Index);
         }
         else
         {
-            context.Success(Scenario, result.Logging);
+            context.Success(Scenario, result.Logging, tableRow?.Index);
         }
     }
 
@@ -116,17 +143,27 @@ public class ScenarioRunner : IScenarioRunner
         return $"------- Filename: {fileName}{Environment.NewLine}{parserLogger.ErrorMessages().Format(2)}";
     }
 
-    private void Fail(string message, IEnumerable<string> errors)
+    private void Fail(string message, IEnumerable<string> errors, int? index = null)
     {
         Failed = true;
-        context.Fail(Scenario, message, errors);
+        context.Fail(Scenario, message, errors, index);
     }
 
-    private IReadOnlyList<string> ValidateResult(FunctionResult result, ICompilationResult compilationResult)
+    private IReadOnlyList<string> ValidateResult(FunctionResult result, ICompilationResult compilationResult, ValidationTableRow tableRow)
     {
-        if (Scenario.Results == null) return Array.Empty<string>();
-
         var validationResult = new List<string>();
+        if (tableRow != null) {
+            ValidateTableResults(tableRow, result, validationResult);
+        }
+        if (Scenario.Results != null)
+        {
+            ValidateResults(result, compilationResult, validationResult);
+        }
+        return validationResult;
+    }
+
+    private void ValidateResults(FunctionResult result, ICompilationResult compilationResult, List<string> validationResult)
+    {
         foreach (var expected in Scenario.Results.AllAssignments())
         {
             var actual = result.GetValue(expected.Variable);
@@ -134,16 +171,45 @@ public class ScenarioRunner : IScenarioRunner
                 TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.VariableType);
 
             if (actual == null
-             || expectedValue == null
-             || actual.GetType() != expectedValue.GetType()
-             || Comparer.Default.Compare(actual, expectedValue) != 0)
+                || expectedValue == null
+                || actual.GetType() != expectedValue.GetType()
+                || Comparer.Default.Compare(actual, expectedValue) != 0)
             {
                 validationResult.Add(
                     $"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
             }
         }
+    }
 
-        return validationResult;
+    private void ValidateTableResults(ValidationTableRow tableRow,
+        FunctionResult result,
+        List<string> validationResult) {
+
+        for (var index = 0; index < tableRow.Values.Count; index++) {
+            var column = Scenario.ValidationTable?.Header?.GetColumn(index);
+            if (column == null) continue;
+            var variable = VariablePathParser.Parse(column.Name);
+            if (!IsResult(variable)) continue;
+            var expected = tableRow.Values[index];
+            ValidateRowValueResult(variable, expected, result, validationResult);
+        }
+    }
+
+    private bool IsResult(VariablePath path)
+    {
+        if (function.Results == null) return false;
+        return function.Results.Variables.Any(result => result.Name == path.ParentIdentifier);
+    }
+
+    private static void ValidateRowValueResult(VariablePath path, ValidationTableValue value,
+        FunctionResult result,
+        IList<string> validationResult) {
+        var actual = result.GetValue(path);
+        var expectedValue = value.GetValue();
+        if (actual == null || expectedValue == null || !actual.Equals(expectedValue)) {
+            validationResult.Add(
+                $"'{path}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"}' ({actual?.GetType().Name})");
+        }
     }
 
     private bool ValidateErrors(ISpecificationRunnerContext runnerContext)
@@ -255,46 +321,6 @@ public class ScenarioRunner : IScenarioRunner
         }
 
         return true;
-    }
-
-    private IDictionary<string, object> GetValues(Parameters parameters)
-    {
-        var result = new Dictionary<string, object>();
-        if (parameters == null) return result;
-
-        foreach (var parameter in parameters.AllAssignments())
-        {
-            SetParametersValue(parameter, result);
-        }
-
-        return result;
-    }
-
-    private static void SetParametersValue(AssignmentDefinition parameter,
-        Dictionary<string, object> result)
-    {
-        var reference = parameter.Variable;
-        var valueObject = result;
-        while (reference.Parts > 1)
-        {
-            if (!valueObject.ContainsKey(reference.ParentIdentifier))
-            {
-                var childObject = new Dictionary<string, object>();
-                valueObject.Add(reference.ParentIdentifier, childObject);
-            }
-
-            if (valueObject[reference.ParentIdentifier] is not Dictionary<string, object> dictionary)
-            {
-                throw new InvalidOperationException(
-                    $"Parent variable '{reference.ParentIdentifier}' of parameter '{parameter.Variable}' already set to value: {valueObject[reference.ParentIdentifier].GetType()}");
-            }
-
-            valueObject = dictionary;
-            reference = reference.ChildrenReference();
-        }
-
-        var value = parameter.ConstantValue.Value;
-        valueObject.Add(reference.ParentIdentifier, value);
     }
 
     private bool ValidateExecutionLogging(FunctionResult result) {

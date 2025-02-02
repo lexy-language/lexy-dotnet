@@ -65,7 +65,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
     public int CountScenarioRunners()
     {
-        return scenarioRunners.Count;
+        return scenarioRunners.Sum(runner => runner.CountScenarios());
     }
 
     private void ValidateHasScenarioCheckingRootErrors(IParserLogger logger)

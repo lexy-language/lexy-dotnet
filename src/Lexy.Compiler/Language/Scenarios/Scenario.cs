@@ -20,7 +20,7 @@ public class Scenario : RootNode, IHasNodeDependencies
 
     public Parameters Parameters { get; private set; }
     public Results Results { get; private set; }
-    public Table ValidationTable { get; private set; }
+    public ValidationTable ValidationTable { get; private set; }
     public ExecutionLogging ExecutionLogging { get; private set; }
 
     public ExpectErrors ExpectErrors { get; private set; }
@@ -59,7 +59,7 @@ public class Scenario : RootNode, IHasNodeDependencies
             Keywords.Function => ResetRootNode(context, ParseFunctionName(reference, context)),
             Keywords.Parameters => ResetRootNode(context, Parameters, () => Parameters = new Parameters(reference)),
             Keywords.Results => ResetRootNode(context, Results, () => Results = new Results(reference)),
-            Keywords.ValidationTable => ParseValidationTable(context, reference),
+            Keywords.ValidationTable => ResetRootNode(context, ValidationTable, () => ValidationTable = new ValidationTable(Name.Value + "Table", reference)),
 
             Keywords.ExecutionLogging => ResetRootNode(context, ExecutionLogging, () => ExecutionLogging = new ExecutionLogging(reference)),
 
@@ -142,27 +142,6 @@ public class Scenario : RootNode, IHasNodeDependencies
         Table = new Table(tokenName.Name, reference);
         context.Logger.SetCurrentNode(Table);
         return Table;
-    }
-
-    private IParsableNode ParseValidationTable(IParseLineContext context, SourceReference reference)
-    {
-        if (ValidationTable != null)
-        {
-            context.Logger.Fail(reference, $"Duplicated validation table '{NodeName}'.");
-            return null;
-        }
-
-        var tokenName = Parser.NodeName.Parse(context);
-        if (tokenName.Name != null)
-        {
-            context.Logger.Fail(context.Line.TokenReference(1),
-                $"Unexpected table name. 'ValidationTable' should not have a name: '{tokenName.Name}'");
-        }
-
-        var tableName = Name?.Value != null ? Name?.Value  + "ValidationTable" : "ValidationTable";
-        ValidationTable = new Table(tableName, reference);
-        context.Logger.SetCurrentNode(ValidationTable);
-        return ValidationTable;
     }
 
     private IParsableNode InvalidToken(IParseLineContext context, string name, SourceReference reference)

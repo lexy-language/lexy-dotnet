@@ -14,7 +14,6 @@ public static class Keywords
     public const string ScenarioKeyword = "Scenario:";
 
     public const string Function = "Function";
-    public const string ValidationTable = "ValidationTable";
 
     public const string If = "if";
     public const string Else = "else";
@@ -31,6 +30,8 @@ public static class Keywords
     public const string Include = "Include";
     public const string Parameters = "Parameters";
     public const string Results = "Results";
+    public const string ValidationTable = "ValidationTable";
+
     public const string Code = "Code";
     public const string ExpectErrors = "ExpectErrors";
     public const string ExpectRootErrors = "ExpectRootErrors";

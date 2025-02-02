@@ -17,21 +17,28 @@ public class TableHeader : Node
 
     public static TableHeader Parse(IParseLineContext context)
     {
-        var index = 0;
-        var validator = context.ValidateTokens<TableHeader>();
+        var startsWithTableSeparator = context.ValidateTokens<TableHeader>()
+            .Type<TableSeparatorToken>(0).IsValid;
 
-        if (!validator.Type<TableSeparatorToken>(index).IsValid) return null;
+        if (!startsWithTableSeparator) return null;
 
+        return ParseWithColumnType(context);
+    }
+
+    private static TableHeader ParseWithColumnType(IParseLineContext context)
+    {
         var headers = new List<ColumnHeader>();
         var tokens = context.Line.Tokens;
+        var index = 0;
         while (++index < tokens.Length)
         {
-            if (!validator
-                    .Type<StringLiteralToken>(index)
-                    .Type<StringLiteralToken>(index + 1)
-                    .Type<TableSeparatorToken>(index + 2)
-                    .IsValid)
-                return null;
+            var isValid = context.ValidateTokens<TableHeader>()
+                .Type<StringLiteralToken>(index)
+                .Type<StringLiteralToken>(index + 1)
+                .Type<TableSeparatorToken>(index + 2)
+                .IsValid;
+
+            if (!isValid) return null;
 
             var typeName = tokens.TokenValue(index);
             var name = tokens.TokenValue(++index);

@@ -23,10 +23,12 @@ public class ExecutableFunction
     private readonly Type parametersType;
 
     private readonly MethodInfo runMethod;
-    private readonly IDictionary<string, ParameterSetter> parameterFields = new Dictionary<string, ParameterSetter>();
     private readonly ILogger<ExecutionContext> executionLogger;
 
-    public ExecutableFunction(Function function, Type functionType, ICompilationEnvironment compilationEnvironment, ILogger<ExecutionContext> executionLogger)
+    public ExecutableFunction(Function function,
+        Type functionType,
+        ICompilationEnvironment compilationEnvironment,
+        ILogger<ExecutionContext> executionLogger)
     {
         this.executionLogger = executionLogger;
         this.function = function;
@@ -240,8 +242,6 @@ public class ExecutableFunction
 
     private ParameterSetter GetParameterSetter(object parameters, string name)
     {
-        if (parameterFields.ContainsKey(name)) return parameterFields[name];
-
         var currentReference = VariablePathParser.Parse(name);
         var currentValue = parameters;
         var field = GetField(currentReference.ParentIdentifier, parameters);
@@ -255,9 +255,7 @@ public class ExecutableFunction
             parameterType = GetTypeVariableType(parameterType, currentReference);
         }
 
-        var setter = new ParameterSetter(parameterType, (value) => field.SetValue(currentValue, value));
-        parameterFields[name] = setter;
-        return setter;
+        return new ParameterSetter(parameterType, (value) => field.SetValue(currentValue, value));
     }
 
     private VariableType GetFunctionParameterType(VariablePath currentPath)

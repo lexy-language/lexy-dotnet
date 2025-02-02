@@ -20,19 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="Laws\SwissPersonalTax.law">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Laws\SwissPersonalTax.specs">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Laws\SwissPersonalTax.table">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Remove="lexy-language\**" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="lexy-language\**" />
     </ItemGroup>
 

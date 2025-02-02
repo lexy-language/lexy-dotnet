@@ -25,15 +25,17 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
         this.logger = logger;
     }
 
-    public void Fail(Scenario scenario, string message, IEnumerable<string> errors)
+    public void Fail(Scenario scenario, string message, IEnumerable<string> errors, int? index = null)
     {
         Failed++;
 
+        var suffix = index != null ? $"[{index}]" : "";
+        var scenarioName = scenario.Name + suffix;
         var entry = new SpecificationsLogEntry(scenario.Reference, scenario, true,
-            $"FAILED - {scenario.Name}: {message}", errors);
+            $"FAILED - {scenarioName}: {message}", errors);
         logEntries.Add(entry);
 
-        logger.LogError("- FAILED  - {ScenarioName}: {Message}", scenario.Name, message);
+        logger.LogError("- FAILED  - {ScenarioName}: {Message}", scenarioName, message);
         errors?.ForEach(message => this.logger.LogInformation("  {Message}", message));
     }
 
@@ -54,12 +56,15 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
         logger.LogInformation("Time: {Difference} milliseconds", difference);
     }
 
-    public void Success(Scenario scenario, IEnumerable<ExecutionLogEntry> logging = null)
+    public void Success(Scenario scenario, IEnumerable<ExecutionLogEntry> logging = null, int? index = null)
     {
-        var entry = new SpecificationsLogEntry(scenario.Reference, scenario, false, $"SUCCESS - {scenario.Name}", null,
+        var suffix = index != null ? $"[{index}]" : "";
+        var scenarioName = scenario.Name + suffix;
+
+        var entry = new SpecificationsLogEntry(scenario.Reference, scenario, false, $"SUCCESS - {scenarioName}", null,
             logging);
         logEntries.Add(entry);
-        logger.LogInformation("- SUCCESS - {ScenarioName}", scenario.Name);
+        logger.LogInformation("- SUCCESS - {ScenarioName}", scenarioName);
     }
 
     public void Add(ISpecificationFileRunner fileRunner)
@@ -76,7 +81,6 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
 
     public int CountScenarios()
     {
-        return FileRunners.Select(fileRunner => fileRunner.CountScenarioRunners())
-            .Aggregate((value, total) => value + total);
+        return FileRunners.Sum(fileRunner => fileRunner.CountScenarioRunners());
     }
 }
