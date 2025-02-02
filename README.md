@@ -1,4 +1,4 @@
-# lexy-typescript
+# lexy-typescript  v0.1
 
 Implementation of the [lexy-language](https://github.com/lexy-language/lexy-language) parser and compiler in dotnet (c#).
 Check the [lexy-language](https://github.com/lexy-language/lexy-language) or the online [demo](https://lexy-language.github.io/lexy-demo/)
@@ -14,6 +14,7 @@ Check [lexy-language](https://github.com/lexy-language/lexy-language) for more i
 
 - [ ] Code: get rid of all warning 
 - [ ] Benchmarking: add performance tests and improve compilation time 
+- [ ] Packaging: publish NuGet package from GitHub Actions
 
 # Implementations notes
 
