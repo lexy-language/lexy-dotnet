@@ -17,6 +17,7 @@ Check [lexy-language](https://github.com/lexy-language/lexy-language) for more i
 - [ ] Code: get rid of all warning 
 - [ ] Benchmarking: add performance tests and improve compilation time 
 - [ ] Packaging: publish NuGet package from GitHub Actions
+- [ ] Editor API: develop API for editot (or in node.js) (Lexy.Web.Editori is currently excluded from solution)
 
 # Implementations notes
 
