@@ -1,4 +1,4 @@
-# lexy-typescript  v0.1
+# lexy-dotnet  v0.1
 
 [![Build lexy-dotnet](https://github.com/lexy-language/lexy-dotnet/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/lexy-language/lexy-dotnet/actions/workflows/build.yml) ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/lexy-language/5cd196aad8e9065cdba88b922a8d7bd6/raw/coverage.svg)
 
@@ -23,11 +23,14 @@ Check [lexy-language](https://github.com/lexy-language/lexy-language) for more i
 
 ## Run locally
 
-Ensure .NET (7 or above) and node.js (v16 or above) are installed.
-Tested with .NET 7.0.410 and node.js v16.20.2.~~~~
+Ensure .NET 7 are installed.
+Tested with .NET 7.0.410 
 
 Run build 'dotnet build'
 Run automated tests 'dotnet test'
+
+It contains a project **Lexy.Web.Editor** which could be a start for an API for lexy-editor. It is a react app and needs node.js (v16 or above). Tested with node.js v16.20.2.
+
 
 ## Submodules
 
