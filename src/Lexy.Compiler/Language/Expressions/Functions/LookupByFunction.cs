@@ -6,35 +6,42 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
 
-internal class LookupFunction : TableFunction
+internal class LookupByFunction : TableFunction
 {
     public const string FunctionHelpValue =
-        "Arguments: LOOKUP(Table, lookUpValue, Table.SearchValueColumn, Table.ResultColumn)";
-    public const string Name = "LOOKUP";
+        "Arguments: LOOKUPBY(Table, discriminatorValue, lookUpValue, Table.DiscriminatorValueColumn, Table.SearchValueColumn, Table.ResultColumn)";
+    public const string Name = "LOOKUPBY";
 
-    private const int Arguments = 4;
+    private const int Arguments = 6;
     private const int ArgumentTable = 0;
-    private const int ArgumentLookupValue = 1;
-    private const int ArgumentSearchValueColumn = 2;
-    private const int ArgumentResultColumn = 3;
+    private const int ArgumentLDiscriminatorValue = 1;
+    private const int ArgumentLookupValue = 2;
+    private const int ArgumentDiscriminatorValueColumn = 3;
+    private const int ArgumentSearchValueColumn = 4;
+    private const int ArgumentResultColumn = 5;
 
+    public Expression DiscriminatorExpression { get; }
     public Expression ValueExpression { get; }
 
+    public MemberAccessLiteral DiscriminatorValueColumn { get; }
     public MemberAccessLiteral SearchValueColumn { get; }
     public MemberAccessLiteral ResultColumn { get; }
 
     public VariableType SearchValueColumnType { get; private set; }
+    public VariableType DiscriminatorValueColumnType { get; private set; }
     public VariableType ResultColumnType { get; private set; }
 
     public override string FunctionHelp => FunctionHelpValue;
 
-    private LookupFunction(string tableType, Expression valueExpression,
-        MemberAccessLiteral searchValueColumn, MemberAccessLiteral resultColumn,
+    private LookupByFunction(string tableType, Expression discriminatorExpression, Expression valueExpression,
+        MemberAccessLiteral discriminatorColumn, MemberAccessLiteral searchValueColumn, MemberAccessLiteral resultColumn,
         ExpressionSource source)
         : base(tableType, Name, source)
     {
         ValueExpression = valueExpression ?? throw new ArgumentNullException(nameof(valueExpression));
+        DiscriminatorExpression = discriminatorExpression ?? throw new ArgumentNullException(nameof(discriminatorExpression));
         SearchValueColumn = searchValueColumn ?? throw new ArgumentNullException(nameof(searchValueColumn));
+        DiscriminatorValueColumn = discriminatorColumn ?? throw new ArgumentNullException(nameof(discriminatorColumn));
         ResultColumn = resultColumn ?? throw new ArgumentNullException(nameof(resultColumn));
     }
 
@@ -52,6 +59,12 @@ internal class LookupFunction : TableFunction
                 $"Invalid argument {ArgumentTable}. Should be valid table name. {FunctionHelpValue}");
         }
 
+        if (arguments[ArgumentDiscriminatorValueColumn] is not MemberAccessExpression discriminatorValueColumnHeader)
+        {
+            return ParseExpressionFunctionsResult.Failed(
+                $"Invalid argument {ArgumentDiscriminatorValueColumn}. Should be discriminator column. {FunctionHelpValue}");
+        }
+
         if (arguments[ArgumentSearchValueColumn] is not MemberAccessExpression searchValueColumnHeader)
         {
             return ParseExpressionFunctionsResult.Failed(
@@ -65,18 +78,21 @@ internal class LookupFunction : TableFunction
         }
 
         var tableName = tableNameExpression.Identifier;
+        var discriminatorExpression = arguments[ArgumentLDiscriminatorValue];
         var valueExpression = arguments[ArgumentLookupValue];
+        var discriminatorValueColumn = discriminatorValueColumnHeader.MemberAccessLiteral;
         var searchValueColumn = searchValueColumnHeader.MemberAccessLiteral;
         var resultColumn = resultColumnExpression.MemberAccessLiteral;
 
-        var lookupFunction = new LookupFunction(tableName, valueExpression,
-             searchValueColumn, resultColumn, source);
+        var lookupFunction = new LookupByFunction(tableName, discriminatorExpression, valueExpression,
+            discriminatorValueColumn, searchValueColumn, resultColumn, source);
         return ParseExpressionFunctionsResult.Success(lookupFunction);
     }
 
     public override IEnumerable<INode> GetChildren()
     {
         yield return ValueExpression;
+        yield return DiscriminatorExpression;
     }
 
     protected override void Validate(IValidationContext context)
@@ -84,16 +100,21 @@ internal class LookupFunction : TableFunction
         base.Validate(context);
         if (Table == null) return;
 
+        var discriminatorColumnHeader = GetColumnHeader(context, ArgumentDiscriminatorValueColumn, DiscriminatorValueColumn);
         var searchColumnHeader = GetColumnHeader(context, ArgumentSearchValueColumn, SearchValueColumn);
         var resultColumnHeader = GetColumnHeader(context, ArgumentResultColumn, ResultColumn);
-        if (searchColumnHeader == null || resultColumnHeader == null) return;
+        if (discriminatorColumnHeader == null || searchColumnHeader == null || resultColumnHeader == null) return;
 
         ResultColumnType = resultColumnHeader.Type.VariableType;
         SearchValueColumnType = searchColumnHeader.Type.VariableType;
+        DiscriminatorValueColumnType = discriminatorColumnHeader.Type.VariableType;
 
         ValidateColumnValueType(
             ArgumentSearchValueColumn, SearchValueColumn,
             ValueExpression.DeriveType(context), SearchValueColumnType, context);
+        ValidateColumnValueType(
+            ArgumentDiscriminatorValueColumn, DiscriminatorValueColumn,
+            DiscriminatorExpression.DeriveType(context), DiscriminatorValueColumnType, context);
     }
 
     public override VariableType DeriveType(IValidationContext context) => ResultColumnType;

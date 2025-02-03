@@ -17,6 +17,8 @@ internal static class FunctionCallFactory
     {
         AddFactory<LookupFunction, LookUpFunctionCall>();
         AddFactory<LookupRowFunction, LookUpRowFunctionCall>();
+        AddFactory<LookupByFunction, LookUpByFunctionCall>();
+        AddFactory<LookupRowByFunction, LookUpRowByFunctionCall>();
 
         AddFactory<IntFunction, IntFunctionCall>();
         AddFactory<AbsFunction, AbsFunctionCall>();

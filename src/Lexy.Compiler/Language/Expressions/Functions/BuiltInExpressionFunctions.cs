@@ -35,6 +35,8 @@ public static class BuiltInExpressionFunctions
 
                 { LookupFunction.Name, LookupFunction.Create },
                 { LookupRowFunction.Name, LookupRowFunction.Create },
+                { LookupByFunction.Name, LookupByFunction.Create },
+                { LookupRowByFunction.Name, LookupRowByFunction.Create },
 
                 { NewFunction.Name, Create(NewFunction.Create) },
                 { FillParametersFunction.Name, Create(FillParametersFunction.Create) },

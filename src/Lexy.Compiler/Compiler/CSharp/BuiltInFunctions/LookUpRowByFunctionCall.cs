@@ -8,9 +8,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
 
-internal class LookUpRowFunctionCall : FunctionCall<LookupRowFunction>
+internal class LookUpRowByFunctionCall : FunctionCall<LookupRowByFunction>
 {
-    public override MemberDeclarationSyntax CustomMethodSyntax(LookupRowFunction lookupFunction)
+    public override MemberDeclarationSyntax CustomMethodSyntax(LookupRowByFunction lookupFunction)
     {
         var methodName = MethodName(lookupFunction);
         return MethodDeclaration(
@@ -22,6 +22,9 @@ internal class LookUpRowFunctionCall : FunctionCall<LookupRowFunction>
                     SeparatedList<ParameterSyntax>(
                         new SyntaxNodeOrToken[]
                         {
+                            Parameter(Identifier("discriminator"))
+                                .WithType(Types.Syntax(lookupFunction.DiscriminatorValueColumnType)),
+                            Token(SyntaxKind.CommaToken),
                             Parameter(Identifier("condition"))
                                 .WithType(Types.Syntax(lookupFunction.SearchValueColumnType)),
                             Token(SyntaxKind.CommaToken),
@@ -36,12 +39,14 @@ internal class LookUpRowFunctionCall : FunctionCall<LookupRowFunction>
                                     MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
                                         IdentifierName(nameof(BuiltInTableFunctions)),
-                                        IdentifierName(nameof(BuiltInTableFunctions.LookUpRow))))
+                                        IdentifierName(nameof(BuiltInTableFunctions.LookUpRowBy))))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList<ArgumentSyntax>(
                                             new SyntaxNodeOrToken[]
                                             {
+                                                Arguments.String(lookupFunction.DiscriminatorValueColumn.Member),
+                                                Token(SyntaxKind.CommaToken),
                                                 Arguments.String(lookupFunction.SearchValueColumn.Member),
                                                 Token(SyntaxKind.CommaToken),
                                                 Arguments.String(lookupFunction.TableName),
@@ -49,7 +54,12 @@ internal class LookUpRowFunctionCall : FunctionCall<LookupRowFunction>
                                                 Arguments.MemberAccess(ClassNames.TableClassName(lookupFunction.TableName),
                                                     "Values"),
                                                 Token(SyntaxKind.CommaToken),
+                                                Argument(IdentifierName("discriminator")),
+                                                Token(SyntaxKind.CommaToken),
                                                 Argument(IdentifierName("condition")),
+                                                Token(SyntaxKind.CommaToken),
+                                                Arguments.MemberAccessLambda("row",
+                                                    lookupFunction.DiscriminatorValueColumn.Member),
                                                 Token(SyntaxKind.CommaToken),
                                                 Arguments.MemberAccessLambda("row",
                                                     lookupFunction.SearchValueColumn.Member),
@@ -58,7 +68,7 @@ internal class LookUpRowFunctionCall : FunctionCall<LookupRowFunction>
                                             })))))));
     }
 
-    public override ExpressionSyntax CallExpressionSyntax(LookupRowFunction lookupFunction)
+    public override ExpressionSyntax CallExpressionSyntax(LookupRowByFunction lookupFunction)
     {
         var methodName = MethodName(lookupFunction);
         return InvocationExpression(IdentifierName(methodName))
@@ -67,14 +77,17 @@ internal class LookUpRowFunctionCall : FunctionCall<LookupRowFunction>
                     SeparatedList<ArgumentSyntax>(
                         new SyntaxNodeOrToken[]
                         {
+                            Argument(Expressions.ExpressionSyntax(lookupFunction.DiscriminatorExpression)),
+                            Token(SyntaxKind.CommaToken),
                             Argument(Expressions.ExpressionSyntax(lookupFunction.ValueExpression)),
                             Token(SyntaxKind.CommaToken),
                             Argument(IdentifierName(LexyCodeConstants.ContextVariable))
                         })));
     }
 
-    private static string MethodName(LookupRowFunction lookupFunction)
+    private static string MethodName(LookupRowByFunction lookupFunction)
     {
-        return $"__LookUp{lookupFunction.Table}RowBy{lookupFunction.SearchValueColumn.Member}";
+        return $"__LookUp{lookupFunction.Table}RowBy{lookupFunction.SearchValueColumn.Member}" +
+               $"Discriminator{lookupFunction.DiscriminatorValueColumn.Member}";
     }
 }
