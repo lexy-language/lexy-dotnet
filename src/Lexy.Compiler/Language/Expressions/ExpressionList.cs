@@ -73,7 +73,7 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
 
     private void AddToParent(IChildExpression childExpression, IParseLineContext context) {
         var parentExpression = values.LastOrDefault() as IParentExpression;
-        if (childExpression.ValidatePreviousExpression(parentExpression, context)) {
+        if (childExpression.ValidateParentExpression(parentExpression, context)) {
             parentExpression.LinkChildExpression(childExpression);
         }
     }

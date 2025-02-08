@@ -22,7 +22,7 @@ public static class ParserExtensions
         var parser = serviceProvider.GetRequiredService<ILexyParser>();
 
         var codeLines = code.Split(Environment.NewLine);
-        var context = parser.Parse(codeLines, "tests.lexy", false);
+        var context = parser.Parse(codeLines, "tests.lexy", new ParseOptions() {SuppressException = true});
 
         return new ParseResult<RootNodeList>(context.Nodes, context.Logger);
     }

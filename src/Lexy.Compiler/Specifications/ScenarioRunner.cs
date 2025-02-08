@@ -47,14 +47,8 @@ public class ScenarioRunner : IScenarioRunner
     public void Run()
     {
         function = GetFunctionNode(rootNodeList, Scenario);
-        if (parserLogger.NodeHasErrors(Scenario) && Scenario.ExpectExecutionErrors?.HasValues != true)
-        {
-            Fail($"  Parsing scenario failed: {Scenario.FunctionName}",
-                parserLogger.ErrorNodeMessages(Scenario));
-            return;
-        }
-
-        if (!ValidateErrors(context)) return;
+        if (!ValidateScenarioErrors()) return;
+        if (!ValidateErrors()) return;
 
         var nodes = DependencyGraphFactory.NodeAndDependencies(rootNodeList, function);
 
@@ -74,9 +68,11 @@ public class ScenarioRunner : IScenarioRunner
 
     private void RunFunctionWithValidationTable(ExecutableFunction executable,
         ICompilationResult compilationResult,
-        Function functionNode) {
+        Function functionNode)
+    {
         if (Scenario.ValidationTable == null || Scenario.ValidationTable.Header == null) return;
-        foreach (var row in Scenario.ValidationTable.Rows) {
+        foreach (var row in Scenario.ValidationTable.Rows)
+        {
             var values = row.GetValues(functionNode, Scenario.ValidationTable.Header);
             RunFunctionWithValues(values, row, compilationResult, executable);
         }
@@ -111,9 +107,11 @@ public class ScenarioRunner : IScenarioRunner
         if (scenario.FunctionName != null)
         {
             var functionNode = rootNodeList.GetFunction(scenario.FunctionName.Value);
-            if (functionNode == null) {
+            if (functionNode == null)
+            {
                 Fail($"Unknown function: " + scenario.FunctionName, parserLogger.ErrorNodeMessages(Scenario));
             }
+
             return functionNode;
         }
 
@@ -130,8 +128,10 @@ public class ScenarioRunner : IScenarioRunner
         {
             if (!ValidateExecutionErrors(exception))
             {
-                Fail("Execution error occured.", new [] {
-                    "Error: ",exception.ToString()});
+                Fail("Execution error occured.", new[]
+                {
+                    "Error: ", exception.ToString()
+                });
             }
 
             return null;
@@ -149,20 +149,25 @@ public class ScenarioRunner : IScenarioRunner
         context.Fail(Scenario, message, errors, index);
     }
 
-    private IReadOnlyList<string> ValidateResult(FunctionResult result, ICompilationResult compilationResult, ValidationTableRow tableRow)
+    private IReadOnlyList<string> ValidateResult(FunctionResult result, ICompilationResult compilationResult,
+        ValidationTableRow tableRow)
     {
         var validationResult = new List<string>();
-        if (tableRow != null) {
+        if (tableRow != null)
+        {
             ValidateTableResults(tableRow, result, validationResult);
         }
+
         if (Scenario.Results != null)
         {
             ValidateResults(result, compilationResult, validationResult);
         }
+
         return validationResult;
     }
 
-    private void ValidateResults(FunctionResult result, ICompilationResult compilationResult, List<string> validationResult)
+    private void ValidateResults(FunctionResult result, ICompilationResult compilationResult,
+        List<string> validationResult)
     {
         foreach (var expected in Scenario.Results.AllAssignments())
         {
@@ -183,9 +188,10 @@ public class ScenarioRunner : IScenarioRunner
 
     private void ValidateTableResults(ValidationTableRow tableRow,
         FunctionResult result,
-        List<string> validationResult) {
-
-        for (var index = 0; index < tableRow.Values.Count; index++) {
+        List<string> validationResult)
+    {
+        for (var index = 0; index < tableRow.Values.Count; index++)
+        {
             var column = Scenario.ValidationTable?.Header?.GetColumn(index);
             if (column == null) continue;
             var variable = VariablePathParser.Parse(column.Name);
@@ -203,133 +209,121 @@ public class ScenarioRunner : IScenarioRunner
 
     private static void ValidateRowValueResult(VariablePath path, ValidationTableValue value,
         FunctionResult result,
-        IList<string> validationResult) {
+        IList<string> validationResult)
+    {
         var actual = result.GetValue(path);
         var expectedValue = value.GetValue();
-        if (actual == null || expectedValue == null || !actual.Equals(expectedValue)) {
+        if (actual == null || expectedValue == null || !actual.Equals(expectedValue))
+        {
             validationResult.Add(
                 $"'{path}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"}' ({actual?.GetType().Name})");
         }
     }
 
-    private bool ValidateErrors(ISpecificationRunnerContext runnerContext)
+    private bool ValidateScenarioErrors()
+    {
+        var failedMessages = parserLogger.ErrorNodeMessages(Scenario);
+        if (failedMessages.Length == 0) return true;
+
+        var skipValidationWhenExecutionErrorsAreExpected = failedMessages.Length > 0
+                                                           && Scenario.ExpectExecutionErrors != null;
+
+        if (skipValidationWhenExecutionErrorsAreExpected) return true;
+
+        var expectErrors = Scenario.ExpectErrors;
+        return ValidateExpectedErrors("Parsing Scenario", failedMessages, expectErrors?.Messages);
+    }
+
+    private bool ValidateErrors()
     {
         if (Scenario.ExpectRootErrors?.HasValues == true) return ValidateRootErrors();
 
         var node = function
-               ?? Scenario.Function
-               ?? Scenario.Enum
-               ?? (IRootNode)Scenario.Table;
-        if (node == null) {
+                   ?? Scenario.Function
+                   ?? Scenario.Enum
+                   ?? (IRootNode)Scenario.Table;
+        if (node == null)
+        {
             Fail("Scenario has no function, enum or table.", Array.Empty<string>());
             return false;
         }
 
         var dependencies = DependencyGraphFactory.NodeAndDependencies(rootNodeList, node);
         var failedMessages = parserLogger.ErrorNodesMessages(dependencies);
-
-        if (failedMessages.Length > 0 && Scenario.ExpectErrors?.HasValues != true)
-        {
-            Fail("Exception occurred: ", failedMessages);
-            return false;
-        }
-
-        if (Scenario.ExpectErrors?.HasValues != true) return true;
-
-        if (failedMessages.Length == 0)
-        {
-            Fail($"No errors but errors expected:", Scenario.ExpectErrors.Messages);
-            return false;
-        }
-
-        var errorNotFound = Scenario.ExpectErrors.Messages.Any(message =>
-            !failedMessages.Any(failedMessage => failedMessage.Contains(message)));
-
-        if (errorNotFound)
-        {
-            Fail($"Wrong error(s) occurred", StringArrayBuilder
-                .New("Expected:").List(Scenario.ExpectErrors.Messages)
-                .Add("Actual:").List(failedMessages).Array());
-            return false;
-        }
-
-        runnerContext.Success(Scenario);
-        return false;
+        var expectErrors = Scenario.ExpectErrors;
+        return ValidateExpectedErrors("Parsing", failedMessages, expectErrors?.Messages);
     }
 
     private bool ValidateRootErrors()
     {
-        var failedMessages = parserLogger.ErrorMessages().ToList();
-        if (!failedMessages.Any())
-        {
-            Fail($"Root errors expected. No errors occurred", StringArrayBuilder
-                .New("Expected:").List(Scenario.ExpectRootErrors.Messages)
-                .Array());
-            return false;
-        }
-
-        var failed = false;
-        foreach (var rootMessage in Scenario.ExpectRootErrors.Messages)
-        {
-            var failedMessage = failedMessages.Find(message => message.Contains(rootMessage));
-            if (failedMessage != null)
-                failedMessages.Remove(failedMessage);
-            else
-                failed = true;
-        }
-
-        if (!failedMessages.Any() && !failed)
-        {
-            context.Success(Scenario);
-            return false; // don't compile and run rest of scenario
-        }
-
-        Fail($"Wrong root error(s) occurred.", StringArrayBuilder
-            .New("Expected:").List(Scenario.ExpectRootErrors.Messages)
-            .Add("Actual: ").List(parserLogger.ErrorMessages())
-            .Array());
-        return false;
+        var failedMessages = parserLogger.ErrorMessages();
+        return ValidateExpectedErrors("Root", failedMessages, Scenario.ExpectRootErrors?.Messages, true);
     }
-
 
     private bool ValidateExecutionErrors(Exception exception)
     {
-        if (Scenario.ExpectExecutionErrors?.HasValues != true) return false;
+        return !ValidateExpectedErrors("Execution", exception.ToString().Split("\n"),
+            Scenario.ExpectExecutionErrors?.Messages);
+    }
 
-        var errorMessage = exception.ToString();
-        var failedErrors = new List<string>();
-        var expected = Scenario.ExpectExecutionErrors.Messages.ToList();
-
-        foreach (var error in Scenario.ExpectExecutionErrors.Messages)
+    private bool ValidateExpectedErrors(string title,
+        IReadOnlyList<string> actualErrors,
+        IEnumerable<string> expectErrors,
+        bool strictAllMessages = false)
+    {
+        if (actualErrors.Count > 0 && expectErrors == null)
         {
-            if (!errorMessage.Contains(error))
+            Fail($"{title} error(s) occurred", StringArrayBuilder
+                .New("Expected:").List(actualErrors).Array());
+            return false;
+        }
+
+        if (expectErrors == null || !expectErrors.Any()) return true;
+
+        if (actualErrors.Count == 0)
+        {
+            Fail($"No {title} errors, but errors expected:", StringArrayBuilder
+                .New("Expected:").List(expectErrors).Array());
+            return false;
+        }
+
+        var errorNotFound = false;
+        var remainingMessages = actualErrors.ToList();
+        foreach (var expectError in expectErrors)
+        {
+            var failedMessage = remainingMessages.FirstOrDefault(message => message.Contains(expectError));
+            if (failedMessage != null)
             {
-                failedErrors.Add(error);
+                remainingMessages.Remove(failedMessage);
             }
             else
             {
-                expected.Remove(error);
+                errorNotFound = true;
             }
         }
 
-        if (failedErrors.Count > 0)
+        if ((strictAllMessages && remainingMessages.Any()) || errorNotFound)
         {
-            Fail($"Execution error not found", StringArrayBuilder
-                .New("Not found:").List(expected)
-                .Add("Actual:").Add(errorMessage, 2)
-                .Array());
+            Fail($"Wrong {title} error(s) occurred.", StringArrayBuilder
+                .New("Expected:").List(expectErrors)
+                .Add("Actual:").List(actualErrors).Array());
+            return false;
         }
 
-        return true;
+        context.Success(Scenario);
+        return false;
     }
 
-    private bool ValidateExecutionLogging(FunctionResult result) {
+    private bool ValidateExecutionLogging(FunctionResult result)
+    {
         if (Scenario.ExecutionLogging == null) return true;
         var errors = Scenario.ExecutionLogging.Entries.ValidateExecutionLogging(result.Logging);
-        if (errors != null) {
+        if (errors != null)
+        {
             Fail("Invalid Execution Logging", errors);
             return false;
         }
+
         return true;
     }
 }

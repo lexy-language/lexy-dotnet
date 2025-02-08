@@ -90,10 +90,7 @@ public class ExtractResultsFunction : FunctionCallExpression
         }
     }
 
-    public override VariableType DeriveType(IValidationContext context)
-    {
-        return new VoidType();
-    }
+    public override VariableType DeriveType(IValidationContext context) => new VoidType();
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
     {

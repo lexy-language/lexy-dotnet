@@ -10,7 +10,7 @@ public class NewFunction : FunctionCallExpression, IHasNodeDependencies
 {
     public const string Name = "new";
 
-    protected string FunctionHelp => $"{Name} expects 1 argument (Function.Parameters)";
+    protected string FunctionHelp => $"{Name} expects 1 argument new(Function.Parameters)";
 
     public MemberAccessLiteral TypeLiteral { get; }
 

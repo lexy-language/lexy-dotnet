@@ -14,6 +14,7 @@ public class ExpressionFactory : IExpressionFactory
             {
                 { IfExpression.IsValid, IfExpression.Parse },
                 { ElseExpression.IsValid, ElseExpression.Parse },
+                { ElseIfExpression.IsValid, ElseIfExpression.Parse },
                 { SwitchExpression.IsValid, SwitchExpression.Parse },
                 { CaseExpression.IsValid, CaseExpression.Parse },
                 { VariableDeclarationExpression.IsValid, VariableDeclarationExpression.Parse },

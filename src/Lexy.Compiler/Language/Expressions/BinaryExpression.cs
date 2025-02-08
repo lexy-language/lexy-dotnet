@@ -9,6 +9,16 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class BinaryExpression : Expression
 {
+    private static readonly IList<ExpressionOperator> ComparisonOperators = new[]
+    {
+        ExpressionOperator.GreaterThan,
+        ExpressionOperator.GreaterThanOrEqual,
+        ExpressionOperator.LessThan,
+        ExpressionOperator.LessThanOrEqual,
+        ExpressionOperator.Equals,
+        ExpressionOperator.NotEqual
+    };
+
     private static readonly IList<OperatorEntry> SupportedOperatorsByPriority = new List<OperatorEntry>
     {
         new(OperatorType.Multiplication, ExpressionOperator.Multiplication),
@@ -149,13 +159,16 @@ public class BinaryExpression : Expression
         var right = Right.DeriveType(context);
 
         if (!left.Equals(right))
+        {
             context.Logger.Fail(Reference,
                 $"Invalid expression type. Left expression: '{left}'. Right expression '{right}.");
+        }
     }
 
     public override VariableType DeriveType(IValidationContext context)
     {
-        if (Operator is ExpressionOperator.Equals or ExpressionOperator.NotEqual) {
+        if (ComparisonOperators.Contains(Operator))
+        {
             return PrimitiveType.Boolean;
         }
 

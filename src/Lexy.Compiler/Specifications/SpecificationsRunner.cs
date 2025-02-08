@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using Lexy.Compiler.Compiler;
 using Lexy.Compiler.Infrastructure;
@@ -11,12 +10,14 @@ namespace Lexy.Compiler.Specifications;
 public class SpecificationsRunner : ISpecificationsRunner
 {
     private readonly ILexyParser parser;
+    private readonly IFileSystem fileSystem;
     private readonly ILexyCompiler compiler;
     private readonly ILogger<SpecificationsRunner> logger;
 
-    public SpecificationsRunner(ILexyParser parser, ILexyCompiler compiler, ILogger<SpecificationsRunner> logger)
+    public SpecificationsRunner(ILexyParser parser, IFileSystem fileSystem, ILexyCompiler compiler, ILogger<SpecificationsRunner> logger)
     {
         this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -74,13 +75,16 @@ public class SpecificationsRunner : ISpecificationsRunner
 
     private void AddFolder(string folder, ISpecificationRunnerContext context)
     {
-        var files = Directory.GetFiles(folder, $"*.{LexySourceDocument.FileExtension}");
+        var files = this.fileSystem.GetDirectoryFiles(folder, new string[]{
+            $".{LexySourceDocument.FileExtension}",
+            $".{LexySourceDocument.MarkdownExtension}"
+        });
 
         files
             .OrderBy(name => name)
             .ForEach(file => CreateFileRunner(file, context));
 
-        Directory.GetDirectories(folder)
+        fileSystem.GetDirectories(folder)
             .OrderBy(name => name)
             .ForEach(folder => AddFolder(folder, context));
     }
@@ -92,13 +96,13 @@ public class SpecificationsRunner : ISpecificationsRunner
         context.Add(runner);
     }
 
-    private static string GetAbsoluteFolder(string folder)
+    private string GetAbsoluteFolder(string folder)
     {
-        var absoluteFolder = Path.IsPathRooted(folder)
+        var absoluteFolder = fileSystem.IsPathRooted(folder)
             ? folder
-            : Path.GetFullPath(folder);
+            : fileSystem.GetFullPath(folder);
 
-        if (!Directory.Exists(absoluteFolder))
+        if (!fileSystem.DirectoryExists(absoluteFolder))
         {
             throw new InvalidOperationException($"Specifications folder doesn't exist: {absoluteFolder}");
         }

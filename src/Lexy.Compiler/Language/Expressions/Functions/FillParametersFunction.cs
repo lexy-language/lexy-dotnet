@@ -14,7 +14,7 @@ public class FillParametersFunction : FunctionCallExpression, IHasNodeDependenci
 
     private readonly IList<Mapping> mapping = new List<Mapping>();
 
-    protected string FunctionHelp => $"{Name} expects 1 argument (Function.Parameters)";
+    protected string FunctionHelp => $"{Name} expects 1 argument fill(Function.Parameters)";
 
     public MemberAccessLiteral TypeLiteral { get; }
 

@@ -32,7 +32,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
     public void Initialize()
     {
-        result = parser.ParseFile(fileName, false);
+        result = parser.ParseFile(fileName, new ParseOptions {SuppressException = true});
 
         var runners = result
             .Nodes

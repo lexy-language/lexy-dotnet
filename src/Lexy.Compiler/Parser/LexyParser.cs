@@ -1,7 +1,7 @@
 using System;
-using System.IO;
 using System.Linq;
 using Lexy.Compiler.DependencyGraph;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Microsoft.Extensions.Logging;
@@ -12,33 +12,36 @@ public class LexyParser : ILexyParser
 {
     private readonly ILogger baseLogger;
     private readonly ITokenizer tokenizer;
+    private readonly IFileSystem fileSystem;
     private readonly IExpressionFactory expressionFactory;
     private readonly ISourceCodeDocument sourceCodeDocument;
 
-    public LexyParser(ISourceCodeDocument sourceCodeDocument, ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IExpressionFactory expressionFactory)
+    public LexyParser(ISourceCodeDocument sourceCodeDocument, ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IFileSystem fileSystem, IExpressionFactory expressionFactory)
     {
         this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
         this.baseLogger = baseLogger ?? throw new ArgumentNullException(nameof(baseLogger));
         this.tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
+        this.fileSystem = fileSystem;
         this.expressionFactory = expressionFactory ?? throw new ArgumentNullException(nameof(expressionFactory));
     }
 
-    public ParserResult ParseFile(string fileName, bool throwException = true)
+    public ParserResult ParseFile(string fileName, ParseOptions options)
     {
         baseLogger.LogInformation("Parse file: {FileName}", fileName);
 
-        var code = File.ReadAllLines(fileName);
-        return Parse(code, fileName, throwException);
+        var code = fileSystem.ReadAllLines(fileName);
+        return Parse(code, fileName, options);
     }
 
-    public ParserResult Parse(string[] code, string fullFileName, bool throwException = true)
+    public ParserResult Parse(string[] code, string fullFileName, ParseOptions options)
     {
         if (code == null) throw new ArgumentNullException(nameof(code));
 
         var parserLogger = new ParserLogger(baseLogger);
-        var context = new ParserContext(parserLogger);
+        var context = new ParserContext(parserLogger, fileSystem, options);
 
         context.AddFileIncluded(fullFileName);
+        context.SetFileLineFilter(fullFileName);
 
         ParseDocument(code, fullFileName, context);
 
@@ -47,21 +50,24 @@ public class LexyParser : ILexyParser
         ValidateNodesTree(context);
         DetectCircularDependencies(context);
 
-        if (throwException) parserLogger.AssertNoErrors();
+        if (!context.Options.SuppressException)
+        {
+            parserLogger.AssertNoErrors();
+        }
 
         return new ParserResult(context.Nodes, context.Logger);
     }
 
     private void ParseDocument(string[] code, string fullFileName, IParserContext context)
     {
-        sourceCodeDocument.SetCode(code, Path.GetFileName(fullFileName));
+        sourceCodeDocument.SetCode(code, fileSystem.GetFileName(fullFileName));
 
         var currentIndent = 0;
         var nodePerIndent = new ParsableNodeArray(context.RootNode);
 
         while (sourceCodeDocument.HasMoreLines())
         {
-            if (!ProcessLine(context.Logger))
+            if (!ProcessLine(context))
             {
                 currentIndent = sourceCodeDocument.CurrentLine?.Indent(context.Logger) ?? currentIndent;
                 continue;
@@ -93,22 +99,27 @@ public class LexyParser : ILexyParser
         LoadIncludedFiles(fullFileName, context);
     }
 
-    private bool ProcessLine(IParserLogger logger)
+    private bool ProcessLine(IParserContext context)
     {
         var line = sourceCodeDocument.NextLine();
-        logger.Log(line.LineStartReference(), $"'{line.Content}'");
+        if (!context.LineFilter.UseLine(line.Content)) {
+            context.Logger.Log(line.LineStartReference(), @$"Skip line by filter: '{line.Content}'");
+            return false;
+        }
+
+        context.Logger.Log(line.LineStartReference(), $"'{line.Content}'");
 
         var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)
         {
-            logger.Fail(tokens.Reference, tokens.ErrorMessage);
+            context.Logger.Fail(tokens.Reference, tokens.ErrorMessage);
             return false;
         }
 
         var tokenNames = string.Join(" ", sourceCodeDocument.CurrentLine.Tokens.Select(token =>
             $"{token.GetType().Name}({token.Value})").ToArray());
 
-        logger.Log(line.LineStartReference(), "  Tokens: " + tokenNames);
+        context.Logger.Log(line.LineStartReference(), "  Tokens: " + tokenNames);
 
         return tokens.IsSuccess;
     }
@@ -128,7 +139,7 @@ public class LexyParser : ILexyParser
 
         context.Logger.LogInfo("Parse file: " + fileName);
 
-        var code = File.ReadAllLines(fileName);
+        var code = fileSystem.ReadAllLines(fileName);
 
         context.AddFileIncluded(fileName);
 

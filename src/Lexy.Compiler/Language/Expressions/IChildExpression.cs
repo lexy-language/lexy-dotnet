@@ -4,7 +4,7 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public interface IChildExpression : INode
 {
-    bool ValidatePreviousExpression(IParentExpression expression, IParseLineContext context);
+    bool ValidateParentExpression(IParentExpression expression, IParseLineContext context);
 }
 
 public interface IHasVariableReference : INode

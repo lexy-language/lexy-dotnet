@@ -130,12 +130,10 @@ internal static class Expressions
     private static StatementSyntax TranslateIfExpression(IfExpression ifExpression)
     {
         ElseClauseSyntax elseStatement = null;
-        if (ifExpression.Else != null)
+        for (int index = ifExpression.ElseExpressions.Count - 1; index >= 0; index--)
         {
-            var statements = new List<StatementSyntax>();
-            statements.Add(LogCalls.LogLineAndVariables(ifExpression.Else));
-            statements.AddRange(ExecuteExpressionStatementSyntax(ifExpression.Else.FalseExpressions, true));
-            elseStatement = ElseClause(Block(List(statements)));
+            var expression = ifExpression.ElseExpressions[index];
+            elseStatement = TranslateElseExpression(expression, elseStatement);
         }
 
         var ifStatement = IfStatement(
@@ -144,6 +142,38 @@ internal static class Expressions
                 List(ExecuteExpressionStatementSyntax(ifExpression.TrueExpressions, true))));
 
         return elseStatement != null ? ifStatement.WithElse(elseStatement) : ifStatement;
+    }
+
+    private static ElseClauseSyntax TranslateElseExpression(Expression expression, ElseClauseSyntax elseStatement)
+    {
+        switch (expression)
+        {
+            case ElseExpression elseExpression:
+            {
+                var statements = LogAndExecuteStatement(elseExpression, elseExpression.FalseExpressions);
+                return ElseClause(Block(List(statements)));
+            }
+            case ElseIfExpression elseifExpression:
+            {
+                var statements = LogAndExecuteStatement(elseifExpression, elseifExpression.TrueExpressions);
+                var ifStatement = IfStatement(
+                    ExpressionSyntax(elseifExpression.Condition),
+                    Block(List(statements)));
+
+                return ElseClause(elseStatement != null
+                    ? ifStatement.WithElse(elseStatement)
+                    : ifStatement);
+            }
+            default:
+                throw new InvalidOperationException($"Invalid ElseExpression type: '{expression.GetType().Name}'");
+        }
+    }
+
+    private static List<StatementSyntax> LogAndExecuteStatement(Expression expression, IEnumerable<Expression> statementsExpressions)
+    {
+        var statements = new List<StatementSyntax> { LogCalls.LogLineAndVariables(expression) };
+        statements.AddRange(ExecuteExpressionStatementSyntax(statementsExpressions, true));
+        return statements;
     }
 
     private static ExpressionStatementSyntax TranslateAssignmentExpression(AssignmentExpression assignment)

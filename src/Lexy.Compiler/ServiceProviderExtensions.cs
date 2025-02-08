@@ -1,4 +1,5 @@
 using Lexy.Compiler.Compiler;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
@@ -13,17 +14,36 @@ public static class ServiceProviderExtensions
 {
     public static IServiceCollection AddLexy(this IServiceCollection services)
     {
-        services.TryAdd(ServiceDescriptor.Singleton<ILexyParser, LexyParser>());
-        services.TryAdd(ServiceDescriptor.Singleton<ISourceCodeDocument, SourceCodeDocument>());
-        services.TryAdd(ServiceDescriptor.Singleton<ITokenizer, Tokenizer>());
-        services.TryAdd(ServiceDescriptor.Singleton<IExpressionFactory, ExpressionFactory>());
+        return services.Singleton<ILexyParser, LexyParser>()
 
-        services.TryAdd(ServiceDescriptor.Singleton<ICompilationEnvironment, CompilationEnvironment>());
-        services.TryAdd(ServiceDescriptor.Singleton<IExecutionContext, ExecutionContext>());
+            .Singleton<ISourceCodeDocument, SourceCodeDocument>()
+            .Singleton<ITokenizer, Tokenizer>()
+            .Singleton<IExpressionFactory, ExpressionFactory>()
 
-        services.TryAdd(ServiceDescriptor.Singleton<ILexyCompiler, LexyCompiler>());
+            .Singleton<IFileSystem, FileSystem>()
+            .Singleton<ICompilationEnvironment, CompilationEnvironment>()
+            .Singleton<IExecutionContext, ExecutionContext>()
 
+            .Singleton<ILexyCompiler, LexyCompiler>()
+
+            .Transient<ISpecificationsRunner, SpecificationsRunner>();
+    }
+
+    private static IServiceCollection Singleton<TInterface, IImplementation>(this IServiceCollection services)
+        where TInterface : class
+        where IImplementation : class, TInterface
+    {
+        services.TryAdd(ServiceDescriptor.Singleton<TInterface, IImplementation>());
         services.TryAdd(ServiceDescriptor.Transient<ISpecificationsRunner, SpecificationsRunner>());
+
+        return services;
+    }
+
+    private  static IServiceCollection Transient<TInterface, IImplementation>(this IServiceCollection services)
+        where TInterface : class
+        where IImplementation : class, TInterface
+    {
+        services.TryAdd(ServiceDescriptor.Transient<TInterface, IImplementation>());
 
         return services;
     }

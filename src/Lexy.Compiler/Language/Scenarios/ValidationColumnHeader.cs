@@ -7,7 +7,7 @@ public class ValidationColumnHeader : Node
 {
     public string Name { get; }
 
-    public ValidationColumnHeader(string name, SourceReference reference) : base(reference)
+    private ValidationColumnHeader(string name, SourceReference reference) : base(reference)
     {
         Name = name;
     }
@@ -24,5 +24,11 @@ public class ValidationColumnHeader : Node
 
     protected override void Validate(IValidationContext context)
     {
+        var variablePath = VariablePathParser.Parse(Name);
+        var variable = context.VariableContext.GetVariableType(variablePath, context);
+        if (variable == null)
+        {
+            context.Logger.Fail(Reference,  $"Unknown variable: '{Name}'");
+        }
     }
 }

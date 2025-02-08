@@ -1,43 +1,34 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public class IfExpression : Expression, IParsableNode, IParentExpression
+public class ElseIfExpression : Expression, IParsableNode, IChildExpression
 {
     private readonly ExpressionList trueExpressions;
-    private readonly List<Expression> elseExpressions = new List<Expression>();
 
     public Expression Condition { get; }
     public IEnumerable<Expression> TrueExpressions => trueExpressions;
 
-    public IReadOnlyList<Expression> ElseExpressions => elseExpressions;
-
-    private IfExpression(Expression condition, ExpressionSource source, SourceReference reference, IExpressionFactory factory) : base(source,
-        reference)
+    private ElseIfExpression(Expression condition, ExpressionSource source, SourceReference reference,
+        IExpressionFactory factory) : base(source, reference)
     {
-        Condition = condition;
         trueExpressions = new ExpressionList(reference, factory);
-    }
-
-    public IParsableNode Parse(IParseLineContext context)
-    {
-        var expression = trueExpressions.Parse(context);
-        return expression.Result is IParsableNode node ? node : this;
+        Condition = condition;
     }
 
     public override IEnumerable<INode> GetChildren()
     {
         yield return Condition;
         yield return trueExpressions;
-        foreach (var elseExpression in elseExpressions)
-        {
-            yield return elseExpression;
-        }
+    }
+
+    public IParsableNode Parse(IParseLineContext context)
+    {
+        var expression = trueExpressions.Parse(context);
+        return expression.Result is IParsableNode node ? node : this;
     }
 
     public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
@@ -53,14 +44,14 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
 
         var reference = source.CreateReference();
 
-        var expression = new IfExpression(conditionExpression.Result, source, reference, factory);
+        var expression = new ElseIfExpression(conditionExpression.Result, source, reference, factory);
 
         return ParseExpressionResult.Success(expression);
     }
 
     public static bool IsValid(TokenList tokens)
     {
-        return tokens.IsKeyword(0, Keywords.If);
+        return tokens.IsKeyword(0, Keywords.ElseIf);
     }
 
     protected override void Validate(IValidationContext context)
@@ -69,25 +60,16 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
         if (type == null || !type.Equals(PrimitiveType.Boolean))
         {
             context.Logger.Fail(Reference,
-                $"'if' condition expression should be 'boolean', is of wrong type '{type}'.");
+                $"'elseif' condition expression should be 'boolean', is of wrong type '{type}'.");
         }
     }
 
-    public void LinkChildExpression(IChildExpression expression)
+    public bool ValidateParentExpression(IParentExpression expression, IParseLineContext context)
     {
-        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        if (expression is IfExpression) return true;
+        context.Logger.Fail(Reference, "'elseif' should be following an 'if' statement. No 'if' statement found.");
 
-        if (expression is not (ElseExpression or ElseIfExpression))
-        {
-            throw new InvalidOperationException($"Invalid node type: {expression.GetType().Name}");
-        }
-
-        var lastOrDefaultExpression = elseExpressions.LastOrDefault();
-        if (lastOrDefaultExpression is ElseExpression)
-        {
-            throw new InvalidOperationException("'else' already defined.");
-        }
-        elseExpressions.Add((Expression)expression);
+        return false;
     }
 
     public override VariableType DeriveType(IValidationContext context)

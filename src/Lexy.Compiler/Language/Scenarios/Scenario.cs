@@ -169,16 +169,16 @@ public class Scenario : RootNode, IHasNodeDependencies
 
     protected override void ValidateNodeTree(IValidationContext context, INode child)
     {
-        if (ReferenceEquals(child, Parameters) || ReferenceEquals(child, Results))
+        if (!ReferenceEquals(child, Function))
         {
-            ValidateParameterOrResultNode(context, child);
+            ValidateWithFunctionVariables(context, child);
             return;
         }
 
         base.ValidateNodeTree(context, child);
     }
 
-    private void ValidateParameterOrResultNode(IValidationContext context, INode child)
+    private void ValidateWithFunctionVariables(IValidationContext context, INode child)
     {
         using (context.CreateVariableScope())
         {

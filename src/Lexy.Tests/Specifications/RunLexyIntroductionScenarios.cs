@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Lexy.Tests.Specifications;
 
-public class RunLexySpecifications : ScopedServicesTestFixture
+public class RunLexyIntroductionScenarios : ScopedServicesTestFixture
 {
     [Test]
     public void RunAll()
@@ -11,6 +11,6 @@ public class RunLexySpecifications : ScopedServicesTestFixture
         LoggingConfiguration.LogFileNames();
 
         var runner = GetService<ISpecificationsRunner>();
-        runner.RunAll("../../../lexy-language/Specifications");
+        runner.RunAll("../../../lexy-language/Introduction");
     }
 }

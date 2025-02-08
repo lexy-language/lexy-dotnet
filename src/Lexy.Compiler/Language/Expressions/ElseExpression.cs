@@ -13,20 +13,12 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
 
     private ElseExpression(ExpressionSource source, SourceReference reference, IExpressionFactory factory) : base(source, reference)
     {
-        falseExpressions = new ExpressionList(reference,factory);
-    }
-
-    public bool ValidatePreviousExpression(IParentExpression expression, IParseLineContext context)
-    {
-        if (expression is IfExpression) return true;
-        context.Logger.Fail(Reference, "Else should be following an If statement. No if statement found.");
-
-        return false;
+        falseExpressions = new ExpressionList(reference, factory);
     }
 
     public override IEnumerable<INode> GetChildren()
     {
-        foreach (var expression in FalseExpressions) yield return expression;
+        return FalseExpressions;
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -61,5 +53,14 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
     public override VariableType DeriveType(IValidationContext context)
     {
         return null;
+    }
+
+    public bool ValidateParentExpression(IParentExpression expression, IParseLineContext context)
+    {
+        if (expression is IfExpression) return true;
+
+        context.Logger.Fail(Reference, "'else' should be following an 'if' statement. No 'if' statement found.");
+
+        return false;
     }
 }

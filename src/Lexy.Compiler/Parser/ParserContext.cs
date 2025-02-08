@@ -1,24 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 
 namespace Lexy.Compiler.Parser;
 
 public class ParserContext : IParserContext
 {
+    private readonly IFileSystem fileSystem;
+
     private readonly IList<string> includedFiles = new List<string>();
 
     public RootNodeList Nodes => RootNode.RootNodes;
+    public ILineFilter LineFilter { get; private set; }
 
     public SourceCodeNode RootNode { get; }
     public IParserLogger Logger { get; }
+    public ParseOptions Options { get; }
 
-    public ParserContext(IParserLogger logger)
+    public ParserContext(IParserLogger logger, IFileSystem fileSystem, ParseOptions options)
     {
+        this.fileSystem = fileSystem;
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Options = options ?? ParseOptions.Default();
 
         RootNode = new SourceCodeNode();
+        LineFilter = new DefaultLineFilter();
     }
 
     public void AddFileIncluded(string fileName)
@@ -33,9 +40,13 @@ public class ParserContext : IParserContext
         return includedFiles.Contains(NormalizePath(fileName));
     }
 
-    private static string NormalizePath(string fileName)
+    private string NormalizePath(string fileName)
     {
-        return Path.GetFullPath(fileName)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return fileSystem.GetFullPath(fileName);
+    }
+
+    public void SetFileLineFilter(string fileName)
+    {
+        LineFilter = fileName.EndsWith(LexySourceDocument.MarkdownExtension) ? new MarkdownLineFilter() : new DefaultLineFilter();
     }
 }
