@@ -78,7 +78,7 @@ public class AssignmentExpression : Expression
             return Assignment.GetReadVariableUsage();
         }
         var assignmentVariable = hasVariableReference.Variable;
-        var writeVariableUsage = new VariableUsage(assignmentVariable.Path, assignmentVariable.RootType, assignmentVariable.VariableType, assignmentVariable.Source, VariableAccess.Write);
+        var writeVariableUsage = new VariableUsage(assignmentVariable.Path, assignmentVariable.ComponentType, assignmentVariable.VariableType, assignmentVariable.Source, VariableAccess.Write);
         return new [] { writeVariableUsage }
             .Union(Assignment.GetReadVariableUsage());
     }

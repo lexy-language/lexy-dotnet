@@ -11,7 +11,7 @@ public class ParserLogger : IParserLogger
     private readonly ILogger logger;
     private readonly IList<LogEntry> logEntries = new List<LogEntry>();
 
-    private IRootNode currentNode;
+    private IComponentNode currentNode;
     private int failedMessages;
 
     public ParserLogger(ILogger logger)
@@ -24,7 +24,7 @@ public class ParserLogger : IParserLogger
         return failedMessages > 0;
     }
 
-    public bool HasRootErrors()
+    public bool HasComponentErrors()
     {
         return logEntries.Any(entry => entry.IsError && entry.Node == null);
     }
@@ -86,7 +86,7 @@ public class ParserLogger : IParserLogger
             $"{string.Join(Environment.NewLine, logEntries)}{Environment.NewLine}";
     }
 
-    public void SetCurrentNode(IRootNode node)
+    public void SetCurrentNode(IComponentNode node)
     {
         currentNode = node ?? throw new ArgumentNullException(nameof(node));
     }
@@ -96,14 +96,14 @@ public class ParserLogger : IParserLogger
         currentNode = null;
     }
 
-    public bool NodeHasErrors(IRootNode node)
+    public bool NodeHasErrors(IComponentNode node)
     {
         if (node == null) throw new ArgumentNullException(nameof(node));
 
         return logEntries.Any(message => message.IsError && message.Node == node);
     }
 
-    public string[] ErrorNodeMessages(IRootNode node)
+    public string[] ErrorNodeMessages(IComponentNode node)
     {
         return logEntries.Where(entry => entry.IsError && entry.Node == node)
             .OrderBy(entry => entry.SortIndex)
@@ -111,7 +111,7 @@ public class ParserLogger : IParserLogger
             .ToArray();
     }
 
-    public string[] ErrorNodesMessages(IEnumerable<IRootNode> nodes)
+    public string[] ErrorNodesMessages(IEnumerable<IComponentNode> nodes)
     {
         return logEntries.Where(entry => entry.IsError && nodes.Contains(entry.Node))
             .OrderBy(entry => entry.SortIndex)
@@ -119,7 +119,7 @@ public class ParserLogger : IParserLogger
             .ToArray();
     }
 
-    public string[] ErrorRootMessages()
+    public string[] ErrorComponentMessages()
     {
         return logEntries.Where(entry => entry.IsError && entry.Node == null)
             .OrderBy(entry => entry.SortIndex)

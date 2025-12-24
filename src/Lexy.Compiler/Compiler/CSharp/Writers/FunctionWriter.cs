@@ -18,11 +18,11 @@ using static Lexy.Compiler.Compiler.CSharp.Syntax.Expressions;
 
 namespace Lexy.Compiler.Compiler.CSharp.Writers;
 
-public class FunctionWriter : IRootTokenWriter
+public class FunctionWriter : IComponentTokenWriter
 {
-    public GeneratedClass CreateCode(IRootNode node)
+    public GeneratedClass CreateCode(IComponentNode node)
     {
-        if (node is not Function function) throw new InvalidOperationException("Root token not Function");
+        if (node is not Function function) throw new InvalidOperationException("Component token not Function");
 
         var members = new List<MemberDeclarationSyntax>
         {

@@ -31,12 +31,12 @@ public class FillParametersFunction : FunctionCallExpression, IHasNodeDependenci
         TypeLiteral = (valueExpression as MemberAccessExpression)?.MemberAccessLiteral;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
         if (TypeLiteral == null) yield break;
 
-        var rootNode = rootNodeList.GetNode(TypeLiteral.ToString());
-        if (rootNode != null) yield return rootNode;
+        var componentNode = componentNodeList.GetNode(TypeLiteral.ToString());
+        if (componentNode != null) yield return componentNode;
     }
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
@@ -98,7 +98,7 @@ public class FillParametersFunction : FunctionCallExpression, IHasNodeDependenci
 
     public override VariableType DeriveType(IValidationContext context)
     {
-        var function = context.RootNodes.GetFunction(TypeLiteral.Parent);
+        var function = context.ComponentNodes.GetFunction(TypeLiteral.Parent);
         if (function == null) return null;
 
         return TypeLiteral.Member switch

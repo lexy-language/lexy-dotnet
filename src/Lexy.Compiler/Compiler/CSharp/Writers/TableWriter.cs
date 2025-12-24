@@ -11,11 +11,11 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.Writers;
 
-internal class TableWriter : IRootTokenWriter
+internal class TableWriter : IComponentTokenWriter
 {
-    public GeneratedClass CreateCode(IRootNode node)
+    public GeneratedClass CreateCode(IComponentNode node)
     {
-        if (!(node is Table table)) throw new InvalidOperationException("Root token not table");
+        if (!(node is Table table)) throw new InvalidOperationException("Component token not table");
 
         var className = ClassNames.TableClassName(table.Name.Value);
 

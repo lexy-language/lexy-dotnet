@@ -74,7 +74,7 @@ public static class ValidationContextExtensions
                 $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{customVariableDeclarationType.Type}')");
         }
 
-        var enumDeclaration = context.RootNodes.GetEnum(variablePath.ParentIdentifier);
+        var enumDeclaration = context.ComponentNodes.GetEnum(variablePath.ParentIdentifier);
         if (enumDeclaration == null || !enumDeclaration.ContainsMember(variablePath.Path[1]))
         {
             context.Logger.Fail(reference,

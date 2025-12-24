@@ -15,7 +15,7 @@ public record ParseResult<T>(T Result, IParserLogger Logger);
 
 public static class ParserExtensions
 {
-    public static ParseResult<RootNodeList> ParseNodes(this IServiceProvider serviceProvider, string code)
+    public static ParseResult<ComponentNodeList> ParseNodes(this IServiceProvider serviceProvider, string code)
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
@@ -24,7 +24,7 @@ public static class ParserExtensions
         var codeLines = code.Split(Environment.NewLine);
         var context = parser.Parse(codeLines, "tests.lexy", new ParseOptions() {SuppressException = true});
 
-        return new ParseResult<RootNodeList>(context.Nodes, context.Logger);
+        return new ParseResult<ComponentNodeList>(context.Nodes, context.Logger);
     }
 
     public static ParseResult<Function> ParseFunction(this IServiceProvider serviceProvider, string code)
@@ -47,7 +47,7 @@ public static class ParserExtensions
         return serviceProvider.ParseNode<EnumDefinition>(code);
     }
 
-    private static ParseResult<T> ParseNode<T>(this IServiceProvider serviceProvider, string code) where T : RootNode
+    private static ParseResult<T> ParseNode<T>(this IServiceProvider serviceProvider, string code) where T : ComponentNode
     {
         var (nodes, logger) = serviceProvider.ParseNodes(code);
 

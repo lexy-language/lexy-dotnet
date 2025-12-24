@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Types;
 
-public class TypeDefinition : RootNode, ITypeDefinition, IHasNodeDependencies
+public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependencies
 {
     private readonly List<VariableDefinition> variables = new();
 
@@ -31,12 +31,12 @@ public class TypeDefinition : RootNode, ITypeDefinition, IHasNodeDependencies
         return this;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
         var dependencies = Variables.SelectMany(variable =>
             variable.Type is IHasNodeDependencies hasDependencies
-            ? hasDependencies.GetDependencies(rootNodeList)
-            : Array.Empty<IRootNode>());
+            ? hasDependencies.GetDependencies(componentNodeList)
+            : Array.Empty<IComponentNode>());
         return dependencies;
     }
 

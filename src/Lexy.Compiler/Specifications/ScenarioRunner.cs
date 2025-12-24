@@ -19,21 +19,21 @@ public class ScenarioRunner : IScenarioRunner
     private readonly IParserLogger parserLogger;
 
     private readonly string fileName;
-    private readonly RootNodeList rootNodeList;
+    private readonly ComponentNodeList componentNodeList;
 
     private Function function;
 
     public bool Failed { get; private set; }
     public Scenario Scenario { get; }
 
-    public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, RootNodeList rootNodeList, Scenario scenario,
+    public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, ComponentNodeList componentNodeList, Scenario scenario,
         ISpecificationRunnerContext context, IParserLogger parserLogger)
     {
         this.lexyCompiler = lexyCompiler;
         this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
         this.context = context;
 
-        this.rootNodeList = rootNodeList ?? throw new ArgumentNullException(nameof(rootNodeList));
+        this.componentNodeList = componentNodeList ?? throw new ArgumentNullException(nameof(componentNodeList));
         this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
 
         Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
@@ -46,11 +46,11 @@ public class ScenarioRunner : IScenarioRunner
 
     public void Run()
     {
-        function = GetFunctionNode(rootNodeList, Scenario);
+        function = GetFunctionNode(componentNodeList, Scenario);
         if (!ValidateScenarioErrors()) return;
         if (!ValidateErrors()) return;
 
-        var nodes = DependencyGraphFactory.NodeAndDependencies(rootNodeList, function);
+        var nodes = DependencyGraphFactory.NodeAndDependencies(componentNodeList, function);
 
         using var compilerResult = lexyCompiler.Compile(nodes);
 
@@ -97,7 +97,7 @@ public class ScenarioRunner : IScenarioRunner
         }
     }
 
-    private Function GetFunctionNode(RootNodeList rootNodeList, Scenario scenario)
+    private Function GetFunctionNode(ComponentNodeList componentNodeList, Scenario scenario)
     {
         if (scenario.Function != null)
         {
@@ -106,7 +106,7 @@ public class ScenarioRunner : IScenarioRunner
 
         if (scenario.FunctionName != null)
         {
-            var functionNode = rootNodeList.GetFunction(scenario.FunctionName.Value);
+            var functionNode = componentNodeList.GetFunction(scenario.FunctionName.Value);
             if (functionNode == null)
             {
                 Fail($"Unknown function: " + scenario.FunctionName, parserLogger.ErrorNodeMessages(Scenario));
@@ -225,14 +225,14 @@ public class ScenarioRunner : IScenarioRunner
         var node = function
                    ?? Scenario.Function
                    ?? Scenario.Enum
-                   ?? (IRootNode)Scenario.Table;
+                   ?? (IComponentNode)Scenario.Table;
         if (node == null)
         {
             Fail("Scenario has no function, enum or table.", Array.Empty<string>());
             return null;
         }
 
-        var dependencies = DependencyGraphFactory.NodeAndDependencies(rootNodeList, node);
+        var dependencies = DependencyGraphFactory.NodeAndDependencies(componentNodeList, node);
         return parserLogger.ErrorNodesMessages(dependencies);
     }
 
@@ -257,7 +257,7 @@ public class ScenarioRunner : IScenarioRunner
 
     private bool ValidateErrors()
     {
-        if (Scenario.ExpectRootErrors?.HasValues == true) return ValidateRootErrors();
+        if (Scenario.ExpectComponentErrors?.HasValues == true) return ValidateComponentErrors();
 
         var failedMessages = GetDependenciesErrors();
         if (failedMessages == null) return false;
@@ -266,10 +266,10 @@ public class ScenarioRunner : IScenarioRunner
         return ValidateExpectedErrors("Parsing", failedMessages, expectErrors?.Messages);
     }
 
-    private bool ValidateRootErrors()
+    private bool ValidateComponentErrors()
     {
         var failedMessages = parserLogger.ErrorMessages();
-        return ValidateExpectedErrors("Root", failedMessages, Scenario.ExpectRootErrors?.Messages);
+        return ValidateExpectedErrors("Component", failedMessages, Scenario.ExpectComponentErrors?.Messages);
     }
 
     private bool ValidateExecutionErrors(Exception exception)

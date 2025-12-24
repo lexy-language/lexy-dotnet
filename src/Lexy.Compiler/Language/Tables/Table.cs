@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Tables;
 
-public class Table : RootNode
+public class Table : ComponentNode
 {
     private bool invalidHeader;
     private readonly List<TableRow> rows = new();

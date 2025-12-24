@@ -60,7 +60,7 @@ internal static class VariableReferences
     private static string ParentVariableClassName(VariableReference reference)
     {
         var parentIdentifier = reference.Path.ParentIdentifier;
-        return reference.RootType switch
+        return reference.ComponentType switch
         {
             TableType _ => ClassNames.TableClassName(parentIdentifier),
             FunctionType _ => ClassNames.FunctionClassName(parentIdentifier),

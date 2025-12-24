@@ -4,7 +4,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Enums;
 
-public class EnumDefinition : RootNode
+public class EnumDefinition : ComponentNode
 {
     public EnumName Name { get; }
 

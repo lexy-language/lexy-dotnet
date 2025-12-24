@@ -11,7 +11,7 @@ public class ParserContext : IParserContext
 
     private readonly IList<string> includedFiles = new List<string>();
 
-    public RootNodeList Nodes => RootNode.RootNodes;
+    public ComponentNodeList Nodes => RootNode.ComponentNodes;
     public ILineFilter LineFilter { get; private set; }
 
     public SourceCodeNode RootNode { get; }

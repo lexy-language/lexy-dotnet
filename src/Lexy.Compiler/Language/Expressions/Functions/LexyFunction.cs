@@ -24,9 +24,9 @@ public class LexyFunction : FunctionCallExpression, IHasNodeDependencies
         this.arguments = arguments;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        var function = rootNodeList.GetFunction(FunctionName);
+        var function = componentNodeList.GetFunction(FunctionName);
         if (function != null) yield return function;
     }
 
@@ -37,7 +37,7 @@ public class LexyFunction : FunctionCallExpression, IHasNodeDependencies
 
     protected override void Validate(IValidationContext context)
     {
-        var function = context.RootNodes.GetFunction(FunctionName);
+        var function = context.ComponentNodes.GetFunction(FunctionName);
         if (function == null)
         {
             context.Logger.Fail(Reference, $"Invalid function name: '{FunctionName}'");
@@ -74,7 +74,7 @@ public class LexyFunction : FunctionCallExpression, IHasNodeDependencies
 
     public override VariableType DeriveType(IValidationContext context)
     {
-        var function = context.RootNodes.GetFunction(FunctionName);
+        var function = context.ComponentNodes.GetFunction(FunctionName);
         return function?.GetResultsType();
     }
 

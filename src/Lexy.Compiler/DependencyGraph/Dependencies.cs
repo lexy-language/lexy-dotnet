@@ -8,23 +8,23 @@ namespace Lexy.Compiler.DependencyGraph;
 
 public class Dependencies
 {
-    private readonly IRootNodeList rootNodes;
-    private readonly List<IRootNode> circularReferences = new();
+    private readonly IComponentNodeList componentNodes;
+    private readonly List<IComponentNode> circularReferences = new();
     private readonly Dictionary<string, DependencyNode> dependencyMap = new();
-    private readonly Dictionary<string, IRootNode> nodesMap = new();
+    private readonly Dictionary<string, IComponentNode> nodesMap = new();
     private readonly Dictionary<string, int> nodeOccurrences = new();
-    private readonly Queue<IRootNode> nodesToProcess;
+    private readonly Queue<IComponentNode> nodesToProcess;
 
-    public IList<IRootNode> SortedNodes { get; private set; }
+    public IList<IComponentNode> SortedNodes { get; private set; }
 
     public IList<DependencyNode> DependencyNodes { get; } = new List<DependencyNode>();
     public bool HasCircularReferences => circularReferences.Count > 0;
-    public IReadOnlyList<IRootNode> CircularReferences => circularReferences;
+    public IReadOnlyList<IComponentNode> CircularReferences => circularReferences;
 
-    public Dependencies(IRootNodeList rootNodes)
+    public Dependencies(IComponentNodeList componentNodes)
     {
-        this.rootNodes = rootNodes ?? throw new ArgumentNullException(nameof(rootNodes));
-        nodesToProcess = new Queue<IRootNode>(this.rootNodes);
+        this.componentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
+        nodesToProcess = new Queue<IComponentNode>(this.componentNodes);
     }
 
     public void Build()
@@ -34,7 +34,7 @@ public class Dependencies
         SortedNodes = TopologicalSort();
     }
 
-    public IEnumerable<IRootNode> NodeAndDependencies(IRootNode node)
+    public IEnumerable<IComponentNode> NodeAndDependencies(IComponentNode node)
     {
         return !dependencyMap.TryGetValue(node.NodeName, out var dependencyNode)
             ? new[] { node }
@@ -53,15 +53,15 @@ public class Dependencies
         }
     }
 
-    private DependencyNode ProcessNode(IRootNode rootNode)
+    private DependencyNode ProcessNode(IComponentNode componentNode)
     {
-        IncreaseOccurrence(rootNode);
-        return NewDependencyNode(rootNode);
+        IncreaseOccurrence(componentNode);
+        return NewDependencyNode(componentNode);
     }
 
-    private void IncreaseOccurrence(IRootNode rootNode)
+    private void IncreaseOccurrence(IComponentNode componentNode)
     {
-        var key = rootNode.NodeName;
+        var key = componentNode.NodeName;
         if (nodeOccurrences.TryGetValue(key, out var existingOccurrences))
         {
             nodeOccurrences[key] = existingOccurrences + 1;
@@ -72,10 +72,10 @@ public class Dependencies
         }
     }
 
-    private DependencyNode NewDependencyNode(IRootNode rootNode)
+    private DependencyNode NewDependencyNode(IComponentNode componentNode)
     {
-        var dependencies = GetDependencies(rootNode);
-        return new DependencyNode(rootNode.NodeName, rootNode, dependencies);
+        var dependencies = GetDependencies(componentNode);
+        return new DependencyNode(componentNode.NodeName, componentNode, dependencies);
     }
 
     private IReadOnlyList<string> GetDependencies(INode node)
@@ -87,7 +87,7 @@ public class Dependencies
 
     private void ProcessDependencies(INode childNode, List<string> resultDependencies)
     {
-        var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(rootNodes);
+        var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(componentNodes);
         if (nodeDependencies == null) return;
 
         foreach (var dependency in nodeDependencies)
@@ -96,7 +96,7 @@ public class Dependencies
         }
     }
 
-    private void ValidateDependency(List<string> resultDependencies, IRootNode dependency)
+    private void ValidateDependency(List<string> resultDependencies, IComponentNode dependency)
     {
         if (resultDependencies.Contains(dependency.NodeName)) return;
 
@@ -134,14 +134,14 @@ public class Dependencies
         return false;
     }
 
-    private IEnumerable<IRootNode> Flatten(IReadOnlyList<string> dependencies)
+    private IEnumerable<IComponentNode> Flatten(IReadOnlyList<string> dependencies)
     {
-        var result = new List<IRootNode>();
+        var result = new List<IComponentNode>();
         Flatten(result, dependencies);
         return result;
     }
 
-    private void Flatten(List<IRootNode> result, IReadOnlyList<string> dependencies)
+    private void Flatten(List<IComponentNode> result, IReadOnlyList<string> dependencies)
     {
         foreach (var dependency in dependencies)
         {
@@ -152,11 +152,11 @@ public class Dependencies
         }
     }
 
-    private IList<IRootNode> TopologicalSort()
+    private IList<IComponentNode> TopologicalSort()
     {
-        if (HasCircularReferences) return rootNodes.ToArray();
+        if (HasCircularReferences) return componentNodes.ToArray();
 
-        var result = new List<IRootNode>();
+        var result = new List<IComponentNode>();
         var nodesWithoutDependants = nodeOccurrences
             .Where(pair => pair.Value == 1)
             .Select(pair => pair.Key);

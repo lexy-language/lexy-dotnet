@@ -4,5 +4,5 @@ namespace Lexy.Compiler.Language.VariableTypes;
 
 public abstract class TypeWithMembers : VariableType, ITypeWithMembers
 {
-    public abstract VariableType MemberType(string name, IRootNodeList rootNodes);
+    public abstract VariableType MemberType(string name, IComponentNodeList componentNodes);
 }

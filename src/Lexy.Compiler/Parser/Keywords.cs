@@ -29,7 +29,7 @@ public static class Keywords
 
     public const string Code = "Code";
     public const string ExpectErrors = "ExpectErrors";
-    public const string ExpectRootErrors = "ExpectRootErrors";
+    public const string ExpectComponentErrors = "ExpectComponentErrors";
     public const string ExpectExecutionErrors = "ExpectExecutionErrors";
     public const string ExecutionLogging = "ExecutionLogging";
     public const string ExecutionLog = "Log";

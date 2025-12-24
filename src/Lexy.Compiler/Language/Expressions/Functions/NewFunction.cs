@@ -25,9 +25,9 @@ public class NewFunction : FunctionCallExpression, IHasNodeDependencies
         TypeLiteral = (valueExpression as MemberAccessExpression)?.MemberAccessLiteral;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        if (Type != null) yield return rootNodeList.GetNode(Type.Name);
+        if (Type != null) yield return componentNodeList.GetNode(Type.Name);
     }
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
@@ -55,7 +55,7 @@ public class NewFunction : FunctionCallExpression, IHasNodeDependencies
 
     public override VariableType DeriveType(IValidationContext context)
     {
-        var nodeType = context.RootNodes.GetType(TypeLiteral.Parent);
-        return nodeType?.MemberType(TypeLiteral.Member, context.RootNodes) as ComplexType;
+        var nodeType = context.ComponentNodes.GetType(TypeLiteral.Parent);
+        return nodeType?.MemberType(TypeLiteral.Member, context.ComponentNodes) as ComplexType;
     }
 }

@@ -8,14 +8,14 @@ namespace Lexy.Compiler.Specifications;
 
 public class SpecificationsLogEntry
 {
-    public IRootNode Node { get; }
+    public IComponentNode Node { get; }
     public SourceReference Reference { get; }
     public bool IsError { get; }
     public string Message { get; }
     public IEnumerable<string> Errors { get; }
     public IEnumerable<ExecutionLogEntry> ExecutionLogging { get; }
 
-    public SpecificationsLogEntry(SourceReference reference, IRootNode node, bool isError,
+    public SpecificationsLogEntry(SourceReference reference, IComponentNode node, bool isError,
         string message, IEnumerable<string> errors = null, IEnumerable<ExecutionLogEntry> executionLogging = null)
     {
         Reference = reference;

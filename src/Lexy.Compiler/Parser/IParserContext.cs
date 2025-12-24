@@ -6,7 +6,7 @@ public interface IParserContext
 {
     IParserLogger Logger { get; }
 
-    RootNodeList Nodes { get; }
+    ComponentNodeList Nodes { get; }
     SourceCodeNode RootNode { get; }
 
     ILineFilter LineFilter { get; }

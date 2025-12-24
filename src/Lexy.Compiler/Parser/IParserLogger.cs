@@ -13,21 +13,21 @@ public interface IParserLogger
     void LogNodes(IEnumerable<INode> nodes);
 
     bool HasErrors();
-    bool HasRootErrors();
+    bool HasComponentErrors();
 
     bool HasErrorMessage(string expectedError);
 
     public string FormatMessages();
 
-    bool NodeHasErrors(IRootNode node);
+    bool NodeHasErrors(IComponentNode node);
 
     string[] ErrorMessages();
-    string[] ErrorRootMessages();
-    string[] ErrorNodeMessages(IRootNode node);
-    string[] ErrorNodesMessages(IEnumerable<IRootNode> nodes);
+    string[] ErrorComponentMessages();
+    string[] ErrorNodeMessages(IComponentNode node);
+    string[] ErrorNodesMessages(IEnumerable<IComponentNode> nodes);
 
     void AssertNoErrors();
 
-    void SetCurrentNode(IRootNode node);
+    void SetCurrentNode(IComponentNode node);
     void ResetCurrentNode();
 }

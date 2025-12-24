@@ -4,5 +4,5 @@ namespace Lexy.Compiler.Language.VariableTypes;
 
 public interface ITypeWithMembers
 {
-    VariableType MemberType(string name, IRootNodeList rootNodes);
+    VariableType MemberType(string name, IComponentNodeList componentNodes);
 }

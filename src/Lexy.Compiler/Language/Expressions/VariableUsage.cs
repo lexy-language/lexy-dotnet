@@ -15,11 +15,11 @@ public class VariableUsage : VariableReference {
 
     public static VariableUsage Read(VariableReference reference)
     {
-        return new VariableUsage(reference.Path, reference.RootType, reference.VariableType, reference.Source, VariableAccess.Read);
+        return new VariableUsage(reference.Path, reference.ComponentType, reference.VariableType, reference.Source, VariableAccess.Read);
     }
 
     public static VariableUsage Write(VariableReference reference)
     {
-        return new VariableUsage(reference.Path, reference.RootType, reference.VariableType, reference.Source, VariableAccess.Write);
+        return new VariableUsage(reference.Path, reference.ComponentType, reference.VariableType, reference.Source, VariableAccess.Write);
     }
 }

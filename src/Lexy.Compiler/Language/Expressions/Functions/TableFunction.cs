@@ -19,15 +19,15 @@ internal abstract class TableFunction : FunctionCallExpression, IHasNodeDependen
         TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        var table = rootNodeList.GetTable(TableName);
+        var table = componentNodeList.GetTable(TableName);
         if (table != null) yield return table;
     }
 
     protected override void Validate(IValidationContext context)
     {
-        Table = context.RootNodes.GetTable(TableName);
+        Table = context.ComponentNodes.GetTable(TableName);
         if (Table == null)
         {
             context.Logger.Fail(Reference,

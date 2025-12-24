@@ -37,23 +37,23 @@ public class FunctionType : TypeWithMembers
         return Type;
     }
 
-    public override VariableType MemberType(string name, IRootNodeList rootNodes)
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
     {
         return name switch
         {
-            Function.ParameterName => FunctionParametersType(rootNodes),
-            Function.ResultsName => FunctionResultsType(rootNodes),
+            Function.ParameterName => FunctionParametersType(componentNodes),
+            Function.ResultsName => FunctionResultsType(componentNodes),
             _ => null
         };
     }
 
-    private ComplexType FunctionParametersType(IRootNodeList rootNodes)
+    private ComplexType FunctionParametersType(IComponentNodeList componentNodes)
     {
-        return rootNodes.GetFunction(Type)?.GetParametersType();
+        return componentNodes.GetFunction(Type)?.GetParametersType();
     }
 
-    private ComplexType FunctionResultsType(IRootNodeList rootNodes)
+    private ComplexType FunctionResultsType(IComponentNodeList componentNodes)
     {
-        return rootNodes.GetFunction(Type)?.GetResultsType();
+        return componentNodes.GetFunction(Type)?.GetResultsType();
     }
 }

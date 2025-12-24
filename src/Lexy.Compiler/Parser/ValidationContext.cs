@@ -19,7 +19,7 @@ public class ValidationContext : IValidationContext
     private IVariableContext variableContext;
 
     public IParserLogger Logger { get; }
-    public RootNodeList RootNodes { get; }
+    public ComponentNodeList ComponentNodes { get; }
 
     public ITreeValidationVisitor Visitor { get; }
 
@@ -32,10 +32,10 @@ public class ValidationContext : IValidationContext
         }
     }
 
-    public ValidationContext(IParserLogger logger, RootNodeList rootNodes, ITreeValidationVisitor visitor)
+    public ValidationContext(IParserLogger logger, ComponentNodeList componentNodes, ITreeValidationVisitor visitor)
     {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        RootNodes = rootNodes ?? throw new ArgumentNullException(nameof(rootNodes));
+        ComponentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
         Visitor = visitor ?? throw new ArgumentNullException(nameof(visitor));
     }
 
@@ -43,7 +43,7 @@ public class ValidationContext : IValidationContext
     {
         StoreCurrentVariableContext();
 
-        variableContext = new VariableContext(RootNodes, Logger, variableContext);
+        variableContext = new VariableContext(ComponentNodes, Logger, variableContext);
 
         return new OnDispose(RevertToPreviousVariableContext);
     }

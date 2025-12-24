@@ -4,7 +4,6 @@ using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
-using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Language.Types;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
@@ -12,16 +11,16 @@ namespace Lexy.Compiler.Compiler.CSharp;
 
 internal static class CSharpCode
 {
-    public static IRootTokenWriter GetWriter(IRootNode rootNode)
+    public static IComponentTokenWriter GetWriter(IComponentNode componentNode)
     {
-        return rootNode switch
+        return componentNode switch
         {
             Function _ => new FunctionWriter(),
             EnumDefinition _ => new EnumWriter(),
             Table _ => new TableWriter(),
             TypeDefinition _ => new TypeWriter(),
             Scenario _ => null,
-            _ => throw new InvalidOperationException("No writer defined: " + rootNode.GetType())
+            _ => throw new InvalidOperationException("No writer defined: " + componentNode.GetType())
         };
     }
 }

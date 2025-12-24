@@ -20,10 +20,10 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
         VariablePath = variablePath;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        var rootNode = rootNodeList.GetNode(MemberAccessLiteral.Parent);
-        if (rootNode != null) yield return rootNode;
+        var componentNode = componentNodeList.GetNode(MemberAccessLiteral.Parent);
+        if (componentNode != null) yield return componentNode;
     }
 
     public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)

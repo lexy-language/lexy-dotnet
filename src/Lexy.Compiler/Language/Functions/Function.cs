@@ -7,7 +7,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Functions;
 
-public class Function : RootNode, IHasNodeDependencies
+public class Function : ComponentNode, IHasNodeDependencies
 {
     public const string ParameterName = "Parameters";
     public const string ResultsName = "Results";
@@ -29,11 +29,11 @@ public class Function : RootNode, IHasNodeDependencies
         Name.ParseName(name);
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        var result = new List<IRootNode>();
-        AddEnumTypes(rootNodeList, Parameters.Variables, result);
-        AddEnumTypes(rootNodeList, Results.Variables, result);
+        var result = new List<IComponentNode>();
+        AddEnumTypes(componentNodeList, Parameters.Variables, result);
+        AddEnumTypes(componentNodeList, Results.Variables, result);
         return result;
     }
 
@@ -63,14 +63,14 @@ public class Function : RootNode, IHasNodeDependencies
         return this;
     }
 
-    private static void AddEnumTypes(IRootNodeList rootNodeList, IReadOnlyList<VariableDefinition> variableDefinitions,
-        List<IRootNode> result)
+    private static void AddEnumTypes(IComponentNodeList componentNodeList, IReadOnlyList<VariableDefinition> variableDefinitions,
+        List<IComponentNode> result)
     {
         foreach (var parameter in variableDefinitions)
         {
             if (parameter.Type is not CustomVariableDeclarationType enumVariableType) continue;
 
-            var dependency = rootNodeList.GetEnum(enumVariableType.Type);
+            var dependency = componentNodeList.GetEnum(enumVariableType.Type);
             if (dependency != null) result.Add(dependency);
         }
     }

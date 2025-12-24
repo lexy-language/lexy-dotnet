@@ -26,11 +26,11 @@ public class VariableDefinition : Node, IHasNodeDependencies
         Source = source;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
         return Type is IHasNodeDependencies hasNodeDependencies
-            ? hasNodeDependencies.GetDependencies(rootNodeList)
-            : Array.Empty<IRootNode>();
+            ? hasNodeDependencies.GetDependencies(componentNodeList)
+            : Array.Empty<IComponentNode>();
     }
 
     public static VariableDefinition Parse(VariableSource source, IParseLineContext context)

@@ -9,11 +9,11 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.Writers;
 
-public class EnumWriter : IRootTokenWriter
+public class EnumWriter : IComponentTokenWriter
 {
-    public GeneratedClass CreateCode(IRootNode node)
+    public GeneratedClass CreateCode(IComponentNode node)
     {
-        if (!(node is EnumDefinition enumDefinition)) throw new InvalidOperationException("Root token not Function");
+        if (node is not EnumDefinition enumDefinition) throw new InvalidOperationException("Component token not Function");
 
         var className = ClassNames.EnumClassName(enumDefinition.Name.Value);
         var members = WriteValues(enumDefinition);

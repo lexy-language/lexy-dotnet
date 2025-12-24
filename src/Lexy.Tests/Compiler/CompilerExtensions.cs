@@ -36,12 +36,12 @@ public static class CompilerExtensions
     {
         if (code == null) throw new ArgumentNullException(nameof(code));
 
-        var (rootNodeList, _) = serviceProvider.ParseNodes(code);
+        var (componentNodeList, _) = serviceProvider.ParseNodes(code);
 
         var compiler = serviceProvider.GetRequiredService<ILexyCompiler>();
-        var environment = compiler.Compile(rootNodeList);
+        var environment = compiler.Compile(componentNodeList);
 
-        var firstOrDefault = rootNodeList.OfType<Function>().FirstOrDefault();
+        var firstOrDefault = componentNodeList.OfType<Function>().FirstOrDefault();
         return new CompileFunctionResult(environment.GetFunction(firstOrDefault), environment);
     }
 }

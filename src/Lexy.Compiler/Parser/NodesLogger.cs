@@ -18,8 +18,8 @@ public class NodesLogger
     {
         builder.Append(new string(' ', indent));
 
-        if (node is IRootNode rootNode)
-            builder.AppendLine($"{rootNode.GetType().Name}: {rootNode.NodeName}");
+        if (node is IComponentNode componentNode)
+            builder.AppendLine($"{componentNode.GetType().Name}: {componentNode.NodeName}");
         else
             builder.AppendLine(node == null ? "<null>" : node?.GetType().Name);
 

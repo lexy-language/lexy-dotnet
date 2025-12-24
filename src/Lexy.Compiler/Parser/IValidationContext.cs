@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Parser;
 public interface IValidationContext
 {
     IParserLogger Logger { get; }
-    RootNodeList RootNodes { get; }
+    ComponentNodeList ComponentNodes { get; }
 
     IVariableContext VariableContext { get; }
     ITreeValidationVisitor Visitor { get; }

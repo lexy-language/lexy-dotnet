@@ -8,9 +8,9 @@ using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Language;
 
-public interface IRootNodeList : IEnumerable<IRootNode>
+public interface IComponentNodeList : IEnumerable<IComponentNode>
 {
-    IRootNode GetNode(string name);
+    IComponentNode GetNode(string name);
     bool Contains(string name);
     Function GetFunction(string name);
     Table GetTable(string name);

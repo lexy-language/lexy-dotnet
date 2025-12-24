@@ -9,11 +9,11 @@ public class DependencyNode
 {
     public string Name { get; }
 
-    public IRootNode Node { get; }
+    public IComponentNode Node { get; }
 
     public IReadOnlyList<string> Dependencies { get; }
 
-    public DependencyNode(string name, IRootNode node, IReadOnlyList<string> dependencies)
+    public DependencyNode(string name, IComponentNode node, IReadOnlyList<string> dependencies)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Node = node ?? throw new ArgumentNullException(nameof(node));

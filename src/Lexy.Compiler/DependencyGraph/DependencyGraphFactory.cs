@@ -6,21 +6,21 @@ namespace Lexy.Compiler.DependencyGraph;
 
 public static class DependencyGraphFactory
 {
-    public static Dependencies Create(RootNodeList rootNodes)
+    public static Dependencies Create(ComponentNodeList componentNodes)
     {
-        if (rootNodes == null) throw new ArgumentNullException(nameof(rootNodes));
+        if (componentNodes == null) throw new ArgumentNullException(nameof(componentNodes));
 
-        var dependencies = new Dependencies(rootNodes);
+        var dependencies = new Dependencies(componentNodes);
         dependencies.Build();
         return dependencies;
     }
 
-    public static IEnumerable<IRootNode> NodeAndDependencies(IRootNodeList rootNodes, IRootNode node)
+    public static IEnumerable<IComponentNode> NodeAndDependencies(IComponentNodeList componentNodes, IComponentNode node)
     {
-        if (rootNodes == null) throw new ArgumentNullException(nameof(rootNodes));
+        if (componentNodes == null) throw new ArgumentNullException(nameof(componentNodes));
         if (node == null) throw new ArgumentNullException(nameof(node));
 
-        var dependencies = new Dependencies(rootNodes);
+        var dependencies = new Dependencies(componentNodes);
         dependencies.Build();
         return dependencies.NodeAndDependencies(node);
     }

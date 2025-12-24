@@ -29,8 +29,8 @@ public class MemberAccessLiteral : Token, ILiteralToken
 
         if (Parts.Length != 2) return null;
 
-        var rootType = context.RootNodes.GetType(Parent);
-        return rootType is not ITypeWithMembers typeWithMembers ? null : typeWithMembers.MemberType(Member, context.RootNodes);
+        var componentType = context.ComponentNodes.GetType(Parent);
+        return componentType is not ITypeWithMembers typeWithMembers ? null : typeWithMembers.MemberType(Member, context.ComponentNodes);
     }
 
     public override string ToString()

@@ -39,13 +39,13 @@ public class CustomType : TypeWithMembers
         return Type;
     }
 
-    public override VariableType MemberType(string name, IRootNodeList rootNodes)
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
     {
         var definition = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
         return definition?.Type.VariableType;
     }
 
-    public override IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
         yield return TypeDefinition;
     }

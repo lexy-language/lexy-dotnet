@@ -6,9 +6,9 @@ public class ParsableNodeArray
 {
     private IParsableNode[] values = new IParsableNode[8];
 
-    public ParsableNodeArray(IParsableNode rootNode)
+    public ParsableNodeArray(IParsableNode componentNode)
     {
-        values[0] = rootNode;
+        values[0] = componentNode;
     }
 
     public IParsableNode Get(int indent)

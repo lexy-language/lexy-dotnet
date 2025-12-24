@@ -12,15 +12,15 @@ using Table = Lexy.Compiler.Language.Tables.Table;
 
 namespace Lexy.Compiler.Language;
 
-public class SourceCodeNode : RootNode
+public class SourceCodeNode : ComponentNode
 {
     private readonly IList<Include> includes = new List<Include>();
-    private IEnumerable<IRootNode> sortedNodes;
+    private IEnumerable<IComponentNode> sortedNodes;
 
     public override string NodeName => "SourceCodeNode";
 
     public Comments Comments { get; }
-    public RootNodeList RootNodes { get; } = new();
+    public ComponentNodeList ComponentNodes { get; } = new();
 
     public SourceCodeNode() : base(new SourceReference(new SourceFile("SourceCodeNode"), 1, 1))
     {
@@ -33,15 +33,15 @@ public class SourceCodeNode : RootNode
 
         if (line.Tokens.IsComment()) return Comments;
 
-        var rootNode = ParseRootNode(context);
-        if (rootNode == null) return this;
+        var componentNode = ParseComponentNode(context);
+        if (componentNode == null) return this;
 
-        RootNodes.Add(rootNode);
+        ComponentNodes.Add(componentNode);
 
-        return rootNode;
+        return componentNode;
     }
 
-    private IRootNode ParseRootNode(IParseLineContext context)
+    private IComponentNode ParseComponentNode(IParseLineContext context)
     {
         if (Include.IsValid(context.Line))
         {
@@ -62,7 +62,7 @@ public class SourceCodeNode : RootNode
             return null;
         }
 
-        var rootNode = tokenName.Keyword switch
+        var componentNode = tokenName.Keyword switch
         {
             Keywords.FunctionKeyword => Function.Create(tokenName.Name, reference, context.ExpressionFactory),
             Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
@@ -72,10 +72,10 @@ public class SourceCodeNode : RootNode
             _ => InvalidNode(tokenName, context, reference)
         };
 
-        return rootNode;
+        return componentNode;
     }
 
-    private IRootNode InvalidNode(NodeName tokenName, IParseLineContext context, SourceReference reference)
+    private IComponentNode InvalidNode(NodeName tokenName, IParseLineContext context, SourceReference reference)
     {
         context.Logger.Fail(reference, $"Unknown keyword: {tokenName.Keyword}");
         return null;
@@ -83,7 +83,7 @@ public class SourceCodeNode : RootNode
 
     public override IEnumerable<INode> GetChildren()
     {
-        return sortedNodes ?? RootNodes;
+        return sortedNodes ?? ComponentNodes;
     }
 
     protected override void Validate(IValidationContext context)
@@ -93,7 +93,7 @@ public class SourceCodeNode : RootNode
             node => node.Reference,
             node => node.NodeName,
             node => $"Duplicated node name: '{node.NodeName}'",
-            RootNodes);
+            ComponentNodes);
     }
 
     public IEnumerable<Include> GetDueIncludes()
@@ -101,15 +101,15 @@ public class SourceCodeNode : RootNode
         return includes.Where(include => !include.IsProcessed).ToList();
     }
 
-    public void SortByDependency(IList<IRootNode> sortedNodes)
+    public void SortByDependency(IList<IComponentNode> sortedNodes)
     {
         this.sortedNodes = WithoutScenarioInlineNode(sortedNodes);
     }
 
-    private IList<IRootNode> WithoutScenarioInlineNode(IList<IRootNode> sortedNodes)
+    private IList<IComponentNode> WithoutScenarioInlineNode(IList<IComponentNode> sortedNodes)
     {
         return sortedNodes
-            .Where(where => RootNodes.GetNode(where.NodeName) != null)
+            .Where(where => ComponentNodes.GetNode(where.NodeName) != null)
             .ToList();
     }
 }

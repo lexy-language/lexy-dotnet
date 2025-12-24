@@ -37,21 +37,21 @@ public class TableType : TypeWithMembers
         return TableName;
     }
 
-    public override VariableType MemberType(string name, IRootNodeList rootNodes)
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
     {
         switch(name)
         {
             case "Count":
                 return PrimitiveType.Number;
             case Table.RowName:
-                return TableRowType(rootNodes);
+                return TableRowType(componentNodes);
         };
         if (Table.Header?.GetColumn(name) != null) return new ComplexType(name, Table, ComplexTypeSource.TableColumn, Array.Empty<ComplexTypeMember>());
         return null;
     }
 
-    private ComplexType TableRowType(IRootNodeList rootNodes)
+    private ComplexType TableRowType(IComponentNodeList componentNodes)
     {
-        return rootNodes.GetTable(TableName)?.GetRowType();
+        return componentNodes.GetTable(TableName)?.GetRowType();
     }
 }

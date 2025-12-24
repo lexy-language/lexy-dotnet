@@ -6,14 +6,14 @@ public class VariableReference
 {
     public VariablePath Path { get; }
     public VariableSource Source { get; }
-    public VariableType RootType { get; }
+    public VariableType ComponentType { get; }
     public VariableType VariableType { get; }
 
-    public VariableReference(VariablePath path, VariableType rootType,
+    public VariableReference(VariablePath path, VariableType componentType,
         VariableType variableType, VariableSource source)
     {
         Path = path;
-        RootType = rootType;
+        ComponentType = componentType;
         VariableType = variableType;
         Source = source;
     }

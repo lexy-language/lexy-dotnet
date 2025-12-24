@@ -8,13 +8,13 @@ namespace Lexy.Compiler.Parser;
 public class VariableContext : IVariableContext
 {
     private readonly IParserLogger logger;
-    private readonly RootNodeList rootNodes;
+    private readonly ComponentNodeList componentNodes;
     private readonly IVariableContext parentContext;
     private readonly IDictionary<string, VariableEntry> variables = new Dictionary<string, VariableEntry>();
 
-    public VariableContext(RootNodeList rootNodes, IParserLogger logger, IVariableContext parentContext)
+    public VariableContext(ComponentNodeList componentNodes, IParserLogger logger, IVariableContext parentContext)
     {
-        this.rootNodes = rootNodes ?? throw new ArgumentNullException(nameof(rootNodes));
+        this.componentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.parentContext = parentContext;
     }
@@ -76,7 +76,8 @@ public class VariableContext : IVariableContext
             : ExecuteWithPriority(fromVariables, fromTypeSystem);
     }
 
-    private VariableReference CreateVariableReferenceFromRegisteredVariables(VariablePath path, IValidationContext validationContext) {
+    private VariableReference CreateVariableReferenceFromRegisteredVariables(VariablePath path, IValidationContext validationContext)
+    {
         var variable = GetVariable(path.ParentIdentifier);
         if (variable == null) return null;
 
@@ -86,19 +87,20 @@ public class VariableContext : IVariableContext
         return new VariableReference(path, null, variableType, variable.VariableSource);
     }
 
-    private VariableReference CreateVariableReferenceFromTypeSystem(VariablePath path, IValidationContext validationContext) {
-
+    private VariableReference CreateVariableReferenceFromTypeSystem(VariablePath path, IValidationContext validationContext)
+    {
         if (path.Parts > 2) return null;
 
-        var rootVariableType = rootNodes.GetType(path.ParentIdentifier);
+        var rootVariableType = componentNodes.GetType(path.ParentIdentifier);
         if (rootVariableType == null) return null;
 
-        if (path.Parts == 1) {
+        if (path.Parts == 1)
+        {
             return new VariableReference(path, rootVariableType, rootVariableType, VariableSource.Type);
         }
 
         var member = path.LastPart();
-        var memberType = rootVariableType.MemberType(member, validationContext.RootNodes);
+        var memberType = rootVariableType.MemberType(member, validationContext.ComponentNodes);
         if (memberType == null) return null;
         return new VariableReference(path, rootVariableType, memberType, VariableSource.Type);
     }
@@ -131,7 +133,7 @@ public class VariableContext : IVariableContext
     {
         var typeWithMembers = parentType as ITypeWithMembers;
 
-        var memberVariableType = typeWithMembers?.MemberType(path.ParentIdentifier, context.RootNodes);
+        var memberVariableType = typeWithMembers?.MemberType(path.ParentIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return false;
 
         return !path.HasChildIdentifiers
@@ -143,7 +145,7 @@ public class VariableContext : IVariableContext
     {
         if (parentType is not ITypeWithMembers typeWithMembers) return null;
 
-        var memberVariableType = typeWithMembers.MemberType(path.ParentIdentifier, context.RootNodes);
+        var memberVariableType = typeWithMembers.MemberType(path.ParentIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return null;
 
         return !path.HasChildIdentifiers

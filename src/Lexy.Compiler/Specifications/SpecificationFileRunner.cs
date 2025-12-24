@@ -45,7 +45,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
     public void Run()
     {
-        ValidateHasScenarioCheckingRootErrors(result.Logger);
+        ValidateHasScenarioCheckingComponentErrors(result.Logger);
 
         if (scenarioRunners.Count == 0) return;
 
@@ -58,7 +58,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
     }
 
     private ScenarioRunner CreateScenarioRunner(Scenario scenario, ISpecificationRunnerContext context,
-        RootNodeList nodes, IParserLogger logger)
+        ComponentNodeList nodes, IParserLogger logger)
     {   
         return new ScenarioRunner(fileName, compiler, nodes, scenario, context, logger);
     }
@@ -68,16 +68,16 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         return scenarioRunners.Sum(runner => runner.CountScenarios());
     }
 
-    private void ValidateHasScenarioCheckingRootErrors(IParserLogger logger)
+    private void ValidateHasScenarioCheckingComponentErrors(IParserLogger logger)
     {
-        if (!logger.HasRootErrors()) return;
+        if (!logger.HasComponentErrors()) return;
 
-        var rootScenarioRunner = scenarioRunners.FirstOrDefault(runner => runner.Scenario.ExpectRootErrors?.HasValues == true);
+        var componentScenarioRunner = scenarioRunners.FirstOrDefault(runner => runner.Scenario.ExpectComponentErrors?.HasValues == true);
 
-        if (rootScenarioRunner == null)
+        if (componentScenarioRunner == null)
         {
             throw new InvalidOperationException(
-                $"{fileName} has root errors but no scenario that verifies expected root errors. Errors: {logger.ErrorRootMessages().Format(2)}");
+                $"{fileName} has component errors but no scenario that verifies expected root errors. Errors: {logger.ErrorComponentMessages().Format(2)}");
         }
     }
 }

@@ -8,7 +8,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public class Scenario : RootNode, IHasNodeDependencies
+public class Scenario : ComponentNode, IHasNodeDependencies
 {
     public ScenarioName Name { get; }
 
@@ -24,7 +24,7 @@ public class Scenario : RootNode, IHasNodeDependencies
     public ExecutionLogging ExecutionLogging { get; private set; }
 
     public ExpectErrors ExpectErrors { get; private set; }
-    public ExpectRootErrors ExpectRootErrors { get; private set; }
+    public ExpectComponentErrors ExpectComponentErrors { get; private set; }
     public ExpectExecutionErrors ExpectExecutionErrors { get; private set; }
 
     public override string NodeName => Name.Value;
@@ -56,22 +56,31 @@ public class Scenario : RootNode, IHasNodeDependencies
             Keywords.EnumKeyword => ParseEnum(context, reference),
             Keywords.TableKeyword => ParseTable(context, reference),
 
-            Keywords.Function => ResetRootNode(context, ParseFunctionName(reference, context)),
-            Keywords.Parameters => ResetRootNode(context, Parameters, () => Parameters = new Parameters(reference)),
-            Keywords.Results => ResetRootNode(context, Results, () => Results = new Results(reference)),
-            Keywords.ValidationTable => ResetRootNode(context, ValidationTable, () => ValidationTable = new ValidationTable(Name.Value + "Table", reference)),
+            Keywords.Function => ResetComponentNode(context, ParseFunctionName(reference, context)),
+            Keywords.Parameters => ResetComponentNode(context, Parameters, () => NewParameters(reference)),
+            Keywords.Results => ResetComponentNode(context, Results, () => NewResults(reference)),
+            Keywords.ValidationTable => ResetComponentNode(context, ValidationTable, () => NewValidationTable(reference)),
 
-            Keywords.ExecutionLogging => ResetRootNode(context, ExecutionLogging, () => ExecutionLogging = new ExecutionLogging(reference)),
+            Keywords.ExecutionLogging => ResetComponentNode(context, ExecutionLogging, () => NewExecutionLogging(reference)),
 
-            Keywords.ExpectErrors => ResetRootNode(context, ExpectErrors, () => ExpectErrors = new ExpectErrors(reference)),
-            Keywords.ExpectRootErrors => ResetRootNode(context, ExpectRootErrors, () => ExpectRootErrors = new ExpectRootErrors(reference)),
-            Keywords.ExpectExecutionErrors => ResetRootNode(context, ExpectExecutionErrors, () => ExpectExecutionErrors = new ExpectExecutionErrors(reference)),
+            Keywords.ExpectErrors => ResetComponentNode(context, ExpectErrors, () => NewExpectErrors(reference)),
+            Keywords.ExpectComponentErrors => ResetComponentNode(context, ExpectComponentErrors, () => NewExpectComponentErrors(reference)),
+            Keywords.ExpectExecutionErrors => ResetComponentNode(context, ExpectExecutionErrors, () => NewExpectExecutionErrors(reference)),
 
             _ => InvalidToken(context, name, reference)
         };
     }
 
-    private IParsableNode ResetRootNode(IParseLineContext parserContext, IParsableNode node, Func<IParsableNode> initializer = null)
+    private Parameters NewParameters(SourceReference reference) => Parameters = new Parameters(reference);
+    private Results NewResults(SourceReference reference) => Results = new Results(reference);
+    private ValidationTable NewValidationTable(SourceReference reference) => ValidationTable = new ValidationTable(Name.Value + "Table", reference);
+    private ExecutionLogging NewExecutionLogging(SourceReference reference) => ExecutionLogging = new ExecutionLogging(reference);
+
+    private ExpectErrors NewExpectErrors(SourceReference reference) => ExpectErrors = new ExpectErrors(reference);
+    private ExpectComponentErrors NewExpectComponentErrors(SourceReference reference) => ExpectComponentErrors = new ExpectComponentErrors(reference);
+    private ExpectExecutionErrors NewExpectExecutionErrors(SourceReference reference) => ExpectExecutionErrors = new ExpectExecutionErrors(reference);
+
+    private IParsableNode ResetComponentNode(IParseLineContext parserContext, IParsableNode node, Func<IParsableNode> initializer = null)
     {
         if (node == null)
         {
@@ -165,7 +174,7 @@ public class Scenario : RootNode, IHasNodeDependencies
         if (Results != null) yield return Results;
         if (ValidationTable != null) yield return ValidationTable;
         if (ExpectErrors != null) yield return ExpectErrors;
-        if (ExpectRootErrors != null) yield return ExpectRootErrors;
+        if (ExpectComponentErrors != null) yield return ExpectComponentErrors;
         if (ExpectExecutionErrors != null) yield return ExpectExecutionErrors;
     }
 
@@ -192,7 +201,7 @@ public class Scenario : RootNode, IHasNodeDependencies
 
     private void AddFunctionParametersAndResultsForValidation(IValidationContext context)
     {
-        var function = Function ?? (FunctionName != null ? context.RootNodes.GetFunction(FunctionName.Value) : null);
+        var function = Function ?? (FunctionName != null ? context.ComponentNodes.GetFunction(FunctionName.Value) : null);
         if (function == null) return;
 
         AddVariablesForValidation(context, function.Parameters.Variables, VariableSource.Parameters);
@@ -217,19 +226,19 @@ public class Scenario : RootNode, IHasNodeDependencies
             && Function == null
             && Enum == null
             && Table == null
-            && (ExpectRootErrors == null || !ExpectRootErrors.HasValues))
+            && (ExpectComponentErrors == null || !ExpectComponentErrors.HasValues))
         {
             context.Logger.Fail(Reference, "Scenario has no function, enum, table or expect errors.");
         }
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        var result = new List<IRootNode>();
+        var result = new List<IComponentNode>();
         if (Function != null) result.Add(Function);
         if (FunctionName?.IsEmpty() == false)
         {
-            var functionNode = rootNodeList.GetFunction(FunctionName.Value);
+            var functionNode = componentNodeList.GetFunction(FunctionName.Value);
             if (functionNode != null) {
                 result.Add(functionNode);
             }

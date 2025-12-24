@@ -36,20 +36,20 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHa
         return Type;
     }
 
-    public IEnumerable<IRootNode> GetDependencies(IRootNodeList rootNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
     {
-        var type = GetVariableType(rootNodeList);
+        var type = GetVariableType(componentNodeList);
         return type switch
         {
             CustomType customType => new[] { customType.TypeDefinition },
             ComplexType complexType => new[] { complexType.Node },
-            _ => Array.Empty<IRootNode>()
+            _ => Array.Empty<IComponentNode>()
         };
     }
 
     protected override VariableType ValidateVariableType(IValidationContext context)
     {
-        var type = GetVariableType(context.RootNodes);
+        var type = GetVariableType(context.ComponentNodes);
         if (type == null)
         {
             context.Logger.Fail(Reference, "Invalid type: '" + Type + "'");
@@ -57,11 +57,11 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHa
         return type;
     }
 
-    private VariableType GetVariableType(IRootNodeList rootNodes)
+    private VariableType GetVariableType(IComponentNodeList componentNodes)
     {
         if (!Type.Contains('.'))
         {
-            return rootNodes.GetType(Type);
+            return componentNodes.GetType(Type);
         }
 
         var parts = Type.Split(".");
@@ -70,13 +70,13 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHa
             return null;
         }
 
-        var parent = rootNodes.GetType(parts[0]);
+        var parent = componentNodes.GetType(parts[0]);
         if (parent == null)
         {
             return null;
         }
 
-        return parent.MemberType(parts[1], rootNodes);
+        return parent.MemberType(parts[1], componentNodes);
     }
 
     public override IEnumerable<INode> GetChildren()

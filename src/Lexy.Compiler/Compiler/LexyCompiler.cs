@@ -24,7 +24,7 @@ public class LexyCompiler : ILexyCompiler
         this.executionLogger = executionLogger ?? throw new ArgumentNullException(nameof(executionLogger));
     }
 
-    public ICompilationResult Compile(IEnumerable<IRootNode> nodes)
+    public ICompilationResult Compile(IEnumerable<IComponentNode> nodes)
     {
         if (nodes == null) throw new ArgumentNullException(nameof(nodes));
 
@@ -72,14 +72,14 @@ public class LexyCompiler : ILexyCompiler
         return references;
     }
 
-    private SyntaxNode GenerateSyntaxNode(IEnumerable<IRootNode> generateNodes, ICompilationEnvironment compilationEnvironment)
+    private SyntaxNode GenerateSyntaxNode(IEnumerable<IComponentNode> generateNodes, ICompilationEnvironment compilationEnvironment)
     {
         var root = GenerateCompilationUnit(generateNodes, compilationEnvironment);
 
         return root.NormalizeWhitespace();
     }
 
-    private CompilationUnitSyntax GenerateCompilationUnit(IEnumerable<IRootNode> generateNodes,
+    private CompilationUnitSyntax GenerateCompilationUnit(IEnumerable<IComponentNode> generateNodes,
         ICompilationEnvironment compilationEnvironment)
     {
         var members = generateNodes
@@ -89,7 +89,7 @@ public class LexyCompiler : ILexyCompiler
         var namespaceDeclaration = NamespaceDeclaration(IdentifierName(LexyCodeConstants.Namespace))
             .WithMembers(List(members));
 
-        var root = CompilationUnit()
+        return CompilationUnit()
             .WithUsings(List(
                 new[]
                 {
@@ -98,10 +98,9 @@ public class LexyCompiler : ILexyCompiler
                     Using(typeof(IExecutionContext).Namespace)
                 }))
             .WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
-        return root;
     }
 
-    private MemberDeclarationSyntax GenerateMember(IRootNode node, ICompilationEnvironment environment)
+    private MemberDeclarationSyntax GenerateMember(IComponentNode node, ICompilationEnvironment environment)
     {
         var writer = CSharpCode.GetWriter(node);
 

@@ -6,11 +6,11 @@ using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Compiler.CSharp.Writers;
 
-internal class TypeWriter : IRootTokenWriter
+internal class TypeWriter : IComponentTokenWriter
 {
-    public GeneratedClass CreateCode(IRootNode node)
+    public GeneratedClass CreateCode(IComponentNode node)
     {
-        if (node is not TypeDefinition typeDefinition) throw new InvalidOperationException("Root token not type");
+        if (node is not TypeDefinition typeDefinition) throw new InvalidOperationException("Component token not type");
 
         var className = ClassNames.TypeClassName(typeDefinition.Name.Value);
 

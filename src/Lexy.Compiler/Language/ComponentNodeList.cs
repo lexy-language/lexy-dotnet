@@ -10,16 +10,16 @@ using Table = Lexy.Compiler.Language.Tables.Table;
 
 namespace Lexy.Compiler.Language;
 
-public class RootNodeList : IRootNodeList
+public class ComponentNodeList : IComponentNodeList
 {
-    private readonly IList<IRootNode> values;
+    private readonly IList<IComponentNode> values;
 
-    public RootNodeList(params IRootNode[] values)
+    public ComponentNodeList(params IComponentNode[] values)
     {
-        this.values = values != null ? values.ToList() : new List<IRootNode>();
+        this.values = values != null ? values.ToList() : new List<IComponentNode>();
     }
 
-    public IEnumerator<IRootNode> GetEnumerator()
+    public IEnumerator<IComponentNode> GetEnumerator()
     {
         return values.GetEnumerator();
     }
@@ -29,9 +29,9 @@ public class RootNodeList : IRootNodeList
         return GetEnumerator();
     }
 
-    public void Add(IRootNode rootNode)
+    public void Add(IComponentNode componentNode)
     {
-        values.Add(rootNode);
+        values.Add(componentNode);
     }
 
     internal bool ContainsEnum(string enumName)
@@ -41,7 +41,7 @@ public class RootNodeList : IRootNodeList
             .Any(definition => definition.Name.Value == enumName);
     }
 
-    public IRootNode GetNode(string name)
+    public IComponentNode GetNode(string name)
     {
         return values
             .FirstOrDefault(definition => definition.NodeName == name);
@@ -86,7 +86,7 @@ public class RootNodeList : IRootNodeList
             .FirstOrDefault(enumDefinition => enumDefinition.Name.Value == name);
     }
 
-    public void AddIfNew(IRootNode node)
+    public void AddIfNew(IComponentNode node)
     {
         if (!values.Contains(node)) values.Add(node);
     }

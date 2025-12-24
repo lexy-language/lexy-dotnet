@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Parser;
 
 public class TrackLoggingCurrentNodeVisitor : ITreeValidationVisitor
 {
-    private readonly Stack<IRootNode> nodeStack = new();
+    private readonly Stack<IComponentNode> nodeStack = new();
     private readonly IParserLogger logger;
 
     public TrackLoggingCurrentNodeVisitor(IParserLogger logger)
@@ -16,23 +16,23 @@ public class TrackLoggingCurrentNodeVisitor : ITreeValidationVisitor
 
     public void Enter(Node node)
     {
-        if (node is not IRootNode rootNode) return;
+        if (node is not IComponentNode componentNode) return;
 
-        AddCurrentNodeToStack(rootNode);
+        AddCurrentNodeToStack(componentNode);
 
-        logger.SetCurrentNode(rootNode);
+        logger.SetCurrentNode(componentNode);
     }
 
     public void Leave(Node node)
     {
-        if (node is not IRootNode) return;
+        if (node is not IComponentNode) return;
 
         RemoveCurrentNodeFromStack();
 
         RevertToPreviousNode();
     }
 
-    private void AddCurrentNodeToStack(IRootNode rootNode) => nodeStack.Push(rootNode);
+    private void AddCurrentNodeToStack(IComponentNode componentNode) => nodeStack.Push(componentNode);
     private void RemoveCurrentNodeFromStack() => nodeStack.Pop();
 
     private void RevertToPreviousNode()

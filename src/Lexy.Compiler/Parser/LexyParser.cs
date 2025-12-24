@@ -131,7 +131,10 @@ public class LexyParser : ILexyParser
     private void LoadIncludedFiles(string parentFullFileName, IParserContext context)
     {
         var includes = context.RootNode.GetDueIncludes();
-        foreach (var include in includes) IncludeFiles(parentFullFileName, include, context);
+        foreach (var include in includes)
+        {
+            IncludeFiles(parentFullFileName, include, context);
+        }
     }
 
     private void IncludeFiles(string parentFullFileName, Include include, IParserContext context)
@@ -187,9 +190,9 @@ public class LexyParser : ILexyParser
             throw new InvalidOperationException($"({currentNode}) Parse should return child node or itself.");
         }
 
-        if (node is IRootNode rootNode)
+        if (node is IComponentNode componentNode)
         {
-            context.Logger.SetCurrentNode(rootNode);
+            context.Logger.SetCurrentNode(componentNode);
         }
 
         return node;

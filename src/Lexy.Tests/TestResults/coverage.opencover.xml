@@ -102,7 +102,7 @@
         <File uid="93" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/ExecutionLogging.cs" />
         <File uid="94" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/ExpectError.cs" />
         <File uid="95" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/ExpectExecutionErrors.cs" />
-        <File uid="96" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/ExpectRootErrors.cs" />
+        <File uid="96" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/ExpectComponentErrors.cs" />
         <File uid="97" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/FunctionName.cs" />
         <File uid="98" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/Parameters.cs" />
         <File uid="99" fullPath="/Users/timcools/_/Lexy/lexy-dotnet/src/Lexy.Compiler/Language/Scenarios/Results.cs" />
@@ -11725,12 +11725,12 @@
         </Class>
         <Class>
           <Summary numSequencePoints="3" visitedSequencePoints="3" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="1" numClasses="1" visitedMethods="1" numMethods="1" />
-          <FullName>Lexy.Compiler.Language.Scenarios.ExpectRootErrors</FullName>
+          <FullName>Lexy.Compiler.Language.Scenarios.ExpectComponentErrors</FullName>
           <Methods>
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="3" visitedSequencePoints="3" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void Lexy.Compiler.Language.Scenarios.ExpectRootErrors::.ctor(Lexy.Compiler.Parser.SourceReference)</Name>
+              <Name>System.Void Lexy.Compiler.Language.Scenarios.ExpectComponentErrors::.ctor(Lexy.Compiler.Parser.SourceReference)</Name>
               <FileRef uid="96" />
               <SequencePoints>
                 <SequencePoint vc="6" uspid="7" ordinal="0" sl="7" sc="1" el="7" ec="2" bec="0" bev="0" fileid="96" />
@@ -12118,7 +12118,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="True" isSetter="False" isStatic="True">
               <Summary numSequencePoints="1" visitedSequencePoints="1" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Language.Scenarios.ExpectRootErrors Lexy.Compiler.Language.Scenarios.Scenario::get_ExpectRootErrors()</Name>
+              <Name>Lexy.Compiler.Language.Scenarios.ExpectComponentErrors Lexy.Compiler.Language.Scenarios.Scenario::get_ExpectComponentErrors()</Name>
               <FileRef uid="100" />
               <SequencePoints>
                 <SequencePoint vc="5868" uspid="27" ordinal="0" sl="27" sc="1" el="27" ec="2" bec="0" bev="0" fileid="100" />
