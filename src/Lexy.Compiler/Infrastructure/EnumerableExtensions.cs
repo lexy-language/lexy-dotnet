@@ -11,7 +11,10 @@ public static class EnumerableExtensions
         if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
         if (action == null) throw new ArgumentNullException(nameof(action));
 
-        foreach (var item in enumerable) action(item);
+        foreach (var item in enumerable)
+        {
+            action(item);
+        }
 
         return enumerable;
     }
@@ -23,7 +26,11 @@ public static class EnumerableExtensions
         var indent = indentLevel > 0 ? new string(' ', indentLevel * 2) : string.Empty;
         var builder = new StringBuilder();
         builder.AppendLine();
-        foreach (var item in enumerable) builder.AppendLine(indent + item);
+
+        foreach (var item in enumerable)
+        {
+            builder.AppendLine(indent + item);
+        }
 
         return builder.ToString();
     }
@@ -50,9 +57,12 @@ public static class EnumerableExtensions
         var startCharacter = value[0];
         if (!char.IsLetter(startCharacter)) return false;
 
-        for (var index = 1 ; index < value.Length ; index++) {
+        for (var index = 1 ; index < value.Length ; index++)
+        {
             var character = value[index];
-            if (!char.IsLetter(character)) {   //todo allow digits and underscore
+            if (!char.IsLetter(character))
+            {
+                //todo allow digits and underscore
                 return false;
             }
         }

@@ -11,7 +11,9 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
     {
         var value = character.Value;
         if (value != TokenValues.Quote)
+        {
             throw new InvalidOperationException("QuotedLiteralToken should start with a quote");
+        }
     }
 
     public object TypedValue => Value;
@@ -29,7 +31,7 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
         if (value == TokenValues.Quote)
         {
             quoteClosed = true;
-            return ParseTokenResult.Finished(true, this);
+            return ParseTokenResult.Finished(true);
         }
 
         AppendValue(value);
@@ -40,7 +42,7 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
     {
         if (!quoteClosed) return ParseTokenResult.Invalid("Closing quote expected.");
 
-        return ParseTokenResult.Finished(true, this);
+        return ParseTokenResult.Finished(true);
     }
 
     public override string ToString()

@@ -7,6 +7,8 @@ public abstract class ParsableToken : Token
 {
     private readonly StringBuilder valueBuilder;
 
+    public int ValueLength => valueBuilder.Length;
+
     public override string Value => valueBuilder.ToString();
 
     protected ParsableToken(TokenCharacter character) : base(character)
@@ -21,6 +23,11 @@ public abstract class ParsableToken : Token
     }
 
     protected void AppendValue(char value)
+    {
+        valueBuilder.Append(value);
+    }
+
+    protected void AppendValue(string value)
     {
         valueBuilder.Append(value);
     }

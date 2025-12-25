@@ -5,14 +5,14 @@ namespace Lexy.Compiler.Parser.Tokens;
 
 public class StringLiteralToken : Token, ILiteralToken
 {
+    public override string Value { get; }
+
+    public object TypedValue => Value;
+
     public StringLiteralToken(string value, TokenCharacter character) : base(character)
     {
         Value = value;
     }
-
-    public override string Value { get; }
-
-    public object TypedValue => Value;
 
     public VariableType DeriveType(IValidationContext context)
     {

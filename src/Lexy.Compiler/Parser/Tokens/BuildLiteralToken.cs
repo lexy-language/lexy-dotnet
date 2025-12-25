@@ -65,10 +65,20 @@ public class BuildLiteralToken : ParsableToken
     private Token SealLiteral()
     {
         var value = Value;
-        if (Keywords.Contains(value)) return new KeywordToken(value, FirstCharacter);
-        if (BooleanLiteral.IsValid(value)) return BooleanLiteral.Parse(value, FirstCharacter);
+        if (Keywords.Contains(value))
+        {
+            return new KeywordToken(value, FirstCharacter);
+        }
 
-        if (hasMemberAccessor) return new MemberAccessLiteral(value, FirstCharacter);
+        if (BooleanLiteral.IsValid(value))
+        {
+            return BooleanLiteral.Parse(value, FirstCharacter);
+        }
+
+        if (hasMemberAccessor)
+        {
+            return new MemberAccessLiteral(value, FirstCharacter);
+        }
 
         return new StringLiteralToken(value, FirstCharacter);
     }

@@ -193,6 +193,11 @@ public class LexyParser : ILexyParser
 
     private IParsableNode ParseLine(IParsableNode currentNode, IParserContext context, ParsableNodeIndex nodesPerIndent, int indent)
     {
+        if (currentNode == null)
+        {
+            throw new InvalidOperationException($"Current node can't be null. Line: {sourceCodeDocument.CurrentLine}");
+        }
+
         var parseLineContext = new ParseLineContext(sourceCodeDocument.CurrentLine, context.Logger, expressionFactory);
         var node = currentNode.Parse(parseLineContext);
         if (node == null)

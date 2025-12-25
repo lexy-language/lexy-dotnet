@@ -47,14 +47,24 @@ public class TokenValidator
     public TokenValidator Keyword(int index, string keyword = null)
     {
         Type<KeywordToken>(index);
-        if (keyword != null) Value(index, keyword);
+
+        if (keyword != null)
+        {
+            Value(index, keyword);
+        }
+
         return this;
     }
 
     public TokenValidator StringLiteral(int index, string value = null)
     {
         Type<StringLiteralToken>(index);
-        if (value != null) Value(index, value);
+
+        if (value != null)
+        {
+            Value(index, value);
+        }
+
         return this;
     }
 

@@ -55,13 +55,13 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     public void TestMemberAccessAssignment()
     {
         using var script = ServiceProvider.CompileFunction(@"Table: ValidateTableKeyword
-# Validate table keywords
+// Validate table keywords
   | number Value | number Result |
   | 0 | 0 |
   | 1 | 1 |
 
 function ValidateTableKeywordFunction
-# Validate table keywords
+// Validate table keywords
   Parameters
   Results
     number Result

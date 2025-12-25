@@ -152,7 +152,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     public void TestScenarioWithEmptyParametersAndResults()
     {
         const string code = @"Scenario: ValidateScenarioKeywords
-# Validate Scenario keywords
+// Validate Scenario keywords
   function ValidateFunctionKeywords
   Parameters
   Results";

@@ -17,7 +17,7 @@ public class ExecutionLoggingTests : ScopedServicesTestFixture
     {
         using var script = ServiceProvider.CompileFunction($@"
 function SimpleFunction
-# Validate table keywords
+// Validate table keywords
   Parameters
     number Value
   Results
@@ -32,12 +32,12 @@ function SimpleFunction
     public void TableVariablesShouldNotStoreFullTableInLogging()
     {
         using var script = ServiceProvider.CompileFunction($@"Table: SimpleTable
-# Validate table keywords
+// Validate table keywords
   | number Search | number Value |
   | 0 | 0 |
   | 1 | 1 |
 function ValidateTableKeywordFunction
-# Validate table keywords
+// Validate table keywords
   Parameters
   Results
     number Result

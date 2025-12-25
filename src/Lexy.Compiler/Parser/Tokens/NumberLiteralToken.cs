@@ -16,7 +16,7 @@ public class NumberLiteralToken : ParsableToken, ILiteralToken
         TokenValues.Addition,
         TokenValues.Subtraction,
         TokenValues.Multiplication,
-        TokenValues.Division,
+        TokenValues.DivisionOrComment,
         TokenValues.Modulus,
         TokenValues.CloseParentheses,
         TokenValues.CloseBrackets,

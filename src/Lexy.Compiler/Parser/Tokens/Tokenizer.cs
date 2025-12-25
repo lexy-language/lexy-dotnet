@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -8,15 +9,13 @@ public class Tokenizer : ITokenizer
     private readonly IDictionary<char, Func<TokenCharacter, ParsableToken>> knownTokens =
         new Dictionary<char, Func<TokenCharacter, ParsableToken>>
         {
-            { TokenValues.CommentChar, value => new CommentToken(value) },
-
             { TokenValues.Quote, value => new QuotedLiteralToken(value) },
 
             { TokenValues.Assignment, value => new OperatorToken(value) },
             { TokenValues.Addition, value => new OperatorToken(value) },
             { TokenValues.Subtraction, value => new OperatorToken(value) },
             { TokenValues.Multiplication, value => new OperatorToken(value) },
-            { TokenValues.Division, value => new OperatorToken(value) },
+            { TokenValues.DivisionOrComment, value => new BuildCommentOrDivisionToken(value) },
             { TokenValues.Modulus, value => new OperatorToken(value) },
             { TokenValues.ArgumentSeparator, value => new OperatorToken(value) },
 
@@ -102,20 +101,15 @@ public class Tokenizer : ITokenizer
             tokens.Add(result.NewToken ?? current);
         }
 
-        return TokenizeResult.Success(DiscardWhitespace(tokens));
+        return TokenizeResult.Success(DiscardWhitespaceAndComments(tokens));
     }
 
-    private static TokenList DiscardWhitespace(List<Token> tokens)
+    private static TokenList DiscardWhitespaceAndComments(List<Token> tokens)
     {
-        var newTokens = new List<Token>();
-        foreach (var token in tokens)
-        {
-            if (token is CommentToken) break;
-            if (!(token is WhitespaceToken)) newTokens.Add(token);
-        }
-
-        return new TokenList(newTokens.ToArray());
+        return new TokenList(tokens.Where(NotWhitespaceOrComment).ToArray());
     }
+
+    private static bool NotWhitespaceOrComment(Token token) => token is not CommentToken && token is not WhitespaceToken;
 
     private ParsableTokenResult StartToken(TokenCharacter character, int index, Line line)
     {

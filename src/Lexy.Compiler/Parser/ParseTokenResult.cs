@@ -27,9 +27,9 @@ public class ParseTokenResult
         return new ParseTokenResult(TokenStatus.InProgress, true, newToken);
     }
 
-    public static ParseTokenResult Finished(bool charProcesses, Token newToken = null)
+    public static ParseTokenResult Finished(bool charProcessed, Token newToken = null)
     {
-        return new ParseTokenResult(TokenStatus.Finished, charProcesses, newToken);
+        return new ParseTokenResult(TokenStatus.Finished, charProcessed, newToken);
     }
 
     public static ParseTokenResult Invalid(string validationError)

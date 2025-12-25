@@ -31,12 +31,12 @@ public class LexyParserTests : ScopedServicesTestFixture
     public void TestFunctionKeywords()
     {
         const string code = @"function ValidateFunctionKeywords
-# Validate function keywords
+// Validate function keywords
   Parameters
   Results
   Code";
 
         var (_, logger) = ServiceProvider.ParseFunction(code);
-        logger.HasErrors().ShouldBeFalse();
+        logger.HasErrors().ShouldBeFalse(logger.ToString());
     }
 }
