@@ -173,7 +173,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
       number Result
     Code
       Result = 123A
-,,
+
   ExpectErrors 
     ""Invalid token at 18: Invalid number token character: A""";
 
