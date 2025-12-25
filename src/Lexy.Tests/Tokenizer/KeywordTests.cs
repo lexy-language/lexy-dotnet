@@ -21,9 +21,9 @@ public class KeywordTests : ScopedServicesTestFixture
     public void TestResultKeyword()
     {
         ServiceProvider
-            .Tokenize("  Results")
+            .Tokenize("  results")
             .Count(1)
-            .Keyword(0, "Results")
+            .Keyword(0, "results")
             .Assert();
     }
 

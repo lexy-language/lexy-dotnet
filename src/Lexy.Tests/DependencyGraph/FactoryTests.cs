@@ -25,9 +25,9 @@ public class FactoryTests : ScopedServicesTestFixture
 ";
 
     private const string function = @"function SimpleFunction
-  Parameters
+  parameters
     number Value
-  Results
+  results
     number Result
   Code
     Result = Value
@@ -66,7 +66,7 @@ public class FactoryTests : ScopedServicesTestFixture
         var dependencies = ServiceProvider.BuildGraph(function + @"
 function Caller
   Code
-    var parameters = new(SimpleFunction.Parameters)
+    var params = new(SimpleFunction.Parameters)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -83,7 +83,7 @@ function Caller
         var dependencies = ServiceProvider.BuildGraph(function + @"
 function Caller
   Code
-    var parameters = new(SimpleFunction.Results)
+    var params = new(SimpleFunction.Results)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -99,10 +99,10 @@ function Caller
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
 function Caller
-  Parameters
+  parameters
     number Value
   Code
-    var parameters = fill(SimpleFunction.Parameters)
+    var params = fill(SimpleFunction.Parameters)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -118,10 +118,10 @@ function Caller
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
 function Caller
-  Parameters
+  parameters
     number Result
   Code
-    var parameters = fill(SimpleFunction.Results)
+    var params = fill(SimpleFunction.Results)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -156,9 +156,9 @@ function Caller
 
 scenario Simple
   function SimpleFunction
-  Results
+  results
     Result = 2
-  Parameters
+  parameters
     Value = 2
 ");
         dependencies.DependencyNodes.Count.ShouldBe(2);

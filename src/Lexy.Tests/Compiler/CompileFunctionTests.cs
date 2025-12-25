@@ -10,7 +10,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     public void TestSimpleReturn()
     {
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
-  Results
+  results
     number Result
   Code
     Result = 777");
@@ -22,9 +22,9 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     public void TestParameterDefaultReturn()
     {
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
-  Parameters
+  parameters
     number Input = 5
-  Results
+  results
     number Result
   Code
     Result = Input");
@@ -36,10 +36,10 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     public void TestAssignmentReturn()
     {
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
-  Parameters
+  parameters
     number Input = 5
 
-  Results
+  results
     number Result
   Code
     Result = Input");
@@ -62,8 +62,8 @@ public class CompileFunctionTests : ScopedServicesTestFixture
 
 function ValidateTableKeywordFunction
 // Validate table keywords
-  Parameters
-  Results
+  parameters
+  results
     number Result
   Code
     Result = ValidateTableKeyword.Count");
@@ -76,9 +76,9 @@ function ValidateTableKeywordFunction
     public void VariableDeclarationInCode()
     {
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
-  Parameters
+  parameters
     number Value = 5 
-  Results
+  results
     number Result
   Code
     number temp = 5
@@ -93,7 +93,7 @@ function ValidateTableKeywordFunction
     public void VariableDeclarationWithDefaultInCode()
     {
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
-  Results
+  results
     number Result
   Code
     number temp = 5
@@ -113,7 +113,7 @@ enum SimpleEnum
   Second
     
 function TestSimpleReturn
-  Results
+  results
     SimpleEnum Result
   Code
     Result = SimpleEnum.Second
@@ -131,7 +131,7 @@ type SimpleComplex
   string Second
     
 function TestCustomType
-  Results
+  results
     SimpleComplex Result
   Code
     Result.First = 777
@@ -155,7 +155,7 @@ type SimpleComplex
   InnerComplex Inner
     
 function TestCustomType
-  Results
+  results
     SimpleComplex Result
   Code
     Result.Inner.First = 777

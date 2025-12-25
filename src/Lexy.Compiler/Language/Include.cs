@@ -30,7 +30,7 @@ public class Include
         if (lineTokens.Length != 2 || !lineTokens.IsQuotedString(1))
         {
             context.Logger.Fail(line.LineStartReference(),
-                "Invalid syntax. Expected: 'Include \"FileName\"");
+                "Invalid syntax. Expected: 'include \"FileName\"");
             return null;
         }
 

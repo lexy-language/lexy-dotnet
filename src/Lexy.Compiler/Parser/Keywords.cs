@@ -20,10 +20,10 @@ public static class Keywords
     public const string Case = "case";
     public const string Default = "default";
 
-    public const string Include = "Include";
-    public const string Parameters = "Parameters";
-    public const string Results = "Results";
-    public const string ValidationTable = "ValidationTable";
+    public const string Include = "include";
+    public const string Parameters = "parameters";
+    public const string Results = "results";
+    public const string ValidationTable = "validationTable";
 
     public const string Code = "Code";
     public const string ExpectErrors = "ExpectErrors";

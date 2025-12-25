@@ -11,7 +11,7 @@ public class LexyParserTests : ScopedServicesTestFixture
     public void TestSimpleReturn()
     {
         const string code = @"function TestSimpleReturn
-  Results
+  results
     number Result
   Code
     Result = 777";
@@ -32,8 +32,8 @@ public class LexyParserTests : ScopedServicesTestFixture
     {
         const string code = @"function ValidateFunctionKeywords
 // Validate function keywords
-  Parameters
-  Results
+  parameters
+  results
   Code";
 
         var (_, logger) = ServiceProvider.ParseFunction(code);

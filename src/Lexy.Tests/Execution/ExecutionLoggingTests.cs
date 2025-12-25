@@ -18,9 +18,9 @@ public class ExecutionLoggingTests : ScopedServicesTestFixture
         using var script = ServiceProvider.CompileFunction($@"
 function SimpleFunction
 // Validate table keywords
-  Parameters
+  parameters
     number Value
-  Results
+  results
     number Result
   Code
     Result = Value * 5");
@@ -38,8 +38,8 @@ function SimpleFunction
   | 1 | 1 |
 function ValidateTableKeywordFunction
 // Validate table keywords
-  Parameters
-  Results
+  parameters
+  results
     number Result
   Code
     Result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)");
@@ -55,8 +55,8 @@ function ValidateTableKeywordFunction
   | 1 | 1 | ""ra""  |
  
 function ValidateTableKeywordFunction
-  Parameters
-  Results
+  parameters
+  results
     SimpleTable.Row Result
   Code
     Result = LOOKUPROW(SimpleTable, 2, SimpleTable.Search)");

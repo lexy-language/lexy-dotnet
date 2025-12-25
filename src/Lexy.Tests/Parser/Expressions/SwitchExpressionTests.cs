@@ -12,9 +12,9 @@ public class SwitchExpressionTests : ScopedServicesTestFixture
     public void CheckSwitchStatement()
     {
         const string code = @"function NumberSwitch
-  Parameters
+  parameters
     number Evil
-  Results
+  results
     number Number
   Code
     number temp = 555

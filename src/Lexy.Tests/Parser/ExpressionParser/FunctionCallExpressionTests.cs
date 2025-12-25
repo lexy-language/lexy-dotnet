@@ -54,11 +54,11 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     [Test]
     public void CallExtract()
     {
-        var expression = this.ParseExpression("extract(results)");
+        var expression = this.ParseExpression("extract(result)");
         expression.ValidateOfType<ExtractResultsFunction>(round =>
         {
             round.FunctionName.ShouldBe("extract");
-            round.ValueExpression.ValidateIdentifierExpression("results");
+            round.ValueExpression.ValidateIdentifierExpression("result");
         });
     }
 

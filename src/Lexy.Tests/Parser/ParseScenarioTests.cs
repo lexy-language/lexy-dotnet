@@ -23,9 +23,9 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"scenario TestScenario
   function TestScenarioFunction
-  Parameters
+  parameters
     Value = 123
-  Results
+  results
     Result = 456";
 
         var (scenario, _) = ServiceProvider.ParseScenario(code);
@@ -47,9 +47,9 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"scenario TestScenario
   Functtion TestScenarioFunction
-  Parameters
+  parameters
     Value = 123
-  Results
+  results
     Result = 456";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
@@ -70,11 +70,11 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"scenario TestScenario
   function
-    Results
+    results
       number Result
-  Parameters
+  parameters
     Value = 12d3
-  Results
+  results
     Result = 456";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
@@ -91,19 +91,19 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"scenario ValidNumberIntAsParameter
   function
-    Parameters
+    parameters
       number Value1 = 123
       number Value2 = 456
-    Results
+    results
       number Result1
       number Result2
     Code
       Result1 = Value1
       Result2 = Value2
-  Parameters
+  parameters
     Value1 = 987
     Value2 = 654
-  Results
+  results
     Result1 = 123
     Result2 = 456";
 
@@ -154,8 +154,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         const string code = @"scenario ValidateScenarioKeywords
 // Validate Scenario keywords
   function ValidateFunctionKeywords
-  Parameters
-  Results";
+  parameters
+  results";
 
         var (scenario, _) = ServiceProvider.ParseScenario(code);
 
@@ -169,7 +169,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"scenario InvalidNumberEndsWithLetter
   function
-    Results
+    results
       number Result
     Code
       Result = 123A

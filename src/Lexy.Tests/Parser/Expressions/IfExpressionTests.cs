@@ -12,9 +12,9 @@ public class IfExpressionTests : ScopedServicesTestFixture
     public void CheckIfStatement()
     {
       const string code = @"function If
-  Parameters
+  parameters
     boolean Evil
-  Results
+  results
     number Number
   Code
     number temp = 777

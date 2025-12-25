@@ -10,13 +10,13 @@ public class ParseFunctionTests : ScopedServicesTestFixture
     public void TestDuplicatedFunctionName()
     {
         const string code = @"function ValidateTableKeyword
-  Results
+  results
     number Result
   Code
     Result = 2
 
 function ValidateTableKeyword
-  Results
+  results
     number Result
   Code
     Result = 2";
