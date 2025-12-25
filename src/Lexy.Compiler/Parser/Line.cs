@@ -23,17 +23,24 @@ public class Line
     {
         var spaces = 0;
         var tabs = 0;
-
         var index = 0;
-        for (; index < Content.Length; index++)
+
+        while (index < Content.Length)
         {
             var value = Content[index];
             if (value == ' ')
+            {
                 spaces++;
+            }
             else if (value == '\t')
+            {
                 tabs++;
+            }
             else
+            {
                 break;
+            }
+            index++;
         }
 
         if (spaces > 0 && tabs > 0)

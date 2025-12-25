@@ -7,7 +7,7 @@ public interface IParserContext
     IParserLogger Logger { get; }
 
     ComponentNodeList Nodes { get; }
-    SourceCodeNode RootNode { get; }
+    LexyScriptNode RootNode { get; }
 
     ILineFilter LineFilter { get; }
 

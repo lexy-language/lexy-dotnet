@@ -21,6 +21,8 @@ internal class LogEntry
 
     public override string ToString()
     {
-        return Message;
+        return Node != null
+            ? $"({Node?.GetType().Name}) {Message}"
+            : Message;
     }
 }

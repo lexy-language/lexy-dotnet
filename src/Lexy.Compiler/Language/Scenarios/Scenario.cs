@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
@@ -52,57 +51,22 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
         return name switch
         {
-            Keywords.FunctionKeyword => ParseFunction(context, reference),
+            Keywords.Function => ParseFunction(context, reference),
             Keywords.EnumKeyword => ParseEnum(context, reference),
             Keywords.TableKeyword => ParseTable(context, reference),
 
-            Keywords.Function => ResetComponentNode(context, ParseFunctionName(reference, context)),
-            Keywords.Parameters => ResetComponentNode(context, Parameters, () => NewParameters(reference)),
-            Keywords.Results => ResetComponentNode(context, Results, () => NewResults(reference)),
-            Keywords.ValidationTable => ResetComponentNode(context, ValidationTable, () => NewValidationTable(reference)),
+            Keywords.Parameters => Parameters = new Parameters(reference),
+            Keywords.Results => Results = new Results(reference),
+            Keywords.ValidationTable => ValidationTable = new ValidationTable(Name.Value + "Table", reference),
 
-            Keywords.ExecutionLogging => ResetComponentNode(context, ExecutionLogging, () => NewExecutionLogging(reference)),
+            Keywords.ExecutionLogging => ExecutionLogging = new ExecutionLogging(reference),
 
-            Keywords.ExpectErrors => ResetComponentNode(context, ExpectErrors, () => NewExpectErrors(reference)),
-            Keywords.ExpectComponentErrors => ResetComponentNode(context, ExpectComponentErrors, () => NewExpectComponentErrors(reference)),
-            Keywords.ExpectExecutionErrors => ResetComponentNode(context, ExpectExecutionErrors, () => NewExpectExecutionErrors(reference)),
+            Keywords.ExpectErrors => ExpectErrors = new ExpectErrors(reference),
+            Keywords.ExpectComponentErrors => ExpectComponentErrors = new ExpectComponentErrors(reference),
+            Keywords.ExpectExecutionErrors => ExpectExecutionErrors = new ExpectExecutionErrors(reference),
 
             _ => InvalidToken(context, name, reference)
         };
-    }
-
-    private Parameters NewParameters(SourceReference reference) => Parameters = new Parameters(reference);
-    private Results NewResults(SourceReference reference) => Results = new Results(reference);
-    private ValidationTable NewValidationTable(SourceReference reference) => ValidationTable = new ValidationTable(Name.Value + "Table", reference);
-    private ExecutionLogging NewExecutionLogging(SourceReference reference) => ExecutionLogging = new ExecutionLogging(reference);
-
-    private ExpectErrors NewExpectErrors(SourceReference reference) => ExpectErrors = new ExpectErrors(reference);
-    private ExpectComponentErrors NewExpectComponentErrors(SourceReference reference) => ExpectComponentErrors = new ExpectComponentErrors(reference);
-    private ExpectExecutionErrors NewExpectExecutionErrors(SourceReference reference) => ExpectExecutionErrors = new ExpectExecutionErrors(reference);
-
-    private IParsableNode ResetComponentNode(IParseLineContext parserContext, IParsableNode node, Func<IParsableNode> initializer = null)
-    {
-        if (node == null)
-        {
-            if (initializer == null)
-            {
-                throw new InvalidOperationException("node should not be null");
-            }
-
-            node = initializer();
-        }
-        parserContext.Logger.SetCurrentNode(this);
-        return node;
-    }
-
-    private IParsableNode ParseFunctionName(SourceReference reference, IParseLineContext context)
-    {
-        if (FunctionName == null)
-        {
-            FunctionName = new FunctionName(reference);
-        }
-        FunctionName.Parse(context);
-        return this;
     }
 
     private IParsableNode ParseFunction(IParseLineContext context, SourceReference reference)
@@ -116,13 +80,20 @@ public class Scenario : ComponentNode, IHasNodeDependencies
         var tokenName = Parser.NodeName.Parse(context);
         if (tokenName.Name != null)
         {
-            context.Logger.Fail(context.Line.TokenReference(1),
-                $"Unexpected function name. Inline function should not have a name: '{tokenName.Name}'. Remove ':' to target an existing function.");
+            return ParseFunctionName(context, reference);
         }
 
         Function = Function.Create($"{Name.Value}Function", reference, context.ExpressionFactory);
         context.Logger.SetCurrentNode(Function);
         return Function;
+    }
+
+    private IParsableNode ParseFunctionName(IParseLineContext context, SourceReference reference)
+    {
+        FunctionName ??= new FunctionName(reference);
+        FunctionName.Parse(context);
+
+        return this;
     }
 
     private IParsableNode ParseEnum(IParseLineContext context, SourceReference reference)

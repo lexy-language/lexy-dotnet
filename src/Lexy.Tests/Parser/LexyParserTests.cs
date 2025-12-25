@@ -10,7 +10,7 @@ public class LexyParserTests : ScopedServicesTestFixture
     [Test]
     public void TestSimpleReturn()
     {
-        const string code = @"Function: TestSimpleReturn
+        const string code = @"function TestSimpleReturn
   Results
     number Result
   Code
@@ -30,7 +30,7 @@ public class LexyParserTests : ScopedServicesTestFixture
     [Test]
     public void TestFunctionKeywords()
     {
-        const string code = @"Function: ValidateFunctionKeywords
+        const string code = @"function ValidateFunctionKeywords
 # Validate function keywords
   Parameters
   Results

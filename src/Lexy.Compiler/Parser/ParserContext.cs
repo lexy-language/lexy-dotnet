@@ -14,7 +14,7 @@ public class ParserContext : IParserContext
     public ComponentNodeList Nodes => RootNode.ComponentNodes;
     public ILineFilter LineFilter { get; private set; }
 
-    public SourceCodeNode RootNode { get; }
+    public LexyScriptNode RootNode { get; }
     public IParserLogger Logger { get; }
     public ParseOptions Options { get; }
 
@@ -24,7 +24,7 @@ public class ParserContext : IParserContext
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         Options = options ?? ParseOptions.Default();
 
-        RootNode = new SourceCodeNode();
+        RootNode = new LexyScriptNode();
         LineFilter = new DefaultLineFilter();
     }
 

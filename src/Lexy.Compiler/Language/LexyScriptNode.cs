@@ -1,28 +1,25 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
-using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
-using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
 namespace Lexy.Compiler.Language;
 
-public class SourceCodeNode : ComponentNode
+public class LexyScriptNode : ComponentNode
 {
     private readonly IList<Include> includes = new List<Include>();
     private IEnumerable<IComponentNode> sortedNodes;
 
-    public override string NodeName => "SourceCodeNode";
+    public override string NodeName => nameof(LexyScriptNode);
 
     public Comments Comments { get; }
     public ComponentNodeList ComponentNodes { get; } = new();
 
-    public SourceCodeNode() : base(new SourceReference(new SourceFile("SourceCodeNode"), 1, 1))
+    public LexyScriptNode() : base(new SourceReference(new SourceFile(nameof(LexyScriptNode)), 1, 1))
     {
         Comments = new Comments(Reference);
     }
@@ -64,7 +61,7 @@ public class SourceCodeNode : ComponentNode
 
         var componentNode = tokenName.Keyword switch
         {
-            Keywords.FunctionKeyword => Function.Create(tokenName.Name, reference, context.ExpressionFactory),
+            Keywords.Function => Function.Create(tokenName.Name, reference, context.ExpressionFactory),
             Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
             Keywords.TableKeyword => new Table(tokenName.Name, reference),

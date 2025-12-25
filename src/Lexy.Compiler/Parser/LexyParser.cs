@@ -67,35 +67,31 @@ public class LexyParser : ILexyParser
         sourceCodeDocument.SetCode(code, fileSystem.GetFileName(fullFileName));
 
         var currentIndent = 0;
-        var nodePerIndent = new ParsableNodeArray(context.RootNode);
+        var nodesPerIndent = new ParsableNodeIndex(context.RootNode);
 
         while (sourceCodeDocument.HasMoreLines())
         {
-            if (!ProcessLine(context))
+            if (!TokenizeLine(context))
             {
                 currentIndent = sourceCodeDocument.CurrentLine?.Indent(context.Logger) ?? currentIndent;
                 continue;
             }
 
             var line = sourceCodeDocument.CurrentLine;
-            if (line.IsEmpty()) continue;
+            if (!GetIndent(context, line, out var indent)) continue;
 
-            var indentResult = line.Indent(context.Logger);
-            if (!indentResult.HasValue) continue;
-
-            var indent = indentResult.Value;
             if (indent > currentIndent)
             {
                 context.Logger.Fail(line.LineStartReference(), $"Invalid indent: {indent}");
                 continue;
             }
 
-            var node = nodePerIndent.Get(indent);
-            node = ParseLine(node, context);
+            var node = nodesPerIndent.GetCurrentOrDescend(indent);
+            var parsedNode = ParseLine(node, context, nodesPerIndent, indent);
 
             currentIndent = indent + 1;
 
-            nodePerIndent.Set(currentIndent, node);
+            nodesPerIndent.Set(currentIndent, parsedNode);
         }
 
         Reset(context);
@@ -103,7 +99,21 @@ public class LexyParser : ILexyParser
         LoadIncludedFiles(fullFileName, context);
     }
 
-    private bool ProcessLine(IParserContext context)
+    private bool GetIndent(IParserContext context, Line line, out int indent)
+    {
+        indent = default;
+
+        if (line.IsEmpty()) return false;
+
+        var indentResult = line.Indent(context.Logger);
+        if (!indentResult.HasValue) return false;
+
+        indent = indentResult.Value;
+
+        return true;
+    }
+
+    private bool TokenizeLine(IParserContext context)
     {
         var line = sourceCodeDocument.NextLine();
         if (!context.LineFilter.UseLine(line.Content)) {
@@ -181,7 +191,7 @@ public class LexyParser : ILexyParser
         context.Logger.ResetCurrentNode();
     }
 
-    private IParsableNode ParseLine(IParsableNode currentNode, IParserContext context)
+    private IParsableNode ParseLine(IParsableNode currentNode, IParserContext context, ParsableNodeIndex nodesPerIndent, int indent)
     {
         var parseLineContext = new ParseLineContext(sourceCodeDocument.CurrentLine, context.Logger, expressionFactory);
         var node = currentNode.Parse(parseLineContext);
@@ -193,6 +203,11 @@ public class LexyParser : ILexyParser
         if (node is IComponentNode componentNode)
         {
             context.Logger.SetCurrentNode(componentNode);
+        }
+        else
+        {
+            var parentComponentNode = nodesPerIndent.GetParentComponent(indent);
+            context.Logger.SetCurrentNode(parentComponentNode);
         }
 
         return node;

@@ -7,13 +7,11 @@ namespace Lexy.Compiler.Parser;
 
 public static class Keywords
 {
-    public const string FunctionKeyword = "Function:";
+    public const string Function = "function";
     public const string EnumKeyword = "Enum:";
     public const string TableKeyword = "Table:";
     public const string TypeKeyword = "Type:";
     public const string ScenarioKeyword = "Scenario:";
-
-    public const string Function = "Function";
 
     public const string If = "if";
     public const string Else = "else";

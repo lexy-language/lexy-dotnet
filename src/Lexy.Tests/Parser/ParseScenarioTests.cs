@@ -22,7 +22,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     public void TestValidScenario()
     {
         const string code = @"Scenario: TestScenario
-  Function TestScenarioFunction
+  function TestScenarioFunction
   Parameters
     Value = 123
   Results
@@ -69,7 +69,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     public void TestInvalidNumberValueScenario()
     {
         const string code = @"Scenario: TestScenario
-  Function:
+  function
     Results
       number Result
   Parameters
@@ -90,7 +90,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     public void TestScenarioWithInlineFunction()
     {
         const string code = @"Scenario: ValidNumberIntAsParameter
-  Function:
+  function
     Parameters
       number Value1 = 123
       number Value2 = 456
@@ -153,7 +153,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"Scenario: ValidateScenarioKeywords
 # Validate Scenario keywords
-  Function ValidateFunctionKeywords
+  function ValidateFunctionKeywords
   Parameters
   Results";
 
@@ -168,11 +168,12 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     public void TestValidScenarioWithInvalidInlineFunction()
     {
         const string code = @"Scenario: InvalidNumberEndsWithLetter
-  Function:
+  function
     Results
       number Result
     Code
       Result = 123A
+,,
   ExpectErrors 
     ""Invalid token at 18: Invalid number token character: A""";
 
@@ -186,28 +187,22 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void ScenarioWithInlineFunctionShouldNotHaveAFunctionNameAfterKeywords()
+    public void ScenarioWithInlineFunctionShouldHaveAFunctionNameAfterKeywords()
     {
         const string code = @"Scenario: TestScenario
-  Function: ThisShouldNotBeAllowed";
+  function ThisShouldNotBeAllowed";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
-        var errors = logger.ErrorNodeMessages(scenario);
-
-        logger.NodeHasErrors(scenario).ShouldBeTrue();
-
-        errors.Length.ShouldBe(1);
-        errors[0].ShouldBe(
-            "tests.lexy(2, 13): ERROR - Unexpected function name. " +
-            "Inline function should not have a name: 'ThisShouldNotBeAllowed'. Remove ':' to target an existing function.");
+        logger.HasErrors().ShouldBeFalse();
+        logger.NodeHasErrors(scenario).ShouldBeFalse();
     }
 
     [Test]
     public void ScenarioWithInlineFunctionShouldLogErrorOnFunction()
     {
         const string code = @"Scenario: TestScenario
-  Function:
+  function
     Unkown";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);

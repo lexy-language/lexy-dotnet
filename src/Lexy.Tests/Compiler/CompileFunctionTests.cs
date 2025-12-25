@@ -9,7 +9,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     [Test]
     public void TestSimpleReturn()
     {
-        using var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
+        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   Results
     number Result
   Code
@@ -21,7 +21,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     [Test]
     public void TestParameterDefaultReturn()
     {
-        using var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
+        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   Parameters
     number Input = 5
   Results
@@ -35,7 +35,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     [Test]
     public void TestAssignmentReturn()
     {
-        using var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
+        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   Parameters
     number Input = 5
 
@@ -60,7 +60,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
   | 0 | 0 |
   | 1 | 1 |
 
-Function: ValidateTableKeywordFunction
+function ValidateTableKeywordFunction
 # Validate table keywords
   Parameters
   Results
@@ -75,7 +75,7 @@ Function: ValidateTableKeywordFunction
     [Test]
     public void VariableDeclarationInCode()
     {
-        using var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
+        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   Parameters
     number Value = 5 
   Results
@@ -92,7 +92,7 @@ Function: ValidateTableKeywordFunction
     [Test]
     public void VariableDeclarationWithDefaultInCode()
     {
-        using var script = ServiceProvider.CompileFunction(@"Function: TestSimpleReturn
+        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   Results
     number Result
   Code
@@ -112,7 +112,7 @@ Enum: SimpleEnum
   First
   Second
     
-Function: TestSimpleReturn
+function TestSimpleReturn
   Results
     SimpleEnum Result
   Code
@@ -130,7 +130,7 @@ Type: SimpleComplex
   number First
   string Second
     
-Function: TestCustomType
+function TestCustomType
   Results
     SimpleComplex Result
   Code
@@ -154,7 +154,7 @@ Type: InnerComplex
 Type: SimpleComplex
   InnerComplex Inner
     
-Function: TestCustomType
+function TestCustomType
   Results
     SimpleComplex Result
   Code

@@ -81,7 +81,7 @@ public class CaseExpression : Expression, IParsableNode
     public static bool IsValid(TokenList tokens)
     {
         return tokens.IsKeyword(0, Keywords.Case)
-               || tokens.IsKeyword(0, Keywords.Default);
+            || tokens.IsKeyword(0, Keywords.Default);
     }
 
     protected override void Validate(IValidationContext context)

@@ -11,7 +11,7 @@ public class SwitchExpressionTests : ScopedServicesTestFixture
     [Test]
     public void CheckSwitchStatement()
     {
-        const string code = @"Function: NumberSwitch
+        const string code = @"function NumberSwitch
   Parameters
     number Evil
   Results

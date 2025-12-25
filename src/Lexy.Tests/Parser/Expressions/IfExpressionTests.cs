@@ -11,7 +11,7 @@ public class IfExpressionTests : ScopedServicesTestFixture
     [Test]
     public void CheckIfStatement()
     {
-      const string code = @"Function: If
+      const string code = @"function If
   Parameters
     boolean Evil
   Results

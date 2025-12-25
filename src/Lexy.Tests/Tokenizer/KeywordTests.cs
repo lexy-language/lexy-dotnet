@@ -10,9 +10,9 @@ public class KeywordTests : ScopedServicesTestFixture
     public void TestFunctionKeyword()
     {
         ServiceProvider
-            .Tokenize("Function: TestSimpleReturn")
+            .Tokenize("function TestSimpleReturn")
             .Count(2)
-            .Keyword(0, "Function:")
+            .Keyword(0, "function")
             .StringLiteral(1, "TestSimpleReturn")
             .Assert();
     }

@@ -24,7 +24,7 @@ public class FactoryTests : ScopedServicesTestFixture
   | 2 | ""2"" |
 ";
 
-    private const string function = @"Function: SimpleFunction
+    private const string function = @"function SimpleFunction
   Parameters
     number Value
   Results
@@ -64,7 +64,7 @@ public class FactoryTests : ScopedServicesTestFixture
     public void FunctionNewFunctionParameters()
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
-Function: Caller
+function Caller
   Code
     var parameters = new(SimpleFunction.Parameters)
 ");
@@ -81,7 +81,7 @@ Function: Caller
     public void FunctionNewFunctionResults()
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
-Function: Caller
+function Caller
   Code
     var parameters = new(SimpleFunction.Results)
 ");
@@ -98,7 +98,7 @@ Function: Caller
     public void FunctionFillFunctionParameters()
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
-Function: Caller
+function Caller
   Parameters
     number Value
   Code
@@ -117,7 +117,7 @@ Function: Caller
     public void FunctionFillFunctionResults()
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
-Function: Caller
+function Caller
   Parameters
     number Result
   Code
@@ -136,7 +136,7 @@ Function: Caller
     public void TableLookup()
     {
         var dependencies = ServiceProvider.BuildGraph(table + @"
-Function: Caller
+function Caller
   Code
     var result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)
 ");
@@ -155,7 +155,7 @@ Function: Caller
         var dependencies = ServiceProvider.BuildGraph(function + @"
 
 Scenario: Simple
-  Function SimpleFunction
+  function SimpleFunction
   Results
     Result = 2
   Parameters
@@ -229,11 +229,11 @@ Type: Parent
     public void CircularFunctionCall()
     {
         var dependencies = ServiceProvider.BuildGraph(@"
-Function: Inner
+function Inner
   Code
     Parent()
 
-Function: Parent
+function Parent
   Code
     Inner()
 ", false);

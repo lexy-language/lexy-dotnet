@@ -9,13 +9,13 @@ public class ParseFunctionTests : ScopedServicesTestFixture
     [Test]
     public void TestDuplicatedFunctionName()
     {
-        const string code = @"Function: ValidateTableKeyword
+        const string code = @"function ValidateTableKeyword
   Results
     number Result
   Code
     Result = 2
 
-Function: ValidateTableKeyword
+function ValidateTableKeyword
   Results
     number Result
   Code

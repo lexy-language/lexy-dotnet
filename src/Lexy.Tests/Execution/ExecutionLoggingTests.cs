@@ -16,7 +16,7 @@ public class ExecutionLoggingTests : ScopedServicesTestFixture
     public void SimpleFunction()
     {
         using var script = ServiceProvider.CompileFunction($@"
-Function: SimpleFunction
+function SimpleFunction
 # Validate table keywords
   Parameters
     number Value
@@ -36,7 +36,7 @@ Function: SimpleFunction
   | number Search | number Value |
   | 0 | 0 |
   | 1 | 1 |
-Function: ValidateTableKeywordFunction
+function ValidateTableKeywordFunction
 # Validate table keywords
   Parameters
   Results
@@ -54,7 +54,7 @@ Function: ValidateTableKeywordFunction
   | 0 | 0 | ""ext"" |
   | 1 | 1 | ""ra""  |
  
-Function: ValidateTableKeywordFunction
+function ValidateTableKeywordFunction
   Parameters
   Results
     SimpleTable.Row Result
