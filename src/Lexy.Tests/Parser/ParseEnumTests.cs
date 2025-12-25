@@ -10,7 +10,7 @@ public class ParseEnumTests : ScopedServicesTestFixture
     [Test]
     public void SimpleEnum()
     {
-        const string code = @"Enum: Enum1
+        const string code = @"enum Enum1
   First
   Second";
 
@@ -29,7 +29,7 @@ public class ParseEnumTests : ScopedServicesTestFixture
     [Test]
     public void EnumWithValues()
     {
-        const string code = @"Enum: Enum2
+        const string code = @"enum Enum2
   First = 5
   Second = 6";
 

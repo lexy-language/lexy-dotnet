@@ -12,7 +12,7 @@ namespace Lexy.Tests.DependencyGraph;
 
 public class FactoryTests : ScopedServicesTestFixture
 {
-    private const string enumDefinition = @"Enum: SimpleEnum
+    private const string enumDefinition = @"enum SimpleEnum
   First
   Second
 ";
@@ -154,7 +154,7 @@ function Caller
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
 
-Scenario: Simple
+scenario Simple
   function SimpleFunction
   Results
     Result = 2

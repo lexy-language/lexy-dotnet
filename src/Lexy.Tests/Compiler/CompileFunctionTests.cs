@@ -108,7 +108,7 @@ function ValidateTableKeywordFunction
     public void VariableDeclarationWithDefaultEnumInCode()
     {
         using var script = ServiceProvider.CompileFunction(@"
-Enum: SimpleEnum
+enum SimpleEnum
   First
   Second
     

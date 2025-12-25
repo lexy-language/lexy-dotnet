@@ -21,7 +21,7 @@ Table: TableExample
   | EnumExample Example | number Value |
   | EnumExample.Single  | 123          |
 
-Enum: EnumExample
+enum EnumExample
   Single
   Married
   CivilPartnership", false);
@@ -37,7 +37,7 @@ Enum: EnumExample
     public void ComplexDependencyGraph()
     {
         var dependencies = ServiceProvider.BuildGraph(
-            @"Scenario: ValidateBuiltOrder
+            @"scenario ValidateBuiltOrder
   function
     Parameters
       TypeExample Example
@@ -110,7 +110,7 @@ Table: TableExample
   | EnumExample Example | number Value |
   | EnumExample.Single  | 123          |
 
-Enum: EnumExample
+enum EnumExample
   Single
   Married
   CivilPartnership", true);

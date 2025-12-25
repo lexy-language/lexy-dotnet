@@ -11,7 +11,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestValidScenarioKeyword()
     {
-        const string code = @"Scenario: TestScenario";
+        const string code = @"scenario TestScenario";
 
         var (scenario, _) = ServiceProvider.ParseScenario(code);
 
@@ -21,7 +21,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestValidScenario()
     {
-        const string code = @"Scenario: TestScenario
+        const string code = @"scenario TestScenario
   function TestScenarioFunction
   Parameters
     Value = 123
@@ -45,7 +45,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestInvalidScenario()
     {
-        const string code = @"Scenario: TestScenario
+        const string code = @"scenario TestScenario
   Functtion TestScenarioFunction
   Parameters
     Value = 123
@@ -68,7 +68,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestInvalidNumberValueScenario()
     {
-        const string code = @"Scenario: TestScenario
+        const string code = @"scenario TestScenario
   function
     Results
       number Result
@@ -89,7 +89,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestScenarioWithInlineFunction()
     {
-        const string code = @"Scenario: ValidNumberIntAsParameter
+        const string code = @"scenario ValidNumberIntAsParameter
   function
     Parameters
       number Value1 = 123
@@ -151,7 +151,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestScenarioWithEmptyParametersAndResults()
     {
-        const string code = @"Scenario: ValidateScenarioKeywords
+        const string code = @"scenario ValidateScenarioKeywords
 // Validate Scenario keywords
   function ValidateFunctionKeywords
   Parameters
@@ -167,7 +167,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void TestValidScenarioWithInvalidInlineFunction()
     {
-        const string code = @"Scenario: InvalidNumberEndsWithLetter
+        const string code = @"scenario InvalidNumberEndsWithLetter
   function
     Results
       number Result
@@ -189,7 +189,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void ScenarioWithInlineFunctionShouldHaveAFunctionNameAfterKeywords()
     {
-        const string code = @"Scenario: TestScenario
+        const string code = @"scenario TestScenario
   function ThisShouldNotBeAllowed";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
@@ -201,7 +201,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     [Test]
     public void ScenarioWithInlineFunctionShouldLogErrorOnFunction()
     {
-        const string code = @"Scenario: TestScenario
+        const string code = @"scenario TestScenario
   function
     Unkown";
 
