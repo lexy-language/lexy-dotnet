@@ -191,7 +191,7 @@ internal static class LogCalls
     public static StatementSyntax LogLineAndVariables(Expression expression)
     {
         var variables = GetReadVariables(expression);
-        var codeLine = expression.Source.Line.Content.Substring(4);
+        var codeLine = expression.Source.Line.Content.Substring(2);
         return LogLine(expression.Source.Line.Index, codeLine, variables);
     }
 

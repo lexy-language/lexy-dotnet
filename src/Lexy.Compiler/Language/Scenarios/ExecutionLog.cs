@@ -15,7 +15,7 @@ public class ExecutionLog : ParsableNode
     public IReadOnlyList<IAssignmentDefinition> Assignments => assignments;
 
 
-    public ExecutionLog(string message, SourceReference reference) : base(reference)
+    private ExecutionLog(string message, SourceReference reference) : base(reference)
     {
         Message = message;
     }
@@ -40,8 +40,7 @@ public class ExecutionLog : ParsableNode
 
         var token = context.Line.Tokens[1];
 
-        var messageToken = token as QuotedLiteralToken;
-        if (messageToken == null)
+        if (token is not QuotedLiteralToken messageToken)
         {
             context.Logger.Fail(line.TokenReference(1), "Invalid token. \"Message\" expected.");
             return null;

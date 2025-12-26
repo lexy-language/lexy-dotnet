@@ -13,11 +13,11 @@ public class LexyParserTests : ScopedServicesTestFixture
         const string code = @"function TestSimpleReturn
   results
     number Result
-  Code
-    Result = 777";
+  Result = 777";
 
-        var (function, _) = ServiceProvider.ParseFunction(code);
+        var (function, logger) = ServiceProvider.ParseFunction(code);
 
+        logger.HasErrors().ShouldBeFalse(logger.ToString());
         function.Name.Value.ShouldBe("TestSimpleReturn");
         function.Results.Variables.Count.ShouldBe(1);
         function.Results.Variables[0].Name.ShouldBe("Result");
@@ -33,8 +33,7 @@ public class LexyParserTests : ScopedServicesTestFixture
         const string code = @"function ValidateFunctionKeywords
 // Validate function keywords
   parameters
-  results
-  Code";
+  results";
 
         var (_, logger) = ServiceProvider.ParseFunction(code);
         logger.HasErrors().ShouldBeFalse(logger.ToString());

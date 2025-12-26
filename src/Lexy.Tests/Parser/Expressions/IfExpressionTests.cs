@@ -11,16 +11,18 @@ public class IfExpressionTests : ScopedServicesTestFixture
     [Test]
     public void CheckIfStatement()
     {
-      const string code = @"function If
+      const string code = @"
+function If
   parameters
     boolean Evil
+
   results
     number Number
-  Code
-    number temp = 777
-    if Evil
-      temp = 666
-    Number = temp";
+
+  number temp = 777
+  if Evil
+    temp = 666
+  Number = temp";
 
         var (function, logger) = ServiceProvider.ParseFunction(code);
 

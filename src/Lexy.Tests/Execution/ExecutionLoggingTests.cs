@@ -22,8 +22,7 @@ function SimpleFunction
     number Value
   results
     number Result
-  Code
-    Result = Value * 5");
+  Result = Value * 5");
         var result = script.Run(new Dictionary<string, object> { { "Value", 23} });
         result.Logging.Count.ShouldBe(1, result.Logging.Format(0));
     }
@@ -41,8 +40,7 @@ function ValidateTableKeywordFunction
   parameters
   results
     number Result
-  Code
-    Result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)");
+  Result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)");
         ExpectNoTableValuesProperty(script);
     }
 
@@ -58,8 +56,7 @@ function ValidateTableKeywordFunction
   parameters
   results
     SimpleTable.Row Result
-  Code
-    Result = LOOKUPROW(SimpleTable, 2, SimpleTable.Search)");
+  Result = LOOKUPROW(SimpleTable, 2, SimpleTable.Search)");
 
         ExpectNoTableValuesProperty(script);
     }

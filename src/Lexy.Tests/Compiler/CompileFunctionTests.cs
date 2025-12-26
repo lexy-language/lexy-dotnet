@@ -12,8 +12,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   results
     number Result
-  Code
-    Result = 777");
+  Result = 777");
         var result = script.Run();
         result.Number("Result").ShouldBe(777);
     }
@@ -26,8 +25,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     number Input = 5
   results
     number Result
-  Code
-    Result = Input");
+  Result = Input");
         var result = script.Run();
         result.Number("Result").ShouldBe(5);
     }
@@ -41,8 +39,7 @@ public class CompileFunctionTests : ScopedServicesTestFixture
 
   results
     number Result
-  Code
-    Result = Input");
+  Result = Input");
         var result = script.Run(new Dictionary<string, object>
         {
             { "Input", 777 }
@@ -65,8 +62,7 @@ function ValidateTableKeywordFunction
   parameters
   results
     number Result
-  Code
-    Result = ValidateTableKeyword.Count");
+  Result = ValidateTableKeyword.Count");
 
         var result = script.Run();
         result.Number("Result").ShouldBe(2);
@@ -80,10 +76,9 @@ function ValidateTableKeywordFunction
     number Value = 5 
   results
     number Result
-  Code
-    number temp = 5
-    temp = Value 
-    Result = temp");
+  number temp = 5
+  temp = Value 
+  Result = temp");
 
         var result = script.Run();
         result.Number("Result").ShouldBe(5);
@@ -95,9 +90,8 @@ function ValidateTableKeywordFunction
         using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
   results
     number Result
-  Code
-    number temp = 5
-    Result = temp
+  number temp = 5
+  Result = temp
 ");
         var result = script.Run();
         result.Number("Result").ShouldBe(5);
@@ -115,8 +109,7 @@ enum SimpleEnum
 function TestSimpleReturn
   results
     SimpleEnum Result
-  Code
-    Result = SimpleEnum.Second
+  Result = SimpleEnum.Second
 ");
         var result = script.Run();
         result.GetValue("Result").ToString().ShouldBe("Second");
@@ -133,9 +126,8 @@ type SimpleComplex
 function TestCustomType
   results
     SimpleComplex Result
-  Code
-    Result.First = 777
-    Result.Second = ""123""
+  Result.First = 777
+  Result.Second = ""123""
 ");
         var result = script.Run();
         var value = result.GetValue("Result") as dynamic;
@@ -157,9 +149,8 @@ type SimpleComplex
 function TestCustomType
   results
     SimpleComplex Result
-  Code
-    Result.Inner.First = 777
-    Result.Inner.Second = ""123""
+  Result.Inner.First = 777
+  Result.Inner.Second = ""123""
 ");
         var result = script.Run();
         var value = result.GetValue("Result") as dynamic;

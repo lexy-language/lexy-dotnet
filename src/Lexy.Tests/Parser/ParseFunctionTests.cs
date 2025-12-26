@@ -12,14 +12,12 @@ public class ParseFunctionTests : ScopedServicesTestFixture
         const string code = @"function ValidateTableKeyword
   results
     number Result
-  Code
-    Result = 2
+  Result = 2
 
 function ValidateTableKeyword
   results
     number Result
-  Code
-    Result = 2";
+  Result = 2";
 
         var(_, logger) = ServiceProvider.ParseNodes(code);
 

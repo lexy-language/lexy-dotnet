@@ -97,9 +97,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     results
       number Result1
       number Result2
-    Code
-      Result1 = Value1
-      Result2 = Value2
+    Result1 = Value1
+    Result2 = Value2
   parameters
     Value1 = 987
     Value2 = 654
@@ -171,8 +170,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   function
     results
       number Result
-    Code
-      Result = 123A
+    Result = 123A
 
   expectErrors 
     ""Invalid token at 18: Invalid number token character: A""";
@@ -203,7 +201,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     {
         const string code = @"scenario TestScenario
   function
-    Unkown";
+    scenario";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
 
@@ -211,6 +209,6 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var errors = logger.ErrorNodeMessages(scenario.Function);
         errors.Length.ShouldBe(1);
-        errors[0].ShouldBe("tests.lexy(2, 3): ERROR - Invalid token 'Unkown'.");
+        errors[0].ShouldContain("Invalid expression: KeywordToken('scenario')");
     }
 }

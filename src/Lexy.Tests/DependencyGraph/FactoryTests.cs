@@ -29,8 +29,7 @@ public class FactoryTests : ScopedServicesTestFixture
     number Value
   results
     number Result
-  Code
-    Result = Value
+  Result = Value
 ";
 
     [Test]
@@ -65,8 +64,7 @@ public class FactoryTests : ScopedServicesTestFixture
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
 function Caller
-  Code
-    var params = new(SimpleFunction.Parameters)
+  var params = new(SimpleFunction.Parameters)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -82,8 +80,7 @@ function Caller
     {
         var dependencies = ServiceProvider.BuildGraph(function + @"
 function Caller
-  Code
-    var params = new(SimpleFunction.Results)
+  var params = new(SimpleFunction.Results)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -101,8 +98,7 @@ function Caller
 function Caller
   parameters
     number Value
-  Code
-    var params = fill(SimpleFunction.Parameters)
+  var params = fill(SimpleFunction.Parameters)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -120,8 +116,7 @@ function Caller
 function Caller
   parameters
     number Result
-  Code
-    var params = fill(SimpleFunction.Results)
+  var params = fill(SimpleFunction.Results)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -137,8 +132,7 @@ function Caller
     {
         var dependencies = ServiceProvider.BuildGraph(table + @"
 function Caller
-  Code
-    var result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)
+  var result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);
@@ -230,12 +224,10 @@ type Parent
     {
         var dependencies = ServiceProvider.BuildGraph(@"
 function Inner
-  Code
-    Parent()
+  Parent()
 
 function Parent
-  Code
-    Inner()
+  Inner()
 ", false);
 
         dependencies.DependencyNodes.Count.ShouldBe(2);

@@ -45,21 +45,23 @@ public class Function : ComponentNode, IHasNodeDependencies
     public override IParsableNode Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var name = line.Tokens.TokenValue(0);
-        if (!line.Tokens.IsTokenType<KeywordToken>(0)) return InvalidToken(name, context);
+        if (!line.Tokens.IsTokenType<KeywordToken>(0))
+        {
+            return Code.Parse(context);
+        }
 
+        var name = line.Tokens.TokenValue(0);
         return name switch
         {
             Keywords.Parameters => Parameters,
             Keywords.Results => Results,
-            Keywords.Code => Code,
-            _ => InvalidToken(name, context)
+            _ => Code.Parse(context)
         };
     }
 
-    private IParsableNode InvalidToken(string name, IParseLineContext parserContext)
+    private IParsableNode InvalidKeyword(string name, IParseLineContext parserContext)
     {
-        parserContext.Logger.Fail(Reference, $"Invalid token '{name}'.");
+        parserContext.Logger.Fail(Reference, $"Invalid keyword '{name}'.");
         return this;
     }
 

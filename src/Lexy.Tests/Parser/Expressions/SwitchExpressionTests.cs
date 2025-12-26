@@ -16,16 +16,15 @@ public class SwitchExpressionTests : ScopedServicesTestFixture
     number Evil
   results
     number Number
-  Code
-    number temp = 555
-    switch Evil
-      case 6
-        temp = 666
-      case 7
-        temp = 777
-      default
-        temp = 888
-    Number = temp";
+  number temp = 555
+  switch Evil
+    case 6
+      temp = 666
+    case 7
+      temp = 777
+    default
+      temp = 888
+  Number = temp";
 
         var (function, logger) = ServiceProvider.ParseFunction(code);
         logger.AssertNoErrors();

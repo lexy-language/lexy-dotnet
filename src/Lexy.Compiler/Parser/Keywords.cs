@@ -25,8 +25,6 @@ public static class Keywords
     public const string Results = "results";
     public const string ValidationTable = "validationTable";
 
-    public const string Code = "Code";
-
     public const string ExpectErrors = "expectErrors";
     public const string ExpectComponentErrors = "expectComponentErrors";
     public const string ExpectExecutionErrors = "expectExecutionErrors";
