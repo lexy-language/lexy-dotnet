@@ -4,7 +4,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class DaysFunction : EndStartDateFunction
 {
-    public const string Name = "DAYS";
+    public const string Name = "days";
 
     private DaysFunction(Expression endDateExpression, Expression startDateExpression, ExpressionSource source)
         : base(Name, endDateExpression, startDateExpression, source)

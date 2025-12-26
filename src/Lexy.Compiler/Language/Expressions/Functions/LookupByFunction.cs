@@ -9,8 +9,8 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 internal class LookupByFunction : TableFunction
 {
     public const string FunctionHelpValue =
-        "Arguments: LOOKUPBY(Table, discriminatorValue, lookUpValue, Table.DiscriminatorValueColumn, Table.SearchValueColumn, Table.ResultColumn)";
-    public const string Name = "LOOKUPBY";
+        "Arguments: lookUpBy(Table, discriminatorValue, lookUpValue, Table.DiscriminatorValueColumn, Table.SearchValueColumn, Table.ResultColumn)";
+    public const string Name = "lookUpBy";
 
     private const int Arguments = 6;
     private const int ArgumentTable = 0;

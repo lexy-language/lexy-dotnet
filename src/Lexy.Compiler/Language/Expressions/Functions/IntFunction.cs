@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class IntFunction : SingleArgumentFunction
 {
-    public const string Name = "INT";
+    public const string Name = "int";
 
     protected override string FunctionHelp => $"{Name} expects 1 argument (Value)";
 

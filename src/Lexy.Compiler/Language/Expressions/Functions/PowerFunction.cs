@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class PowerFunction : FunctionCallExpression
 {
-    public const string Name = "POWER";
+    public const string Name = "power";
 
     private string FunctionHelp => $"'{Name} expects 2 arguments (Number, Power).";
 

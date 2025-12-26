@@ -10,10 +10,10 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     [Test]
     public void FunctionCallExpression()
     {
-        var expression = this.ParseExpression("INT(y)");
+        var expression = this.ParseExpression("int(y)");
         expression.ValidateOfType<FunctionCallExpression>(functionCallExpression =>
         {
-            functionCallExpression.FunctionName.ShouldBe("INT");
+            functionCallExpression.FunctionName.ShouldBe("int");
             functionCallExpression.ValidateOfType<IntFunction>(function =>
                 function.ValueExpression.ValidateVariableExpression("y"));
         });
@@ -22,10 +22,10 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     [Test]
     public void NestedParenthesizedExpression()
     {
-        var expression = this.ParseExpression("INT(5 * (3 + A))");
+        var expression = this.ParseExpression("int(5 * (3 + A))");
         expression.ValidateOfType<FunctionCallExpression>(functionCall =>
         {
-            functionCall.FunctionName.ShouldBe("INT");
+            functionCall.FunctionName.ShouldBe("int");
             functionCall.ValidateOfType<IntFunction>(function =>
                 function.ValueExpression.ValidateOfType<BinaryExpression>(multiplication =>
                     multiplication.Right.ValidateOfType<ParenthesizedExpression>(inner =>
@@ -37,13 +37,13 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     [Test]
     public void NestedParenthesizedMultipleArguments()
     {
-        var expression = this.ParseExpression("ROUND(POWER(98.6,3.2),3)");
+        var expression = this.ParseExpression("round(power(98.6,3.2),3)");
         expression.ValidateOfType<RoundFunction>(round =>
         {
-            round.FunctionName.ShouldBe("ROUND");
+            round.FunctionName.ShouldBe("round");
             round.NumberExpression.ValidateOfType<PowerFunction>(power =>
             {
-                power.FunctionName.ShouldBe("POWER");
+                power.FunctionName.ShouldBe("power");
                 power.NumberExpression.ValidateNumericLiteralExpression(98.6m);
                 power.PowerExpression.ValidateNumericLiteralExpression(3.2m);
             });

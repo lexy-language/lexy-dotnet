@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class AbsFunction : SingleArgumentFunction
 {
-    public const string Name = "ABS";
+    public const string Name = "abs";
 
     protected override string FunctionHelp => $"{Name} expects 1 argument (Value)";
 

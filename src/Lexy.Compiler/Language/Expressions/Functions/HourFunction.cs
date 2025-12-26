@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class HourFunction : SingleArgumentFunction
 {
-    public const string Name = "HOUR";
+    public const string Name = "hour";
 
     protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
 

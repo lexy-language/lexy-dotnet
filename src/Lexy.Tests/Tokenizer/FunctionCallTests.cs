@@ -9,9 +9,9 @@ public class FunctionCallTests : ScopedServicesTestFixture
     public void TestIntTypeLiteral()
     {
         ServiceProvider
-            .Tokenize(@"   LOOKUP(SimpleTable, Value, ""Result"")")
+            .Tokenize(@"   lookUp(SimpleTable, Value, ""Result"")")
             .Count(8)
-            .StringLiteral(0, "LOOKUP")
+            .StringLiteral(0, "lookUp")
             .Operator(1, OperatorType.OpenParentheses)
             .StringLiteral(2, "SimpleTable")
             .Operator(3, OperatorType.ArgumentSeparator)

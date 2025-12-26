@@ -9,8 +9,8 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 internal class LookupFunction : TableFunction
 {
     public const string FunctionHelpValue =
-        "Arguments: LOOKUP(Table, lookUpValue, Table.SearchValueColumn, Table.ResultColumn)";
-    public const string Name = "LOOKUP";
+        "Arguments: lookUp(Table, lookUpValue, Table.SearchValueColumn, Table.ResultColumn)";
+    public const string Name = "lookUp";
 
     private const int Arguments = 4;
     private const int ArgumentTable = 0;

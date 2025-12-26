@@ -4,7 +4,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class MinuteFunction : SingleArgumentFunction
 {
-    public const string Name = "MINUTE";
+    public const string Name = "minute";
 
     protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
 

@@ -4,7 +4,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class NowFunction : NoArgumentFunction
 {
-    public const string Name = "NOW";
+    public const string Name = "now";
 
     protected override VariableType ResultType => PrimitiveType.Date;
 

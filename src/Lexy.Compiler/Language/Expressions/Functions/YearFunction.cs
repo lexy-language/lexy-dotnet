@@ -4,7 +4,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class YearFunction : SingleArgumentFunction
 {
-    public const string Name = "YEAR";
+    public const string Name = "year";
 
     protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
 

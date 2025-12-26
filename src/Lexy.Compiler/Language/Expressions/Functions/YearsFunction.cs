@@ -2,7 +2,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class YearsFunction : EndStartDateFunction
 {
-    public const string Name = "YEARS";
+    public const string Name = "years";
 
     private YearsFunction(Expression endDateExpression, Expression startDateExpression, ExpressionSource source)
         : base(Name, endDateExpression, startDateExpression, source)

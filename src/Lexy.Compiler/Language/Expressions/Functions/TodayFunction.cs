@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class TodayFunction : NoArgumentFunction
 {
-    public const string Name = "TODAY";
+    public const string Name = "today";
 
     protected override VariableType ResultType => PrimitiveType.Date;
 

@@ -60,13 +60,13 @@ public class LiteralExpressionTests : ScopedServicesTestFixture
     [Test]
     public void FunctionCallWithNegativeNumber()
     {
-        var expression = this.ParseExpression("Result = ABS(-2)");
+        var expression = this.ParseExpression("Result = abs(-2)");
         expression.ValidateOfType<AssignmentExpression>(assignment =>
         {
             assignment.Variable.ValidateIdentifierExpression("Result");
             assignment.Assignment.ValidateOfType<AbsFunction>(functionCall =>
             {
-                functionCall.FunctionName.ShouldBe("ABS");
+                functionCall.FunctionName.ShouldBe("abs");
                 functionCall.ValueExpression.ValidateNumericLiteralExpression(-2);
             });
         });

@@ -132,7 +132,7 @@ function Caller
     {
         var dependencies = ServiceProvider.BuildGraph(table + @"
 function Caller
-  var result = LOOKUP(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)
+  var result = lookUp(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)
 ");
 
         dependencies.DependencyNodes.Count.ShouldBe(2);

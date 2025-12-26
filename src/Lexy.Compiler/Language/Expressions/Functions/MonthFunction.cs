@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class MonthFunction : SingleArgumentFunction
 {
-    public const string Name = "MONTH";
+    public const string Name = "month";
 
     protected override string FunctionHelp => $"'{Name} expects 1 argument (Date)";
 

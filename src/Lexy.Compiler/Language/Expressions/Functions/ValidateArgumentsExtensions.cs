@@ -10,8 +10,10 @@ public static class ValidateArgumentsExtensions
     {
         var valueTypeEnd = expression.DeriveType(context);
         if (valueTypeEnd == null || !valueTypeEnd.Equals(type))
+        {
             context.Logger.Fail(reference,
                 $"Invalid argument {argumentIndex}. '{name}' should be of type '{type}' but is '{valueTypeEnd}'. {functionHelp}");
+        }
 
         return context;
     }

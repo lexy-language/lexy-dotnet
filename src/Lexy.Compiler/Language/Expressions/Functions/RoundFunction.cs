@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class RoundFunction : FunctionCallExpression
 {
-    public const string Name = "ROUND";
+    public const string Name = "round";
 
     private string FunctionHelp => $"'{Name}' expects 2 arguments (Number, Digits).";
 

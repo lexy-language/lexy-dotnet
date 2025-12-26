@@ -8,8 +8,8 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 internal class LookupRowByFunction : TableFunction
 {
-    private const string FunctionHelpValue = " Arguments: LOOKUPROWBY(Table, discriminatorValue, lookUpValue, Table.DiscriminatorValueColumn, Table.SearchValueColumn)";
-    public const string Name = "LOOKUPROWBY";
+    private const string FunctionHelpValue = " Arguments: lookUpRowBy(Table, discriminatorValue, lookUpValue, Table.DiscriminatorValueColumn, Table.SearchValueColumn)";
+    public const string Name = "lookUpRowBy";
 
     private const int Arguments = 5;
     private const int ArgumentTable = 0;
