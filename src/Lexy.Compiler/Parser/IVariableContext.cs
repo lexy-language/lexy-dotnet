@@ -12,12 +12,12 @@ public interface IVariableContext
         VariableSource source);
 
     bool Contains(string variableName);
-    bool Contains(VariablePath path, IValidationContext context);
+    bool Contains(IdentifierPath path, IValidationContext context);
 
     VariableType GetVariableType(string variableName);
-    VariableType GetVariableType(VariablePath path, IValidationContext context);
+    VariableType GetVariableType(IdentifierPath path, IValidationContext context);
 
     VariableEntry GetVariable(string variableName);
 
-    VariableReference CreateVariableReference(SourceReference reference, VariablePath path, IValidationContext validationContext);
+    VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path, IValidationContext validationContext);
 }

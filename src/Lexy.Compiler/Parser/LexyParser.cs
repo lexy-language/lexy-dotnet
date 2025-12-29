@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Lexy.Compiler.DependencyGraph;
+using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
@@ -13,16 +14,18 @@ public class LexyParser : ILexyParser
     private readonly ILogger baseLogger;
     private readonly ITokenizer tokenizer;
     private readonly IFileSystem fileSystem;
+    private readonly ILibraries libraries;
     private readonly IExpressionFactory expressionFactory;
     private readonly ISourceCodeDocument sourceCodeDocument;
 
-    public LexyParser(ISourceCodeDocument sourceCodeDocument, ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IFileSystem fileSystem, IExpressionFactory expressionFactory)
+    public LexyParser(ISourceCodeDocument sourceCodeDocument, ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IFileSystem fileSystem, IExpressionFactory expressionFactory, ILibraries libraries)
     {
         this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
         this.baseLogger = baseLogger ?? throw new ArgumentNullException(nameof(baseLogger));
         this.tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
-        this.fileSystem = fileSystem;
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.expressionFactory = expressionFactory ?? throw new ArgumentNullException(nameof(expressionFactory));
+        this.libraries = libraries ?? throw new ArgumentNullException(nameof(libraries));
     }
 
     public ParserResult ParseFile(string fileName, ParseOptions options)
@@ -38,7 +41,7 @@ public class LexyParser : ILexyParser
         if (code == null) throw new ArgumentNullException(nameof(code));
 
         var parserLogger = new ParserLogger(baseLogger);
-        var context = new ParserContext(parserLogger, fileSystem, options);
+        var context = new ParserContext(parserLogger, fileSystem, libraries, options);
 
         context.AddFileIncluded(fullFileName);
         context.SetFileLineFilter(fullFileName);
@@ -166,7 +169,7 @@ public class LexyParser : ILexyParser
     private void ValidateNodesTree(IParserContext context)
     {
         var visitor = new TrackLoggingCurrentNodeVisitor(context.Logger);
-        var validationContext = new ValidationContext(context.Logger, context.Nodes, visitor);
+        var validationContext = new ValidationContext(context.Logger, context.Nodes, visitor, context.Libraries);
         context.RootNode.ValidateTree(validationContext);
     }
 

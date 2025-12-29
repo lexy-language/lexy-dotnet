@@ -13,13 +13,29 @@ NuGet .NET package: **todo**
 Check [lexy-language](https://github.com/lexy-language/lexy-language) for more information about how to contribute.
 
 # Known improvements
-
 - [ ] Code: get rid of all warning 
-- [ ] Benchmarking: add performance tests and improve compilation time 
+- [ ] Benchmarking: add performance tests for compilation and execution across compilers and improve compilation time 
 - [ ] Packaging: publish NuGet package from GitHub Actions
-- [ ] Editor API: develop API for editot (or in node.js) (Lexy.Web.Editori is currently excluded from solution)
 
 # Implementations notes
+
+## Compiler implementation
+
+The .net compilers is the main compiler implementation. It is developed by practicing test-driven development (TDD), or more specific, behavior-drive development (BDD).
+Since the initial commit ([.net](https://github.com/lexy-language/lexy-dotnet/commit/775e6890d962c039bf2310e2a07b2689c6c161da) [language](https://github.com/lexy-language/lexy-language/commit/7defd884f1b28809bcebdc7fd1c6c4b73cf76525)) the specifications of Lexy were written before the code was implemented.
+During the development I continuously refactored the code to improve the design of the compiler and the language.
+The [specifications](https://github.com/lexy-language/lexy-language/tree/main/Specifications) are also written in Lexy and document the whole language and most features of the compiler.
+
+
+The compiler itself process files in different phases:
+- Parser:
+- Tokenizer
+- Validation
+- Dependency checker:
+- Compilation
+
+Use pri
+
 
 ## Run locally
 
@@ -30,7 +46,6 @@ Run build 'dotnet build'
 Run automated tests 'dotnet test'
 
 It contains a project **Lexy.Web.Editor** which could be a start for an API for lexy-editor. It is a react app and needs node.js (v16 or above). Tested with node.js v16.20.2.
-
 
 ## Submodules
 

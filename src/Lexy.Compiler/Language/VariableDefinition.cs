@@ -26,10 +26,10 @@ public class VariableDefinition : Node, IHasNodeDependencies
         Source = source;
     }
 
-    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         return Type is IHasNodeDependencies hasNodeDependencies
-            ? hasNodeDependencies.GetDependencies(componentNodeList)
+            ? hasNodeDependencies.GetDependencies(componentNodes)
             : Array.Empty<IComponentNode>();
     }
 
@@ -44,7 +44,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
         if (!result) return null;
 
-        if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessLiteral>(0)) {
+        if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessLiteralToken>(0)) {
             context.Logger.Fail(line.TokenReference(0), "Unexpected token.");
             return null;
         }

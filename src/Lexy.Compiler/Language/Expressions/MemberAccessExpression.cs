@@ -8,21 +8,21 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVariableReference
 {
-    public MemberAccessLiteral MemberAccessLiteral { get; }
+    public MemberAccessLiteralToken MemberAccessLiteralToken { get; }
 
-    public VariablePath VariablePath { get; private set; }
+    public IdentifierPath VariablePath { get; private set; }
     public VariableReference Variable { get; private set; }
 
-    private MemberAccessExpression(VariablePath variablePath, MemberAccessLiteral literal, ExpressionSource source,
+    private MemberAccessExpression(IdentifierPath variablePath, MemberAccessLiteralToken literalToken, ExpressionSource source,
         SourceReference reference) : base(source, reference)
     {
-        MemberAccessLiteral = literal ?? throw new ArgumentNullException(nameof(literal));
+        MemberAccessLiteralToken = literalToken ?? throw new ArgumentNullException(nameof(literalToken));
         VariablePath = variablePath;
     }
 
-    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        var componentNode = componentNodeList.GetNode(MemberAccessLiteral.Parent);
+        var componentNode = componentNodes.GetNode(MemberAccessLiteralToken.Parent);
         if (componentNode != null) yield return componentNode;
     }
 
@@ -31,8 +31,8 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<MemberAccessExpression>("Invalid expression.");
 
-        var literal = tokens.Token<MemberAccessLiteral>(0);
-        var variable = new VariablePath(literal.Parts);
+        var literal = tokens.Token<MemberAccessLiteralToken>(0);
+        var variable = new IdentifierPath(literal.Parts);
 
         var reference = source.CreateReference();
 
@@ -43,7 +43,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
     public static bool IsValid(TokenList tokens)
     {
         return tokens.Length == 1
-               && tokens.IsTokenType<MemberAccessLiteral>(0);
+               && tokens.IsTokenType<MemberAccessLiteralToken>(0);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -67,6 +67,6 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
 
     public override VariableType DeriveType(IValidationContext context)
     {
-        return MemberAccessLiteral.DeriveType(context);
+        return MemberAccessLiteralToken.DeriveType(context);
     }
 }

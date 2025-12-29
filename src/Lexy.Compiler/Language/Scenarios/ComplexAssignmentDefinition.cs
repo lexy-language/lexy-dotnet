@@ -8,14 +8,14 @@ public class ComplexAssignmentDefinition : ParsableNode, IAssignmentDefinition
 {
     private readonly List<IAssignmentDefinition> assignments = new List<IAssignmentDefinition>();
 
-    public VariablePath Variable { get; }
+    public IdentifierPath Variable { get; }
 
     public IReadOnlyList<IAssignmentDefinition> Assignments
     {
         get { return assignments; }
     }
 
-    public ComplexAssignmentDefinition(VariablePath variable, SourceReference reference)
+    public ComplexAssignmentDefinition(IdentifierPath variable, SourceReference reference)
         : base(reference)
     {
         Variable = variable;

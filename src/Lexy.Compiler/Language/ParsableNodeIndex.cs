@@ -44,6 +44,6 @@ public class ParsableNodeIndex
             }
         }
 
-        throw new InvalidOperationException("Can't find a IComponentNode parent.");
+        throw new InvalidOperationException("Can't find an IComponentNode parent.");
     }
 }

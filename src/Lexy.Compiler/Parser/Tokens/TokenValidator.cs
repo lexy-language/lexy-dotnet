@@ -85,7 +85,7 @@ public class TokenValidator
 
     public TokenValidator MemberAccess(int index, string value = null)
     {
-        Type<MemberAccessLiteral>(index);
+        Type<MemberAccessLiteralToken>(index);
         if (value != null) Value(index, value);
         return this;
     }

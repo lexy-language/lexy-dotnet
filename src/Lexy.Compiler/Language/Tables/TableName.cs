@@ -1,5 +1,3 @@
-using System;
-
 namespace Lexy.Compiler.Language.Tables;
 
 public class TableName
@@ -10,4 +8,6 @@ public class TableName
     {
         Value = parameter;
     }
+
+    public override string ToString() => Value;
 }

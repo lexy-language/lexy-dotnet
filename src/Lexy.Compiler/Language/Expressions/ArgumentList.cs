@@ -1,66 +1,86 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
 public static class ArgumentList
 {
+    private record ParseContext
+    {
+        public List<TokenList> Result { get; } = new();
+        public List<Token> ArgumentTokens { get; } = new();
+        public int CountParentheses = 0;
+        public int CountBrackets = 0;
+    }
+
     public static ArgumentTokenParseResult Parse(TokenList tokens)
     {
         if (tokens == null) throw new ArgumentNullException(nameof(tokens));
         if (tokens.Length == 0) return ArgumentTokenParseResult.Success();
 
-        var result = new List<TokenList>();
-        var argumentTokens = new List<Token>();
-
-        var countParentheses = 0;
-        var countBrackets = 0;
+        var context = new ParseContext();
         foreach (var token in tokens)
         {
-            if (token is OperatorToken operatorToken)
-            {
-                switch (operatorToken.Type)
-                {
-                    case OperatorType.OpenParentheses:
-                        countParentheses++;
-                        break;
-                    case OperatorType.CloseParentheses:
-                        countParentheses--;
-                        break;
-                    case OperatorType.OpenBrackets:
-                        countBrackets++;
-                        break;
-                    case OperatorType.CloseBrackets:
-                        countBrackets--;
-                        break;
-                }
-
-                if (countParentheses == 0 && countBrackets == 0 && operatorToken.Type == OperatorType.ArgumentSeparator)
-                {
-                    if (argumentTokens.Count == 0)
-                        return ArgumentTokenParseResult.Failed(@"Invalid token ','. No tokens before comma.");
-
-                    result.Add(new TokenList(argumentTokens.ToArray()));
-                    argumentTokens = new List<Token>();
-                }
-                else
-                {
-                    argumentTokens.Add(token);
-                }
-            }
-            else
-            {
-                argumentTokens.Add(token);
-            }
+            var result = ProcessToken(context, token);
+            if (!result.IsSuccess) return result;
         }
 
-        if (argumentTokens.Count == 0)
+        if (context.ArgumentTokens.Count == 0)
+        {
             return ArgumentTokenParseResult.Failed(@"Invalid token ','. No tokens before comma.");
+        }
 
-        result.Add(new TokenList(argumentTokens.ToArray()));
+        context.Result.Add(new TokenList(context.ArgumentTokens.ToArray()));
 
-        return ArgumentTokenParseResult.Success(result);
+        return ArgumentTokenParseResult.Success(context.Result);
+    }
+
+    private static ArgumentTokenParseResult ProcessToken(ParseContext context, Token token)
+    {
+        if (token is not OperatorToken operatorToken)
+        {
+            context.ArgumentTokens.Add(token);
+            return ArgumentTokenParseResult.Success();
+        }
+
+        CountScopeCharacters(context, operatorToken);
+
+        if (context.CountParentheses == 0
+         && context.CountBrackets == 0
+         && operatorToken.Type == OperatorType.ArgumentSeparator)
+        {
+            if (context.ArgumentTokens.Count == 0)
+            {
+                return ArgumentTokenParseResult.Failed(@"Invalid token ','. No tokens before comma.");
+            }
+
+            context.Result.Add(new TokenList(context.ArgumentTokens.ToArray()));
+            context.ArgumentTokens.Clear();
+        }
+        else
+        {
+            context.ArgumentTokens.Add(token);
+        }
+        return ArgumentTokenParseResult.Success();
+    }
+
+    private static void CountScopeCharacters(ParseContext context, OperatorToken operatorToken)
+    {
+        switch (operatorToken.Type)
+        {
+            case OperatorType.OpenParentheses:
+                context.CountParentheses++;
+                break;
+            case OperatorType.CloseParentheses:
+                context.CountParentheses--;
+                break;
+            case OperatorType.OpenBrackets:
+                context.CountBrackets++;
+                break;
+            case OperatorType.CloseBrackets:
+                context.CountBrackets--;
+                break;
+        }
     }
 }

@@ -26,7 +26,7 @@ public class ParserLogger : IParserLogger
 
     public bool HasComponentErrors()
     {
-        return logEntries.Any(entry => entry.IsError && entry.Node == null);
+        return logEntries.Any(IsComponentError);
     }
 
     public void LogInfo(string message)
@@ -82,8 +82,7 @@ public class ParserLogger : IParserLogger
 
     public string FormatMessages()
     {
-        return
-            $"{string.Join(Environment.NewLine, logEntries)}{Environment.NewLine}";
+        return $"{string.Join(Environment.NewLine, logEntries)}{Environment.NewLine}";
     }
 
     public void SetCurrentNode(IComponentNode node)
@@ -121,11 +120,13 @@ public class ParserLogger : IParserLogger
 
     public string[] ErrorComponentMessages()
     {
-        return logEntries.Where(entry => entry.IsError && entry.Node == null)
+        return logEntries.Where(IsComponentError)
             .OrderBy(entry => entry.SortIndex)
             .Select(entry => entry.Message)
             .ToArray();
     }
+
+    private static bool IsComponentError(LogEntry entry) => entry.IsError && entry.Node is null or LexyScriptNode;
 
     public string[] ErrorMessages()
     {

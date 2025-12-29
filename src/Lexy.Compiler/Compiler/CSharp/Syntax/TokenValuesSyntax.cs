@@ -21,12 +21,12 @@ internal static class TokenValuesSyntax
             BooleanLiteral boolean => SyntaxFactory.LiteralExpression(boolean.BooleanValue
                 ? SyntaxKind.TrueLiteralExpression
                 : SyntaxKind.FalseLiteralExpression),
-            MemberAccessLiteral memberAccess => TranslateMemberAccessLiteral(memberAccess),
+            MemberAccessLiteralToken memberAccess => TranslateMemberAccessLiteral(memberAccess),
             _ => throw new InvalidOperationException("Couldn't map type: " + token.GetType())
         };
     }
 
-    private static ExpressionSyntax TranslateMemberAccessLiteral(MemberAccessLiteral memberAccess)
+    private static ExpressionSyntax TranslateMemberAccessLiteral(MemberAccessLiteralToken memberAccess)
     {
         var parts = memberAccess.Parts;
         if (parts.Length != 2) throw new InvalidOperationException("Only 2 parts expected.");

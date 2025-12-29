@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 
@@ -11,6 +12,8 @@ public class ParserContext : IParserContext
 
     private readonly IList<string> includedFiles = new List<string>();
 
+    public ILibraries Libraries { get; }
+
     public ComponentNodeList Nodes => RootNode.ComponentNodes;
     public ILineFilter LineFilter { get; private set; }
 
@@ -18,10 +21,12 @@ public class ParserContext : IParserContext
     public IParserLogger Logger { get; }
     public ParseOptions Options { get; }
 
-    public ParserContext(IParserLogger logger, IFileSystem fileSystem, ParseOptions options)
+    public ParserContext(IParserLogger logger, IFileSystem fileSystem, ILibraries libraries, ParseOptions options)
     {
-        this.fileSystem = fileSystem;
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Libraries = libraries ?? throw new ArgumentNullException(nameof(libraries));
+
         Options = options ?? ParseOptions.Default();
 
         RootNode = new LexyScriptNode();

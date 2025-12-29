@@ -45,19 +45,19 @@ public class VariableContext : IVariableContext
         return variables.ContainsKey(name) || parentContext != null && parentContext.Contains(name);
     }
 
-    public bool Contains(VariablePath path, IValidationContext context)
+    public bool Contains(IdentifierPath path, IValidationContext context)
     {
-        var parent = GetVariable(path.ParentIdentifier);
+        var parent = GetVariable(path.RootIdentifier);
         if (parent == null) return false;
 
         return !path.HasChildIdentifiers ||
                ContainChild(parent.VariableType, path.ChildrenReference(), context);
     }
 
-    public VariableReference CreateVariableReference(SourceReference reference, VariablePath path, IValidationContext validationContext)
+    public VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path, IValidationContext validationContext)
     {
-        VariableReference ExecuteWithPriority(Func<VariablePath,IValidationContext, VariableReference> firstPriorityHandler,
-            Func<VariablePath,IValidationContext, VariableReference> secondPriorityHandler)
+        VariableReference ExecuteWithPriority(Func<IdentifierPath,IValidationContext, VariableReference> firstPriorityHandler,
+            Func<IdentifierPath,IValidationContext, VariableReference> secondPriorityHandler)
         {
             var value1 = firstPriorityHandler(path, validationContext);
             if (value1 != null) return value1;
@@ -76,9 +76,9 @@ public class VariableContext : IVariableContext
             : ExecuteWithPriority(fromVariables, fromTypeSystem);
     }
 
-    private VariableReference CreateVariableReferenceFromRegisteredVariables(VariablePath path, IValidationContext validationContext)
+    private VariableReference CreateVariableReferenceFromRegisteredVariables(IdentifierPath path, IValidationContext validationContext)
     {
-        var variable = GetVariable(path.ParentIdentifier);
+        var variable = GetVariable(path.RootIdentifier);
         if (variable == null) return null;
 
         var variableType = GetVariableType(path, validationContext);
@@ -87,11 +87,11 @@ public class VariableContext : IVariableContext
         return new VariableReference(path, null, variableType, variable.VariableSource);
     }
 
-    private VariableReference CreateVariableReferenceFromTypeSystem(VariablePath path, IValidationContext validationContext)
+    private VariableReference CreateVariableReferenceFromTypeSystem(IdentifierPath path, IValidationContext validationContext)
     {
         if (path.Parts > 2) return null;
 
-        var rootVariableType = componentNodes.GetType(path.ParentIdentifier);
+        var rootVariableType = componentNodes.GetType(path.RootIdentifier);
         if (rootVariableType == null) return null;
 
         if (path.Parts == 1)
@@ -112,11 +112,11 @@ public class VariableContext : IVariableContext
             : parentContext?.GetVariableType(name);
     }
 
-    public VariableType GetVariableType(VariablePath path, IValidationContext context)
+    public VariableType GetVariableType(IdentifierPath path, IValidationContext context)
     {
         if (path == null) throw new ArgumentNullException(nameof(path));
 
-        var parent = GetVariableType(path.ParentIdentifier);
+        var parent = GetVariableType(path.RootIdentifier);
         return parent == null || !path.HasChildIdentifiers
             ? parent
             : GetVariableType(parent, path.ChildrenReference(), context);
@@ -129,23 +129,23 @@ public class VariableContext : IVariableContext
             : parentContext?.GetVariable(name);
     }
 
-    private bool ContainChild(VariableType parentType, VariablePath path, IValidationContext context)
+    private bool ContainChild(VariableType parentType, IdentifierPath path, IValidationContext context)
     {
         var typeWithMembers = parentType as ITypeWithMembers;
 
-        var memberVariableType = typeWithMembers?.MemberType(path.ParentIdentifier, context.ComponentNodes);
+        var memberVariableType = typeWithMembers?.MemberType(path.RootIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return false;
 
         return !path.HasChildIdentifiers
                || ContainChild(memberVariableType, path.ChildrenReference(), context);
     }
 
-    private VariableType GetVariableType(VariableType parentType, VariablePath path,
+    private VariableType GetVariableType(VariableType parentType, IdentifierPath path,
         IValidationContext context)
     {
         if (parentType is not ITypeWithMembers typeWithMembers) return null;
 
-        var memberVariableType = typeWithMembers.MemberType(path.ParentIdentifier, context.ComponentNodes);
+        var memberVariableType = typeWithMembers.MemberType(path.RootIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return null;
 
         return !path.HasChildIdentifiers

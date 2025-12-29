@@ -31,11 +31,13 @@ public class ExpressionFactory : IExpressionFactory
     public ParseExpressionResult Parse(TokenList tokens, Line currentLine)
     {
         foreach (var factory in factories)
+        {
             if (factory.Key(tokens))
             {
                 var source = new ExpressionSource(currentLine, tokens);
                 return factory.Value(source, this);
             }
+        }
 
         return ParseExpressionResult.Invalid<Expression>($"Invalid expression: {tokens}");
     }

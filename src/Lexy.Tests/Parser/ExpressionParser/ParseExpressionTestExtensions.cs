@@ -1,5 +1,4 @@
 using System;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Shouldly;

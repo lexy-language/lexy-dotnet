@@ -53,7 +53,7 @@ public class VariableDeclarationExpression : Expression
                && tokens.IsTokenType<StringLiteralToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
             || tokens.Length == 2
-               && tokens.IsTokenType<MemberAccessLiteral>(0)
+               && tokens.IsTokenType<MemberAccessLiteralToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
             || tokens.Length >= 4
                && tokens.IsKeyword(0, Keywords.ImplicitVariableDeclaration)
@@ -97,7 +97,7 @@ public class VariableDeclarationExpression : Expression
         }
 
         variableType = Type.VariableType;
-        if (Assignment != null && !assignmentType.Equals(variableType))
+        if (Assignment != null && (assignmentType == null || !assignmentType.Equals(variableType)))
         {
             context.Logger.Fail(Reference, "Invalid expression. Literal or enum value expression expected.");
         }
@@ -112,7 +112,7 @@ public class VariableDeclarationExpression : Expression
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
-        yield return new VariableUsage(VariablePathParser.Parse(Name), null, variableType, VariableSource.Code, VariableAccess.Write);
+        yield return new VariableUsage(IdentifierPath.Parse(Name), null, variableType, VariableSource.Code, VariableAccess.Write);
 
         if (Assignment == null) yield break;
 

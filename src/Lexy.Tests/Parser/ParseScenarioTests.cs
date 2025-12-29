@@ -34,11 +34,11 @@ public class ParseScenarioTests : ScopedServicesTestFixture
         scenario.FunctionName.Value.ShouldBe("TestScenarioFunction");
         var parameterAssignments = scenario.Parameters.AllAssignments();
         parameterAssignments.Count.ShouldBe(1);
-        parameterAssignments[0].Variable.ParentIdentifier.ShouldBe("Value");
+        parameterAssignments[0].Variable.RootIdentifier.ShouldBe("Value");
         parameterAssignments[0].ConstantValue.Value.ShouldBe(123m);
         var resultsAssignments = scenario.Results.AllAssignments();
         resultsAssignments.Count.ShouldBe(1);
-        resultsAssignments[0].Variable.ParentIdentifier.ShouldBe("Result");
+        resultsAssignments[0].Variable.RootIdentifier.ShouldBe("Result");
         resultsAssignments[0].ConstantValue.Value.ShouldBe(456m);
     }
 
@@ -134,16 +134,16 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var parameterAssignments = scenario.Parameters.AllAssignments();
         parameterAssignments.Count.ShouldBe(2);
-        parameterAssignments[0].Variable.ParentIdentifier.ShouldBe("Value1");
+        parameterAssignments[0].Variable.RootIdentifier.ShouldBe("Value1");
         parameterAssignments[0].ConstantValue.Value.ShouldBe(987m);
-        parameterAssignments[1].Variable.ParentIdentifier.ShouldBe("Value2");
+        parameterAssignments[1].Variable.RootIdentifier.ShouldBe("Value2");
         parameterAssignments[1].ConstantValue.Value.ShouldBe(654m);
 
         var resultsAssignments = scenario.Results.AllAssignments();
         resultsAssignments.Count.ShouldBe(2);
-        resultsAssignments[0].Variable.ParentIdentifier.ShouldBe("Result1");
+        resultsAssignments[0].Variable.RootIdentifier.ShouldBe("Result1");
         resultsAssignments[0].ConstantValue.Value.ShouldBe(123m);
-        resultsAssignments[1].Variable.ParentIdentifier.ShouldBe("Result2");
+        resultsAssignments[1].Variable.RootIdentifier.ShouldBe("Result2");
         resultsAssignments[1].ConstantValue.Value.ShouldBe(456m);
     }
 
@@ -188,7 +188,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     public void ScenarioWithInlineFunctionShouldHaveAFunctionNameAfterKeywords()
     {
         const string code = @"scenario TestScenario
-  function ThisShouldNotBeAllowed";
+  function ThisShouldBeAllowed";
 
         var (scenario, logger) = ServiceProvider.ParseScenario(code);
 

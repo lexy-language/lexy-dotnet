@@ -10,7 +10,9 @@ public class Table : ComponentNode
     private bool invalidHeader;
     private readonly List<TableRow> rows = new();
 
+    public const string CountName = "Count";
     public const string RowName = "Row";
+
     public TableName Name { get; } = new();
     public TableHeader Header { get; private set; }
 

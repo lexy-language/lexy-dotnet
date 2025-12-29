@@ -6,7 +6,7 @@ public class VariableUsage : VariableReference {
 
     public VariableAccess Access { get; }
 
-    public VariableUsage(VariablePath path, VariableType parentVariableType,
+    public VariableUsage(IdentifierPath path, VariableType parentVariableType,
         VariableType variableType, VariableSource source, VariableAccess access) :
         base(path, parentVariableType, variableType, source)
     {

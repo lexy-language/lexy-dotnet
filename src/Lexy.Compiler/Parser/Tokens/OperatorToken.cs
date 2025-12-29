@@ -27,10 +27,11 @@ public class OperatorToken : ParsableToken
         TokenValues.OpenParentheses,
         TokenValues.OpenBrackets,
         TokenValues.CloseParentheses,
-        TokenValues.CloseBrackets
+        TokenValues.CloseBrackets,
+        TokenValues.Quote
     };
 
-    private readonly IList<OperatorCombinations> operatorCombinations = new List<OperatorCombinations>
+    private static readonly IList<OperatorCombinations> operatorCombinations = new List<OperatorCombinations>
     {
         new(TokenValues.Assignment, null, OperatorType.Assignment),
         new(TokenValues.Addition, null, OperatorType.Addition),

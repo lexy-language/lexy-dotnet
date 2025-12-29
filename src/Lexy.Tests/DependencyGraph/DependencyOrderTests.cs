@@ -81,7 +81,7 @@ function FunctionWithTableDependency
     TypeExample Example
   results
     number Result
-  Result = lookUp(TableExample, EnumExample.Single, TableExample.Example, TableExample.Value)
+  Result = TableExample.LookUp(EnumExample.Single, TableExample.Example, TableExample.Value)
 
 function FunctionWithEnumDependency
   parameters

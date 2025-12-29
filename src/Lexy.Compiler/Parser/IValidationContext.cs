@@ -1,4 +1,5 @@
 using System;
+using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Language;
 
 namespace Lexy.Compiler.Parser;
@@ -10,6 +11,7 @@ public interface IValidationContext
 
     IVariableContext VariableContext { get; }
     ITreeValidationVisitor Visitor { get; }
+    ILibraries Libraries { get; }
 
     IDisposable CreateVariableScope();
 }

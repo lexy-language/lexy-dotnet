@@ -17,7 +17,9 @@ public class Mapping
         VariableSource = variableSource;
     }
 
-    public VariableUsage ToUsedVariable(VariableAccess access) {
-        return new VariableUsage(VariablePathParser.Parse(VariableName), null, VariableType, VariableSource, access);
+    public VariableUsage ToUsedVariable(VariableAccess access)
+    {
+        var variablePath = IdentifierPath.Parse(VariableName);
+        return new VariableUsage(variablePath, null, VariableType, VariableSource, access);
     }
 }

@@ -4,6 +4,6 @@ namespace Lexy.Compiler.Parser;
 
 public interface ITreeValidationVisitor
 {
-    void Enter(Node node);
-    void Leave(Node node);
+    void Enter(INode node);
+    void Leave(INode node);
 }

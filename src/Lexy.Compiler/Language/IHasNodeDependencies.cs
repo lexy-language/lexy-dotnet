@@ -4,5 +4,5 @@ namespace Lexy.Compiler.Language;
 
 internal interface IHasNodeDependencies
 {
-    IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList);
+    IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes);
 }

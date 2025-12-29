@@ -1,3 +1,4 @@
+using System;
 using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Language.VariableTypes;
@@ -37,5 +38,16 @@ public class PrimitiveType : VariableType
     public override string ToString()
     {
         return Type;
+    }
+
+    public static VariableType Parse(Type type)
+    {
+        if (type == typeof(bool)) return Boolean;
+        if (type == typeof(string)) return String;
+        if (type == typeof(int)) return Number;
+        if (type == typeof(double)) return Number;
+        if (type == typeof(decimal)) return Number;
+        if (type == typeof(DateTime)) return Date;
+        throw new InvalidOperationException($"Invalid primitive type: '{type.Namespace}.{type.Name}'");
     }
 }

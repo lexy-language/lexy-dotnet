@@ -64,10 +64,11 @@ public class LiteralExpressionTests : ScopedServicesTestFixture
         expression.ValidateOfType<AssignmentExpression>(assignment =>
         {
             assignment.Variable.ValidateIdentifierExpression("Result");
-            assignment.Assignment.ValidateOfType<AbsFunction>(functionCall =>
+            assignment.Assignment.ValidateOfType<LexyFunctionCallExpression>(functionCall =>
             {
                 functionCall.FunctionName.ShouldBe("abs");
-                functionCall.ValueExpression.ValidateNumericLiteralExpression(-2);
+                functionCall.Arguments.Count.ShouldBe(1);
+                functionCall.Arguments[0].ValidateNumericLiteralExpression(-2);
             });
         });
     }

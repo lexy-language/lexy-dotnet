@@ -203,13 +203,13 @@ public class Scenario : ComponentNode, IHasNodeDependencies
         }
     }
 
-    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var result = new List<IComponentNode>();
         if (Function != null) result.Add(Function);
         if (FunctionName?.IsEmpty() == false)
         {
-            var functionNode = componentNodeList.GetFunction(FunctionName.Value);
+            var functionNode = componentNodes.GetFunction(FunctionName.Value);
             if (functionNode != null) {
                 result.Add(functionNode);
             }

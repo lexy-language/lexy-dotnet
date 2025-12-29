@@ -14,7 +14,7 @@ public class TrackLoggingCurrentNodeVisitor : ITreeValidationVisitor
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public void Enter(Node node)
+    public void Enter(INode node)
     {
         if (node is not IComponentNode componentNode) return;
 
@@ -23,7 +23,7 @@ public class TrackLoggingCurrentNodeVisitor : ITreeValidationVisitor
         logger.SetCurrentNode(componentNode);
     }
 
-    public void Leave(Node node)
+    public void Leave(INode node)
     {
         if (node is not IComponentNode) return;
 

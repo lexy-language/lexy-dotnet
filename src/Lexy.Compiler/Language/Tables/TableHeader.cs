@@ -62,11 +62,10 @@ public class TableHeader : Node
     {
     }
 
-    public ColumnHeader Get(MemberAccessLiteral memberAccess)
+    public ColumnHeader Get(IdentifierPath path)
     {
-        var parts = memberAccess.Parts;
-        if (parts.Length < 2) return null;
-        var name = parts[1];
+        if (path.Parts < 2) return null;
+        var name = path.Path[1];
 
         return GetColumn(name);
     }

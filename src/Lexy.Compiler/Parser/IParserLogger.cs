@@ -10,8 +10,6 @@ public interface IParserLogger
     void Log(SourceReference reference, string message);
     void Fail(SourceReference reference, string message);
 
-    void LogNodes(IEnumerable<INode> nodes);
-
     bool HasErrors();
     bool HasComponentErrors();
 

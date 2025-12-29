@@ -44,9 +44,9 @@ public class EnumType : TypeWithMembers
         return Enum.Members.Any(member => member.Name == name) ? this : null;
     }
 
-    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        yield return componentNodeList.GetEnum(Type);
+        yield return componentNodes.GetEnum(Type);
     }
 
     public static VariableType Generic()

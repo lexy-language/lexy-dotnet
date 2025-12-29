@@ -36,9 +36,9 @@ public sealed class CustomVariableDeclarationType : VariableDeclarationType, IHa
         return Type;
     }
 
-    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        var type = GetVariableType(componentNodeList);
+        var type = GetVariableType(componentNodes);
         return type switch
         {
             CustomType customType => new[] { customType.TypeDefinition },

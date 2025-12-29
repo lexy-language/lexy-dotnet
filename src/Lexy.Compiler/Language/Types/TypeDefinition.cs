@@ -31,11 +31,11 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
         return this;
     }
 
-    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var dependencies = Variables.SelectMany(variable =>
             variable.Type is IHasNodeDependencies hasDependencies
-            ? hasDependencies.GetDependencies(componentNodeList)
+            ? hasDependencies.GetDependencies(componentNodes)
             : Array.Empty<IComponentNode>());
         return dependencies;
     }

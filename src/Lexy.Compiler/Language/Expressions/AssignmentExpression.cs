@@ -39,7 +39,7 @@ public class AssignmentExpression : Expression
     public static bool IsValid(TokenList tokens)
     {
         return tokens.Length >= 3
-               && (tokens.IsTokenType<StringLiteralToken>(0) || tokens.IsTokenType<MemberAccessLiteral>(0))
+               && (tokens.IsTokenType<StringLiteralToken>(0) || tokens.IsTokenType<MemberAccessLiteralToken>(0))
                && tokens.IsOperatorToken(1, OperatorType.Assignment);
     }
 

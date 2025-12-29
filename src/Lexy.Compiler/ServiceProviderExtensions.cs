@@ -1,4 +1,6 @@
+using System;
 using Lexy.Compiler.Compiler;
+using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
@@ -12,7 +14,7 @@ namespace Lexy.Compiler;
 
 public static class ServiceProviderExtensions
 {
-    public static IServiceCollection AddLexy(this IServiceCollection services)
+    public static IServiceCollection AddLexy(this IServiceCollection services, params Type[] libraries)
     {
         return services.Singleton<ILexyParser, LexyParser>()
 
@@ -21,11 +23,12 @@ public static class ServiceProviderExtensions
             .Singleton<IExpressionFactory, ExpressionFactory>()
 
             .Singleton<IFileSystem, FileSystem>()
-            .Singleton<ICompilationEnvironment, CompilationEnvironment>()
             .Singleton<IExecutionContext, ExecutionContext>()
+            .SingletonFactory<ILibraries, Libraries>(_ => new Libraries(libraries))
 
             .Singleton<ILexyCompiler, LexyCompiler>()
 
+            .AddScoped<ICompilationEnvironment, CompilationEnvironment>()
             .Transient<ISpecificationsRunner, SpecificationsRunner>();
     }
 
@@ -34,7 +37,16 @@ public static class ServiceProviderExtensions
         where IImplementation : class, TInterface
     {
         services.TryAdd(ServiceDescriptor.Singleton<TInterface, IImplementation>());
-        services.TryAdd(ServiceDescriptor.Transient<ISpecificationsRunner, SpecificationsRunner>());
+
+        return services;
+    }
+
+    private static IServiceCollection SingletonFactory<TInterface, IImplementation>(this IServiceCollection services,
+        Func<IServiceProvider,TInterface> factory)
+        where TInterface : class
+        where IImplementation : class, TInterface
+    {
+        services.TryAdd(ServiceDescriptor.Singleton(factory));
 
         return services;
     }

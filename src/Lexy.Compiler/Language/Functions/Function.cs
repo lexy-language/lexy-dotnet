@@ -29,11 +29,11 @@ public class Function : ComponentNode, IHasNodeDependencies
         Name.ParseName(name);
     }
 
-    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var result = new List<IComponentNode>();
-        AddEnumTypes(componentNodeList, Parameters.Variables, result);
-        AddEnumTypes(componentNodeList, Results.Variables, result);
+        AddEnumTypes(componentNodes, Parameters.Variables, result);
+        AddEnumTypes(componentNodes, Results.Variables, result);
         return result;
     }
 
@@ -59,20 +59,14 @@ public class Function : ComponentNode, IHasNodeDependencies
         };
     }
 
-    private IParsableNode InvalidKeyword(string name, IParseLineContext parserContext)
-    {
-        parserContext.Logger.Fail(Reference, $"Invalid keyword '{name}'.");
-        return this;
-    }
-
-    private static void AddEnumTypes(IComponentNodeList componentNodeList, IReadOnlyList<VariableDefinition> variableDefinitions,
+    private static void AddEnumTypes(IComponentNodeList componentNodes, IReadOnlyList<VariableDefinition> variableDefinitions,
         List<IComponentNode> result)
     {
         foreach (var parameter in variableDefinitions)
         {
             if (parameter.Type is not CustomVariableDeclarationType enumVariableType) continue;
 
-            var dependency = componentNodeList.GetEnum(enumVariableType.Type);
+            var dependency = componentNodes.GetEnum(enumVariableType.Type);
             if (dependency != null) result.Add(dependency);
         }
     }
@@ -108,12 +102,47 @@ public class Function : ComponentNode, IHasNodeDependencies
         return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionParameters, members);
     }
 
-    public ComplexType GetResultsType()
+    public VariableType GetResultsType()
     {
         var members = Results.Variables
             .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionResults, members);
+    }
+
+    public ValidateFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments)
+    {
+        return arguments.Count == 0
+            ? ValidateNoArgumentCall()
+            : ValidateWithArguments(context, arguments);
+    }
+
+    private ValidateFunctionArgumentsResult ValidateNoArgumentCall()
+    {
+        return ValidateFunctionArgumentsResult.SuccessAutoMap(GetParametersType(), GetResultsType());
+    }
+
+    private ValidateFunctionArgumentsResult ValidateWithArguments(IValidationContext context, IReadOnlyList<Expression> arguments)
+    {
+        if (arguments.Count != 1)
+        {
+            context.Logger.Fail(Reference, $"Invalid number of function arguments: '{Name}'. ");
+            return null;
+        }
+
+        var argumentType = arguments[0].DeriveType(context);
+        var resultsType = GetResultsType();
+        var parametersType = GetParametersType();
+
+        if (argumentType == null || !argumentType.Equals(parametersType))
+        {
+            context.Logger.Fail(Reference, $"Invalid function argument: '{Name}'. " +
+                                           "Argument should be of type function parameters. Use new(Function) of fill(Function) to create an variable of the function result type.");
+
+            return null;
+        }
+
+        return ValidateFunctionArgumentsResult.Success(resultsType);
     }
 }

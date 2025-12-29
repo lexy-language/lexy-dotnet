@@ -1,5 +1,7 @@
 using System;
+using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
+using Lexy.Compiler.Language.VariableTypes.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
@@ -41,13 +43,25 @@ public class TableType : TypeWithMembers
     {
         switch(name)
         {
-            case "Count":
+            case Table.CountName:
                 return PrimitiveType.Number;
             case Table.RowName:
                 return TableRowType(componentNodes);
+        }
+
+        return Table.Header?.GetColumn(name) != null
+            ? new ComplexType(name, Table, ComplexTypeSource.TableColumn, Array.Empty<ComplexTypeMember>())
+            : null;
+    }
+
+    public override IInstanceFunction GetFunction(string name)
+    {
+        return name switch
+        {
+            LookUpFunction.Name => new LookUpFunction(Table),
+            LookUpRowFunction.Name => new LookUpRowFunction(Table),
+            _ => null
         };
-        if (Table.Header?.GetColumn(name) != null) return new ComplexType(name, Table, ComplexTypeSource.TableColumn, Array.Empty<ComplexTypeMember>());
-        return null;
     }
 
     private ComplexType TableRowType(IComponentNodeList componentNodes)

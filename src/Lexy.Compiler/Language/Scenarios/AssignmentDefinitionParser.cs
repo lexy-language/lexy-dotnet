@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Language.Scenarios;
 
 public static class AssignmentDefinitionParser
 {
-    public static IAssignmentDefinition Parse(IParseLineContext context, VariablePath parentVariable = null)
+    public static IAssignmentDefinition Parse(IParseLineContext context, IdentifierPath parentVariable = null)
     {
         var line = context.Line;
         var tokens = line.Tokens;
@@ -43,14 +43,14 @@ public static class AssignmentDefinitionParser
             valueExpression.Result, reference);
     }
 
-    private static TokenList AddParentVariableAccessor(VariablePath parentVariable, TokenList targetTokens)
+    private static TokenList AddParentVariableAccessor(IdentifierPath parentVariable, TokenList targetTokens)
     {
         if (targetTokens.Length != 1) return targetTokens;
         var variablePath = GetVariablePath(targetTokens);
         if (variablePath == null) return targetTokens;
 
         var newPath = parentVariable.Append(variablePath.Parts).FullPath();
-        var newToken = new MemberAccessLiteral(newPath, variablePath.FirstCharacter);
+        var newToken = new MemberAccessLiteralToken(newPath, variablePath.FirstCharacter);
         return new TokenList(new Token[] {newToken});
     }
     private record TokenVariablePath(string[] Parts, TokenCharacter FirstCharacter);
@@ -59,7 +59,7 @@ public static class AssignmentDefinitionParser
     {
         return targetTokens[0] switch
         {
-            MemberAccessLiteral memberAccess => new TokenVariablePath(memberAccess.Parts, memberAccess.FirstCharacter),
+            MemberAccessLiteralToken memberAccess => new TokenVariablePath(memberAccess.Parts, memberAccess.FirstCharacter),
             StringLiteralToken literal => new TokenVariablePath(new[] { literal.Value }, literal.FirstCharacter),
             _ => null
         };

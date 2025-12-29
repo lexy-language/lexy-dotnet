@@ -29,6 +29,6 @@ public class ConstantValue
 
     private static ConstantValueParseResult Parse(MemberAccessExpression literalExpression)
     {
-        return ConstantValueParseResult.Success(new ConstantValue(literalExpression.MemberAccessLiteral.Value));
+        return ConstantValueParseResult.Success(new ConstantValue(literalExpression.MemberAccessLiteralToken.Value));
     }
 }

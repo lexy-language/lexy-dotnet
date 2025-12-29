@@ -50,8 +50,7 @@ public class Tokenizer : ITokenizer
 
         for (var index = 0; index < line.Content.Length; index++)
         {
-            var value = line.Content[index];
-            var tokenCharacter = new TokenCharacter(value, index);
+            var tokenCharacter = line.Character(index);
             var valueProcessed = false;
             if (current != null)
             {

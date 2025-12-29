@@ -55,41 +55,41 @@ public static class GetValuesExtensions
         ValidationTableValue value,
         IDictionary<string, object> result)
     {
-        var variableReference = VariablePathParser.Parse(column.Name);
+        var variableReference = IdentifierPath.Parse(column.Name);
         if (!IsParameter(functionNode, variableReference)) return;
         SetValueObjectProperty(result, variableReference, value.GetValue());
     }
 
     private static void SetValueObjectProperty(IDictionary<string, object> result,
-        VariablePath variableReference,
+        IdentifierPath variableReference,
         object value)
     {
         var reference = variableReference;
         var valueObject = result;
         while (reference.HasChildIdentifiers)
         {
-            if (!valueObject.ContainsKey(reference.ParentIdentifier))
+            if (!valueObject.ContainsKey(reference.RootIdentifier))
             {
                 var childObject = new Dictionary<string, object>();
-                valueObject.Add(reference.ParentIdentifier, childObject);
+                valueObject.Add(reference.RootIdentifier, childObject);
             }
 
-            if (valueObject[reference.ParentIdentifier] is not Dictionary<string, object> dictionary)
+            if (valueObject[reference.RootIdentifier] is not Dictionary<string, object> dictionary)
             {
                 throw new InvalidOperationException(
-                    $"Parent variable '{reference.ParentIdentifier}' of parameter '{variableReference}' already set to value: {valueObject[reference.ParentIdentifier].GetType()}");
+                    $"Parent variable '{reference.RootIdentifier}' of parameter '{variableReference}' already set to value: {valueObject[reference.RootIdentifier].GetType()}");
             }
 
             valueObject = dictionary;
             reference = reference.ChildrenReference();
         }
 
-        valueObject.Add(reference.ParentIdentifier, value);
+        valueObject.Add(reference.RootIdentifier, value);
     }
 
-    private  static bool IsParameter(Function functionNode, VariablePath path)
+    private  static bool IsParameter(Function functionNode, IdentifierPath path)
     {
         if (functionNode?.Parameters == null) return false;
-        return functionNode.Parameters.Variables.Any(parameter => parameter.Name == path.ParentIdentifier);
+        return functionNode.Parameters.Variables.Any(parameter => parameter.Name == path.RootIdentifier);
     }
 }

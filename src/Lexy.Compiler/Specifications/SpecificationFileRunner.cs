@@ -53,7 +53,19 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
         foreach (var scenario in scenarioRunners)
         {
+            Run(scenario);
+        }
+    }
+
+    private void Run(IScenarioRunner scenario)
+    {
+        try
+        {
             scenario.Run();
+        }
+        catch (Exception innerException)
+        {
+            throw new InvalidOperationException("Error occured while running: " + fileName, innerException);
         }
     }
 

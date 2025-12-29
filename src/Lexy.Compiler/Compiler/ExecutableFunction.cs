@@ -242,38 +242,38 @@ public class ExecutableFunction
 
     private ParameterSetter GetParameterSetter(object parameters, string name)
     {
-        var currentReference = VariablePathParser.Parse(name);
+        var currentReference = IdentifierPath.Parse(name);
         var currentValue = parameters;
-        var field = GetField(currentReference.ParentIdentifier, parameters);
+        var field = GetField(currentReference.RootIdentifier, parameters);
         var parameterType = GetFunctionParameterType(currentReference);
 
         while (currentReference.HasChildIdentifiers)
         {
             currentReference = currentReference.ChildrenReference();
             currentValue = field.GetValue(currentValue);
-            field = GetField(currentReference.ParentIdentifier, currentValue);
+            field = GetField(currentReference.RootIdentifier, currentValue);
             parameterType = GetTypeVariableType(parameterType, currentReference);
         }
 
         return new ParameterSetter(parameterType, (value) => field.SetValue(currentValue, value));
     }
 
-    private VariableType GetFunctionParameterType(VariablePath currentPath)
+    private VariableType GetFunctionParameterType(IdentifierPath currentPath)
     {
         return function.Parameters.Variables.FirstOrDefault(parameter =>
-            parameter.Name == currentPath.ParentIdentifier).VariableType;
+            parameter.Name == currentPath.RootIdentifier).VariableType;
     }
 
-    private static VariableType GetTypeVariableType(VariableType parameterType, VariablePath currentPath)
+    private static VariableType GetTypeVariableType(VariableType parameterType, IdentifierPath currentPath)
     {
         switch (parameterType)
         {
             case CustomType customType:
                 return customType.TypeDefinition.Variables
-                    .FirstOrDefault(variable => variable.Name == currentPath.ParentIdentifier).VariableType;
+                    .FirstOrDefault(variable => variable.Name == currentPath.RootIdentifier).VariableType;
             case ComplexType complexType:
                 return complexType.Members
-                    .FirstOrDefault(variable => variable.Name == currentPath.ParentIdentifier)
+                    .FirstOrDefault(variable => variable.Name == currentPath.RootIdentifier)
                     .Type;
             default:
                 throw new InvalidOperationException("Unexpected type: " + parameterType);

@@ -11,11 +11,11 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
     private readonly Expression variableExpression;
 
     public ConstantValue ConstantValue { get; }
-    public VariablePath Variable { get; }
+    public IdentifierPath Variable { get; }
 
     public VariableType VariableType { get; private set; }
 
-    public AssignmentDefinition(Language.VariablePath variable, ConstantValue constantValue, Expression variableExpression,
+    public AssignmentDefinition(Language.IdentifierPath variable, ConstantValue constantValue, Expression variableExpression,
         Expression targetExpression, SourceReference reference)
         : base(reference)
     {

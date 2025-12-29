@@ -1,14 +1,26 @@
+using System;
+
 namespace Lexy.Compiler.Language;
 
 public abstract class ParseResult<T>
 {
+    private readonly T result;
+
     public string ErrorMessage { get; }
     public bool IsSuccess { get; }
-    public T Result { get; }
+
+    public T Result
+    {
+        get
+        {
+            if (!IsSuccess) throw new InvalidOperationException("ParseResult not successful.");
+            return result;
+        }
+    }
 
     protected ParseResult(T result)
     {
-        Result = result;
+        this.result = result;
         IsSuccess = true;
     }
 

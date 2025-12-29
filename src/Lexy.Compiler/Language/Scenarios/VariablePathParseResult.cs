@@ -3,9 +3,9 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public sealed class VariablePathParseResult : ParseResult<VariablePath>
+public sealed class VariablePathParseResult : ParseResult<IdentifierPath>
 {
-    private VariablePathParseResult(VariablePath result) : base(result)
+    private VariablePathParseResult(IdentifierPath result) : base(result)
     {
     }
 
@@ -13,7 +13,7 @@ public sealed class VariablePathParseResult : ParseResult<VariablePath>
     {
     }
 
-    public static VariablePathParseResult Success(VariablePath result)
+    public static VariablePathParseResult Success(IdentifierPath result)
     {
         return new VariablePathParseResult(result);
     }

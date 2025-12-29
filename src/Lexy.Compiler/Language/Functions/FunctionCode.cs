@@ -18,7 +18,7 @@ public class FunctionCode : ParsableNode
     public override IParsableNode Parse(IParseLineContext context)
     {
         var expression = expressions.Parse(context);
-        return expression.Result is IParsableNode node ? node : this;
+        return expression.IsSuccess && expression.Result is IParsableNode node ? node : this;
     }
 
     public override IEnumerable<INode> GetChildren()

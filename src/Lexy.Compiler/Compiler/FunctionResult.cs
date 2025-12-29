@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Scenarios;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Compiler;
@@ -21,7 +20,7 @@ public class FunctionResult
 
     public decimal Number(string name)
     {
-        var value = GetValue(VariablePathParser.Parse(name));
+        var value = GetValue(IdentifierPath.Parse(name));
         return (decimal)value;
     }
 
@@ -33,16 +32,16 @@ public class FunctionResult
         return field;
     }
 
-    public object GetValue(string value) => GetValue(VariablePathParser.Parse(value));
+    public object GetValue(string value) => GetValue(IdentifierPath.Parse(value));
 
-    public object GetValue(VariablePath expectedVariable)
+    public object GetValue(IdentifierPath expectedVariable)
     {
         var currentReference = expectedVariable;
-        var currentValue = GetField(valueObject, expectedVariable.ParentIdentifier).GetValue(valueObject);
+        var currentValue = GetField(valueObject, expectedVariable.RootIdentifier).GetValue(valueObject);
         while (currentReference.HasChildIdentifiers)
         {
             currentReference = currentReference.ChildrenReference();
-            currentValue = GetField(currentValue, currentReference.ParentIdentifier).GetValue(currentValue);
+            currentValue = GetField(currentValue, currentReference.RootIdentifier).GetValue(currentValue);
         }
 
         return currentValue;

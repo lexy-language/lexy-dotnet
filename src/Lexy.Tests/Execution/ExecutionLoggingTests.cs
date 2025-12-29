@@ -17,13 +17,27 @@ public class ExecutionLoggingTests : ScopedServicesTestFixture
     {
         using var script = ServiceProvider.CompileFunction($@"
 function SimpleFunction
-// Validate table keywords
+// Valid comment line
   parameters
     number Value
   results
     number Result
   Result = Value * 5");
         var result = script.Run(new Dictionary<string, object> { { "Value", 23} });
+        result.Logging.Count.ShouldBe(1, result.Logging.Format(0));
+    }
+
+    [Test]
+    public void LibraryFunctionPower()
+    {
+        using var script = ServiceProvider.CompileFunction($@"
+function SimpleFunction
+  parameters
+    number Value
+  results
+    number Result
+  Result = Math.Power(Value, 5)");
+        var result = script.Run(new Dictionary<string, object> { { "Value", 2} });
         result.Logging.Count.ShouldBe(1, result.Logging.Format(0));
     }
 
@@ -40,7 +54,7 @@ function ValidateTableKeywordFunction
   parameters
   results
     number Result
-  Result = lookUp(SimpleTable, 2, SimpleTable.Search, SimpleTable.Value)");
+  Result = SimpleTable.LookUp(2, SimpleTable.Search, SimpleTable.Value)");
         ExpectNoTableValuesProperty(script);
     }
 
@@ -56,7 +70,7 @@ function ValidateTableKeywordFunction
   parameters
   results
     SimpleTable.Row Result
-  Result = lookUpRow(SimpleTable, 2, SimpleTable.Search)");
+  Result = SimpleTable.LookUpRow(2, SimpleTable.Search)");
 
         ExpectNoTableValuesProperty(script);
     }

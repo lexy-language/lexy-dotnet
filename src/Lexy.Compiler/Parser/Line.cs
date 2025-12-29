@@ -122,4 +122,10 @@ public class Line
         }
         return tokenizeResult;
     }
+
+    public TokenCharacter Character(int index)
+    {
+        var value = Content[index];
+        return new TokenCharacter(value, index);
+    }
 }

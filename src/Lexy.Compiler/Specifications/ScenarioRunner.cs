@@ -14,26 +14,26 @@ namespace Lexy.Compiler.Specifications;
 
 public class ScenarioRunner : IScenarioRunner
 {
+    private readonly string fileName;
+
     private readonly ILexyCompiler lexyCompiler;
     private readonly ISpecificationRunnerContext context;
     private readonly IParserLogger parserLogger;
-
-    private readonly string fileName;
-    private readonly ComponentNodeList componentNodeList;
+    private readonly IComponentNodeList componentNodes;
 
     private Function function;
 
     public bool Failed { get; private set; }
     public Scenario Scenario { get; }
 
-    public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, ComponentNodeList componentNodeList, Scenario scenario,
+    public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, IComponentNodeList componentNodes, Scenario scenario,
         ISpecificationRunnerContext context, IParserLogger parserLogger)
     {
         this.lexyCompiler = lexyCompiler;
         this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
         this.context = context;
 
-        this.componentNodeList = componentNodeList ?? throw new ArgumentNullException(nameof(componentNodeList));
+        this.componentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
         this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
 
         Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
@@ -46,11 +46,12 @@ public class ScenarioRunner : IScenarioRunner
 
     public void Run()
     {
-        function = GetFunctionNode(componentNodeList, Scenario);
+        function = GetFunctionNode(componentNodes, Scenario);
+
         if (!ValidateScenarioErrors()) return;
         if (!ValidateErrors()) return;
 
-        var nodes = DependencyGraphFactory.NodeAndDependencies(componentNodeList, function);
+        var nodes = DependencyGraphFactory.NodeAndDependencies(componentNodes, function);
 
         using var compilerResult = lexyCompiler.Compile(nodes);
 
@@ -97,7 +98,7 @@ public class ScenarioRunner : IScenarioRunner
         }
     }
 
-    private Function GetFunctionNode(ComponentNodeList componentNodeList, Scenario scenario)
+    private Function GetFunctionNode(IComponentNodeList componentNodes, Scenario scenario)
     {
         if (scenario.Function != null)
         {
@@ -106,7 +107,7 @@ public class ScenarioRunner : IScenarioRunner
 
         if (scenario.FunctionName != null)
         {
-            var functionNode = componentNodeList.GetFunction(scenario.FunctionName.Value);
+            var functionNode = componentNodes.GetFunction(scenario.FunctionName.Value);
             if (functionNode == null)
             {
                 Fail($"Unknown function: " + scenario.FunctionName, parserLogger.ErrorNodeMessages(Scenario));
@@ -176,9 +177,9 @@ public class ScenarioRunner : IScenarioRunner
                 TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.VariableType);
 
             if (actual == null
-                || expectedValue == null
-                || actual.GetType() != expectedValue.GetType()
-                || Comparer.Default.Compare(actual, expectedValue) != 0)
+             || expectedValue == null
+             || actual.GetType() != expectedValue.GetType()
+             || Comparer.Default.Compare(actual, expectedValue) != 0)
             {
                 validationResult.Add(
                     $"'{expected.Variable}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"} ({actual?.GetType().Name})'");
@@ -188,26 +189,26 @@ public class ScenarioRunner : IScenarioRunner
 
     private void ValidateTableResults(ValidationTableRow tableRow,
         FunctionResult result,
-        List<string> validationResult)
+        IList<string> validationResult)
     {
         for (var index = 0; index < tableRow.Values.Count; index++)
         {
             var column = Scenario.ValidationTable?.Header?.GetColumn(index);
             if (column == null) continue;
-            var variable = VariablePathParser.Parse(column.Name);
+            var variable = IdentifierPath.Parse(column.Name);
             if (!IsResult(variable)) continue;
             var expected = tableRow.Values[index];
             ValidateRowValueResult(variable, expected, result, validationResult);
         }
     }
 
-    private bool IsResult(VariablePath path)
+    private bool IsResult(IdentifierPath path)
     {
         if (function.Results == null) return false;
-        return function.Results.Variables.Any(result => result.Name == path.ParentIdentifier);
+        return function.Results.Variables.Any(result => result.Name == path.RootIdentifier);
     }
 
-    private static void ValidateRowValueResult(VariablePath path, ValidationTableValue value,
+    private static void ValidateRowValueResult(IdentifierPath path, ValidationTableValue value,
         FunctionResult result,
         IList<string> validationResult)
     {
@@ -223,16 +224,16 @@ public class ScenarioRunner : IScenarioRunner
     private IReadOnlyList<string> GetDependenciesErrors()
     {
         var node = function
-                   ?? Scenario.Function
-                   ?? Scenario.Enum
-                   ?? (IComponentNode)Scenario.Table;
+                ?? Scenario.Function
+                ?? Scenario.Enum
+                ?? (IComponentNode)Scenario.Table;
         if (node == null)
         {
             Fail("Scenario has no function, enum or table.", Array.Empty<string>());
             return null;
         }
 
-        var dependencies = DependencyGraphFactory.NodeAndDependencies(componentNodeList, node);
+        var dependencies = DependencyGraphFactory.NodeAndDependencies(componentNodes, node);
         return parserLogger.ErrorNodesMessages(dependencies);
     }
 
@@ -350,6 +351,10 @@ public class ScenarioRunner : IScenarioRunner
         var errors = Scenario.ExecutionLogging.Entries.ValidateExecutionLogging(result.Logging);
         if (errors != null)
         {
+            foreach (var error in errors)
+            {
+                parserLogger.Fail(Scenario.Reference, error);
+            }
             Fail("Invalid Execution Logging", errors);
             return false;
         }

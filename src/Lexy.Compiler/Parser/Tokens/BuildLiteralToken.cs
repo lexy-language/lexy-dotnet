@@ -77,7 +77,7 @@ public class BuildLiteralToken : ParsableToken
 
         if (hasMemberAccessor)
         {
-            return new MemberAccessLiteral(value, FirstCharacter);
+            return new MemberAccessLiteralToken(value, FirstCharacter);
         }
 
         return new StringLiteralToken(value, FirstCharacter);

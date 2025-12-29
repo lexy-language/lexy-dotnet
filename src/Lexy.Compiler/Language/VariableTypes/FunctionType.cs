@@ -1,5 +1,4 @@
 using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
@@ -54,6 +53,6 @@ public class FunctionType : TypeWithMembers
 
     private ComplexType FunctionResultsType(IComponentNodeList componentNodes)
     {
-        return componentNodes.GetFunction(Type)?.GetResultsType();
+        return componentNodes.GetFunction(Type)?.GetResultsType() as ComplexType;
     }
 }

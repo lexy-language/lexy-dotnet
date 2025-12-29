@@ -49,7 +49,7 @@ public class IdentifierExpression : Expression, IHasVariableReference
 
     private void CreateVariableReference(IValidationContext context)
     {
-        var path = VariablePathParser.Parse(Identifier);
+        var path = IdentifierPath.Parse(Identifier);
         Variable = context.VariableContext.CreateVariableReference(Reference, path, context);
         if (Variable == null)
         {

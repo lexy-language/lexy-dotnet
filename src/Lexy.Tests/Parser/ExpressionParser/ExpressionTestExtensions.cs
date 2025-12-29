@@ -11,10 +11,11 @@ public static class ExpressionTestExtensions
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 
-        var specificValue = value as T;
-        if (specificValue == null)
+        if (value is not T specificValue)
+        {
             throw new InvalidOperationException(
                 $"Value '{value.GetType().Name}' should be of type '{typeof(T).Name}'");
+        }
 
         validate(specificValue);
     }

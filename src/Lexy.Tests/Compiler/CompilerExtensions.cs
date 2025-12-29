@@ -36,12 +36,16 @@ public static class CompilerExtensions
     {
         if (code == null) throw new ArgumentNullException(nameof(code));
 
-        var (componentNodeList, _) = serviceProvider.ParseNodes(code);
+        var (componentNodes, logger) = serviceProvider.ParseNodes(code);
+        if (logger.HasErrors())
+        {
+            throw new InvalidOperationException("Parsing failed: " + logger.FormatMessages());
+        }
 
         var compiler = serviceProvider.GetRequiredService<ILexyCompiler>();
-        var environment = compiler.Compile(componentNodeList);
+        var environment = compiler.Compile(componentNodes);
 
-        var firstOrDefault = componentNodeList.OfType<Function>().FirstOrDefault();
+        var firstOrDefault = componentNodes.OfType<Function>().FirstOrDefault();
         return new CompileFunctionResult(environment.GetFunction(firstOrDefault), environment);
     }
 }

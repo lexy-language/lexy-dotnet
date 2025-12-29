@@ -33,7 +33,7 @@ public static class ValidationContextExtensions
     private static void ValidateCustomVariableType(IValidationContext context, SourceReference reference,
         CustomVariableDeclarationType customVariableDeclarationType, Expression defaultValueExpression)
     {
-        var variablePathComplex = VariablePathParser.Parse(customVariableDeclarationType.Type);
+        var variablePathComplex = IdentifierPath.Parse(customVariableDeclarationType.Type);
         var variable = context.VariableContext.CreateVariableReference(reference, variablePathComplex, context);
         var type = variable?.VariableType;
         if (type == null ||
@@ -68,13 +68,13 @@ public static class ValidationContextExtensions
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. (type: '{customVariableDeclarationType.Type}')");
         }
-        if (variablePath.ParentIdentifier != customVariableDeclarationType.Type)
+        if (variablePath.RootIdentifier != customVariableDeclarationType.Type)
         {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{customVariableDeclarationType.Type}')");
         }
 
-        var enumDeclaration = context.ComponentNodes.GetEnum(variablePath.ParentIdentifier);
+        var enumDeclaration = context.ComponentNodes.GetEnum(variablePath.RootIdentifier);
         if (enumDeclaration == null || !enumDeclaration.ContainsMember(variablePath.Path[1]))
         {
             context.Logger.Fail(reference,

@@ -75,7 +75,7 @@ public class SpecificationsRunner : ISpecificationsRunner
 
     private void AddFolder(string folder, ISpecificationRunnerContext context)
     {
-        var files = this.fileSystem.GetDirectoryFiles(folder, new string[]{
+        var files = this.fileSystem.GetDirectoryFiles(folder, new []{
             $".{LexySourceDocument.FileExtension}",
             $".{LexySourceDocument.MarkdownExtension}"
         });

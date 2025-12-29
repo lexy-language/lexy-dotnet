@@ -100,19 +100,16 @@ public class LexyCompiler : ILexyCompiler
             .WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
     }
 
-    private MemberDeclarationSyntax GenerateMember(IComponentNode node, ICompilationEnvironment environment)
+    private static MemberDeclarationSyntax GenerateMember(IComponentNode node, ICompilationEnvironment environment)
     {
         var writer = CSharpCode.GetWriter(node);
 
-        var generatedType = writer.CreateCode(node);
+        var generatedType = writer(node);
 
         environment.AddType(generatedType);
 
         return generatedType.Syntax;
     }
 
-    private static UsingDirectiveSyntax Using(string ns)
-    {
-        return UsingDirective(ParseName(ns));
-    }
+    private static UsingDirectiveSyntax Using(string ns) => UsingDirective(ParseName(ns));
 }

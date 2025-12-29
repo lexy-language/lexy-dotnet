@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Compiler.CSharp.BuiltInFunctions;
-using Lexy.Compiler.Compiler.CSharp.ExpressionStatementExceptions;
+using Lexy.Compiler.Compiler.CSharp.ExpressionStatements;
+using Lexy.Compiler.Compiler.CSharp.FunctionCalls;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static Lexy.Compiler.Compiler.CSharp.Syntax.TranslateBinaryExpressions;
 
@@ -14,15 +15,6 @@ namespace Lexy.Compiler.Compiler.CSharp.Syntax;
 
 internal static class Expressions
 {
-    private static readonly IEnumerable<IExpressionStatementException> RenderStatementExceptions =
-        new IExpressionStatementException[]
-        {
-            new NewFunctionExpressionStatementException(),
-            new FillFunctionExpressionStatementException(),
-            new ExtractFunctionExpressionStatementException(),
-            new SimpleLexyFunctionFunctionExpressionStatementException()
-        };
-
     public static IEnumerable<StatementSyntax> ExecuteExpressionStatementSyntax(IEnumerable<Expression> lines, bool createScope)
     {
         var result = new List<StatementSyntax>();
@@ -54,13 +46,13 @@ internal static class Expressions
         return statements.ToArray();
     }
 
+
     private static IEnumerable<StatementSyntax> ExpressionStatementSyntax(Expression expression)
     {
-        var renderExpressionStatementException =
-            RenderStatementExceptions.FirstOrDefault(exception => exception.Matches(expression));
+        var renderExpressionStatementRule = ExpressionStatementCreators.CreateExpressionSyntax(expression);
 
-        return renderExpressionStatementException != null
-            ? renderExpressionStatementException.CallExpressionSyntax(expression)
+        return renderExpressionStatementRule != null
+            ? renderExpressionStatementRule(expression)
             : DefaultExpressionStatementSyntax(expression);
     }
 
@@ -198,6 +190,6 @@ internal static class Expressions
 
     private static ExpressionSyntax TranslateFunctionCallExpression(FunctionCallExpression expression)
     {
-        return FunctionCallFactory.CallExpressionSyntax(expression);
+        return FunctionCallSyntax.CreateExpressionSyntax(expression);
     }
 }

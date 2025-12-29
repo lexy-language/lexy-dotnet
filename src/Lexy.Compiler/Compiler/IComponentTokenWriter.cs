@@ -2,7 +2,7 @@ using Lexy.Compiler.Language;
 
 namespace Lexy.Compiler.Compiler;
 
-internal interface IComponentTokenWriter
+internal interface IComponentTokenWriter<TComponentNode> where TComponentNode : IComponentNode
 {
-    GeneratedClass CreateCode(IComponentNode generateNode);
+    GeneratedClass CreateCode(TComponentNode generateNode);
 }

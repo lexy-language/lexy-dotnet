@@ -24,7 +24,7 @@ public class ValidationColumnHeader : Node
 
     protected override void Validate(IValidationContext context)
     {
-        var variablePath = VariablePathParser.Parse(Name);
+        var variablePath = IdentifierPath.Parse(Name);
         var variable = context.VariableContext.GetVariableType(variablePath, context);
         if (variable == null)
         {

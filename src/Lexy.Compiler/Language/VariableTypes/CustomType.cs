@@ -45,7 +45,7 @@ public class CustomType : TypeWithMembers
         return definition?.Type.VariableType;
     }
 
-    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodeList)
+    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         yield return TypeDefinition;
     }
