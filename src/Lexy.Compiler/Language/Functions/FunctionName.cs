@@ -34,4 +34,6 @@ public class FunctionName : Node
             context.Logger.Fail(Reference, $"Invalid function name: '{Value}'.");
         }
     }
+
+    public override string ToString() => Value;
 }

@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class EnumType : TypeWithMembers
+public class EnumType : ComplexType
 {
     public string Type { get; }
     public EnumDefinition Enum { get; }
@@ -15,6 +15,28 @@ public class EnumType : TypeWithMembers
         Type = type;
         Enum = enumDefinition;
     }
+
+    public override IComplexTypeVariable GetVariable(string name)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override IComplexTypeFunction GetFunction(string name)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
+    {
+        return Enum.Members.Any(member => member.Name == name) ? this : null;
+    }
+
+    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
+    {
+        yield return componentNodes.GetEnum(Type);
+    }
+
+    public override bool IsAssignableFrom(VariableType type) => Equals(type);
 
     protected bool Equals(EnumType other)
     {
@@ -37,20 +59,5 @@ public class EnumType : TypeWithMembers
     public override string ToString()
     {
         return Type;
-    }
-
-    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
-    {
-        return Enum.Members.Any(member => member.Name == name) ? this : null;
-    }
-
-    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
-    {
-        yield return componentNodes.GetEnum(Type);
-    }
-
-    public static VariableType Generic()
-    {
-        return new EnumType("generic", new EnumDefinition("generic", new SourceReference(new SourceFile("generic"), 1, 1)));
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
@@ -9,6 +10,38 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class BinaryExpression : Expression
 {
+
+    private class OperatorEntry
+    {
+        public OperatorType OperatorType { get; }
+        public ExpressionOperator ExpressionOperator { get; }
+
+        public OperatorEntry(OperatorType operatorType, ExpressionOperator expressionOperator)
+        {
+            OperatorType = operatorType;
+            ExpressionOperator = expressionOperator;
+        }
+    }
+
+    private class TokenIndex
+    {
+        public int Index { get; }
+        public OperatorType OperatorType { get; }
+        public ExpressionOperator ExpressionOperator { get; }
+
+        public TokenIndex(int index, OperatorType operatorType, ExpressionOperator expressionOperator)
+        {
+            Index = index;
+            OperatorType = operatorType;
+            ExpressionOperator = expressionOperator;
+        }
+    }
+
+    private static VariableType EnumType()
+    {
+        return new EnumType("*", new EnumDefinition("*", new SourceReference(new SourceFile("*"), 1, 1)));
+    }
+
     private record OperatorCombination(VariableType LeftType, VariableType RightType,
         ExpressionOperator ExpressionOperator);
 
@@ -28,19 +61,19 @@ public class BinaryExpression : Expression
         new OperatorCombination(PrimitiveType.Number, PrimitiveType.Number, ExpressionOperator.Equals),
         new OperatorCombination(PrimitiveType.Boolean, PrimitiveType.Boolean, ExpressionOperator.Equals),
         new OperatorCombination(PrimitiveType.Date, PrimitiveType.Date, ExpressionOperator.Equals),
-        new OperatorCombination(EnumType.Generic(), EnumType.Generic(), ExpressionOperator.Equals),
+        new OperatorCombination(EnumType(), EnumType(), ExpressionOperator.Equals),
 
         new OperatorCombination(PrimitiveType.String, PrimitiveType.String, ExpressionOperator.NotEqual),
         new OperatorCombination(PrimitiveType.Number, PrimitiveType.Number, ExpressionOperator.NotEqual),
         new OperatorCombination(PrimitiveType.Boolean, PrimitiveType.Boolean, ExpressionOperator.NotEqual),
         new OperatorCombination(PrimitiveType.Date, PrimitiveType.Date, ExpressionOperator.NotEqual),
-        new OperatorCombination(EnumType.Generic(), EnumType.Generic(), ExpressionOperator.NotEqual),
+        new OperatorCombination(EnumType(), EnumType(), ExpressionOperator.NotEqual),
 
         new OperatorCombination(PrimitiveType.String, PrimitiveType.String, ExpressionOperator.Addition),
         new OperatorCombination(PrimitiveType.String, PrimitiveType.Number, ExpressionOperator.Addition),
         new OperatorCombination(PrimitiveType.String, PrimitiveType.Boolean, ExpressionOperator.Addition),
         new OperatorCombination(PrimitiveType.String, PrimitiveType.Date, ExpressionOperator.Addition),
-        new OperatorCombination(PrimitiveType.String, EnumType.Generic(), ExpressionOperator.Addition),
+        new OperatorCombination(PrimitiveType.String, EnumType(), ExpressionOperator.Addition),
 
         new OperatorCombination(PrimitiveType.Number, PrimitiveType.Number, ExpressionOperator.Addition),
         new OperatorCombination(PrimitiveType.Number, PrimitiveType.Number, ExpressionOperator.Subtraction),
@@ -109,16 +142,23 @@ public class BinaryExpression : Expression
         var supportedTokens = GetCurrentLevelSupportedTokens(tokens);
         var lowestPriorityOperation = GetLowestPriorityOperation(supportedTokens);
         if (lowestPriorityOperation == null)
+        {
             return ParseExpressionResult.Invalid<BinaryExpression>("No valid Operator token found.");
+        }
 
         var leftTokens = tokens.TokensRange(0, lowestPriorityOperation.Index - 1);
         if (leftTokens.Length == 0)
+        {
             return ParseExpressionResult.Invalid<BinaryExpression>(
                 $"No tokens left from: {lowestPriorityOperation.Index} ({tokens})");
+        }
+
         var rightTokens = tokens.TokensFrom(lowestPriorityOperation.Index + 1);
         if (rightTokens.Length == 0)
+        {
             return ParseExpressionResult.Invalid<BinaryExpression>(
                 $"No tokens right from: {lowestPriorityOperation.Index} ({tokens})");
+        }
 
         var left = factory.Parse(leftTokens, source.Line);
         if (!left.IsSuccess) return left;
@@ -186,7 +226,10 @@ public class BinaryExpression : Expression
             if (countBrackets != 0 || countParentheses != 0) continue;
 
             var supported = IsSupported(operatorToken.Type);
-            if (supported != null) result.Add(new TokenIndex(index, operatorToken.Type, supported.ExpressionOperator));
+            if (supported != null)
+            {
+                result.Add(new TokenIndex(index, operatorToken.Type, supported.ExpressionOperator));
+            }
         }
 
         return result;
@@ -261,31 +304,5 @@ public class BinaryExpression : Expression
         var right = Right.DeriveType(context);
 
         return left.Equals(right) ? left : null;
-    }
-
-    private class OperatorEntry
-    {
-        public OperatorType OperatorType { get; }
-        public ExpressionOperator ExpressionOperator { get; }
-
-        public OperatorEntry(OperatorType operatorType, ExpressionOperator expressionOperator)
-        {
-            OperatorType = operatorType;
-            ExpressionOperator = expressionOperator;
-        }
-    }
-
-    private class TokenIndex
-    {
-        public int Index { get; }
-        public OperatorType OperatorType { get; }
-        public ExpressionOperator ExpressionOperator { get; }
-
-        public TokenIndex(int index, OperatorType operatorType, ExpressionOperator expressionOperator)
-        {
-            Index = index;
-            OperatorType = operatorType;
-            ExpressionOperator = expressionOperator;
-        }
     }
 }

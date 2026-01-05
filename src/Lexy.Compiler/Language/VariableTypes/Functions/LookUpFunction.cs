@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 

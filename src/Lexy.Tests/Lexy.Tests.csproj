@@ -29,6 +29,7 @@
 
     <ItemGroup>
       <Compile Remove="lexy-language\**" />
+      <Compile Remove="Temp.cs" />
     </ItemGroup>
 
     <ItemGroup>

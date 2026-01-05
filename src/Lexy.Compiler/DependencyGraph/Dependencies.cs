@@ -87,7 +87,9 @@ public class Dependencies
 
     private void ProcessDependencies(INode childNode, List<string> resultDependencies)
     {
-        var nodeDependencies = (childNode as IHasNodeDependencies)?.GetDependencies(componentNodes);
+        var nodeWithDependencies = childNode as IHasNodeDependencies;
+
+        var nodeDependencies = nodeWithDependencies?.GetDependencies(componentNodes);
         if (nodeDependencies == null) return;
 
         foreach (var dependency in nodeDependencies)

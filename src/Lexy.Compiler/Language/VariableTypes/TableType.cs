@@ -1,11 +1,10 @@
 using System;
-using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Language.VariableTypes.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class TableType : TypeWithMembers
+public class TableType : ComplexType
 {
     public string TableName { get; }
     public Table Table { get; }
@@ -14,6 +13,32 @@ public class TableType : TypeWithMembers
     {
         TableName = tableName;
         Table = table;
+    }
+
+    public override bool IsAssignableFrom(VariableType type) => Equals(type);
+
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
+    {
+        return name switch
+        {
+            Table.CountName => PrimitiveType.Number,
+            Table.RowName => TableRowType(componentNodes),
+            _ => Table.Header?.GetColumn(name) != null
+                ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<ComplexTypeVariable>())
+                : null
+        };
+    }
+
+    public override IComplexTypeVariable GetVariable(string name) => null;
+
+    public override IComplexTypeFunction GetFunction(string name)
+    {
+        return name switch
+        {
+            LookUpFunction.Name => new LookUpFunction(Table),
+            LookUpRowFunction.Name => new LookUpRowFunction(Table),
+            _ => null
+        };
     }
 
     protected bool Equals(TableType other)
@@ -39,30 +64,6 @@ public class TableType : TypeWithMembers
         return TableName;
     }
 
-    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
-    {
-        switch(name)
-        {
-            case Table.CountName:
-                return PrimitiveType.Number;
-            case Table.RowName:
-                return TableRowType(componentNodes);
-        }
-
-        return Table.Header?.GetColumn(name) != null
-            ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<GeneratedTypeMember>())
-            : null;
-    }
-
-    public override IInstanceFunction GetFunction(string name)
-    {
-        return name switch
-        {
-            LookUpFunction.Name => new LookUpFunction(Table),
-            LookUpRowFunction.Name => new LookUpRowFunction(Table),
-            _ => null
-        };
-    }
 
     private GeneratedType TableRowType(IComponentNodeList componentNodes)
     {

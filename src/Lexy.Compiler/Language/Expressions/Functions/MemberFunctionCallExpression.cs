@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Functions;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -10,7 +11,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
 {
     public IdentifierPath FunctionPath { get; }
     public IReadOnlyList<Expression> Arguments { get; }
-    public IInstanceFunctionCall FunctionCall { get; private set; }
+    public IMemberFunctionCall FunctionCall { get; private set; }
 
     public MemberFunctionCallExpression(IdentifierPath functionPath, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
@@ -50,7 +51,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         FunctionCall = result.FunctionCall;
     }
 
-    private IInstanceFunction GetFunction(IValidationContext context)
+    private IComplexTypeFunction GetFunction(IValidationContext context)
     {
         var variable = context.VariableContext.GetVariableType(FunctionPath.WithoutLastPart(), context);
         if (variable != null)
@@ -66,14 +67,14 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         return GetLibraryFunction(context);
     }
 
-    private IInstanceFunction GetVariableTypeFunction(IValidationContext context, VariableType variable)
+    private IComplexTypeFunction GetVariableTypeFunction(IValidationContext context, VariableType variable)
     {
-        return variable is not ITypeWithMembers typeWithMember
+        return variable is not IComplexType typeWithMember
             ? null
             : typeWithMember.GetFunction(FunctionPath.LastPart());
     }
 
-    private IInstanceFunction GetLibraryFunction(IValidationContext context)
+    private IComplexTypeFunction GetLibraryFunction(IValidationContext context)
     {
         var library = context.Libraries.GetLibrary(FunctionPath.WithoutLastPart());
         return library?.GetFunction(FunctionPath.LastPart());

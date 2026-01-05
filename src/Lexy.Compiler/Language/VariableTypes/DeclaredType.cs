@@ -4,7 +4,7 @@ using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class DeclaredType : TypeWithMembers
+public class DeclaredType : ComplexType
 {
     public string Type { get; }
     public ITypeDefinition TypeDefinition { get; }
@@ -13,6 +13,28 @@ public class DeclaredType : TypeWithMembers
     {
         Type = type;
         TypeDefinition = typeDefinition;
+    }
+
+    public override IComplexTypeVariable GetVariable(string name)
+    {
+        var variable = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
+        return variable != null ? new ComplexTypeVariable(variable.Name, variable.VariableType) : null;
+    }
+
+    public override IComplexTypeFunction GetFunction(string name)
+    {
+        return null;
+    }
+
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
+    {
+        var definition = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
+        return definition?.Type.VariableType;
+    }
+
+    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
+    {
+        yield return TypeDefinition;
     }
 
     protected bool Equals(DeclaredType other)
@@ -36,16 +58,5 @@ public class DeclaredType : TypeWithMembers
     public override string ToString()
     {
         return Type;
-    }
-
-    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
-    {
-        var definition = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
-        return definition?.Type.VariableType;
-    }
-
-    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
-    {
-        yield return TypeDefinition;
     }
 }

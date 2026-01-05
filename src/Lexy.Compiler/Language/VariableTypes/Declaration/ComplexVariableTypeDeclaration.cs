@@ -4,6 +4,8 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
+//Syntax: "Function.Parameters variableName"
+//Syntax: "Function.Row variableName"
 public sealed class ComplexVariableTypeDeclaration : VariableTypeDeclaration, IHasNodeDependencies
 {
     public string Type { get; }
@@ -53,7 +55,7 @@ public sealed class ComplexVariableTypeDeclaration : VariableTypeDeclaration, IH
         var type = GetVariableType(context.ComponentNodes);
         if (type == null)
         {
-            context.Logger.Fail(Reference, "Invalid type: '" + Type + "'");
+            context.Logger.Fail(Reference, $"Invalid type: '{Type}'");
         }
         return type;
     }
@@ -66,18 +68,23 @@ public sealed class ComplexVariableTypeDeclaration : VariableTypeDeclaration, IH
         }
 
         var parts = Type.Split(".");
-        if (parts.Length > 2)
+        if (parts.Length > 2) return null;
+
+        var parent =  componentNodes.GetType(parts[0]);
+        return parent?.MemberType(parts[1], componentNodes);
+    }
+
+    public IComponentNode GetNode(IComponentNodeList componentNodes)
+    {
+        if (!Type.Contains('.'))
         {
-            return null;
+            return componentNodes.GetNode(Type);
         }
 
-        var parent = componentNodes.GetType(parts[0]);
-        if (parent == null)
-        {
-            return null;
-        }
+        var parts = Type.Split(".");
+        if (parts.Length > 2) return null;
 
-        return parent.MemberType(parts[1], componentNodes);
+        return componentNodes.GetNode(parts[0]);
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -45,7 +45,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
     public void Run()
     {
-        ValidateHasScenarioCheckingComponentErrors(result.Logger);
+        ValidateHasScenarioCheckingComponentErrors(result.RootNode.Reference, result.Logger);
 
         if (scenarioRunners.Count == 0) return;
 
@@ -80,7 +80,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         return scenarioRunners.Sum(runner => runner.CountScenarios());
     }
 
-    private void ValidateHasScenarioCheckingComponentErrors(IParserLogger logger)
+    private void ValidateHasScenarioCheckingComponentErrors(SourceReference reference, IParserLogger logger)
     {
         if (!logger.HasComponentErrors()) return;
 
@@ -88,8 +88,8 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
         if (componentScenarioRunner == null)
         {
-            throw new InvalidOperationException(
-                $"{fileName} has component errors but no scenario that verifies expected root errors. Errors: {logger.ErrorComponentMessages().Format(2)}");
+            logger.Fail(reference,
+                $"'{fileName}' has component errors but no scenario that verifies expected root errors. Errors: {logger.ErrorComponentMessages().Format(2)}");
         }
     }
 }

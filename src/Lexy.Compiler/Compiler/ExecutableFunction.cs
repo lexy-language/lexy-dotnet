@@ -32,8 +32,22 @@ public class ExecutableFunction
         this.executionLogger = executionLogger;
         this.function = function;
         this.compilationEnvironment = compilationEnvironment;
-        runMethod = functionType.GetMethod(LexyCodeConstants.RunMethod, BindingFlags.Static | BindingFlags.Public);
+        var methodInfos = functionType.GetMethods(BindingFlags.Static | BindingFlags.Public);
+        runMethod = methodInfos.FirstOrDefault(method => IsDefaultRunMethod(functionType, method));
         parametersType = functionType.GetNestedType(LexyCodeConstants.ParametersType);
+    }
+
+    private static bool IsDefaultRunMethod(Type functionType, MethodInfo method)
+    {
+        if (method.Name != LexyCodeConstants.RunMethod) return false;
+
+        var parameters = method.GetParameters();
+        if (parameters.Length != 2) return false;
+
+        var parameterType = parameters[0].ParameterType;
+        return parameterType.IsNested
+            && parameterType.DeclaringType == functionType
+            && parameterType.Name == LexyCodeConstants.ParametersType;
     }
 
     public FunctionResult Run(IDictionary<string, object> values = null)
@@ -100,27 +114,27 @@ public class ExecutableFunction
         }
     }
 
-    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, GeneratedTypeMember member)
+    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, ComplexTypeVariable variable)
     {
         var optional = false;
-        var value = values.TryGetValue(member.Name, out var objectValue) ? objectValue : null;
-        switch (member.Type)
+        var value = values.TryGetValue(variable.Name, out var objectValue) ? objectValue : null;
+        switch (variable.Type)
         {
             case DeclaredType declaredType:
-                ValidateCustomType(VariablePath(name, member.Name), declaredType, value, validationErrors);
+                ValidateCustomType(VariablePath(name, variable.Name), declaredType, value, validationErrors);
                 break;
             case EnumType enumType:
-                ValidateEumType(VariablePath(name, member.Name), enumType, value, optional, validationErrors);
+                ValidateEumType(VariablePath(name, variable.Name), enumType, value, optional, validationErrors);
                 break;
             case PrimitiveType primitiveType:
-                ValidateType(VariablePath(name, member.Name), primitiveType, value, optional, validationErrors);
+                ValidateType(VariablePath(name, variable.Name), primitiveType, value, optional, validationErrors);
                 break;
             case GeneratedType generatedType:
-                ValidateComplexType(VariablePath(name, member.Name), generatedType, value, validationErrors);
+                ValidateComplexType(VariablePath(name, variable.Name), generatedType, value, validationErrors);
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Unexpected variable type: '{member.Type?.GetType().Name}'");
+                    $"Unexpected variable type: '{variable.Type?.GetType().Name}'");
         }
     }
 

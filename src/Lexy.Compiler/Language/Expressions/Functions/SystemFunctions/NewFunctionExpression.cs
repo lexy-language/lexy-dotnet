@@ -27,7 +27,10 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        if (Type != null) yield return componentNodes.GetNode(Type.Name);
+        if (Type?.Node != null)
+        {
+            yield return Type.Node;
+        }
     }
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)

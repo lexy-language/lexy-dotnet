@@ -62,7 +62,7 @@ public class LexyParser : ILexyParser
             parserLogger.AssertNoErrors();
         }
 
-        return new ParserResult(context.Nodes, context.Logger);
+        return new ParserResult(context.RootNode, context.Nodes, context.Logger);
     }
 
     private void ParseDocument(string[] code, string fullFileName, IParserContext context)

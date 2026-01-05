@@ -10,20 +10,11 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDependencies
 {
-    private readonly IList<Mapping> mappingParameters = new List<Mapping>();
-    private readonly IList<Mapping> mappingResults = new List<Mapping>();
-
     public string FunctionName { get; }
 
     public IReadOnlyList<Expression> Arguments { get; }
 
-    public IEnumerable<Mapping> MappingParameters => mappingParameters;
-    public IEnumerable<Mapping> MappingResults => mappingResults;
-
-    public string ParameterName { get; private set; }
-    public bool AutoMap { get; private set; }
-    public VariableType FunctionParametersTypes { get; private set; }
-    public VariableType FunctionResultsType { get; private set; }
+    public ILexyFunctionCall FunctionCall { get; private set; }
 
     public LexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
@@ -51,31 +42,38 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
             return;
         }
 
-        var result = function.ValidateArguments(context, Arguments);
-        if (result == null || !result.IsSuccess) return;
+        var result = function.ValidateArguments(context, Arguments, Reference);
+        if (result is not { IsSuccess: true }) return;
 
-        if (result.AutoMap)
+        FunctionCall = result switch
         {
-            AutoMap = true;
-            FunctionResultsType = result.ResultType;
-            FunctionParametersTypes = result.ParameterType;
-            AutoMapVariables(context, result.ParameterType, result.ResultType);
-        }
-
-        ParameterName = GetParameterName();
+            ValidateFunctionArgumentsAutoMapResult autoMapResult => AutoMapVariables(context,
+                autoMapResult.ParameterType, autoMapResult.ResultType),
+            ValidateFunctionArgumentsCallFunctionResult argumentsCall => CallLexyFunction(argumentsCall),
+            _ => throw new InvalidOperationException("Invalid ValidateArguments result: " + result.GetType())
+        };
     }
 
-    private void AutoMapVariables(IValidationContext context, VariableType functionParametersType, VariableType functionResultsType)
+    private ILexyFunctionCall AutoMapVariables(IValidationContext context, VariableType functionParametersType, VariableType functionResultsType)
     {
+        var mappingParameters = new List<Mapping>();
         if (functionParametersType is GeneratedType complexParameterType)
         {
             FillParametersFunctionExpression.GetMapping(Reference, context, complexParameterType, mappingParameters);
         }
 
+        var mappingResults = new List<Mapping>();
         if (functionResultsType is GeneratedType complexResultsType)
         {
             ExtractResultsFunctionExpression.GetMapping(Reference, context, complexResultsType, mappingResults);
         }
+
+        return new AutoMapLexyFunctionCall(mappingParameters, mappingResults, functionParametersType, functionResultsType);
+    }
+
+    private ILexyFunctionCall CallLexyFunction(ValidateFunctionArgumentsCallFunctionResult result)
+    {
+        return new LexyFunctionCall(result.Function.ParametersTypes, result.Function.ResultsType, Arguments);
     }
 
     private Function GetFunction(IValidationContext context)
@@ -92,8 +90,7 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
     public override IEnumerable<VariableUsage> UsedVariables()
     {
         return base.UsedVariables()
-            .Union(mappingParameters.Select(map => map.ToUsedVariable(VariableAccess.Read))
-            .Union(mappingResults.Select(map => map.ToUsedVariable(VariableAccess.Write))));
+            .Union(FunctionCall.UsedVariables());
     }
 
     private string GetParameterName()

@@ -66,9 +66,15 @@ internal static class Types
             PrimitiveType primitive => Syntax(primitive.Type),
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
             TableType tableType => IdentifierName(tableType.TableName),
+            DeclaredType declaredType => DeclaredTypeSyntax(declaredType),
             GeneratedType generatedType => ComplexTypeSyntax(generatedType),
-            _ => throw new InvalidOperationException("Couldn't map type: " + variableType)
+            _ => throw new InvalidOperationException("Couldn't map type: " + variableType.GetType())
         };
+    }
+
+    private static TypeSyntax DeclaredTypeSyntax(DeclaredType generatedType)
+    {
+        return IdentifierName(ClassNames.TypeClassName(generatedType.Type));
     }
 
     private static TypeSyntax ComplexTypeSyntax(GeneratedType generatedType)

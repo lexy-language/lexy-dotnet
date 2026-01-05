@@ -51,7 +51,7 @@ public class VariableContext : IVariableContext
         if (parent == null) return false;
 
         return !path.HasChildIdentifiers ||
-               ContainChild(parent.VariableType, path.ChildrenReference(), context);
+               ContainsChild(parent.VariableType, path.ChildrenReference(), context);
     }
 
     public VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path, IValidationContext validationContext)
@@ -129,23 +129,23 @@ public class VariableContext : IVariableContext
             : parentContext?.GetVariable(name);
     }
 
-    private bool ContainChild(VariableType parentType, IdentifierPath path, IValidationContext context)
+    private static bool ContainsChild(VariableType parentType, IdentifierPath path, IValidationContext context)
     {
-        var typeWithMembers = parentType as ITypeWithMembers;
+        var complexType = parentType as IComplexType;
 
-        var memberVariableType = typeWithMembers?.MemberType(path.RootIdentifier, context.ComponentNodes);
+        var memberVariableType = complexType?.MemberType(path.RootIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return false;
 
         return !path.HasChildIdentifiers
-               || ContainChild(memberVariableType, path.ChildrenReference(), context);
+               || ContainsChild(memberVariableType, path.ChildrenReference(), context);
     }
 
     private VariableType GetVariableType(VariableType parentType, IdentifierPath path,
         IValidationContext context)
     {
-        if (parentType is not ITypeWithMembers typeWithMembers) return null;
+        if (parentType is not IComplexType complexType) return null;
 
-        var memberVariableType = typeWithMembers.MemberType(path.RootIdentifier, context.ComponentNodes);
+        var memberVariableType = complexType.MemberType(path.RootIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return null;
 
         return !path.HasChildIdentifiers

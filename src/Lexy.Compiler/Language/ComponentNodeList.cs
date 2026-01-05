@@ -96,7 +96,7 @@ public class ComponentNodeList : IComponentNodeList
         return values.FirstOrDefault();
     }
 
-    public TypeWithMembers GetType(string name)
+    public ComplexType GetType(string name)
     {
         var node = GetNode(name);
         return node switch

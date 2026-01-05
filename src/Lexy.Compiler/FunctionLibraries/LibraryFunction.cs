@@ -4,19 +4,21 @@ using System.Linq;
 using System.Reflection;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Functions;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
-internal class LibraryFunction : IInstanceFunction
+internal class LibraryFunction : IComplexTypeFunction
 {
     private readonly MemberInfo functionInfo;
     private readonly VariableType returnType;
     private readonly VariableType[] parameterTypes;
 
     public IdentifierPath FullTypeName { get; }
+
+    public string Name => FullTypeName.FullPath();
 
     private LibraryFunction(MemberInfo functionInfo, VariableType returnType, VariableType[] parameterTypes)
     {

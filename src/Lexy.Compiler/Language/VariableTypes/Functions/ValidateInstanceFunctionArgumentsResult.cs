@@ -1,12 +1,12 @@
 using System;
 
-namespace Lexy.Compiler.Language.Functions;
+namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
 public class ValidateInstanceFunctionArgumentsResult
 {
-    private readonly IInstanceFunctionCall functionCall;
+    private readonly IMemberFunctionCall functionCall;
 
-    public IInstanceFunctionCall FunctionCall
+    public IMemberFunctionCall FunctionCall
     {
         get
         {
@@ -22,7 +22,7 @@ public class ValidateInstanceFunctionArgumentsResult
         IsSuccess = isSuccess;
     }
 
-    private ValidateInstanceFunctionArgumentsResult(bool isSuccess, IInstanceFunctionCall functionCall)
+    private ValidateInstanceFunctionArgumentsResult(bool isSuccess, IMemberFunctionCall functionCall)
     {
         IsSuccess = isSuccess;
         this.functionCall = functionCall;
@@ -33,7 +33,7 @@ public class ValidateInstanceFunctionArgumentsResult
         return new ValidateInstanceFunctionArgumentsResult(false);
     }
 
-    public static ValidateInstanceFunctionArgumentsResult Success(IInstanceFunctionCall functionCall)
+    public static ValidateInstanceFunctionArgumentsResult Success(IMemberFunctionCall functionCall)
     {
         return new ValidateInstanceFunctionArgumentsResult(true, functionCall);
     }

@@ -7645,7 +7645,7 @@
             <Method cyclomaticComplexity="8" nPathComplexity="8" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="11" visitedSequencePoints="11" numBranchPoints="8" visitedBranchPoints="8" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="8" minCyclomaticComplexity="8" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Language.VariableTypes.TypeWithMembers Lexy.Compiler.Language.RootNodeList::GetType(System.String)</Name>
+              <Name>Lexy.Compiler.Language.VariableTypes.ComplexType Lexy.Compiler.Language.RootNodeList::GetType(System.String)</Name>
               <FileRef uid="56" />
               <SequencePoints>
                 <SequencePoint vc="505" uspid="100" ordinal="0" sl="100" sc="1" el="100" ec="2" bec="0" bev="0" fileid="56" />

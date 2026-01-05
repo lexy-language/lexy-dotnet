@@ -2,7 +2,7 @@ using Lexy.Compiler.Language.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class FunctionType : TypeWithMembers
+public class FunctionType : ComplexType
 {
     public string Type { get; }
     public Function Function { get; }
@@ -11,6 +11,31 @@ public class FunctionType : TypeWithMembers
     {
         Type = type;
         Function = function;
+    }
+
+    public override IComplexTypeVariable GetVariable(string name) => null;
+    public override IComplexTypeFunction GetFunction(string name) => null;
+
+    public override bool IsAssignableFrom(VariableType type) => Equals(type);
+
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
+    {
+        return name switch
+        {
+            Function.ParameterName => FunctionParametersType(componentNodes),
+            Function.ResultsName => FunctionResultsType(componentNodes),
+            _ => null
+        };
+    }
+
+    private GeneratedType FunctionParametersType(IComponentNodeList componentNodes)
+    {
+        return componentNodes.GetFunction(Type)?.GetParametersType();
+    }
+
+    private GeneratedType FunctionResultsType(IComponentNodeList componentNodes)
+    {
+        return componentNodes.GetFunction(Type)?.GetResultsType() as GeneratedType;
     }
 
     protected bool Equals(FunctionType other)
@@ -34,25 +59,5 @@ public class FunctionType : TypeWithMembers
     public override string ToString()
     {
         return Type;
-    }
-
-    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
-    {
-        return name switch
-        {
-            Function.ParameterName => FunctionParametersType(componentNodes),
-            Function.ResultsName => FunctionResultsType(componentNodes),
-            _ => null
-        };
-    }
-
-    private GeneratedType FunctionParametersType(IComponentNodeList componentNodes)
-    {
-        return componentNodes.GetFunction(Type)?.GetParametersType();
-    }
-
-    private GeneratedType FunctionResultsType(IComponentNodeList componentNodes)
-    {
-        return componentNodes.GetFunction(Type)?.GetResultsType() as GeneratedType;
     }
 }

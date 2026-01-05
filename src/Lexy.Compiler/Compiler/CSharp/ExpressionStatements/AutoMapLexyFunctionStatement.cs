@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Compiler.CSharp.FunctionCalls;
+using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Language.Expressions.Functions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -11,19 +13,20 @@ namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatements;
 //Syntax: "LexyFunction()"
 internal static class AutoMapLexyFunctionStatement
 {
-    public static bool Matches(Language.Expressions.Functions.LexyFunctionCallExpression expression)
+    public static bool Matches(LexyFunctionCallExpression expression)
     {
-        if (!expression.AutoMap)
+        if (expression.FunctionCall is not AutoMapLexyFunctionCall)
         {
             throw new InvalidOperationException("AutoMap should be set to true for a statement.");
         }
         return true;
     }
 
-    public static IEnumerable<StatementSyntax> Create(Language.Expressions.Functions.LexyFunctionCallExpression expression)
+    public static IEnumerable<StatementSyntax> Create(LexyFunctionCallExpression expression)
     {
-        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        Assert.NotNull(expression, nameof(expression));
 
+        var functionCall = Assert.Is<AutoMapLexyFunctionCall>(expression.FunctionCall, "expression.FunctionCall");
         var parameterVariable = $"{LexyCodeConstants.ParameterVariable}_{expression.Reference.LineNumber}";
         var resultsVariable = $"{LexyCodeConstants.ResultsVariable}_{expression.Reference.LineNumber}";
 
@@ -31,28 +34,28 @@ internal static class AutoMapLexyFunctionStatement
 
         result.AddRange(FillFunctionStatement.FillStatementSyntax(
             parameterVariable,
-            expression.FunctionParametersTypes,
-            expression.MappingParameters));
+            functionCall.ParametersType,
+            functionCall.MappingParameters));
 
-        result.Add(RunFunction(expression, parameterVariable, resultsVariable));
+        result.Add(RunFunction(expression, functionCall, parameterVariable, resultsVariable));
 
         result.AddRange(ExtractFunctionStatement.ExtractStatementSyntax(
-            expression.MappingResults,
+            functionCall.MappingResults,
             resultsVariable));
 
         return result;
     }
 
-    private static StatementSyntax RunFunction(Language.Expressions.Functions.LexyFunctionCallExpression lexyFunctionCallExpression, string parameterVariable,
+    private static StatementSyntax RunFunction(LexyFunctionCallExpression expression, AutoMapLexyFunctionCall functionCall, string parameterVariable,
         string resultsVariable)
     {
-        var initialize = LexyFunctionCallSyntax.RunFunction(lexyFunctionCallExpression.FunctionName, parameterVariable);
+        var initialize = LexyFunctionCallSyntax.RunFunction(expression.FunctionName, parameterVariable);
 
         var variable = VariableDeclarator(Identifier(resultsVariable))
             .WithInitializer(EqualsValueClause(initialize));
 
         return LocalDeclarationStatement(
-            VariableDeclaration(Types.Syntax(lexyFunctionCallExpression.FunctionResultsType))
+            VariableDeclaration(Types.Syntax(functionCall.ResultsType))
                 .WithVariables(SingletonSeparatedList(variable)));
     }
 }

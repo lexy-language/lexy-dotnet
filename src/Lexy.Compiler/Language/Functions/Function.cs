@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Language.VariableTypes.Declaration;
@@ -33,8 +34,8 @@ public class Function : ComponentNode, IHasNodeDependencies
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var result = new List<IComponentNode>();
-        AddEnumTypes(componentNodes, Parameters.Variables, result);
-        AddEnumTypes(componentNodes, Results.Variables, result);
+        AddComplexTypes(componentNodes, Parameters.Variables, result);
+        AddComplexTypes(componentNodes, Results.Variables, result);
         return result;
     }
 
@@ -60,15 +61,18 @@ public class Function : ComponentNode, IHasNodeDependencies
         };
     }
 
-    private static void AddEnumTypes(IComponentNodeList componentNodes, IReadOnlyList<VariableDefinition> variableDefinitions,
+    private static void AddComplexTypes(IComponentNodeList componentNodes, IReadOnlyList<VariableDefinition> variableDefinitions,
         List<IComponentNode> result)
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (parameter.Type is not ComplexVariableTypeDeclaration enumVariableType) continue;
+            if (parameter.Type is not ComplexVariableTypeDeclaration complexVariableType) continue;
 
-            var dependency = componentNodes.GetEnum(enumVariableType.Type);
-            if (dependency != null) result.Add(dependency);
+            var dependency = complexVariableType.GetNode(componentNodes);
+            if (dependency != null)
+            {
+                result.Add(dependency);
+            }
         }
     }
 
@@ -97,7 +101,7 @@ public class Function : ComponentNode, IHasNodeDependencies
     public GeneratedType GetParametersType()
     {
         var members = Parameters.Variables
-            .Select(parameter => new GeneratedTypeMember(parameter.Name, parameter.Type.VariableType))
+            .Select(parameter => new ComplexTypeVariable(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionParameters, members);
@@ -106,109 +110,89 @@ public class Function : ComponentNode, IHasNodeDependencies
     public VariableType GetResultsType()
     {
         var members = Results.Variables
-            .Select(parameter => new GeneratedTypeMember(parameter.Name, parameter.Type.VariableType))
+            .Select(parameter => new ComplexTypeVariable(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionResults, members);
     }
 
-    public ValidateFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments)
+    public ValidateFunctionArgumentsResult ValidateArguments(IValidationContext context,
+        IReadOnlyList<Expression> arguments, SourceReference reference)
     {
         return arguments.Count == 0
             ? ValidateNoArgumentCall()
-            : ValidateWithArguments(context, arguments);
+            : ValidateWithArguments(context, arguments, reference);
     }
 
     private ValidateFunctionArgumentsResult ValidateNoArgumentCall()
     {
-        return ValidateFunctionArgumentsResult.SuccessAutoMap(GetParametersType(), GetResultsType());
+        return ValidateFunctionArgumentsAutoMapResult.SuccessAutoMap(GetParametersType(), GetResultsType());
     }
 
-    private ValidateFunctionArgumentsResult ValidateWithArguments(IValidationContext context, IReadOnlyList<Expression> arguments)
+    private ValidateFunctionArgumentsResult ValidateWithArguments(IValidationContext context,
+        IReadOnlyList<Expression> arguments, SourceReference reference)
     {
         var argumentTypes = GetArgumentTypes(arguments, context);
-        var resultsType = GetResultsType();
         var overloads = GetFunctions();
 
         foreach (var overload in overloads)
         {
             if (overload.Matches(argumentTypes))
             {
-                return ValidateFunctionArgumentsResult.Success(resultsType);
+                return ValidateFunctionArgumentsCallFunctionResult.Success(overload);
             }
         }
 
-        return null;
+        var error = BuildErrorMessage(overloads);
+        context.Logger.Fail(reference, error);
 
-        /*
-        var argumentType = arguments[0].DeriveType(context);
-        var parametersType = GetParametersType();
-
-        if (argumentType == null || !argumentType.Equals(parametersType))
-        {
-            context.Logger.Fail(Reference, $"Invalid function argument: '{Name}'. " +
-                                           "Argument should be of type function parameters. Use new(Function) of fill(Function) to create an variable of the function result type.");
-
-            return ValidateFunctionArgumentsResult.Failed();
-        }
-
-        return ValidateFunctionArgumentsResult.Success(resultsType);
-        */
+        return ValidateFunctionArgumentsResult.Failed();
     }
 
-    private IEnumerable<IFunctionOverload> GetFunctions()
+    private string BuildErrorMessage(IEnumerable<IFunctionSignature> overloads)
+    {
+        var stringBuilder = new StringBuilder($"Invalid function arguments: '{Name}'. Function overloads:\n");
+
+        foreach (var signature in overloads)
+        {
+            stringBuilder.Append($"- {Name}(");
+            AddParameters(signature, stringBuilder);
+            stringBuilder.AppendLine(")");
+        }
+
+        return stringBuilder.ToString();
+    }
+
+    private static void AddParameters(IFunctionSignature signature, StringBuilder stringBuilder)
+    {
+        for (var index = 0; index < signature.ParametersTypes.Count; index++)
+        {
+            var parametersType = signature.ParametersTypes[index];
+            stringBuilder.Append(parametersType);
+            if (index < signature.ParametersTypes.Count - 1)
+            {
+                stringBuilder.Append(", ");
+            }
+        }
+    }
+
+    private IEnumerable<IFunctionSignature> GetFunctions()
     {
         yield return GetSingleParameterArgumentFunction();
         yield return InlineParametersArgumentsFunction();
     }
 
-    private IFunctionOverload GetSingleParameterArgumentFunction()
+    private IFunctionSignature GetSingleParameterArgumentFunction()
     {
-        return new FunctionOverload(new [] {GetParametersType()}, GetResultsType());
+        return new FunctionSignature(new [] {GetParametersType()}, GetResultsType());
     }
 
-    private IFunctionOverload InlineParametersArgumentsFunction()
+    private IFunctionSignature InlineParametersArgumentsFunction()
     {
         var parameters = Parameters.Variables.Select(parameter => parameter.VariableType).ToList();
-        return new FunctionOverload(parameters, GetResultsType());
+        return new FunctionSignature(parameters, GetResultsType());
     }
 
     private IReadOnlyList<VariableType> GetArgumentTypes(IEnumerable<Expression> arguments, IValidationContext context) =>
         arguments.Select(argument => argument.DeriveType(context)).ToArray();
-}
-
-internal class FunctionOverload : IFunctionOverload
-{
-    private readonly IReadOnlyList<VariableType> parametersTypes;
-
-    public VariableType ResultsType { get; }
-
-    public FunctionOverload(IReadOnlyList<VariableType> parametersTypes, VariableType resultsType)
-    {
-        this.parametersTypes = parametersTypes;
-        ResultsType = resultsType;
-    }
-
-    public bool Matches(IReadOnlyList<VariableType> argumentTypes)
-    {
-        if (argumentTypes.Count != parametersTypes.Count) return false;
-
-        for (var index = 0; index < parametersTypes.Count; index++)
-        {
-            var parametersType = parametersTypes[index];
-            var argumentType = argumentTypes[index];
-
-            if (!parametersType.IsAssignableFrom(argumentType))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-}
-
-internal interface IFunctionOverload
-{
-    bool Matches(IReadOnlyList<VariableType> argumentTypes);
 }

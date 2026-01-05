@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lexy.Compiler.Compiler.CSharp.Syntax;
 using Lexy.Compiler.Language.Functions;
 using Lexy.RunTime;
@@ -21,7 +22,8 @@ public static class FunctionClass
         {
             VariableClass.Syntax(LexyCodeConstants.ParametersType, function.Parameters.Variables),
             VariableClass.Syntax(LexyCodeConstants.ResultsType, function.Results.Variables),
-            RunMethod(function)
+            RunMethod(function),
+            RunMethodInlineArguments(function)
         };
 
         var name = ClassNames.FunctionClassName(function.NodeName);
@@ -76,6 +78,70 @@ public static class FunctionClass
                             Parameter(Identifier(LexyCodeConstants.ContextVariable))
                                 .WithType(IdentifierName(nameof(IExecutionContext)))
                         })))
+            .WithBody(Block(statements));
+
+        return functionSyntax;
+    }
+
+    private static MethodDeclarationSyntax RunMethodInlineArguments(Function function)
+    {
+        var statements = new List<StatementSyntax>
+        {
+            LocalDeclarationStatement(
+                VariableDeclaration(
+                        IdentifierName(
+                            Identifier(TriviaList(), SyntaxKind.VarKeyword,"var", "var",TriviaList())))
+                    .WithVariables(
+                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            VariableDeclarator(Identifier(LexyCodeConstants.ParameterVariable))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        ObjectCreationExpression(IdentifierName(LexyCodeConstants.ParametersType))
+                                            .WithArgumentList(
+                                                ArgumentList()))))))
+        };
+
+        statements.AddRange(function.Parameters.Variables
+            .Select(variable => ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(LexyCodeConstants.ParameterVariable),
+                        IdentifierName(variable.Name)),
+                    IdentifierName(variable.Name)))));
+
+        statements.Add(
+            ReturnStatement(
+                InvocationExpression(IdentifierName(LexyCodeConstants.RunMethod))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[]
+                                {
+                                    Argument(IdentifierName(LexyCodeConstants.ParameterVariable)),
+                                    Token(SyntaxKind.CommaToken),
+                                    Argument(IdentifierName(LexyCodeConstants.ContextVariable))
+                                })))));
+
+        var parameters = new List<SyntaxNodeOrToken>();
+
+        foreach (var variable in function.Parameters.Variables)
+        {
+            parameters.Add(Parameter(Identifier(variable.Name))
+                    .WithType(Types.Syntax(variable.VariableType)));
+            parameters.Add(Token(SyntaxKind.CommaToken));
+        }
+
+        parameters.Add(Parameter(Identifier(LexyCodeConstants.ContextVariable))
+            .WithType(IdentifierName(nameof(IExecutionContext))));
+
+        var functionSyntax = MethodDeclaration(
+                IdentifierName(LexyCodeConstants.ResultsType),
+                Identifier(LexyCodeConstants.RunMethod))
+            .WithModifiers(Modifiers.PublicStatic())
+            .WithParameterList(
+                ParameterList(
+                    SeparatedList<ParameterSyntax>(parameters)))
             .WithBody(Block(statements));
 
         return functionSyntax;

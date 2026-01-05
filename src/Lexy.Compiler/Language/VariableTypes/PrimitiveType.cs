@@ -17,6 +17,8 @@ public class PrimitiveType : VariableType
         Type = type;
     }
 
+    public override bool IsAssignableFrom(VariableType type) => Equals(type);
+
     protected bool Equals(PrimitiveType other)
     {
         return Type == other.Type;

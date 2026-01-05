@@ -3,7 +3,7 @@ using Lexy.Compiler.Language.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
-internal class LookUpFunctionCall : IInstanceFunctionCall
+internal class LookUpFunctionCall : IMemberFunctionCall
 {
     public string TableName { get; }
 

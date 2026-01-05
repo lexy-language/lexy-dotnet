@@ -28,7 +28,6 @@ public static class VariableClass
         var variableDeclaration = SyntaxFactory.VariableDeclarator(SyntaxFactory.Identifier(variable.Name))
             .WithInitializer(SyntaxFactory.EqualsValueClause(initializer));
 
-
         var typeSyntax = Types.Syntax(variable);
         var fieldDeclaration = SyntaxFactory.FieldDeclaration(SyntaxFactory.VariableDeclaration(typeSyntax)
                 .WithVariables(SyntaxFactory.SingletonSeparatedList(variableDeclaration)))

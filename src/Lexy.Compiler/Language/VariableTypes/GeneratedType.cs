@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class GeneratedType : VariableType, ITypeWithMembers
+public class GeneratedType : ComplexType
 {
     public string Name { get; }
     public GeneratedTypeSource Source { get; }
-    public IEnumerable<GeneratedTypeMember> Members { get; }
+    public IEnumerable<ComplexTypeVariable> Members { get; }
     public IComponentNode Node { get;}
 
-    public GeneratedType(string name, IComponentNode node, GeneratedTypeSource source, IEnumerable<GeneratedTypeMember> members)
+    public GeneratedType(string name, IComponentNode node, GeneratedTypeSource source, IEnumerable<ComplexTypeVariable> members)
     {
         Name = name;
         Node = node ?? throw new ArgumentNullException(nameof(node));
@@ -20,23 +19,22 @@ public class GeneratedType : VariableType, ITypeWithMembers
         Members = members ?? throw new ArgumentNullException(nameof(members));
     }
 
-    public VariableType MemberType(string name, IComponentNodeList componentNodes)
+    public override VariableType MemberType(string name, IComponentNodeList componentNodes)
     {
         return Members.FirstOrDefault(member => member.Name == name)?.Type;
     }
 
-    public IInstanceFunction GetFunction(string name) => null;
-
-<<<<<<< Updated upstream:src/Lexy.Compiler/Language/VariableTypes/GeneratedType.cs
-    protected bool Equals(GeneratedType other)
-=======
-    public override bool IsAssignableFrom(VariableType type)
+    public override IComplexTypeVariable GetVariable(string name)
     {
-        throw new NotImplementedException();
+        return Members.FirstOrDefault(variable => variable.Name == name);
     }
 
-    protected bool Equals(ComplexType other)
->>>>>>> Stashed changes:src/Lexy.Compiler/Language/VariableTypes/ComplexType.cs
+    public override IComplexTypeFunction GetFunction(string name)
+    {
+        return null;
+    }
+
+    protected bool Equals(GeneratedType other)
     {
         return Name == other.Name && Source == other.Source;
     }
@@ -56,6 +54,6 @@ public class GeneratedType : VariableType, ITypeWithMembers
 
     public override string ToString()
     {
-        return $"(GeneratedType) {Name}";
+        return Name;
     }
 }

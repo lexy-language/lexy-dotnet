@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Lexy.Compiler.Language.Functions;
+using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
@@ -17,7 +18,7 @@ public class Library : ILibrary
         this.functions = functions;
     }
 
-    public IInstanceFunction GetFunction(string identifier)
+    public IComplexTypeFunction GetFunction(string identifier)
     {
         return functions.TryGetValue(identifier, out var libraryFunction) ? libraryFunction : null;
     }

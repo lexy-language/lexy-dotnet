@@ -7,7 +7,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
-internal abstract class TableFunction : IInstanceFunction
+internal abstract class TableFunction : ComplexTypeFunction
 {
     protected Table Table { get; }
 
@@ -17,12 +17,6 @@ internal abstract class TableFunction : IInstanceFunction
     {
         Table = table ?? throw new ArgumentNullException(nameof(table));
     }
-
-    public abstract ValidateInstanceFunctionArgumentsResult ValidateArguments(IValidationContext context,
-        IReadOnlyList<Expression> arguments,
-        SourceReference reference);
-
-    public abstract VariableType GetResultsType(IReadOnlyList<Expression> arguments);
 
     protected bool ValidateTable(IValidationContext context, SourceReference reference)
     {
@@ -116,6 +110,7 @@ internal abstract class TableFunction : IInstanceFunction
         return true;
     }
 }
+
 
 internal interface IOverloadArguments
 {
