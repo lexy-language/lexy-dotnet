@@ -7,7 +7,7 @@ using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
-public class DateTimeLiteral : ParsableToken, ILiteralToken
+public class DateTimeLiteralToken : ParsableToken, ILiteralToken
 {
     private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 
@@ -23,7 +23,7 @@ public class DateTimeLiteral : ParsableToken, ILiteralToken
 
     public DateTime DateTimeValue { get; set; }
 
-    public DateTimeLiteral(TokenCharacter character) : base(null, character)
+    public DateTimeLiteralToken(TokenCharacter character) : base(null, character)
     {
         validators = new List<Func<char, ParseTokenResult>>
         {

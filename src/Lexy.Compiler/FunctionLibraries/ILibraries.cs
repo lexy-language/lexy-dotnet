@@ -8,5 +8,5 @@ public interface ILibraries
 {
     ILibrary GetLibrary(IdentifierPath identifier);
 
-    IEnumerable<Type> All();
+    IEnumerable<Type> AllTypes();
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Tables;

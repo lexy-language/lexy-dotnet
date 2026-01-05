@@ -58,7 +58,8 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
         {
             AutoMap = true;
             FunctionResultsType = result.ResultType;
-            FunctionParametersTypes = result.ParameterType; AutoMapVariables(context, result.ParameterType, result.ResultType);
+            FunctionParametersTypes = result.ParameterType;
+            AutoMapVariables(context, result.ParameterType, result.ResultType);
         }
 
         ParameterName = GetParameterName();
@@ -66,14 +67,14 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
 
     private void AutoMapVariables(IValidationContext context, VariableType functionParametersType, VariableType functionResultsType)
     {
-        if (functionParametersType is ComplexType complexParameterType)
+        if (functionParametersType is GeneratedType complexParameterType)
         {
-            FillParametersFunction.GetMapping(Reference, context, complexParameterType, mappingParameters);
+            FillParametersFunctionExpression.GetMapping(Reference, context, complexParameterType, mappingParameters);
         }
 
-        if (functionResultsType is ComplexType complexResultsType)
+        if (functionResultsType is GeneratedType complexResultsType)
         {
-            ExtractResultsFunction.GetMapping(Reference, context, complexResultsType, mappingResults);
+            ExtractResultsFunctionExpression.GetMapping(Reference, context, complexResultsType, mappingResults);
         }
     }
 

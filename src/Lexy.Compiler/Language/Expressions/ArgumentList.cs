@@ -17,13 +17,13 @@ public static class ArgumentList
     public static ArgumentTokenParseResult Parse(TokenList tokens)
     {
         if (tokens == null) throw new ArgumentNullException(nameof(tokens));
-        if (tokens.Length == 0) return ArgumentTokenParseResult.Success();
+        if (tokens.Length == 0) return ArgumentTokenParseResult.Success(Array.Empty<TokenList>());
 
         var context = new ParseContext();
         foreach (var token in tokens)
         {
             var result = ProcessToken(context, token);
-            if (!result.IsSuccess) return result;
+            if (result != null) return result;
         }
 
         if (context.ArgumentTokens.Count == 0)
@@ -41,7 +41,7 @@ public static class ArgumentList
         if (token is not OperatorToken operatorToken)
         {
             context.ArgumentTokens.Add(token);
-            return ArgumentTokenParseResult.Success();
+            return null;
         }
 
         CountScopeCharacters(context, operatorToken);
@@ -62,7 +62,7 @@ public static class ArgumentList
         {
             context.ArgumentTokens.Add(token);
         }
-        return ArgumentTokenParseResult.Success();
+        return null;
     }
 
     private static void CountScopeCharacters(ParseContext context, OperatorToken operatorToken)

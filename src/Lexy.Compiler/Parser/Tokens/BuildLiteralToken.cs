@@ -48,7 +48,7 @@ public class BuildLiteralToken : ParsableToken
         }
 
         if (value == TokenValues.Quote && Value == TokenValues.DateTimeStarter)
-            return ParseTokenResult.InProgress(new DateTimeLiteral(FirstCharacter));
+            return ParseTokenResult.InProgress(new DateTimeLiteralToken(FirstCharacter));
 
         return ParseTokenResult.Invalid($"Unexpected character: '{value}'");
     }
@@ -70,9 +70,9 @@ public class BuildLiteralToken : ParsableToken
             return new KeywordToken(value, FirstCharacter);
         }
 
-        if (BooleanLiteral.IsValid(value))
+        if (BooleanLiteralToken.IsValid(value))
         {
-            return BooleanLiteral.Parse(value, FirstCharacter);
+            return BooleanLiteralToken.Parse(value, FirstCharacter);
         }
 
         if (hasMemberAccessor)

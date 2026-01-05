@@ -68,7 +68,7 @@ public class LexyCompiler : ILexyCompiler
             MetadataReference.CreateFromFile(typeof(ExecutionContext).Assembly.Location)
         };
 
-        references.AddRange(libraries.All()
+        references.AddRange(libraries.AllTypes()
             .Select(library => MetadataReference.CreateFromFile(library.Assembly.Location)));
 
         Assembly.GetEntryAssembly()?.GetReferencedAssemblies()
@@ -109,9 +109,8 @@ public class LexyCompiler : ILexyCompiler
 
     private static MemberDeclarationSyntax GenerateMember(IComponentNode node, ICompilationEnvironment environment)
     {
-        var writer = CSharpCode.GetGenerator(node);
-
-        var generatedType = writer(node);
+        var generatedType = CSharpCode.Generate(node);
+        if (generatedType == null) return null;
 
         environment.AddType(generatedType);
 

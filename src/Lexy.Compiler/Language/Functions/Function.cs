@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -64,7 +65,7 @@ public class Function : ComponentNode, IHasNodeDependencies
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (parameter.Type is not CustomVariableTypeDeclaration enumVariableType) continue;
+            if (parameter.Type is not ComplexVariableTypeDeclaration enumVariableType) continue;
 
             var dependency = componentNodes.GetEnum(enumVariableType.Type);
             if (dependency != null) result.Add(dependency);
@@ -93,22 +94,22 @@ public class Function : ComponentNode, IHasNodeDependencies
     {
     }
 
-    public ComplexType GetParametersType()
+    public GeneratedType GetParametersType()
     {
         var members = Parameters.Variables
-            .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.VariableType))
+            .Select(parameter => new GeneratedTypeMember(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
-        return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionParameters, members);
+        return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionParameters, members);
     }
 
     public VariableType GetResultsType()
     {
         var members = Results.Variables
-            .Select(parameter => new ComplexTypeMember(parameter.Name, parameter.Type.VariableType))
+            .Select(parameter => new GeneratedTypeMember(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
-        return new ComplexType(Name.Value, this, ComplexTypeSource.FunctionResults, members);
+        return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionResults, members);
     }
 
     public ValidateFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments)
@@ -128,7 +129,7 @@ public class Function : ComponentNode, IHasNodeDependencies
         if (arguments.Count != 1)
         {
             context.Logger.Fail(Reference, $"Invalid number of function arguments: '{Name}'. ");
-            return null;
+            return ValidateFunctionArgumentsResult.Failed();
         }
 
         var argumentType = arguments[0].DeriveType(context);
@@ -140,7 +141,7 @@ public class Function : ComponentNode, IHasNodeDependencies
             context.Logger.Fail(Reference, $"Invalid function argument: '{Name}'. " +
                                            "Argument should be of type function parameters. Use new(Function) of fill(Function) to create an variable of the function result type.");
 
-            return null;
+            return ValidateFunctionArgumentsResult.Failed();
         }
 
         return ValidateFunctionArgumentsResult.Success(resultsType);

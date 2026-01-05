@@ -11,9 +11,9 @@ public static class FunctionCallExpressionParser
     private static readonly IDictionary<string, Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
         SystemFunctions = new Dictionary<string, Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
         {
-            { NewFunction.Name, Create(NewFunction.Create) },
-            { FillParametersFunction.Name, Create(FillParametersFunction.Create) },
-            { ExtractResultsFunction.Name, Create(ExtractResultsFunction.Create) }
+            { NewFunctionExpression.Name, ForFirstArgument(NewFunctionExpression.Create) },
+            { FillParametersFunctionExpression.Name, ForFirstArgument(FillParametersFunctionExpression.Create) },
+            { ExtractResultsFunctionExpression.Name, ForFirstArgument(ExtractResultsFunctionExpression.Create) }
         };
 
     public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
@@ -53,6 +53,10 @@ public static class FunctionCallExpressionParser
 
         var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
         var argumentsTokenList = ArgumentList.Parse(innerExpressionTokens);
+        if (!argumentsTokenList.IsSuccess)
+        {
+            return ParseExpressionsResult.Invalid<FunctionCallExpression>(argumentsTokenList.ErrorMessage);
+        }
 
         var arguments = new List<Expression>();
         foreach (var argumentTokens in argumentsTokenList.Result)
@@ -88,9 +92,13 @@ public static class FunctionCallExpressionParser
         IReadOnlyList<Expression> arguments, StringLiteralToken stringLiteralToken)
     {
         var functionName = stringLiteralToken.Value;
-        return SystemFunctions.TryGetValue(functionName, out var value)
-            ? value(source, arguments)
-            : ParseExpressionFunctionsResult.Success(CreateLexyFunctionCallExpression(functionName, source, arguments));
+        if (SystemFunctions.TryGetValue(functionName, out var value))
+        {
+            return value(source, arguments);
+        }
+
+        var expression = CreateLexyFunctionCallExpression(functionName, source, arguments);
+        return ParseExpressionFunctionsResult.Success(expression);
     }
 
     private static ParseExpressionFunctionsResult CreateMemberFunctionCallExpression(ExpressionSource source,
@@ -106,7 +114,7 @@ public static class FunctionCallExpressionParser
         return new LexyFunctionCallExpression(functionName, arguments, source);
     }
 
-    private static Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> Create(
+    private static Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> ForFirstArgument(
         Func<ExpressionSource, Expression, FunctionCallExpression> factory)
     {
         return (reference, arguments) =>

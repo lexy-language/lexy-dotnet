@@ -104,7 +104,7 @@ public class ComponentNodeList : IComponentNodeList
             Table table => new TableType(name, table),
             Function function => new FunctionType(name, function),
             EnumDefinition enumDefinition => new EnumType(name, enumDefinition),
-            TypeDefinition typeDefinition => new CustomType(name, typeDefinition),
+            TypeDefinition typeDefinition => new DeclaredType(name, typeDefinition),
             _ => null
         };
     }

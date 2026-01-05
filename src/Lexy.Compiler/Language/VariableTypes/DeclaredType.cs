@@ -4,18 +4,18 @@ using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class CustomType : TypeWithMembers
+public class DeclaredType : TypeWithMembers
 {
     public string Type { get; }
     public ITypeDefinition TypeDefinition { get; }
 
-    public CustomType(string type, ITypeDefinition typeDefinition)
+    public DeclaredType(string type, ITypeDefinition typeDefinition)
     {
         Type = type;
         TypeDefinition = typeDefinition;
     }
 
-    protected bool Equals(CustomType other)
+    protected bool Equals(DeclaredType other)
     {
         return Type == other.Type;
     }
@@ -25,7 +25,7 @@ public class CustomType : TypeWithMembers
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((CustomType)obj);
+        return Equals((DeclaredType)obj);
     }
 
     public override int GetHashCode()

@@ -48,7 +48,7 @@ public static class ExpressionTestExtensions
     {
         expression.ValidateOfType<LiteralExpression>(literal =>
         {
-            literal.Literal.ValidateOfType<BooleanLiteral>(number =>
+            literal.Literal.ValidateOfType<BooleanLiteralToken>(number =>
                 number.BooleanValue.ShouldBe(value));
         });
     }
@@ -57,7 +57,7 @@ public static class ExpressionTestExtensions
     {
         expression.ValidateOfType<LiteralExpression>(literal =>
         {
-            literal.Literal.ValidateOfType<DateTimeLiteral>(number =>
+            literal.Literal.ValidateOfType<DateTimeLiteralToken>(number =>
                 number.DateTimeValue.ShouldBe(value));
         });
     }
@@ -67,7 +67,7 @@ public static class ExpressionTestExtensions
         var valueDate = DateTime.Parse(value);
         expression.ValidateOfType<LiteralExpression>(literal =>
         {
-            literal.Literal.ValidateOfType<DateTimeLiteral>(number =>
+            literal.Literal.ValidateOfType<DateTimeLiteralToken>(number =>
                 number.DateTimeValue.ShouldBe(valueDate));
         });
     }

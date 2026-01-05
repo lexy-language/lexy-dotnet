@@ -6,7 +6,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class ExtractResultsFunction : FunctionCallExpression
+public class ExtractResultsFunctionExpression : FunctionCallExpression
 {
     public const string Name = "extract";
 
@@ -19,7 +19,7 @@ public class ExtractResultsFunction : FunctionCallExpression
 
     public IEnumerable<Mapping> Mapping => mapping;
 
-    private ExtractResultsFunction(Expression valueExpression, ExpressionSource source)
+    private ExtractResultsFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
     {
         ValueExpression = valueExpression;
@@ -46,8 +46,8 @@ public class ExtractResultsFunction : FunctionCallExpression
             return;
         }
 
-        var complexType = variableType as ComplexType;
-        if (complexType == null)
+        var generatedType = variableType as GeneratedType;
+        if (generatedType == null)
         {
             context.Logger.Fail(Reference,
                 $"Invalid variable type: '{FunctionResultVariable}'. " +
@@ -55,19 +55,19 @@ public class ExtractResultsFunction : FunctionCallExpression
                 $"Use new(Function.Results) or fill(Function.Results) to create new function results. {FunctionHelp}");
         }
 
-        GetMapping(Reference, context, complexType, mapping);
+        GetMapping(Reference, context, generatedType, mapping);
     }
 
-    internal static void GetMapping(SourceReference reference, IValidationContext context, ComplexType complexType,
+    internal static void GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType,
         IList<Mapping> mapping)
     {
         if (reference == null) throw new ArgumentNullException(nameof(reference));
         if (context == null) throw new ArgumentNullException(nameof(context));
         if (mapping == null) throw new ArgumentNullException(nameof(mapping));
 
-        if (complexType == null) return;
+        if (generatedType == null) return;
 
-        foreach (var member in complexType.Members)
+        foreach (var member in generatedType.Members)
         {
             var variable = context.VariableContext.GetVariable(member.Name);
             if (variable == null || variable.VariableSource == VariableSource.Parameters) continue;
@@ -94,7 +94,7 @@ public class ExtractResultsFunction : FunctionCallExpression
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
     {
-        return new ExtractResultsFunction(expression, source);
+        return new ExtractResultsFunctionExpression(expression, source);
     }
 
     public override IEnumerable<VariableUsage> UsedVariables()

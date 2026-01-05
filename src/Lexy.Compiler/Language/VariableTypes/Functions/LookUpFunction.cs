@@ -10,10 +10,10 @@ internal class LookUpFunction : TableFunctionReference
 {
     private const string FunctionHelpValue =
         "Arguments: " +
-           "Table.LookUp(lookUpValue, Table.ResultColumn) " +
-        "or Table.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn)" +
-        "or Table.LookUp(discriminator, lookUpValue, Table.ResultColumn)" +
-        "or Table.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
+           "TableName.LookUp(lookUpValue, Table.ResultColumn) " +
+        "or TableName.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn)" +
+        "or TableName.LookUp(discriminator, lookUpValue, Table.ResultColumn)" +
+        "or TableName.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
 
     private record OverloadArguments(
         int? Discriminator,
@@ -22,7 +22,7 @@ internal class LookUpFunction : TableFunctionReference
         int? DefaultDiscriminatorColumn,
         int? SearchColumnArgument,
         int DefaultSearchColumn,
-        int ResultColumnArgument);
+        int ResultColumnArgument): IOverloadArguments;
 
     protected override string FunctionHelp => FunctionHelpValue;
 
@@ -35,6 +35,7 @@ internal class LookUpFunction : TableFunctionReference
     public override VariableType GetResultsType(IReadOnlyList<Expression> arguments)
     {
         var overloadArguments = GetArgumentColumns(null, arguments, null);
+        if (overloadArguments == null) return null;
 
         var argument = arguments[overloadArguments.ResultColumnArgument];
         if (argument is not MemberAccessExpression columnExpression)
@@ -52,6 +53,8 @@ internal class LookUpFunction : TableFunctionReference
         if (!ValidateTable(context, reference)) return ValidateInstanceFunctionArgumentsResult.Failed();
 
         var overloadArguments = GetArgumentColumns(context, arguments, reference);
+        if (overloadArguments == null) return ValidateInstanceFunctionArgumentsResult.Failed();
+
         var searchColumnHeader = GetColumn(context, arguments, overloadArguments.SearchColumnArgument, overloadArguments.DefaultSearchColumn, reference) ;
         var resultColumnHeader = GetColumn(context, arguments, overloadArguments.ResultColumnArgument, null, reference) ;
 
@@ -59,7 +62,7 @@ internal class LookUpFunction : TableFunctionReference
 
         ValidateColumnValueType(context, arguments, overloadArguments.LookUpValue, "Search", searchColumnHeader, reference);
 
-        var discriminatorColumnHeader = ValidateDiscriminator(context, arguments, reference, overloadArguments);
+        var discriminatorColumnHeader = ValidatorDiscriminator(context, arguments, reference, overloadArguments);
 
         var result = new LookUpFunctionCall(
             Table.Name.Value,
@@ -76,21 +79,7 @@ internal class LookUpFunction : TableFunctionReference
     {
         if (searchColumnHeader == null || resultColumnHeader == null) return false;
 
-
         return true;
-    }
-
-    private ColumnHeader ValidateDiscriminator(IValidationContext context, IReadOnlyList<Expression> arguments,
-        SourceReference reference, OverloadArguments overloadArguments)
-    {
-        if (overloadArguments.Discriminator == null) return null;
-
-        var discriminatorColumnHeader = overloadArguments.DefaultDiscriminatorColumn != null
-            ? GetColumn(context, arguments, overloadArguments.DiscriminatorColumnArgument, overloadArguments.DefaultDiscriminatorColumn, reference)
-            : null;
-        ValidateColumnValueType(context, arguments, overloadArguments.Discriminator.Value, "Discriminator", discriminatorColumnHeader, reference);
-
-        return discriminatorColumnHeader;
     }
 
     private OverloadArguments GetArgumentColumns(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference)
@@ -98,20 +87,20 @@ internal class LookUpFunction : TableFunctionReference
         switch (arguments.Count)
         {
             case 2:
-                //"Table.LookUp(lookUpValue, Table.ResultColumn) " +
+                //"table.LookUp(lookUpValue, Table.ResultColumn) " +
                 return new OverloadArguments(null, 0, null, null, null, 0, 1);
 
             case 3:
-                //"Table.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn)"
+                //"table.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn)"
                 if (arguments[1] is MemberAccessExpression)
                 {
                     return new OverloadArguments(null, 0, null, null, 1, 0, 2);
                 }
-                //"Table.LookUp(discriminator, lookUpValue, Table.ResultColumn)"
+                //"table.LookUp(discriminator, lookUpValue, Table.ResultColumn)"
                 return new OverloadArguments(0, 1, null, 0, null, 1, 2);
 
             case 5:
-                //"Table.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
+                //"table.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
                 return new OverloadArguments(0, 1, 2, 0, 3, 1, 4);
 
             default:

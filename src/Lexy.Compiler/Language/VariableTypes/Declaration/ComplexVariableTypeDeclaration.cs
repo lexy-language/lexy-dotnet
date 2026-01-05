@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.VariableTypes;
+namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
-public sealed class CustomVariableTypeDeclaration : VariableTypeDeclaration, IHasNodeDependencies
+public sealed class ComplexVariableTypeDeclaration : VariableTypeDeclaration, IHasNodeDependencies
 {
     public string Type { get; }
 
-    public CustomVariableTypeDeclaration(string type, SourceReference reference) : base(reference)
+    public ComplexVariableTypeDeclaration(string type, SourceReference reference) : base(reference)
     {
         Type = type;
     }
 
-    private bool Equals(CustomVariableTypeDeclaration other)
+    private bool Equals(ComplexVariableTypeDeclaration other)
     {
         return Type == other.Type;
     }
@@ -23,7 +23,7 @@ public sealed class CustomVariableTypeDeclaration : VariableTypeDeclaration, IHa
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((CustomVariableTypeDeclaration)obj);
+        return Equals((ComplexVariableTypeDeclaration)obj);
     }
 
     public override int GetHashCode()
@@ -41,8 +41,9 @@ public sealed class CustomVariableTypeDeclaration : VariableTypeDeclaration, IHa
         var type = GetVariableType(componentNodes);
         return type switch
         {
-            CustomType customType => new[] { customType.TypeDefinition },
-            ComplexType complexType => new[] { complexType.Node },
+            DeclaredType declaredType => new[] { declaredType.TypeDefinition },
+            GeneratedType generatedType => new[] { generatedType.Node },
+            EnumType enumType => new[] { enumType.Enum },
             _ => Array.Empty<IComponentNode>()
         };
     }

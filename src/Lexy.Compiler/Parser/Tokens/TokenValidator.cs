@@ -122,7 +122,7 @@ public class TokenValidator
 
     public TokenValidator Boolean(int index, bool value)
     {
-        var token = ValidateType<BooleanLiteral>(index);
+        var token = ValidateType<BooleanLiteralToken>(index);
         if (token != null && token.BooleanValue != value)
         {
             Fail(index, $"Invalid token {index} value. Expected: '{value}' Actual: '{token.Value}'");
@@ -134,7 +134,7 @@ public class TokenValidator
 
     public TokenValidator DateTime(int index, int year, int month, int day, int hours, int minutes, int seconds)
     {
-        var token = ValidateType<DateTimeLiteral>(index);
+        var token = ValidateType<DateTimeLiteralToken>(index);
         var value = new DateTime(year, month, day, hours, minutes, seconds);
         if (token != null && token.DateTimeValue != value)
         {

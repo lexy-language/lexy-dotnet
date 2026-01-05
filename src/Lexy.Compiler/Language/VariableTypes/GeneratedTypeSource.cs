@@ -1,6 +1,6 @@
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public enum ComplexTypeSource
+public enum GeneratedTypeSource
 {
     FunctionParameters,
     FunctionResults,

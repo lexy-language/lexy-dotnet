@@ -1,5 +1,6 @@
 using System;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -16,7 +17,7 @@ public static class ValidationContextExtensions
 
         switch (type)
         {
-            case CustomVariableTypeDeclaration customVariableType:
+            case ComplexVariableTypeDeclaration customVariableType:
                 ValidateCustomVariableType(context, reference, customVariableType, defaultValueExpression);
                 break;
 
@@ -30,15 +31,15 @@ public static class ValidationContextExtensions
     }
 
     private static void ValidateCustomVariableType(IValidationContext context, SourceReference reference,
-        CustomVariableTypeDeclaration customVariableTypeDeclaration, Expression defaultValueExpression)
+        ComplexVariableTypeDeclaration complexVariableTypeDeclaration, Expression defaultValueExpression)
     {
-        var variablePathComplex = IdentifierPath.Parse(customVariableTypeDeclaration.Type);
+        var variablePathComplex = IdentifierPath.Parse(complexVariableTypeDeclaration.Type);
         var variable = context.VariableContext.CreateVariableReference(reference, variablePathComplex, context);
         var type = variable?.VariableType;
         if (type == null ||
             type is not EnumType
-            && type is not CustomType
-            && type is not ComplexType)
+         && type is not DeclaredType
+         && type is not GeneratedType)
         {
             //logged by CustomVariableDeclarationType
             return;
@@ -49,7 +50,7 @@ public static class ValidationContextExtensions
         if (type is not EnumType)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{customVariableTypeDeclaration.Type}') does not support a default value.");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{complexVariableTypeDeclaration.Type}') does not support a default value.");
             return;
         }
 
@@ -57,7 +58,7 @@ public static class ValidationContextExtensions
          || memberAccessExpression.VariablePath == null)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{customVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{complexVariableTypeDeclaration.Type}')");
             return;
         }
 
@@ -65,19 +66,19 @@ public static class ValidationContextExtensions
         if (variablePath.Parts != 2)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{customVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{complexVariableTypeDeclaration.Type}')");
         }
-        if (variablePath.RootIdentifier != customVariableTypeDeclaration.Type)
+        if (variablePath.RootIdentifier != complexVariableTypeDeclaration.Type)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{customVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{complexVariableTypeDeclaration.Type}')");
         }
 
         var enumDeclaration = context.ComponentNodes.GetEnum(variablePath.RootIdentifier);
         if (enumDeclaration == null || !enumDeclaration.ContainsMember(variablePath.Path[1]))
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. Invalid member. (type: '{customVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. Invalid member. (type: '{complexVariableTypeDeclaration.Type}')");
         }
     }
 
@@ -99,12 +100,12 @@ public static class ValidationContextExtensions
                 break;
 
             case TypeNames.Boolean:
-                ValidateDefaultLiteral<BooleanLiteral>(context, reference, primitiveVariableTypeDeclaration,
+                ValidateDefaultLiteral<BooleanLiteralToken>(context, reference, primitiveVariableTypeDeclaration,
                     defaultValueExpression);
                 break;
 
             case TypeNames.Date:
-                ValidateDefaultLiteral<DateTimeLiteral>(context, reference, primitiveVariableTypeDeclaration,
+                ValidateDefaultLiteral<DateTimeLiteralToken>(context, reference, primitiveVariableTypeDeclaration,
                     defaultValueExpression);
                 break;
 

@@ -8,12 +8,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatements;
 
-//var xxx = new(yyy)
+//Syntax: "var variable = new(VariableType)"
 internal static class NewFunctionStatement
 {
     public static bool Matches(VariableDeclarationExpression expression)
     {
-        return expression.Assignment is NewFunction;
+        return expression.Assignment is NewFunctionExpression;
     }
 
     public static IEnumerable<StatementSyntax> Create(VariableDeclarationExpression expression)
@@ -24,7 +24,7 @@ internal static class NewFunctionStatement
         {
             throw new InvalidOperationException("assignmentExpression.Assignment should be FunctionCallExpression");
         }
-        if (functionCallExpression is not NewFunction)
+        if (functionCallExpression is not NewFunctionExpression)
         {
             throw new InvalidOperationException("functionCallExpression.FunctionCallExpression should be NewFunction");
         }

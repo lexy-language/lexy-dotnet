@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 

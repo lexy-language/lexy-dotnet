@@ -50,7 +50,7 @@ public class TableType : TypeWithMembers
         }
 
         return Table.Header?.GetColumn(name) != null
-            ? new ComplexType(name, Table, ComplexTypeSource.TableColumn, Array.Empty<ComplexTypeMember>())
+            ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<GeneratedTypeMember>())
             : null;
     }
 
@@ -64,7 +64,7 @@ public class TableType : TypeWithMembers
         };
     }
 
-    private ComplexType TableRowType(IComponentNodeList componentNodes)
+    private GeneratedType TableRowType(IComponentNodeList componentNodes)
     {
         return componentNodes.GetTable(TableName)?.GetRowType();
     }

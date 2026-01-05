@@ -16,14 +16,17 @@ Check [lexy-language](https://github.com/lexy-language/lexy-language) for more i
 - [ ] Code: get rid of all warnings
 - [ ] Benchmarking: add performance tests for compilation and execution across compilers and improve compilation time 
 - [ ] Packaging: publish NuGet package from GitHub Actions
+- [ ] Compilation: provide api to store compiled scripts (and assembly) on filesystem (or in db), and to execute them later without compiling.
 
 # Implementations notes
 
 ## Compiler implementation
 
-The .net compiler is the main compiler implementation. It is developed by practicing test-driven development (TDD), or more specific, behavior-drive development (BDD).
-Since the initial commits ([.net](https://github.com/lexy-language/lexy-dotnet/commit/775e6890d962c039bf2310e2a07b2689c6c161da) [language](https://github.com/lexy-language/lexy-language/commit/7defd884f1b28809bcebdc7fd1c6c4b73cf76525)) the first specifications of Lexy were written before the code was implemented.
-During the development I continuously refactored the code to improve the design of the compiler and the language.
+The .net compiler is the main compiler implementation. Why? Because it's the most elegant and type safe language according to Tim's personal experience ;-)
+
+It is developed by practicing [test-driven development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD), or more specific, [behavior-driven development](https://en.wikipedia.org/wiki/Behavior-driven_development) (BDD).
+Since the initial commits ([.net](https://github.com/lexy-language/lexy-dotnet/commit/775e6890d962c039bf2310e2a07b2689c6c161da) [language](https://github.com/lexy-language/lexy-language/commit/7defd884f1b28809bcebdc7fd1c6c4b73cf76525)) the first lexy specifications scenarios (tests) of Lexy were written before the code was implemented.
+During the development more specifications (tests) were added, and the code was continuously refactored to improve the design of the compiler and the language.
 The [specifications](https://github.com/lexy-language/lexy-language/tree/main/Specifications) are also written in Lexy and document the whole language and most features of the compiler.
 Every change to the compiler should be discussed first and implemented in all other compilers.
 
@@ -35,16 +38,13 @@ The compiler itself process Lexy code in different phases:
 - Validation: Validates whether the parsed AST can be compiled and enriches the AST model with info needed for the compilation
 - Compilation: Generates a .NET assembly. Uses the Roslyn compiler API under the hood. (class Lexy.Compiler.Compiler.LexyCompiler)
 
-
 ## Run locally
 
-Ensure .NET 7 are installed.
+Ensure .NET 7 (or later) is installed.
 Tested with .NET 7.0.410 
 
 Run build 'dotnet build'
 Run automated tests 'dotnet test'
-
-It contains a project **Lexy.Web.Editor** which could be a start for an API for lexy-editor. It is a react app and needs node.js (v16 or above). Tested with node.js v16.20.2.
 
 ## Submodules
 

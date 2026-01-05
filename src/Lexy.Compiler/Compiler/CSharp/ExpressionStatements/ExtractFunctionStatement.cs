@@ -9,12 +9,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatements;
 
-//extract(yyy)
+//Syntax: "extract(params)"
 internal static class ExtractFunctionStatement
 {
-    public static bool Matches(ExtractResultsFunction expression) => true;
+    public static bool Matches(ExtractResultsFunctionExpression expression) => true;
 
-    public static IEnumerable<StatementSyntax> Create(ExtractResultsFunction expression)
+    public static IEnumerable<StatementSyntax> Create(ExtractResultsFunctionExpression expression)
     {
         if (expression == null) throw new ArgumentNullException(nameof(expression));
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 

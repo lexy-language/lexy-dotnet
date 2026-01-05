@@ -1,11 +1,11 @@
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class ComplexTypeMember
+public class GeneratedTypeMember
 {
     public string Name { get; }
     public VariableType Type { get; }
 
-    public ComplexTypeMember(string name, VariableType type)
+    public GeneratedTypeMember(string name, VariableType type)
     {
         Name = name;
         Type = type;

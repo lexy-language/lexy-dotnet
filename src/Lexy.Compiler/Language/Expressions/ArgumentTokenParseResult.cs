@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -14,7 +13,7 @@ public sealed class ArgumentTokenParseResult : ParseResult<IEnumerable<TokenList
     {
     }
 
-    public static ArgumentTokenParseResult Success(IEnumerable<TokenList> result = null)
+    public static ArgumentTokenParseResult Success(IEnumerable<TokenList> result)
     {
         return new ArgumentTokenParseResult(result ?? new TokenList[] { });
     }

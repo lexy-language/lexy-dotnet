@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.VariableTypes;
+namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
 public sealed class PrimitiveVariableTypeDeclaration : VariableTypeDeclaration
 {

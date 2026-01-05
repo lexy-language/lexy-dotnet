@@ -1,7 +1,7 @@
 using System;
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.VariableTypes;
+namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
 public static class VariableDeclarationTypeParser
 {
@@ -12,6 +12,6 @@ public static class VariableDeclarationTypeParser
         if (type == Keywords.ImplicitVariableDeclaration) return new ImplicitVariableTypeDeclaration(reference);
         if (TypeNames.Contains(type)) return new PrimitiveVariableTypeDeclaration(type, reference);
 
-        return new CustomVariableTypeDeclaration(type, reference);
+        return new ComplexVariableTypeDeclaration(type, reference);
     }
 }

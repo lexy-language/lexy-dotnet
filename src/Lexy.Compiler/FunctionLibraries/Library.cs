@@ -13,7 +13,7 @@ public class Library : ILibrary
 
     private Library(Type type, IDictionary<string, LibraryFunction> functions)
     {
-        this.Type = type;
+        Type = type;
         this.functions = functions;
     }
 

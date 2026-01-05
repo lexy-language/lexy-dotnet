@@ -1,6 +1,7 @@
 using System;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using NUnit.Framework;
 using Shouldly;
 
@@ -114,12 +115,12 @@ public class VariableDeclaration : ScopedServicesTestFixture
     }
 
     [Test]
-    public void CustomType()
+    public void DeclaredType()
     {
         var expression = this.ParseExpression("Custom temp");
         expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            variableDeclarationExpression.Type.ValidateOfType<CustomVariableTypeDeclaration>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<ComplexVariableTypeDeclaration>(type =>
                 type.Type.ShouldBe("Custom"));
             variableDeclarationExpression.Name.ShouldBe("temp");
             variableDeclarationExpression.Assignment.ShouldBeNull();
@@ -132,7 +133,7 @@ public class VariableDeclaration : ScopedServicesTestFixture
         var expression = this.ParseExpression("Custom temp = Custom.First");
         expression.ValidateOfType<VariableDeclarationExpression>(variableDeclarationExpression =>
         {
-            variableDeclarationExpression.Type.ValidateOfType<CustomVariableTypeDeclaration>(type =>
+            variableDeclarationExpression.Type.ValidateOfType<ComplexVariableTypeDeclaration>(type =>
                 type.Type.ShouldBe("Custom"));
             variableDeclarationExpression.Name.ShouldBe("temp");
             variableDeclarationExpression.Assignment.ValidateMemberAccessExpression("Custom.First");

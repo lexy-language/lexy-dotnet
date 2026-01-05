@@ -82,8 +82,8 @@ public class ExecutableFunction
         var value = values.TryGetValue(parameter.Name, out var objectValue) ? objectValue : null;
         switch (parameter.VariableType)
         {
-            case CustomType customType:
-                ValidateCustomType(VariablePath(name, parameter.Name), customType, value, validationErrors);
+            case DeclaredType declaredType:
+                ValidateCustomType(VariablePath(name, parameter.Name), declaredType, value, validationErrors);
                 break;
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, parameter.Name), enumType, value, optional, validationErrors);
@@ -91,8 +91,8 @@ public class ExecutableFunction
             case PrimitiveType primitiveType:
                 ValidateType(VariablePath(name, parameter.Name), primitiveType, value, optional, validationErrors);
                 break;
-            case ComplexType complexType:
-                ValidateComplexType(VariablePath(name, parameter.Name), complexType, value, validationErrors);
+            case GeneratedType generatedType:
+                ValidateComplexType(VariablePath(name, parameter.Name), generatedType, value, validationErrors);
                 break;
             default:
                 throw new InvalidOperationException(
@@ -100,14 +100,14 @@ public class ExecutableFunction
         }
     }
 
-    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, ComplexTypeMember member)
+    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, GeneratedTypeMember member)
     {
         var optional = false;
         var value = values.TryGetValue(member.Name, out var objectValue) ? objectValue : null;
         switch (member.Type)
         {
-            case CustomType customType:
-                ValidateCustomType(VariablePath(name, member.Name), customType, value, validationErrors);
+            case DeclaredType declaredType:
+                ValidateCustomType(VariablePath(name, member.Name), declaredType, value, validationErrors);
                 break;
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, member.Name), enumType, value, optional, validationErrors);
@@ -115,8 +115,8 @@ public class ExecutableFunction
             case PrimitiveType primitiveType:
                 ValidateType(VariablePath(name, member.Name), primitiveType, value, optional, validationErrors);
                 break;
-            case ComplexType complexType:
-                ValidateComplexType(VariablePath(name, member.Name), complexType, value, validationErrors);
+            case GeneratedType generatedType:
+                ValidateComplexType(VariablePath(name, member.Name), generatedType, value, validationErrors);
                 break;
             default:
                 throw new InvalidOperationException(
@@ -124,33 +124,33 @@ public class ExecutableFunction
         }
     }
 
-    private void ValidateCustomType(string name, CustomType customType, object value, List<string> validationErrors)
+    private void ValidateCustomType(string name, DeclaredType declaredType, object value, List<string> validationErrors)
     {
         if (value != null && value is not Dictionary<string, object>)
         {
-            validationErrors.Add($"{name}' should have a custom type '{customType.Type}'. Invalid type: '{value.GetType().Name}'");
+            validationErrors.Add($"{name}' should have a custom type '{declaredType.Type}'. Invalid type: '{value.GetType().Name}'");
             return;
         }
 
         var dictionary = value != null ? (Dictionary<string, object>)value : new Dictionary<string, object>();
 
-        foreach (var parameter in customType.TypeDefinition.Variables)
+        foreach (var parameter in declaredType.TypeDefinition.Variables)
         {
             ValidateParameter(name, dictionary, validationErrors, parameter);
         }
     }
 
-    private void ValidateComplexType(string name, ComplexType complexType, object value, List<string> validationErrors)
+    private void ValidateComplexType(string name, GeneratedType generatedType, object value, List<string> validationErrors)
     {
         if (value != null && value is not Dictionary<string, object>)
         {
-            validationErrors.Add($"{name}' should have a complex type '{complexType.Name}'. Invalid type: '{value.GetType().Name}'");
+            validationErrors.Add($"{name}' should have a complex type '{generatedType.Name}'. Invalid type: '{value.GetType().Name}'");
             return;
         }
 
         var dictionary = value != null ? (Dictionary<string, object>)value : new Dictionary<string, object>();
 
-        foreach (var member in complexType.Members)
+        foreach (var member in generatedType.Members)
         {
             ValidateMember(name, dictionary, validationErrors, member);
         }
@@ -216,7 +216,7 @@ public class ExecutableFunction
         {
             var variablePath = VariablePath(parent, key);
             var field = GetParameterSetter(parameters, variablePath);
-            if (field.VariableType is not CustomType && field.VariableType is not ComplexType)
+            if (field.VariableType is not DeclaredType && field.VariableType is not GeneratedType)
             {
                 var convertedValue = GetValue(value, field.VariableType);
                 field.SetValue(convertedValue);
@@ -267,11 +267,11 @@ public class ExecutableFunction
     {
         switch (parameterType)
         {
-            case CustomType customType:
-                return customType.TypeDefinition.Variables
+            case DeclaredType declaredType:
+                return declaredType.TypeDefinition.Variables
                     .FirstOrDefault(variable => variable.Name == currentPath.RootIdentifier).VariableType;
-            case ComplexType complexType:
-                return complexType.Members
+            case GeneratedType generatedType:
+                return generatedType.Members
                     .FirstOrDefault(variable => variable.Name == currentPath.RootIdentifier)
                     .Type;
             default:

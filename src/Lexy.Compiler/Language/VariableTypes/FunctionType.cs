@@ -46,13 +46,13 @@ public class FunctionType : TypeWithMembers
         };
     }
 
-    private ComplexType FunctionParametersType(IComponentNodeList componentNodes)
+    private GeneratedType FunctionParametersType(IComponentNodeList componentNodes)
     {
         return componentNodes.GetFunction(Type)?.GetParametersType();
     }
 
-    private ComplexType FunctionResultsType(IComponentNodeList componentNodes)
+    private GeneratedType FunctionResultsType(IComponentNodeList componentNodes)
     {
-        return componentNodes.GetFunction(Type)?.GetResultsType() as ComplexType;
+        return componentNodes.GetFunction(Type)?.GetResultsType() as GeneratedType;
     }
 }

@@ -70,7 +70,7 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
             "(FunctionCallExpression) No closing parentheses found.");
     }
 
-      [Test]
+    [Test]
     public void LibraryFunctionCallExpression()
     {
         var expression = this.ParseExpression("Number.Parse(y)");
@@ -128,7 +128,7 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     public void CallExtract()
     {
         var expression = this.ParseExpression("extract(result)");
-        expression.ValidateOfType<ExtractResultsFunction>(round =>
+        expression.ValidateOfType<ExtractResultsFunctionExpression>(round =>
         {
             round.ValueExpression.ValidateIdentifierExpression("result");
         });
@@ -139,7 +139,7 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     public void CallFill()
     {
         var expression = this.ParseExpression("fill(result)");
-        expression.ValidateOfType<FillParametersFunction>(round =>
+        expression.ValidateOfType<FillParametersFunctionExpression>(round =>
         {
             round.ValueExpression.ValidateIdentifierExpression("result");
         });
@@ -150,7 +150,7 @@ public class FunctionCallExpressionTests : ScopedServicesTestFixture
     public void CallNew()
     {
         var expression = this.ParseExpression("new(result)");
-        expression.ValidateOfType<NewFunction>(round =>
+        expression.ValidateOfType<NewFunctionExpression>(round =>
         {
             round.ValueExpression.ValidateIdentifierExpression("result");
         });

@@ -11,12 +11,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Compiler.CSharp.ExpressionStatements;
 
-//var xxx = fill(yyy)
+//Syntax: "var result = fill(params)"
 internal static class FillFunctionStatement
 {
     public static bool Matches(VariableDeclarationExpression expression)
     {
-        return expression.Assignment is FillParametersFunction;
+        return expression.Assignment is FillParametersFunctionExpression;
     }
 
     public static IEnumerable<StatementSyntax> Create(VariableDeclarationExpression expression)
@@ -27,7 +27,7 @@ internal static class FillFunctionStatement
         {
             throw new InvalidOperationException("assignmentExpression.Assignment should be FunctionCallExpression");
         }
-        if (functionCallExpression is not FillParametersFunction fillParametersFunction)
+        if (functionCallExpression is not FillParametersFunctionExpression fillParametersFunction)
         {
             throw new InvalidOperationException(
                 "functionCallExpression.FunctionCallExpression should be FillParametersFunction");

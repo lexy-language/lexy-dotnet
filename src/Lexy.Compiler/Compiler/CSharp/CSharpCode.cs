@@ -11,28 +11,16 @@ namespace Lexy.Compiler.Compiler.CSharp;
 
 internal static class CSharpCode
 {
-    public static Func<IComponentNode, GeneratedClass> GetGenerator(IComponentNode componentNode)
+    public static GeneratedClass Generate(IComponentNode componentNode)
     {
         return componentNode switch
         {
-            Function _ => Cast<Function>(FunctionClass.CreateCode),
-            EnumDefinition _ => Cast<EnumDefinition>(EnumClass.CreateCode),
-            Table _ => Cast<Table>(TableClass.CreateCode),
-            TypeDefinition _ => Cast<TypeDefinition>(TypeClass.CreateCode),
+            Function function => FunctionClass.CreateCode(function),
+            EnumDefinition enumDefinition => EnumClass.CreateCode(enumDefinition),
+            Table table => TableClass.CreateCode(table),
+            TypeDefinition typeDefinition => TypeClass.CreateCode(typeDefinition),
             Scenario _ => null,
             _ => throw new InvalidOperationException("No writer defined: " + componentNode.GetType())
-        };
-    }
-
-    private static Func<IComponentNode, GeneratedClass> Cast<T>(Func<T, GeneratedClass> function) where T : class
-    {
-        return node =>
-        {
-            if (node is not T specific)
-            {
-                throw new InvalidOperationException($"Node is not: '{typeof(T)}'");
-            }
-            return function(specific);
         };
     }
 }

@@ -6,7 +6,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class NewFunction : FunctionCallExpression, IHasNodeDependencies
+public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencies
 {
     public const string Name = "new";
 
@@ -16,9 +16,9 @@ public class NewFunction : FunctionCallExpression, IHasNodeDependencies
 
     public Expression ValueExpression { get; }
 
-    public ComplexType Type { get; private set; }
+    public GeneratedType Type { get; private set; }
 
-    private NewFunction(Expression valueExpression, ExpressionSource source)
+    private NewFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
     {
         ValueExpression = valueExpression ?? throw new ArgumentNullException(nameof(valueExpression));
@@ -32,7 +32,7 @@ public class NewFunction : FunctionCallExpression, IHasNodeDependencies
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
     {
-        return new NewFunction(expression, source);
+        return new NewFunctionExpression(expression, source);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -43,19 +43,19 @@ public class NewFunction : FunctionCallExpression, IHasNodeDependencies
     protected override void Validate(IValidationContext context)
     {
         var valueType = ValueExpression.DeriveType(context);
-        if (valueType is not ComplexType complexType)
+        if (valueType is not GeneratedType generatedType)
         {
             context.Logger.Fail(Reference,
-                $"Invalid argument 1. 'Value' should be of type 'ComplexType' but is '{valueType?.GetType()}'. {FunctionHelp}");
+                $"Invalid argument 1. 'Value' should be of type 'GeneratedType' but is '{valueType?.GetType()}'. {FunctionHelp}");
             return;
         }
 
-        Type = complexType;
+        Type = generatedType;
     }
 
     public override VariableType DeriveType(IValidationContext context)
     {
         var nodeType = context.ComponentNodes.GetType(TypeLiteralToken.Parent);
-        return nodeType?.MemberType(TypeLiteralToken.Member, context.ComponentNodes) as ComplexType;
+        return nodeType?.MemberType(TypeLiteralToken.Member, context.ComponentNodes) as GeneratedType;
     }
 }

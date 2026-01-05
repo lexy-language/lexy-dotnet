@@ -1,6 +1,6 @@
 using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Language.VariableTypes;
+namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
 public abstract class VariableTypeDeclaration : Node
 {

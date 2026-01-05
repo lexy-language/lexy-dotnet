@@ -10,10 +10,7 @@ public class ComplexAssignmentDefinition : ParsableNode, IAssignmentDefinition
 
     public IdentifierPath Variable { get; }
 
-    public IReadOnlyList<IAssignmentDefinition> Assignments
-    {
-        get { return assignments; }
-    }
+    public IReadOnlyList<IAssignmentDefinition> Assignments => assignments;
 
     public ComplexAssignmentDefinition(IdentifierPath variable, SourceReference reference)
         : base(reference)
@@ -44,7 +41,7 @@ public class ComplexAssignmentDefinition : ParsableNode, IAssignmentDefinition
         }
 
         var variableType = context.VariableContext.GetVariableType(Variable, context);
-        if (variableType is not CustomType && variableType is not ComplexType)
+        if (variableType is not DeclaredType && variableType is not GeneratedType)
         {
             context.Logger.Fail(Reference,
                 $"Variable '{Variable}' without assignment should be a complex type, but is '{variableType}'.");

@@ -17,8 +17,8 @@ internal static class TokenValuesSyntax
                 SyntaxFactory.Literal(token.Value)),
             NumberLiteralToken number => SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
                 SyntaxFactory.Literal($"{number.NumberValue}m", number.NumberValue)),
-            DateTimeLiteral dateTimeLiteral => Types.DateSyntax(dateTimeLiteral),
-            BooleanLiteral boolean => SyntaxFactory.LiteralExpression(boolean.BooleanValue
+            DateTimeLiteralToken dateTimeLiteral => Types.DateSyntax(dateTimeLiteral),
+            BooleanLiteralToken boolean => SyntaxFactory.LiteralExpression(boolean.BooleanValue
                 ? SyntaxKind.TrueLiteralExpression
                 : SyntaxKind.FalseLiteralExpression),
             MemberAccessLiteralToken memberAccess => MemberAccessLiteralSyntax(memberAccess),

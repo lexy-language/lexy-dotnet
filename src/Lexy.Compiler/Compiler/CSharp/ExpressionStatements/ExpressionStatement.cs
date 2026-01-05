@@ -17,7 +17,7 @@ internal static class ExpressionStatement
     {
         Add<VariableDeclarationExpression>(NewFunctionStatement.Matches, NewFunctionStatement.Create);
         Add<VariableDeclarationExpression>(FillFunctionStatement.Matches, FillFunctionStatement.Create);
-        Add<ExtractResultsFunction>(ExtractFunctionStatement.Matches, ExtractFunctionStatement.Create);
+        Add<ExtractResultsFunctionExpression>(ExtractFunctionStatement.Matches, ExtractFunctionStatement.Create);
         Add<LexyFunctionCallExpression>(AutoMapLexyFunctionStatement.Matches, AutoMapLexyFunctionStatement.Create);
     }
 
@@ -34,7 +34,7 @@ internal static class ExpressionStatement
             if (expression is not TExpression specific)
             {
                 throw new InvalidOperationException(
-                    $"Expression is of type {expression.GetType()} but should be of type {typeof(TExpression)}.");
+                    $"Expression is of type {expression.GetType()} but should be of type '{typeof(TExpression)}'.");
             }
 
             return create(specific);

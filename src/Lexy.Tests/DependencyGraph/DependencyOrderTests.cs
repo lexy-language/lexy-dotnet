@@ -109,8 +109,8 @@ enum EnumExample
   CivilPartnership", true);
 
         dependencies.SortedNodes.Count.ShouldBe(11);
-        dependencies.SortedNodes[0].NodeName.ShouldBe("NestedType");
-        dependencies.SortedNodes[1].NodeName.ShouldBe("EnumExample");
+        dependencies.SortedNodes[0].NodeName.ShouldBe("EnumExample");
+        dependencies.SortedNodes[1].NodeName.ShouldBe("NestedType");
         dependencies.SortedNodes[2].NodeName.ShouldBe("TypeExample");
         dependencies.SortedNodes[3].NodeName.ShouldBe("TableExample");
         dependencies.SortedNodes[4].NodeName.ShouldBe("FunctionWithTypeDependency");

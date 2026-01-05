@@ -1,4 +1,5 @@
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Shouldly;
 
 namespace Lexy.Tests.Parser;

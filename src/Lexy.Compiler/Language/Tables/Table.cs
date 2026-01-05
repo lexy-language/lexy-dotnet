@@ -74,12 +74,12 @@ public class Table : ComponentNode
         }
     }
 
-    public ComplexType GetRowType()
+    public GeneratedType GetRowType()
     {
         var members = Header?.Columns
-            .Select(column => new ComplexTypeMember(column.Name, column.Type.VariableType))
-            .ToList() ?? new List<ComplexTypeMember>();
+            .Select(column => new GeneratedTypeMember(column.Name, column.Type.VariableType))
+            .ToList() ?? new List<GeneratedTypeMember>();
 
-        return new ComplexType(Name.Value, this, ComplexTypeSource.TableRow, members);
+        return new GeneratedType(Name.Value, this, GeneratedTypeSource.TableRow, members);
     }
 }

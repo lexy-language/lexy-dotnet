@@ -176,7 +176,7 @@ type Simple
     }
 
     [Test]
-    public void ComplexType()
+    public void GeneratedType()
     {
         var dependencies = ServiceProvider.BuildGraph(@"
 type Inner

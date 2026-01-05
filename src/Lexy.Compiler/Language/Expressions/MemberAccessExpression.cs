@@ -10,7 +10,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
 {
     public MemberAccessLiteralToken MemberAccessLiteralToken { get; }
 
-    public IdentifierPath VariablePath { get; private set; }
+    public IdentifierPath VariablePath { get; }
     public VariableReference Variable { get; private set; }
 
     private MemberAccessExpression(IdentifierPath variablePath, MemberAccessLiteralToken literalToken, ExpressionSource source,
@@ -43,7 +43,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
     public static bool IsValid(TokenList tokens)
     {
         return tokens.Length == 1
-               && tokens.IsTokenType<MemberAccessLiteralToken>(0);
+            && tokens.IsTokenType<MemberAccessLiteralToken>(0);
     }
 
     public override IEnumerable<INode> GetChildren()

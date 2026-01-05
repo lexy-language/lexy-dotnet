@@ -5,14 +5,14 @@ using Lexy.Compiler.Language.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class ComplexType : VariableType, ITypeWithMembers
+public class GeneratedType : VariableType, ITypeWithMembers
 {
     public string Name { get; }
-    public ComplexTypeSource Source { get; }
-    public IEnumerable<ComplexTypeMember> Members { get; }
+    public GeneratedTypeSource Source { get; }
+    public IEnumerable<GeneratedTypeMember> Members { get; }
     public IComponentNode Node { get;}
 
-    public ComplexType(string name, IComponentNode node, ComplexTypeSource source, IEnumerable<ComplexTypeMember> members)
+    public GeneratedType(string name, IComponentNode node, GeneratedTypeSource source, IEnumerable<GeneratedTypeMember> members)
     {
         Name = name;
         Node = node ?? throw new ArgumentNullException(nameof(node));
@@ -27,7 +27,7 @@ public class ComplexType : VariableType, ITypeWithMembers
 
     public IInstanceFunction GetFunction(string name) => null;
 
-    protected bool Equals(ComplexType other)
+    protected bool Equals(GeneratedType other)
     {
         return Name == other.Name && Source == other.Source;
     }
@@ -37,7 +37,7 @@ public class ComplexType : VariableType, ITypeWithMembers
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((ComplexType)obj);
+        return Equals((GeneratedType)obj);
     }
 
     public override int GetHashCode()
@@ -47,6 +47,6 @@ public class ComplexType : VariableType, ITypeWithMembers
 
     public override string ToString()
     {
-        return $"(ComplexType) {Name}";
+        return $"(GeneratedType) {Name}";
     }
 }

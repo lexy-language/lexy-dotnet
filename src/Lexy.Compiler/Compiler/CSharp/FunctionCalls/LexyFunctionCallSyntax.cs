@@ -11,7 +11,7 @@ internal static class LexyFunctionCallSyntax
 {
     public static bool Matches(LexyFunctionCallExpression expression) => true;
 
-    public static  ExpressionSyntax Create(LexyFunctionCallExpression expression)
+    public static ExpressionSyntax Create(LexyFunctionCallExpression expression)
     {
         if (expression.AutoMap)
         {

@@ -65,7 +65,7 @@ internal static class VariableReferences
             TableType _ => ClassNames.TableClassName(parentIdentifier),
             FunctionType _ => ClassNames.FunctionClassName(parentIdentifier),
             EnumType _ => ClassNames.EnumClassName(parentIdentifier),
-            CustomType _ => ClassNames.TypeClassName(parentIdentifier),
+            DeclaredType _ => ClassNames.TypeClassName(parentIdentifier),
             _ => parentIdentifier
         };
     }

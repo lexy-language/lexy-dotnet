@@ -24,7 +24,7 @@ internal abstract class TableFunctionReference : IInstanceFunction
 
     public abstract VariableType GetResultsType(IReadOnlyList<Expression> arguments);
 
-    protected  bool ValidateTable(IValidationContext context, SourceReference reference)
+    protected bool ValidateTable(IValidationContext context, SourceReference reference)
     {
         if (Table.Header == null || Table.Header.Columns.Count < 2)
         {
@@ -54,6 +54,18 @@ internal abstract class TableFunctionReference : IInstanceFunction
             context.Logger.Fail(reference,
                 $"Invalid column type '{columnName}': '{columnType}' doesn't match condition type '{valueType}'. {FunctionHelp}");
         }
+    }
+
+    protected ColumnHeader ValidatorDiscriminator(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference,
+        IOverloadArguments overloadArguments)
+    {
+        if (overloadArguments.Discriminator == null) return null;
+
+        var discriminatorColumnHeader = overloadArguments.DefaultDiscriminatorColumn != null
+            ? GetColumn(context, arguments, overloadArguments.DiscriminatorColumnArgument, overloadArguments.DefaultDiscriminatorColumn, reference)
+            : null;
+        ValidateColumnValueType(context, arguments, overloadArguments.Discriminator.Value, "Discriminator", discriminatorColumnHeader, reference);
+        return discriminatorColumnHeader;
     }
 
     protected ColumnHeader GetColumn(IValidationContext context, IReadOnlyList<Expression> arguments, int? argumentIndex, int? defaultColumn, SourceReference reference)
@@ -103,4 +115,11 @@ internal abstract class TableFunctionReference : IInstanceFunction
 
         return true;
     }
+}
+
+internal interface IOverloadArguments
+{
+    public int? Discriminator { get; }
+    public int? DiscriminatorColumnArgument { get; }
+    public int? DefaultDiscriminatorColumn { get; }
 }

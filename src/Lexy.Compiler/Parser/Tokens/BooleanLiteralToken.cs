@@ -3,11 +3,11 @@ using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
-public class BooleanLiteral : Token, ILiteralToken
+public class BooleanLiteralToken : Token, ILiteralToken
 {
     public bool BooleanValue { get; }
 
-    public BooleanLiteral(bool value, TokenCharacter character) : base(character)
+    public BooleanLiteralToken(bool value, TokenCharacter character) : base(character)
     {
         BooleanValue = value;
     }
@@ -21,12 +21,12 @@ public class BooleanLiteral : Token, ILiteralToken
         return PrimitiveType.Boolean;
     }
 
-    public static BooleanLiteral Parse(string value, TokenCharacter character)
+    public static BooleanLiteralToken Parse(string value, TokenCharacter character)
     {
         return value switch
         {
-            TokenValues.BooleanTrue => new BooleanLiteral(true, character),
-            TokenValues.BooleanFalse => new BooleanLiteral(false, character),
+            TokenValues.BooleanTrue => new BooleanLiteralToken(true, character),
+            TokenValues.BooleanFalse => new BooleanLiteralToken(false, character),
             _ => throw new InvalidOperationException($"Couldn't parse boolean: {value}")
         };
     }

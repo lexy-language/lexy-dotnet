@@ -35,7 +35,7 @@ public class Libraries : ILibraries
         return libraries.TryGetValue(identifier.ToString(), out var library) ? library : null;
     }
 
-    public IEnumerable<Type> All()
+    public IEnumerable<Type> AllTypes()
     {
         return libraries.Select(library => library.Value.Type);
     }
