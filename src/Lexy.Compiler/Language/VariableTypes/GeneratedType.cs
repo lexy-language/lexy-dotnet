@@ -27,7 +27,16 @@ public class GeneratedType : VariableType, ITypeWithMembers
 
     public IInstanceFunction GetFunction(string name) => null;
 
+<<<<<<< Updated upstream:src/Lexy.Compiler/Language/VariableTypes/GeneratedType.cs
     protected bool Equals(GeneratedType other)
+=======
+    public override bool IsAssignableFrom(VariableType type)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected bool Equals(ComplexType other)
+>>>>>>> Stashed changes:src/Lexy.Compiler/Language/VariableTypes/ComplexType.cs
     {
         return Name == other.Name && Source == other.Source;
     }

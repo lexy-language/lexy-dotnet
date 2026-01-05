@@ -7,13 +7,13 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
-internal abstract class TableFunctionReference : IInstanceFunction
+internal abstract class TableFunction : IInstanceFunction
 {
     protected Table Table { get; }
 
     protected abstract string FunctionHelp { get; }
 
-    protected TableFunctionReference(Table table)
+    protected TableFunction(Table table)
     {
         Table = table ?? throw new ArgumentNullException(nameof(table));
     }

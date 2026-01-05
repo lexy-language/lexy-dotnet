@@ -52,7 +52,7 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
         }
 
         var result = function.ValidateArguments(context, Arguments);
-        if (!result.IsSuccess) return;
+        if (result == null || !result.IsSuccess) return;
 
         if (result.AutoMap)
         {

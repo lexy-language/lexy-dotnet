@@ -8,4 +8,6 @@ public abstract class VariableType : IHasNodeDependencies
     {
         yield break;
     }
+
+    public abstract bool IsAssignableFrom(VariableType type);
 }

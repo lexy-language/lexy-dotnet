@@ -126,14 +126,22 @@ public class Function : ComponentNode, IHasNodeDependencies
 
     private ValidateFunctionArgumentsResult ValidateWithArguments(IValidationContext context, IReadOnlyList<Expression> arguments)
     {
-        if (arguments.Count != 1)
+        var argumentTypes = GetArgumentTypes(arguments, context);
+        var resultsType = GetResultsType();
+        var overloads = GetFunctions();
+
+        foreach (var overload in overloads)
         {
-            context.Logger.Fail(Reference, $"Invalid number of function arguments: '{Name}'. ");
-            return ValidateFunctionArgumentsResult.Failed();
+            if (overload.Matches(argumentTypes))
+            {
+                return ValidateFunctionArgumentsResult.Success(resultsType);
+            }
         }
 
+        return null;
+
+        /*
         var argumentType = arguments[0].DeriveType(context);
-        var resultsType = GetResultsType();
         var parametersType = GetParametersType();
 
         if (argumentType == null || !argumentType.Equals(parametersType))
@@ -145,5 +153,62 @@ public class Function : ComponentNode, IHasNodeDependencies
         }
 
         return ValidateFunctionArgumentsResult.Success(resultsType);
+        */
     }
+
+    private IEnumerable<IFunctionOverload> GetFunctions()
+    {
+        yield return GetSingleParameterArgumentFunction();
+        yield return InlineParametersArgumentsFunction();
+    }
+
+    private IFunctionOverload GetSingleParameterArgumentFunction()
+    {
+        return new FunctionOverload(new [] {GetParametersType()}, GetResultsType());
+    }
+
+    private IFunctionOverload InlineParametersArgumentsFunction()
+    {
+        var parameters = Parameters.Variables.Select(parameter => parameter.VariableType).ToList();
+        return new FunctionOverload(parameters, GetResultsType());
+    }
+
+    private IReadOnlyList<VariableType> GetArgumentTypes(IEnumerable<Expression> arguments, IValidationContext context) =>
+        arguments.Select(argument => argument.DeriveType(context)).ToArray();
+}
+
+internal class FunctionOverload : IFunctionOverload
+{
+    private readonly IReadOnlyList<VariableType> parametersTypes;
+
+    public VariableType ResultsType { get; }
+
+    public FunctionOverload(IReadOnlyList<VariableType> parametersTypes, VariableType resultsType)
+    {
+        this.parametersTypes = parametersTypes;
+        ResultsType = resultsType;
+    }
+
+    public bool Matches(IReadOnlyList<VariableType> argumentTypes)
+    {
+        if (argumentTypes.Count != parametersTypes.Count) return false;
+
+        for (var index = 0; index < parametersTypes.Count; index++)
+        {
+            var parametersType = parametersTypes[index];
+            var argumentType = argumentTypes[index];
+
+            if (!parametersType.IsAssignableFrom(argumentType))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+internal interface IFunctionOverload
+{
+    bool Matches(IReadOnlyList<VariableType> argumentTypes);
 }

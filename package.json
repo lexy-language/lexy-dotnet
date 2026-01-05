@@ -2,6 +2,6 @@
   "scripts": {
     "test": "dottnet test",
     "build": "dottnet build",
-    "update-submodules": "cd src/Lexy.Tests/lexy-language/ && git pull && cd ../../Lexy.Web.Editor/client-app/ &&  git pull #needs to check why git update --recursive is not working"
+    "update-submodules": "cd src/Lexy.Tests/lexy-language/ && git pull#needs to check why git update --recursive is not working"
   }
 }

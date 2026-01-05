@@ -294,7 +294,7 @@ public class ScenarioRunner : IScenarioRunner
         if (actualErrors.Count > 0 && expectErrors == null)
         {
             Fail($"{title} error(s) occurred", StringArrayBuilder
-                .New("Expected:").List(actualErrors).Array());
+                .New("Actual:").List(actualErrors).Array());
             return false;
         }
 

@@ -12,7 +12,7 @@ public class RunSingleSpecification : ScopedServicesTestFixture
         LoggingConfiguration.LogFileNames();
 
         var runner = GetService<ISpecificationsRunner>();
-        runner.Run("../../../lexy-language/Specifications/Table/LookupValidation.lexy");
+        runner.Run("../../../lexy-language/Specifications/Function/FunctionCallInlineArguments.lexy");
         //runner.Run("../../../lexy-language/Specifications/Isolated.lexy");
 
         //runner.Run("/Users/timcools/_/Lexy/lexy-language/src/Specifications/Table/Syntax.lexy");

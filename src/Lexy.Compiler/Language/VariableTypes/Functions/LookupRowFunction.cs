@@ -6,7 +6,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
-internal class LookUpRowFunction : TableFunctionReference
+internal class LookUpRowFunction : TableFunction
 {
     private const string FunctionHelpValue =
         "Arguments: " +

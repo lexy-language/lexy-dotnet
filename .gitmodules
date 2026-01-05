@@ -2,7 +2,3 @@
 	path = src/Lexy.Tests/lexy-language
 	url = https://github.com/lexy-language/lexy-language.git
 	branch=main
-[submodule "src/Lexy.Web.Editor/client-app"]
-	path = src/Lexy.Web.Editor/client-app
-	url = https://github.com/lexy-language/lexy-editor.git
-	branch=main
