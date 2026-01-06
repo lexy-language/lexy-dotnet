@@ -17,5 +17,5 @@ public interface IComponentNodeList : IEnumerable<IComponentNode>
     TypeDefinition GetCustomType(string name);
     IEnumerable<Scenario> GetScenarios();
     EnumDefinition GetEnum(string name);
-    ComplexType GetType(string name);
+    ObjectType GetType(string name);
 }

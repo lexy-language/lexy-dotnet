@@ -67,8 +67,8 @@ internal static class Types
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
             TableType tableType => IdentifierName(tableType.TableName),
             DeclaredType declaredType => DeclaredTypeSyntax(declaredType),
-            GeneratedType generatedType => ComplexTypeSyntax(generatedType),
-            _ => throw new InvalidOperationException("Couldn't map type: " + variableType.GetType())
+            GeneratedType generatedType => ObjectTypeSyntax(generatedType),
+            _ => throw new InvalidOperationException($"Not supported: {variableType.GetType()}")
         };
     }
 
@@ -77,7 +77,7 @@ internal static class Types
         return IdentifierName(ClassNames.TypeClassName(generatedType.Type));
     }
 
-    private static TypeSyntax ComplexTypeSyntax(GeneratedType generatedType)
+    private static TypeSyntax ObjectTypeSyntax(GeneratedType generatedType)
     {
         return generatedType.Source switch
         {
@@ -98,25 +98,25 @@ internal static class Types
         return type switch
         {
             PrimitiveVariableTypeDeclaration primitive => Syntax(primitive.Type),
-            ComplexVariableTypeDeclaration complex => IdentifierNameSyntax(complex),
+            ObjectVariableTypeDeclaration complex => IdentifierNameSyntax(complex),
             ImplicitVariableTypeDeclaration implicitVariable => Syntax(implicitVariable.VariableType),
             _ => throw new InvalidOperationException("Couldn't map type: " + type)
         };
     }
 
-    private static TypeSyntax IdentifierNameSyntax(ComplexVariableTypeDeclaration complexVariableType)
+    private static TypeSyntax IdentifierNameSyntax(ObjectVariableTypeDeclaration objectVariableType)
     {
-        return complexVariableType.VariableType switch
+        return objectVariableType.VariableType switch
         {
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
             TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.TableName)),
             DeclaredType declaredType => IdentifierName(ClassNames.TypeClassName(declaredType.Type)),
-            GeneratedType generatedType => ComplexTypeIdentifierNameSyntax(generatedType),
-            _ => throw new InvalidOperationException("Couldn't map type: " + complexVariableType.VariableType)
+            GeneratedType generatedType => ObjectTypeIdentifierNameSyntax(generatedType),
+            _ => throw new InvalidOperationException("Couldn't map type: " + objectVariableType.VariableType)
         };
     }
 
-    private static TypeSyntax ComplexTypeIdentifierNameSyntax(GeneratedType generatedType)
+    private static TypeSyntax ObjectTypeIdentifierNameSyntax(GeneratedType generatedType)
     {
         return generatedType.Source switch
         {
@@ -138,24 +138,24 @@ internal static class Types
         return variableTypeDeclaration switch
         {
             PrimitiveVariableTypeDeclaration expression => PrimitiveTypeDefaultExpression(expression),
-            ComplexVariableTypeDeclaration declaredType => DefaultExpressionSyntax(declaredType),
+            ObjectVariableTypeDeclaration declaredType => DefaultExpressionSyntax(declaredType),
             _ => throw new InvalidOperationException(
                 $"Wrong VariableDeclarationType {variableTypeDeclaration.GetType()}")
         };
     }
 
-    private static ExpressionSyntax DefaultExpressionSyntax(ComplexVariableTypeDeclaration complex)
+    private static ExpressionSyntax DefaultExpressionSyntax(ObjectVariableTypeDeclaration @object)
     {
-        if (complex.VariableType is DeclaredType)
+        if (@object.VariableType is DeclaredType)
         {
-            return ObjectCreationExpression(IdentifierNameSyntax(complex)).WithArgumentList(ArgumentList());
+            return ObjectCreationExpression(IdentifierNameSyntax(@object)).WithArgumentList(ArgumentList());
         }
 
-        if (complex.VariableType is GeneratedType)
+        if (@object.VariableType is GeneratedType)
         {
-            return ObjectCreationExpression(IdentifierNameSyntax(complex)).WithArgumentList(ArgumentList());
+            return ObjectCreationExpression(IdentifierNameSyntax(@object)).WithArgumentList(ArgumentList());
         }
-        return DefaultExpression(IdentifierNameSyntax(complex));
+        return DefaultExpression(IdentifierNameSyntax(@object));
     }
 
     private static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableTypeDeclaration type)

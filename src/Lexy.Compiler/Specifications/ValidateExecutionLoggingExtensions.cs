@@ -65,7 +65,7 @@ public static class ValidateExecutionLoggingExtensions
 
     private static string GetName(IAssignmentDefinition expectedVariable, bool nested)
     {
-        if (expectedVariable is ComplexAssignmentDefinition complex)
+        if (expectedVariable is ObjectAssignmentDefinition complex)
         {
             return nested ? complex.Variable.LastPart() : complex.Variable.FullPath();
         }
@@ -133,7 +133,7 @@ public static class ValidateExecutionLoggingExtensions
     private static void ValidateVariable(int indent, IList<string> errors,
         LogVariable actualValue, IAssignmentDefinition expectedVariable)
     {
-        if (expectedVariable is ComplexAssignmentDefinition complex)
+        if (expectedVariable is ObjectAssignmentDefinition complex)
         {
             ValidateVariables(indent, errors, true, actualValue.Value as LogVariables, null, complex.Assignments);
         }

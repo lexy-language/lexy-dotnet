@@ -33,17 +33,17 @@ internal class LookUpRowFunction : TableFunction
 
     public override VariableType GetResultsType(IReadOnlyList<Expression> arguments) => Table?.GetRowType();
 
-    public override ValidateInstanceFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
+    public override ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
         SourceReference reference)
     {
-         if (!ValidateTable(context, reference)) return ValidateInstanceFunctionArgumentsResult.Failed();
+         if (!ValidateTable(context, reference)) return ValidateMemberFunctionArgumentsResult.Failed();
 
         var overloadArguments = GetArgumentColumns(context, arguments, reference);
         if (overloadArguments == null) return null;
 
         var searchColumnHeader = GetColumn(context, arguments, overloadArguments.SearchColumnArgument, overloadArguments.DefaultSearchColumn, reference);
 
-        if (searchColumnHeader == null) return ValidateInstanceFunctionArgumentsResult.Failed();
+        if (searchColumnHeader == null) return ValidateMemberFunctionArgumentsResult.Failed();
 
         ValidateColumnValueType(context, arguments, overloadArguments.LookUpValue, "Search", searchColumnHeader, reference);
 
@@ -56,7 +56,7 @@ internal class LookUpRowFunction : TableFunction
             searchColumnHeader.Name,
             discriminatorColumnHeader?.Name);
 
-        return ValidateInstanceFunctionArgumentsResult.Success(result);
+        return ValidateMemberFunctionArgumentsResult.Success(result);
     }
 
     private OverloadArguments GetArgumentColumns(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference)

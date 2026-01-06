@@ -12,6 +12,6 @@ public static class VariableDeclarationTypeParser
         if (type == Keywords.ImplicitVariableDeclaration) return new ImplicitVariableTypeDeclaration(reference);
         if (TypeNames.Contains(type)) return new PrimitiveVariableTypeDeclaration(type, reference);
 
-        return new ComplexVariableTypeDeclaration(type, reference);
+        return new ObjectVariableTypeDeclaration(type, reference);
     }
 }

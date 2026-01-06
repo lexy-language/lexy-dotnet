@@ -3,7 +3,7 @@ using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Language.Functions;
 
-internal class FunctionSignature : IFunctionSignature
+public class FunctionSignature
 {
     public VariableType ResultsType { get; }
     public IReadOnlyList<VariableType> ParametersTypes { get; }

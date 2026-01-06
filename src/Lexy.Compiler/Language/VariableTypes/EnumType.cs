@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class EnumType : ComplexType
+public class EnumType : ObjectType
 {
     public string Type { get; }
     public EnumDefinition Enum { get; }
@@ -16,15 +16,8 @@ public class EnumType : ComplexType
         Enum = enumDefinition;
     }
 
-    public override IComplexTypeVariable GetVariable(string name)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override IComplexTypeFunction GetFunction(string name)
-    {
-        throw new System.NotImplementedException();
-    }
+    public override IObjectTypeVariable GetVariable(string name) => null;
+    public override IObjectTypeFunction GetFunction(string name) => null;
 
     public override VariableType MemberType(string name, IComponentNodeList componentNodes)
     {

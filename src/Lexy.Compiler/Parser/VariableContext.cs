@@ -131,9 +131,9 @@ public class VariableContext : IVariableContext
 
     private static bool ContainsChild(VariableType parentType, IdentifierPath path, IValidationContext context)
     {
-        var complexType = parentType as IComplexType;
+        var objectType = parentType as IObjectType;
 
-        var memberVariableType = complexType?.MemberType(path.RootIdentifier, context.ComponentNodes);
+        var memberVariableType = objectType?.MemberType(path.RootIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return false;
 
         return !path.HasChildIdentifiers
@@ -143,9 +143,9 @@ public class VariableContext : IVariableContext
     private VariableType GetVariableType(VariableType parentType, IdentifierPath path,
         IValidationContext context)
     {
-        if (parentType is not IComplexType complexType) return null;
+        if (parentType is not IObjectType objectType) return null;
 
-        var memberVariableType = complexType.MemberType(path.RootIdentifier, context.ComponentNodes);
+        var memberVariableType = objectType.MemberType(path.RootIdentifier, context.ComponentNodes);
         if (memberVariableType == null) return null;
 
         return !path.HasChildIdentifiers

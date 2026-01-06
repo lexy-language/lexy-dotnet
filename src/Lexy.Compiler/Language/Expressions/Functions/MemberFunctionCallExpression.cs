@@ -51,7 +51,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         FunctionCall = result.FunctionCall;
     }
 
-    private IComplexTypeFunction GetFunction(IValidationContext context)
+    private IObjectTypeFunction GetFunction(IValidationContext context)
     {
         var variable = context.VariableContext.GetVariableType(FunctionPath.WithoutLastPart(), context);
         if (variable != null)
@@ -67,14 +67,14 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         return GetLibraryFunction(context);
     }
 
-    private IComplexTypeFunction GetVariableTypeFunction(IValidationContext context, VariableType variable)
+    private IObjectTypeFunction GetVariableTypeFunction(IValidationContext context, VariableType variable)
     {
-        return variable is not IComplexType typeWithMember
+        return variable is not IObjectType typeWithMember
             ? null
             : typeWithMember.GetFunction(FunctionPath.LastPart());
     }
 
-    private IComplexTypeFunction GetLibraryFunction(IValidationContext context)
+    private IObjectTypeFunction GetLibraryFunction(IValidationContext context)
     {
         var library = context.Libraries.GetLibrary(FunctionPath.WithoutLastPart());
         return library?.GetFunction(FunctionPath.LastPart());

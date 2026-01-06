@@ -2,7 +2,7 @@ using System;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
-public class ValidateInstanceFunctionArgumentsResult
+public class ValidateMemberFunctionArgumentsResult
 {
     private readonly IMemberFunctionCall functionCall;
 
@@ -17,24 +17,24 @@ public class ValidateInstanceFunctionArgumentsResult
 
     public bool IsSuccess { get; }
 
-    private ValidateInstanceFunctionArgumentsResult(bool isSuccess)
+    private ValidateMemberFunctionArgumentsResult(bool isSuccess)
     {
         IsSuccess = isSuccess;
     }
 
-    private ValidateInstanceFunctionArgumentsResult(bool isSuccess, IMemberFunctionCall functionCall)
+    private ValidateMemberFunctionArgumentsResult(bool isSuccess, IMemberFunctionCall functionCall)
     {
         IsSuccess = isSuccess;
         this.functionCall = functionCall;
     }
 
-    public static ValidateInstanceFunctionArgumentsResult Failed()
+    public static ValidateMemberFunctionArgumentsResult Failed()
     {
-        return new ValidateInstanceFunctionArgumentsResult(false);
+        return new ValidateMemberFunctionArgumentsResult(false);
     }
 
-    public static ValidateInstanceFunctionArgumentsResult Success(IMemberFunctionCall functionCall)
+    public static ValidateMemberFunctionArgumentsResult Success(IMemberFunctionCall functionCall)
     {
-        return new ValidateInstanceFunctionArgumentsResult(true, functionCall);
+        return new ValidateMemberFunctionArgumentsResult(true, functionCall);
     }
 }

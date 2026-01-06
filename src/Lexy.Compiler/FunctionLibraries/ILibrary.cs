@@ -7,5 +7,5 @@ namespace Lexy.Compiler.FunctionLibraries;
 public interface ILibrary
 {
     Type Type { get; }
-    IComplexTypeFunction GetFunction(string identifier);
+    IObjectTypeFunction GetFunction(string identifier);
 }

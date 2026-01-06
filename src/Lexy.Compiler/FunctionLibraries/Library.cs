@@ -18,7 +18,7 @@ public class Library : ILibrary
         this.functions = functions;
     }
 
-    public IComplexTypeFunction GetFunction(string identifier)
+    public IObjectTypeFunction GetFunction(string identifier)
     {
         return functions.TryGetValue(identifier, out var libraryFunction) ? libraryFunction : null;
     }

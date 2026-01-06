@@ -4,7 +4,7 @@ using Lexy.Compiler.Language.Types;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class DeclaredType : ComplexType
+public class DeclaredType : ObjectType
 {
     public string Type { get; }
     public ITypeDefinition TypeDefinition { get; }
@@ -15,13 +15,19 @@ public class DeclaredType : ComplexType
         TypeDefinition = typeDefinition;
     }
 
-    public override IComplexTypeVariable GetVariable(string name)
+    public override IEnumerable<IObjectTypeVariable> GetVariables()
     {
-        var variable = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
-        return variable != null ? new ComplexTypeVariable(variable.Name, variable.VariableType) : null;
+        return TypeDefinition.Variables.Select(variable =>
+            new ObjectTypeVariable(variable.Name, variable.VariableType));
     }
 
-    public override IComplexTypeFunction GetFunction(string name)
+    public override IObjectTypeVariable GetVariable(string name)
+    {
+        var variable = TypeDefinition.Variables.FirstOrDefault(variable => variable.Name == name);
+        return variable != null ? new ObjectTypeVariable(variable.Name, variable.VariableType) : null;
+    }
+
+    public override IObjectTypeFunction GetFunction(string name)
     {
         return null;
     }

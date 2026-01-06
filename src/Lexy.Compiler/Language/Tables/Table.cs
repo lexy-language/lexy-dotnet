@@ -77,8 +77,8 @@ public class Table : ComponentNode
     public GeneratedType GetRowType()
     {
         var members = Header?.Columns
-            .Select(column => new ComplexTypeVariable(column.Name, column.Type.VariableType))
-            .ToList() ?? new List<ComplexTypeVariable>();
+            .Select(column => new ObjectTypeVariable(column.Name, column.Type.VariableType))
+            .ToList() ?? new List<ObjectTypeVariable>();
 
         return new GeneratedType(Name.Value, this, GeneratedTypeSource.TableRow, members);
     }

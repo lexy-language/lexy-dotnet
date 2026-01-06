@@ -2,7 +2,7 @@ using Lexy.Compiler.Language.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class FunctionType : ComplexType
+public class FunctionType : ObjectType
 {
     public string Type { get; }
     public Function Function { get; }
@@ -13,8 +13,8 @@ public class FunctionType : ComplexType
         Function = function;
     }
 
-    public override IComplexTypeVariable GetVariable(string name) => null;
-    public override IComplexTypeFunction GetFunction(string name) => null;
+    public override IObjectTypeVariable GetVariable(string name) => null;
+    public override IObjectTypeFunction GetFunction(string name) => null;
 
     public override bool IsAssignableFrom(VariableType type) => Equals(type);
 

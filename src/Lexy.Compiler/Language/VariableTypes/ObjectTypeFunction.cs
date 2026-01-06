@@ -5,11 +5,9 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-internal abstract class ComplexTypeFunction : IComplexTypeFunction
+internal abstract class ObjectTypeFunction : IObjectTypeFunction
 {
-    public string Name { get; }
-
-    public abstract ValidateInstanceFunctionArgumentsResult ValidateArguments(IValidationContext context,
+    public abstract ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context,
         IReadOnlyList<Expression> arguments,
         SourceReference reference);
 

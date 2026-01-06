@@ -1,11 +1,11 @@
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class ComplexTypeVariable : IComplexTypeVariable
+public class ObjectTypeVariable : IObjectTypeVariable
 {
     public string Name { get; }
     public VariableType Type { get; }
 
-    public ComplexTypeVariable(string name, VariableType type)
+    public ObjectTypeVariable(string name, VariableType type)
     {
         Name = name;
         Type = type;

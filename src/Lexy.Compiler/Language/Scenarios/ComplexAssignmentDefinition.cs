@@ -4,15 +4,15 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public class ComplexAssignmentDefinition : ParsableNode, IAssignmentDefinition
+public class ObjectAssignmentDefinition : ParsableNode, IAssignmentDefinition
 {
-    private readonly List<IAssignmentDefinition> assignments = new List<IAssignmentDefinition>();
+    private readonly List<IAssignmentDefinition> assignments = new();
 
     public IdentifierPath Variable { get; }
 
     public IReadOnlyList<IAssignmentDefinition> Assignments => assignments;
 
-    public ComplexAssignmentDefinition(IdentifierPath variable, SourceReference reference)
+    public ObjectAssignmentDefinition(IdentifierPath variable, SourceReference reference)
         : base(reference)
     {
         Variable = variable;

@@ -89,17 +89,9 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
+        if (FunctionCall == null) return base.UsedVariables();
+
         return base.UsedVariables()
             .Union(FunctionCall.UsedVariables());
-    }
-
-    private string GetParameterName()
-    {
-        if (Arguments.Count == 0 || Arguments[0] is not IdentifierExpression expressionArgument)
-        {
-            return null;
-        }
-
-        return expressionArgument.Identifier;
     }
 }

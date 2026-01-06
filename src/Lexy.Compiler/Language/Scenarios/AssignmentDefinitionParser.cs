@@ -30,7 +30,7 @@ public static class AssignmentDefinitionParser
         if (context.Failed(variableReference, reference)) return null;
 
         if (assignmentIndex == tokens.Length - 1) {
-            return new ComplexAssignmentDefinition(variableReference.Result, reference);
+            return new ObjectAssignmentDefinition(variableReference.Result, reference);
         }
 
         var valueExpression = context.ExpressionFactory.Parse(tokens.TokensFrom(assignmentIndex + 1), line);

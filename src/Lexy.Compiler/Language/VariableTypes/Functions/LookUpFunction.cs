@@ -46,18 +46,18 @@ internal class LookUpFunction : TableFunction
         return column?.Type.VariableType;
     }
 
-    public override ValidateInstanceFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
+    public override ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
         SourceReference reference)
     {
-        if (!ValidateTable(context, reference)) return ValidateInstanceFunctionArgumentsResult.Failed();
+        if (!ValidateTable(context, reference)) return ValidateMemberFunctionArgumentsResult.Failed();
 
         var overloadArguments = GetArgumentColumns(context, arguments, reference);
-        if (overloadArguments == null) return ValidateInstanceFunctionArgumentsResult.Failed();
+        if (overloadArguments == null) return ValidateMemberFunctionArgumentsResult.Failed();
 
         var searchColumnHeader = GetColumn(context, arguments, overloadArguments.SearchColumnArgument, overloadArguments.DefaultSearchColumn, reference) ;
         var resultColumnHeader = GetColumn(context, arguments, overloadArguments.ResultColumnArgument, null, reference) ;
 
-        if (!ValidateArguments(overloadArguments, searchColumnHeader, resultColumnHeader)) return ValidateInstanceFunctionArgumentsResult.Failed();
+        if (!ValidateArguments(overloadArguments, searchColumnHeader, resultColumnHeader)) return ValidateMemberFunctionArgumentsResult.Failed();
 
         ValidateColumnValueType(context, arguments, overloadArguments.LookUpValue, "Search", searchColumnHeader, reference);
 
@@ -71,7 +71,7 @@ internal class LookUpFunction : TableFunction
             searchColumnHeader.Name,
             discriminatorColumnHeader?.Name);
 
-        return ValidateInstanceFunctionArgumentsResult.Success(result);
+        return ValidateMemberFunctionArgumentsResult.Success(result);
     }
 
     private bool ValidateArguments(OverloadArguments overloadArguments, ColumnHeader searchColumnHeader, ColumnHeader resultColumnHeader)

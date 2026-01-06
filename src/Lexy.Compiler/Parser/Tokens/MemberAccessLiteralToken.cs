@@ -30,8 +30,8 @@ public class MemberAccessLiteralToken : Token, ILiteralToken
         if (Parts.Length != 2) return null;
 
         var componentType = context.ComponentNodes.GetType(Parent);
-        return componentType is IComplexType complexType
-            ? complexType.MemberType(Member, context.ComponentNodes)
+        return componentType is IObjectType objectType
+            ? objectType.MemberType(Member, context.ComponentNodes)
             : null;
     }
 

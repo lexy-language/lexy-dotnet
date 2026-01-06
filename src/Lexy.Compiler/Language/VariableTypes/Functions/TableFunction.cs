@@ -7,7 +7,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
-internal abstract class TableFunction : ComplexTypeFunction
+internal abstract class TableFunction : ObjectTypeFunction
 {
     protected Table Table { get; }
 

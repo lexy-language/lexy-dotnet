@@ -34,8 +34,8 @@ public class Function : ComponentNode, IHasNodeDependencies
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var result = new List<IComponentNode>();
-        AddComplexTypes(componentNodes, Parameters.Variables, result);
-        AddComplexTypes(componentNodes, Results.Variables, result);
+        AddObjectTypes(componentNodes, Parameters.Variables, result);
+        AddObjectTypes(componentNodes, Results.Variables, result);
         return result;
     }
 
@@ -61,12 +61,12 @@ public class Function : ComponentNode, IHasNodeDependencies
         };
     }
 
-    private static void AddComplexTypes(IComponentNodeList componentNodes, IReadOnlyList<VariableDefinition> variableDefinitions,
+    private static void AddObjectTypes(IComponentNodeList componentNodes, IReadOnlyList<VariableDefinition> variableDefinitions,
         List<IComponentNode> result)
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (parameter.Type is not ComplexVariableTypeDeclaration complexVariableType) continue;
+            if (parameter.Type is not ObjectVariableTypeDeclaration complexVariableType) continue;
 
             var dependency = complexVariableType.GetNode(componentNodes);
             if (dependency != null)
@@ -101,7 +101,7 @@ public class Function : ComponentNode, IHasNodeDependencies
     public GeneratedType GetParametersType()
     {
         var members = Parameters.Variables
-            .Select(parameter => new ComplexTypeVariable(parameter.Name, parameter.Type.VariableType))
+            .Select(parameter => new ObjectTypeVariable(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionParameters, members);
@@ -110,7 +110,7 @@ public class Function : ComponentNode, IHasNodeDependencies
     public VariableType GetResultsType()
     {
         var members = Results.Variables
-            .Select(parameter => new ComplexTypeVariable(parameter.Name, parameter.Type.VariableType))
+            .Select(parameter => new ObjectTypeVariable(parameter.Name, parameter.Type.VariableType))
             .ToList();
 
         return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionResults, members);
@@ -149,21 +149,21 @@ public class Function : ComponentNode, IHasNodeDependencies
         return ValidateFunctionArgumentsResult.Failed();
     }
 
-    private string BuildErrorMessage(IEnumerable<IFunctionSignature> overloads)
+    private string BuildErrorMessage(IEnumerable<FunctionSignature> overloads)
     {
         var stringBuilder = new StringBuilder($"Invalid function arguments: '{Name}'. Function overloads:\n");
 
-        foreach (var signature in overloads)
+        foreach (var overload in overloads)
         {
             stringBuilder.Append($"- {Name}(");
-            AddParameters(signature, stringBuilder);
+            AddParameters(overload, stringBuilder);
             stringBuilder.AppendLine(")");
         }
 
         return stringBuilder.ToString();
     }
 
-    private static void AddParameters(IFunctionSignature signature, StringBuilder stringBuilder)
+    private static void AddParameters(FunctionSignature signature, StringBuilder stringBuilder)
     {
         for (var index = 0; index < signature.ParametersTypes.Count; index++)
         {
@@ -176,18 +176,18 @@ public class Function : ComponentNode, IHasNodeDependencies
         }
     }
 
-    private IEnumerable<IFunctionSignature> GetFunctions()
+    private IEnumerable<FunctionSignature> GetFunctions()
     {
         yield return GetSingleParameterArgumentFunction();
         yield return InlineParametersArgumentsFunction();
     }
 
-    private IFunctionSignature GetSingleParameterArgumentFunction()
+    private FunctionSignature GetSingleParameterArgumentFunction()
     {
         return new FunctionSignature(new [] {GetParametersType()}, GetResultsType());
     }
 
-    private IFunctionSignature InlineParametersArgumentsFunction()
+    private FunctionSignature InlineParametersArgumentsFunction()
     {
         var parameters = Parameters.Variables.Select(parameter => parameter.VariableType).ToList();
         return new FunctionSignature(parameters, GetResultsType());

@@ -106,7 +106,7 @@ public class ExecutableFunction
                 ValidateType(VariablePath(name, parameter.Name), primitiveType, value, optional, validationErrors);
                 break;
             case GeneratedType generatedType:
-                ValidateComplexType(VariablePath(name, parameter.Name), generatedType, value, validationErrors);
+                ValidateObjectType(VariablePath(name, parameter.Name), generatedType, value, validationErrors);
                 break;
             default:
                 throw new InvalidOperationException(
@@ -114,7 +114,7 @@ public class ExecutableFunction
         }
     }
 
-    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, ComplexTypeVariable variable)
+    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, ObjectTypeVariable variable)
     {
         var optional = false;
         var value = values.TryGetValue(variable.Name, out var objectValue) ? objectValue : null;
@@ -130,7 +130,7 @@ public class ExecutableFunction
                 ValidateType(VariablePath(name, variable.Name), primitiveType, value, optional, validationErrors);
                 break;
             case GeneratedType generatedType:
-                ValidateComplexType(VariablePath(name, variable.Name), generatedType, value, validationErrors);
+                ValidateObjectType(VariablePath(name, variable.Name), generatedType, value, validationErrors);
                 break;
             default:
                 throw new InvalidOperationException(
@@ -154,7 +154,7 @@ public class ExecutableFunction
         }
     }
 
-    private void ValidateComplexType(string name, GeneratedType generatedType, object value, List<string> validationErrors)
+    private void ValidateObjectType(string name, GeneratedType generatedType, object value, List<string> validationErrors)
     {
         if (value != null && value is not Dictionary<string, object>)
         {

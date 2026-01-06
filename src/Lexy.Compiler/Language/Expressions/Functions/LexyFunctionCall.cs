@@ -16,7 +16,6 @@ public class LexyFunctionCall : ILexyFunctionCall
         ArgumentExpressions = argumentExpressions;
     }
 
-
     public IEnumerable<VariableUsage> UsedVariables()
     {
         //returned by FunctionCallExpression.UsedVariables;

@@ -6,16 +6,16 @@ namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
 //Syntax: "Function.Parameters variableName"
 //Syntax: "Function.Row variableName"
-public sealed class ComplexVariableTypeDeclaration : VariableTypeDeclaration, IHasNodeDependencies
+public sealed class ObjectVariableTypeDeclaration : VariableTypeDeclaration, IHasNodeDependencies
 {
     public string Type { get; }
 
-    public ComplexVariableTypeDeclaration(string type, SourceReference reference) : base(reference)
+    public ObjectVariableTypeDeclaration(string type, SourceReference reference) : base(reference)
     {
         Type = type;
     }
 
-    private bool Equals(ComplexVariableTypeDeclaration other)
+    private bool Equals(ObjectVariableTypeDeclaration other)
     {
         return Type == other.Type;
     }
@@ -25,7 +25,7 @@ public sealed class ComplexVariableTypeDeclaration : VariableTypeDeclaration, IH
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((ComplexVariableTypeDeclaration)obj);
+        return Equals((ObjectVariableTypeDeclaration)obj);
     }
 
     public override int GetHashCode()

@@ -4,7 +4,7 @@ using Lexy.Compiler.Language.VariableTypes.Functions;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class TableType : ComplexType
+public class TableType : ObjectType
 {
     public string TableName { get; }
     public Table Table { get; }
@@ -24,14 +24,14 @@ public class TableType : ComplexType
             Table.CountName => PrimitiveType.Number,
             Table.RowName => TableRowType(componentNodes),
             _ => Table.Header?.GetColumn(name) != null
-                ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<ComplexTypeVariable>())
+                ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<ObjectTypeVariable>())
                 : null
         };
     }
 
-    public override IComplexTypeVariable GetVariable(string name) => null;
+    public override IObjectTypeVariable GetVariable(string name) => null;
 
-    public override IComplexTypeFunction GetFunction(string name)
+    public override IObjectTypeFunction GetFunction(string name)
     {
         return name switch
         {

@@ -10,15 +10,13 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
-internal class LibraryFunction : IComplexTypeFunction
+internal class LibraryFunction : IObjectTypeFunction
 {
     private readonly MemberInfo functionInfo;
     private readonly VariableType returnType;
     private readonly VariableType[] parameterTypes;
 
     public IdentifierPath FullTypeName { get; }
-
-    public string Name => FullTypeName.FullPath();
 
     private LibraryFunction(MemberInfo functionInfo, VariableType returnType, VariableType[] parameterTypes)
     {
@@ -30,13 +28,13 @@ internal class LibraryFunction : IComplexTypeFunction
             IdentifierPath.Parse(functionInfo.DeclaringType?.Namespace, functionInfo.DeclaringType?.Name, functionInfo.Name);
     }
 
-    public ValidateInstanceFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
+    public ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
         SourceReference reference)
     {
         if (arguments.Count != parameterTypes.Length)
         {
             context.Logger.Fail(reference, $"Invalid number of function arguments: '{functionInfo.Name}'. ");
-            return ValidateInstanceFunctionArgumentsResult.Failed();
+            return ValidateMemberFunctionArgumentsResult.Failed();
         }
 
         var failed = false;
@@ -49,8 +47,8 @@ internal class LibraryFunction : IComplexTypeFunction
         }
 
         return failed
-            ? ValidateInstanceFunctionArgumentsResult.Failed()
-            : ValidateInstanceFunctionArgumentsResult.Success(new LibraryFunctionCall(FullTypeName, returnType));
+            ? ValidateMemberFunctionArgumentsResult.Failed()
+            : ValidateMemberFunctionArgumentsResult.Success(new LibraryFunctionCall(FullTypeName, returnType));
     }
 
     public VariableType GetResultsType(IReadOnlyList<Expression> arguments) => returnType;

@@ -33,7 +33,7 @@ internal static class LexyFunctionCallSyntax
         return InvocationExpressionSyntax(LexyCodeConstants.RunMethod, functionName, argumentsSyntax);
     }
 
-    public static InvocationExpressionSyntax RunFunction(string functionName, IReadOnlyList<Expression> arguments)
+    private static InvocationExpressionSyntax RunFunction(string functionName, IReadOnlyList<Expression> arguments)
     {
         var argumentsSyntax = GetArguments(arguments);
         argumentsSyntax.Add(SyntaxFactory.Token(SyntaxKind.CommaToken));

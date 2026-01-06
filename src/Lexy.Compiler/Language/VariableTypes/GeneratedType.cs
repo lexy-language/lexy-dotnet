@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public class GeneratedType : ComplexType
+public class GeneratedType : ObjectType
 {
     public string Name { get; }
     public GeneratedTypeSource Source { get; }
-    public IEnumerable<ComplexTypeVariable> Members { get; }
+    public IEnumerable<ObjectTypeVariable> Members { get; }
     public IComponentNode Node { get;}
 
-    public GeneratedType(string name, IComponentNode node, GeneratedTypeSource source, IEnumerable<ComplexTypeVariable> members)
+    public GeneratedType(string name, IComponentNode node, GeneratedTypeSource source, IEnumerable<ObjectTypeVariable> members)
     {
         Name = name;
         Node = node ?? throw new ArgumentNullException(nameof(node));
@@ -24,12 +24,12 @@ public class GeneratedType : ComplexType
         return Members.FirstOrDefault(member => member.Name == name)?.Type;
     }
 
-    public override IComplexTypeVariable GetVariable(string name)
+    public override IObjectTypeVariable GetVariable(string name)
     {
         return Members.FirstOrDefault(variable => variable.Name == name);
     }
 
-    public override IComplexTypeFunction GetFunction(string name)
+    public override IObjectTypeFunction GetFunction(string name)
     {
         return null;
     }

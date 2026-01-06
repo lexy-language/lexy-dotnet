@@ -5,8 +5,8 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public interface IComplexTypeFunction
+public interface IObjectTypeFunction
 {
-    ValidateInstanceFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference);
+    ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference);
     VariableType GetResultsType(IReadOnlyList<Expression> arguments);
 }

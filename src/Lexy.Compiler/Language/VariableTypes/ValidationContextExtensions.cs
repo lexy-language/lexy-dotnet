@@ -17,7 +17,7 @@ public static class ValidationContextExtensions
 
         switch (type)
         {
-            case ComplexVariableTypeDeclaration customVariableType:
+            case ObjectVariableTypeDeclaration customVariableType:
                 ValidateCustomVariableType(context, reference, customVariableType, defaultValueExpression);
                 break;
 
@@ -31,9 +31,9 @@ public static class ValidationContextExtensions
     }
 
     private static void ValidateCustomVariableType(IValidationContext context, SourceReference reference,
-        ComplexVariableTypeDeclaration complexVariableTypeDeclaration, Expression defaultValueExpression)
+        ObjectVariableTypeDeclaration objectVariableTypeDeclaration, Expression defaultValueExpression)
     {
-        var variablePathComplex = IdentifierPath.Parse(complexVariableTypeDeclaration.Type);
+        var variablePathComplex = IdentifierPath.Parse(objectVariableTypeDeclaration.Type);
         var variable = context.VariableContext.CreateVariableReference(reference, variablePathComplex, context);
         var type = variable?.VariableType;
         if (type == null ||
@@ -50,7 +50,7 @@ public static class ValidationContextExtensions
         if (type is not EnumType)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{complexVariableTypeDeclaration.Type}') does not support a default value.");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{objectVariableTypeDeclaration.Type}') does not support a default value.");
             return;
         }
 
@@ -58,7 +58,7 @@ public static class ValidationContextExtensions
          || memberAccessExpression.VariablePath == null)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{complexVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{objectVariableTypeDeclaration.Type}')");
             return;
         }
 
@@ -66,19 +66,19 @@ public static class ValidationContextExtensions
         if (variablePath.Parts != 2)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{complexVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{objectVariableTypeDeclaration.Type}')");
         }
-        if (variablePath.RootIdentifier != complexVariableTypeDeclaration.Type)
+        if (variablePath.RootIdentifier != objectVariableTypeDeclaration.Type)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{complexVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{objectVariableTypeDeclaration.Type}')");
         }
 
         var enumDeclaration = context.ComponentNodes.GetEnum(variablePath.RootIdentifier);
         if (enumDeclaration == null || !enumDeclaration.ContainsMember(variablePath.Path[1]))
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. Invalid member. (type: '{complexVariableTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. Invalid member. (type: '{objectVariableTypeDeclaration.Type}')");
         }
     }
 

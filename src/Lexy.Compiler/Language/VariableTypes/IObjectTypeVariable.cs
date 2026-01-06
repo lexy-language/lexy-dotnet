@@ -1,6 +1,6 @@
 namespace Lexy.Compiler.Language.VariableTypes;
 
-public interface IComplexTypeVariable
+public interface IObjectTypeVariable
 {
     string Name { get; }
     VariableType Type { get; }
