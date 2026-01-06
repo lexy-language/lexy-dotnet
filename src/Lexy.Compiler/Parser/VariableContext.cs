@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -14,8 +16,8 @@ public class VariableContext : IVariableContext
 
     public VariableContext(ComponentNodeList componentNodes, IParserLogger logger, IVariableContext parentContext)
     {
-        this.componentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.componentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));
+        this.logger = Assert.NotNull(logger, nameof(logger));
         this.parentContext = parentContext;
     }
 
@@ -114,7 +116,7 @@ public class VariableContext : IVariableContext
 
     public VariableType GetVariableType(IdentifierPath path, IValidationContext context)
     {
-        if (path == null) throw new ArgumentNullException(nameof(path));
+        Assert.NotNull(path, nameof(path));
 
         var parent = GetVariableType(path.RootIdentifier);
         return parent == null || !path.HasChildIdentifiers

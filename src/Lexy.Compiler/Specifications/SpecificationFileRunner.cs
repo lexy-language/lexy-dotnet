@@ -6,6 +6,7 @@ using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Specifications;
 
@@ -25,9 +26,9 @@ public class SpecificationFileRunner : ISpecificationFileRunner
     public SpecificationFileRunner(string fileName, ILexyParser parser, ISpecificationRunnerContext runnerContext, ILexyCompiler compiler)
     {
         this.fileName = fileName;
-        this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
-        this.runnerContext = runnerContext ?? throw new ArgumentNullException(nameof(runnerContext));
-        this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
+        this.parser = Assert.NotNull(parser, nameof(parser));
+        this.runnerContext = Assert.NotNull(runnerContext, nameof(runnerContext));
+        this.compiler = Assert.NotNull(compiler, nameof(compiler));
     }
 
     public void Initialize()

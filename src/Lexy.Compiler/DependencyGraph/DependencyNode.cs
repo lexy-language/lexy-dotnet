@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.DependencyGraph;
 
@@ -15,9 +17,9 @@ public class DependencyNode
 
     public DependencyNode(string name, IComponentNode node, IReadOnlyList<string> dependencies)
     {
-        Name = name ?? throw new ArgumentNullException(nameof(name));
-        Node = node ?? throw new ArgumentNullException(nameof(node));
-        Dependencies = dependencies ?? throw new ArgumentNullException(nameof(dependencies));
+        Name = Assert.NotNull(name, nameof(name));
+        Node = Assert.NotNull(node, nameof(node));
+        Dependencies = Assert.NotNull(dependencies, nameof(dependencies));
     }
 
     public bool HasDependency(DependencyNode parent)

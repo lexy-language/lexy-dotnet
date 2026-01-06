@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Text;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
@@ -13,7 +13,7 @@ public class IdentifierPath
 
     public IdentifierPath(params string[] path)
     {
-        Path = path ?? throw new ArgumentNullException(nameof(path));
+        Path = Assert.NotNull(path, nameof(path));
     }
 
     public string FullPath() => string.Join(".", Path);
@@ -45,7 +45,7 @@ public class IdentifierPath
 
     public static IdentifierPath Parse(string name)
     {
-        if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+        Assert.NotNullOrEmpty(name, nameof(name));
 
         var parts = SplitBySeparator(name);
         return new IdentifierPath(parts);

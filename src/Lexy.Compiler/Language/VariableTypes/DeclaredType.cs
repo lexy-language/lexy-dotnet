@@ -38,11 +38,6 @@ public class DeclaredType : ObjectType
         return definition?.Type.VariableType;
     }
 
-    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
-    {
-        yield return TypeDefinition;
-    }
-
     protected bool Equals(DeclaredType other)
     {
         return Type == other.Type;

@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
@@ -33,8 +34,8 @@ public class CompilationEnvironment : ICompilationEnvironment
 
     public CompilationEnvironment(ILogger compilationLogger, ILogger<ExecutionContext> executionLogger)
     {
-        this.compilationLogger = compilationLogger ?? throw new ArgumentNullException(nameof(compilationLogger));
-        this.executionLogger = executionLogger ?? throw new ArgumentNullException(nameof(executionLogger));
+        this.compilationLogger = Assert.NotNull(compilationLogger, nameof(compilationLogger));
+        this.executionLogger = Assert.NotNull(executionLogger, nameof(executionLogger));
         assemblyLoadContext = new AssemblyLoadContext(Namespace, true);
     }
 

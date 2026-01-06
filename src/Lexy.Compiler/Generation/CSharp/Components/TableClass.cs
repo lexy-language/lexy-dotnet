@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Generation.CSharp.Syntax;
 using Lexy.Compiler.Language.Tables;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,7 +14,7 @@ internal static class TableClass
 {
     public static GeneratedClass CreateCode(Table table)
     {
-        if (table == null) throw new ArgumentNullException(nameof(table));
+        Assert.NotNull(table, nameof(table));
 
         var className = ClassNames.TableClassName(table.Name.Value);
 

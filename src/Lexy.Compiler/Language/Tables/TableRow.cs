@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -14,7 +16,7 @@ public class TableRow : Node
 
     private TableRow(TableHeader tableHeader, IList<TableValue> values, SourceReference reference) : base(reference)
     {
-        Values = values ?? throw new ArgumentNullException(nameof(values));
+        Values = Assert.NotNull(values, nameof(values));
         this.tableHeader = tableHeader;
     }
 

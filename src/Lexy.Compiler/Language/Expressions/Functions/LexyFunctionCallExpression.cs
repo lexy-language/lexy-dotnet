@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
 
@@ -18,8 +20,8 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
 
     public LexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
-        FunctionName = functionName ?? throw new ArgumentNullException(nameof(functionName));
-        Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
+        FunctionName = Assert.NotNull(functionName, nameof(functionName));
+        Arguments = Assert.NotNull(arguments, nameof(arguments));
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)

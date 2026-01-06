@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Infrastructure;
 
@@ -8,8 +9,8 @@ public static class EnumerableExtensions
 {
     public static IEnumerable<TItem> ForEach<TItem>(this IEnumerable<TItem> enumerable, Action<TItem> action)
     {
-        if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
-        if (action == null) throw new ArgumentNullException(nameof(action));
+        Assert.NotNull(enumerable, nameof(enumerable));
+        Assert.NotNull(action, nameof(action));
 
         foreach (var item in enumerable)
         {
@@ -21,7 +22,7 @@ public static class EnumerableExtensions
 
     public static string Format<TItem>(this IEnumerable<TItem> enumerable, int indentLevel)
     {
-        if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
+        Assert.NotNull(enumerable, nameof(enumerable));
 
         var indent = indentLevel > 0 ? new string(' ', indentLevel * 2) : string.Empty;
         var builder = new StringBuilder();
@@ -37,7 +38,7 @@ public static class EnumerableExtensions
 
     public static string FormatLine<TItem>(this IEnumerable<TItem> enumerable, string separator)
     {
-        if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
+        Assert.NotNull(enumerable, nameof(enumerable));
 
         var builder = new StringBuilder();
         foreach (var item in enumerable)

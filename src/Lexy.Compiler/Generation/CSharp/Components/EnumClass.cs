@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Enums;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,7 +14,7 @@ public static class EnumClass
 {
     public static GeneratedClass CreateCode(EnumDefinition enumDefinition)
     {
-        if (enumDefinition == null) throw new ArgumentNullException(nameof(enumDefinition));
+        Assert.NotNull(enumDefinition, nameof(enumDefinition));
 
         var className = ClassNames.EnumClassName(enumDefinition.Name.Value);
         var members = WriteValues(enumDefinition);

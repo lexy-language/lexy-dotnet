@@ -1,6 +1,7 @@
 using System;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -11,7 +12,7 @@ internal static class VariableReferences
 {
     public static ExpressionSyntax Syntax(VariableReference variableReference)
     {
-        if (variableReference == null) throw new ArgumentNullException(nameof(variableReference));
+        Assert.NotNull(variableReference, nameof(variableReference));
 
         var parentIdentifier = ParentVariableClassName(variableReference);
         var parent = FromSource(variableReference.Source, parentIdentifier);

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -21,7 +23,7 @@ internal static class FillFunctionStatement
 
     public static IEnumerable<StatementSyntax> Create(VariableDeclarationExpression expression)
     {
-        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        Assert.NotNull(expression, nameof(expression));
 
         if (expression.Assignment is not FunctionCallExpression functionCallExpression)
         {
@@ -39,9 +41,9 @@ internal static class FillFunctionStatement
     public static IEnumerable<StatementSyntax> FillStatementSyntax(string variableName, VariableType type,
         IEnumerable<Mapping> mappings)
     {
-        if (variableName == null) throw new ArgumentNullException(nameof(variableName));
-        if (type == null) throw new ArgumentNullException(nameof(type));
-        if (mappings == null) throw new ArgumentNullException(nameof(mappings));
+        Assert.NotNull(variableName, nameof(variableName));
+        Assert.NotNull(type, nameof(type));
+        Assert.NotNull(mappings, nameof(mappings));
 
         var typeSyntax = Types.Syntax(type);
 

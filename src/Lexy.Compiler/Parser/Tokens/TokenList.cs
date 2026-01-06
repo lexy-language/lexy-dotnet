@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Lexy.Compiler.Infrastructure;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -15,7 +17,7 @@ public class TokenList : IEnumerable<Token>
 
     public TokenList(Token[] values)
     {
-        this.values = values ?? throw new ArgumentNullException(nameof(values));
+        this.values = Assert.NotNull(values, nameof(values));
     }
 
     public IEnumerator<Token> GetEnumerator()
@@ -117,14 +119,19 @@ public class TokenList : IEnumerable<Token>
     public override string ToString()
     {
         var builder = new StringBuilder();
-        foreach (var value in values) builder.Append($"{value.GetType().Name}('{value.Value}') ");
+        foreach (var value in values)
+        {
+            builder.Append($"{value.GetType().Name}('{value.Value}') ");
+        }
         return builder.ToString();
     }
 
     private void CheckValidTokenIndex(int index)
     {
         if (index < 0 || index >= values.Length)
+        {
             throw new InvalidOperationException($"Invalid token index {index} (length: {values.Length})");
+        }
     }
 
     public int? CharacterPosition(int tokenIndex)
@@ -136,7 +143,7 @@ public class TokenList : IEnumerable<Token>
 
     public int Find<T>(Func<T, bool> func) where T : Token
     {
-        if (func == null) throw new ArgumentNullException(nameof(func));
+        Assert.NotNull(func, nameof(func));
 
         for (var index = 0; index < values.Length; index++)
         {

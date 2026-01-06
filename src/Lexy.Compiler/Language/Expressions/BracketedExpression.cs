@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -47,7 +49,7 @@ public class BracketedExpression : Expression
 
     private static int FindMatchingClosingBracket(TokenList tokens)
     {
-        if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+        Assert.NotNull(tokens, nameof(tokens));
 
         var count = 0;
         for (var index = 0; index < tokens.Length; index++)

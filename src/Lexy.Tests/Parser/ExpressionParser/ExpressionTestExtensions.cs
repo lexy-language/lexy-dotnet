@@ -1,6 +1,7 @@
 using System;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 using Shouldly;
 
 namespace Lexy.Tests.Parser.ExpressionParser;
@@ -9,7 +10,7 @@ public static class ExpressionTestExtensions
 {
     public static void ValidateOfType<T>(this object value, Action<T> validate) where T : class
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        Assert.NotNull(value, nameof(value));
 
         if (value is not T specificValue)
         {

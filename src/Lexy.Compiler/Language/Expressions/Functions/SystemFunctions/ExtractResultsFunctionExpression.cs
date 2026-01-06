@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
@@ -61,9 +63,9 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
     internal static void GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType,
         IList<Mapping> mapping)
     {
-        if (reference == null) throw new ArgumentNullException(nameof(reference));
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        if (mapping == null) throw new ArgumentNullException(nameof(mapping));
+        Assert.NotNull(reference, nameof(reference));
+        Assert.NotNull(context, nameof(context));
+        Assert.NotNull(mapping, nameof(mapping));
 
         if (generatedType == null) return;
 

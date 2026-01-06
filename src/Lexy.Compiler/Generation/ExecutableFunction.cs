@@ -50,7 +50,7 @@ public class ExecutableFunction
             && parameterType.Name == LexyCodeConstants.ParametersType;
     }
 
-    public FunctionResult Run(IDictionary<string, object> values = null)
+    public FunctionResult Run(IDictionary<string, object>? values = null)
     {
         values ??= new Dictionary<string, object>();
         ValidateValues(values);
@@ -293,9 +293,9 @@ public class ExecutableFunction
         }
     }
 
-    private static FieldInfo? GetField(string name, object valueObject)
+    private static FieldInfo GetField(string name, object valueObject)
     {
-        if (valueObject == null) throw new ArgumentNullException(nameof(valueObject));
+        Assert.NotNull(valueObject, nameof(valueObject));
 
         var type = valueObject.GetType();
         var field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public);

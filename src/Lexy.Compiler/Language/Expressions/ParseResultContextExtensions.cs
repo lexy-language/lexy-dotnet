@@ -1,5 +1,7 @@
 using System;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -7,9 +9,9 @@ internal static class ParseResultContextExtensions
 {
     internal static bool Failed<T>(this IParseLineContext context, ParseResult<T> result, SourceReference reference)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        if (result == null) throw new ArgumentNullException(nameof(result));
-        if (reference == null) throw new ArgumentNullException(nameof(reference));
+        Assert.NotNull(context, nameof(context));
+        Assert.NotNull(result, nameof(result));
+        Assert.NotNull(reference, nameof(reference));
 
         if (result.IsSuccess) return false;
 

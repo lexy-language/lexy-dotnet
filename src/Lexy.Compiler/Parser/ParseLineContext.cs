@@ -1,6 +1,8 @@
 using System;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -12,9 +14,9 @@ public class ParseLineContext : IParseLineContext
 
     public ParseLineContext(Line line, IParserLogger logger, IExpressionFactory expressionFactory)
     {
-        Line = line ?? throw new ArgumentNullException(nameof(line));
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        ExpressionFactory = expressionFactory ?? throw new ArgumentNullException(nameof(expressionFactory));
+        Line = Assert.NotNull(line, nameof(line));
+        Logger = Assert.NotNull(logger, nameof(logger));
+        ExpressionFactory = Assert.NotNull(expressionFactory, nameof(expressionFactory));
     }
 
     public TokenValidator ValidateTokens<T>()

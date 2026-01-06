@@ -20,9 +20,9 @@ public static class Table
         where TRow : class
         where TCondition : IComparable
     {
-        if (tableValues == null) throw new ArgumentNullException(nameof(tableValues));
-        if (getValue == null) throw new ArgumentNullException(nameof(getValue));
-        if (getResult == null) throw new ArgumentNullException(nameof(getResult));
+        Assert.NotNull(tableValues, nameof(tableValues));
+        Assert.NotNull(getValue, nameof(getValue));
+        Assert.NotNull(getResult, nameof(getResult));
 
         var functionName = $"Lookup '{resultName}' by '{valueName}' from table '{tableName}'";
         var row = LookUp(tableValues, condition, _ => true, getValue, context, functionName);
@@ -41,8 +41,8 @@ public static class Table
         where TRow : class
         where TCondition : IComparable
     {
-        if (tableValues == null) throw new ArgumentNullException(nameof(tableValues));
-        if (getValue == null) throw new ArgumentNullException(nameof(getValue));
+        Assert.NotNull(tableValues, nameof(tableValues));
+        Assert.NotNull(getValue, nameof(getValue));
 
         var functionName = $"LookupRow' by '{valueName}' from table '{tableName}'";
         return LookUp(tableValues, condition, _ => true, getValue, context, functionName);
@@ -68,9 +68,9 @@ public static class Table
         where TDiscriminator : IComparable
         where TCondition : IComparable
     {
-        if (tableValues == null) throw new ArgumentNullException(nameof(tableValues));
-        if (getValue == null) throw new ArgumentNullException(nameof(getValue));
-        if (getResult == null) throw new ArgumentNullException(nameof(getResult));
+        Assert.NotNull(tableValues, nameof(tableValues));
+        Assert.NotNull(getValue, nameof(getValue));
+        Assert.NotNull(getResult, nameof(getResult));
 
         bool CheckDiscriminator(TRow row)
         {
@@ -100,8 +100,8 @@ public static class Table
         where TDiscriminator : IComparable
         where TCondition : IComparable
     {
-        if (tableValues == null) throw new ArgumentNullException(nameof(tableValues));
-        if (getValue == null) throw new ArgumentNullException(nameof(getValue));
+        Assert.NotNull(tableValues, nameof(tableValues));
+        Assert.NotNull(getValue, nameof(getValue));
 
         bool CheckDiscriminator (TRow row)
         {
@@ -123,8 +123,8 @@ public static class Table
         where TRow : class
         where TCondition : IComparable
     {
-        if (tableValues == null) throw new ArgumentNullException(nameof(tableValues));
-        if (getValue == null) throw new ArgumentNullException(nameof(getValue));
+        Assert.NotNull(tableValues, nameof(tableValues));
+        Assert.NotNull(getValue, nameof(getValue));
 
         TRow lastRow = null;
 

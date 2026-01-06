@@ -4,6 +4,7 @@ using System.Linq;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -75,7 +76,7 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
 
     public void LinkChildExpression(IChildExpression expression)
     {
-        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        Assert.NotNull(expression, nameof(expression));
 
         if (expression is not (ElseExpression or ElseIfExpression))
         {

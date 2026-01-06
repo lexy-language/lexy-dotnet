@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Generation.CSharp;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
@@ -23,14 +24,14 @@ public class LexyCompiler : ILexyCompiler
 
     public LexyCompiler(ILogger<LexyCompiler> compilationLogger, ILibraries libraries, ILogger<ExecutionContext> executionLogger)
     {
-        this.compilationLogger = compilationLogger ?? throw new ArgumentNullException(nameof(compilationLogger));
-        this.libraries = libraries ?? throw new ArgumentNullException(nameof(libraries));
-        this.executionLogger = executionLogger ?? throw new ArgumentNullException(nameof(executionLogger));
+        this.compilationLogger = Assert.NotNull(compilationLogger, nameof(compilationLogger));
+        this.libraries = Assert.NotNull(libraries, nameof(libraries));
+        this.executionLogger = Assert.NotNull(executionLogger, nameof(executionLogger));
     }
 
     public ICompilationResult Compile(IEnumerable<IComponentNode> nodes)
     {
-        if (nodes == null) throw new ArgumentNullException(nameof(nodes));
+        Assert.NotNull(nodes, nameof(nodes));
 
         var environment = new CompilationEnvironment(compilationLogger, executionLogger);
         try

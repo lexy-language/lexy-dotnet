@@ -3,6 +3,7 @@ using System.Linq;
 using Lexy.Compiler.Generation;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 using Microsoft.Extensions.Logging;
 
 namespace Lexy.Compiler.Specifications;
@@ -16,10 +17,10 @@ public class SpecificationsRunner : ISpecificationsRunner
 
     public SpecificationsRunner(ILexyParser parser, IFileSystem fileSystem, ILexyCompiler compiler, ILogger<SpecificationsRunner> logger)
     {
-        this.parser = parser ?? throw new ArgumentNullException(nameof(parser));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.parser = Assert.NotNull(parser, nameof(parser));
+        this.fileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
+        this.compiler = Assert.NotNull(compiler, nameof(compiler));
+        this.logger = Assert.NotNull(logger, nameof(logger));
     }
 
     public void Run(string file)

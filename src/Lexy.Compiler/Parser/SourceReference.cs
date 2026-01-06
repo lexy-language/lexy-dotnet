@@ -1,4 +1,6 @@
 using System;
+using Lexy.Compiler.Infrastructure;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -19,7 +21,7 @@ public class SourceReference
 
     public SourceReference(SourceFile file, int? lineNumber, int? characterNumber)
     {
-        File = file ?? throw new ArgumentNullException(nameof(file));
+        File = Assert.NotNull(file, nameof(file));
         CharacterNumber = characterNumber;
         LineNumber = lineNumber;
     }

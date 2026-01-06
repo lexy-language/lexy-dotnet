@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Language.VariableTypes.Functions;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
 
@@ -15,8 +17,8 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
 
     public MemberFunctionCallExpression(IdentifierPath functionPath, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
-        FunctionPath = functionPath ?? throw new ArgumentNullException(nameof(functionPath));
-        Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
+        FunctionPath = Assert.NotNull(functionPath, nameof(functionPath));
+        Arguments = Assert.NotNull(arguments, nameof(arguments));
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)

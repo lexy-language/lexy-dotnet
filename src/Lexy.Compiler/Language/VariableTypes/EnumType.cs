@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
-using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
@@ -22,11 +20,6 @@ public class EnumType : ObjectType
     public override VariableType MemberType(string name, IComponentNodeList componentNodes)
     {
         return Enum.Members.Any(member => member.Name == name) ? this : null;
-    }
-
-    public override IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
-    {
-        yield return componentNodes.GetEnum(Type);
     }
 
     public override bool IsAssignableFrom(VariableType type) => Equals(type);

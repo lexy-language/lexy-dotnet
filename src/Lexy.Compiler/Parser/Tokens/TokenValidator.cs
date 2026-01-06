@@ -14,8 +14,7 @@ public class TokenValidator
     public TokenValidator(string parserName, Line line, IParserLogger logger)
     {
         this.parserName = parserName;
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
+        this.logger = RunTime.Assert.NotNull(logger, nameof(logger));
         this.line = line;
         tokens = line.Tokens;
 
@@ -153,10 +152,10 @@ public class TokenValidator
 
     public TokenValidator IsLiteralToken(int index)
     {
-        if (!CheckValidTokenIndex(index, "LiterToken")) return this;
+        if (!CheckValidTokenIndex(index, "LiteralToken")) return this;
 
         var token = tokens[index];
-        if (token is not ILiteralToken literalToken)
+        if (token is not ILiteralToken)
         {
             Fail(index, $"Invalid token type as {index}. Expected: 'LiteralToken' Actual: '{token?.GetType().Name})'");
             IsValid = false;

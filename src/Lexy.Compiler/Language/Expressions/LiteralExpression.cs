@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -13,7 +15,7 @@ public class LiteralExpression : Expression
     private LiteralExpression(ILiteralToken literal, ExpressionSource source, SourceReference reference) : base(source,
         reference)
     {
-        Literal = literal ?? throw new ArgumentNullException(nameof(literal));
+        Literal = Assert.NotNull(literal, nameof(literal));
     }
 
     public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)

@@ -1,9 +1,10 @@
-using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -19,8 +20,8 @@ public class VariableDeclarationExpression : Expression
         Expression assignment,
         ExpressionSource source, SourceReference reference) : base(source, reference)
     {
-        Type = variableType ?? throw new ArgumentNullException(nameof(variableType));
-        Name = variableName ?? throw new ArgumentNullException(nameof(variableName));
+        Type = Assert.NotNull(variableType, nameof(variableType));
+        Name = Assert.NotNull(variableName, nameof(variableName));
         Assignment = assignment;
     }
 

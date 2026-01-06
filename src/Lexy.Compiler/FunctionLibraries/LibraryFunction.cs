@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Language.VariableTypes.Functions;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
@@ -20,7 +22,7 @@ internal class LibraryFunction : IObjectTypeFunction
 
     private LibraryFunction(MemberInfo functionInfo, VariableType returnType, VariableType[] parameterTypes)
     {
-        this.functionInfo = functionInfo ?? throw new ArgumentNullException(nameof(functionInfo));
+        this.functionInfo = Assert.NotNull(functionInfo, nameof(functionInfo));
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
 

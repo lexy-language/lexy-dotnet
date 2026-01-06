@@ -1,8 +1,10 @@
 using System;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
@@ -11,9 +13,9 @@ public static class ValidationContextExtensions
     public static void ValidateTypeAndDefault(this IValidationContext context, SourceReference reference,
         VariableTypeDeclaration type, Expression defaultValueExpression)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        if (reference == null) throw new ArgumentNullException(nameof(reference));
-        if (type == null) throw new ArgumentNullException(nameof(type));
+        Assert.NotNull(context, nameof(context));
+        Assert.NotNull(reference, nameof(reference));
+        Assert.NotNull(type, nameof(type));
 
         switch (type)
         {

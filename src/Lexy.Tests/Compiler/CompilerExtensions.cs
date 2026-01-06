@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Generation;
 using Lexy.Compiler.Language.Functions;
+using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lexy.Tests.Compiler;
@@ -34,7 +35,7 @@ public static class CompilerExtensions
 
     public static CompileFunctionResult CompileFunction(this IServiceProvider serviceProvider, string code)
     {
-        if (code == null) throw new ArgumentNullException(nameof(code));
+        Assert.NotNull(code, nameof(code));
 
         var (componentNodes, logger) = serviceProvider.ParseNodes(code);
         if (logger.HasErrors())

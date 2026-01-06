@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Generation.CSharp.Syntax;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Functions;
 using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
@@ -16,7 +17,7 @@ public static class FunctionClass
 {
     public static GeneratedClass CreateCode(Function function)
     {
-        if (function == null) throw new ArgumentNullException(nameof(function));
+        Assert.NotNull(function, nameof(function));
 
         var members = new List<MemberDeclarationSyntax>
         {

@@ -31,8 +31,7 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
 
         var suffix = index != null ? $"[{index}]" : "";
         var scenarioName = scenario.Name + suffix;
-        var entry = new SpecificationsLogEntry(scenario.Reference, scenario, true,
-            $"FAILED - {scenarioName}: {message}", errors);
+        var entry = new SpecificationsLogEntry($"FAILED - {scenarioName}: {message}", errors);
         logEntries.Add(entry);
 
         logger.LogError("- FAILED  - {ScenarioName}: {Message}", scenarioName, message);
@@ -41,7 +40,7 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
 
     public void LogGlobal(string message)
     {
-        var entry = new SpecificationsLogEntry(null, null, false, message);
+        var entry = new SpecificationsLogEntry(message);
         logEntries.Add(entry);
         logger.LogInformation("{Message}", message);
     }
@@ -51,7 +50,7 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
         var difference = DateTime.Now.Subtract(this.startTimestamp).TotalMilliseconds;
         var message = $"Time: {difference} milliseconds";
 
-        var entry = new SpecificationsLogEntry(null, null, false, message);
+        var entry = new SpecificationsLogEntry(message);
         logEntries.Add(entry);
         logger.LogInformation("Time: {Difference} milliseconds", difference);
     }
@@ -61,8 +60,7 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
         var suffix = index != null ? $"[{index}]" : "";
         var scenarioName = scenario.Name + suffix;
 
-        var entry = new SpecificationsLogEntry(scenario.Reference, scenario, false, $"SUCCESS - {scenarioName}", null,
-            logging);
+        var entry = new SpecificationsLogEntry($"SUCCESS - {scenarioName}");
         logEntries.Add(entry);
         logger.LogInformation("- SUCCESS - {ScenarioName}", scenarioName);
     }

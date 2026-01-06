@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Lexy.Compiler.Language.Functions;
@@ -15,7 +17,7 @@ public class FunctionName : Node
 
     public void ParseName(string name)
     {
-        Value = name ?? throw new ArgumentNullException(nameof(name));;
+        Value = Assert.NotNull(name, nameof(name));
     }
 
     public override IEnumerable<INode> GetChildren()

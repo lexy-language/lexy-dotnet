@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.VariableTypes;
 
@@ -14,9 +15,9 @@ public class GeneratedType : ObjectType
     public GeneratedType(string name, IComponentNode node, GeneratedTypeSource source, IEnumerable<ObjectTypeVariable> members)
     {
         Name = name;
-        Node = node ?? throw new ArgumentNullException(nameof(node));
+        Node = Assert.NotNull(node, nameof(node));
         Source = source;
-        Members = members ?? throw new ArgumentNullException(nameof(members));
+        Members = Assert.NotNull(members, nameof(members));
     }
 
     public override VariableType MemberType(string name, IComponentNodeList componentNodes)

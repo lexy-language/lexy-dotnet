@@ -1,5 +1,5 @@
-using System;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -11,14 +11,15 @@ public class TokenizeResult : ParseResult<TokenList>
     {
     }
 
-    private TokenizeResult(bool success, SourceReference sourceReference, string errorMessage) : base(success, errorMessage)
+    private TokenizeResult(bool success, SourceReference sourceReference, string errorMessage) :
+        base(success, errorMessage)
     {
         Reference = sourceReference;
     }
 
     public static TokenizeResult Success(TokenList result)
     {
-        if (result == null) throw new ArgumentNullException(nameof(result));
+        Assert.NotNull(result, nameof(result));
 
         return new TokenizeResult(result);
     }

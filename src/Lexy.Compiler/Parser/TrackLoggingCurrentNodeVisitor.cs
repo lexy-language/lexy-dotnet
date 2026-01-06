@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -11,7 +13,7 @@ public class TrackLoggingCurrentNodeVisitor : ITreeValidationVisitor
 
     public TrackLoggingCurrentNodeVisitor(IParserLogger logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.logger = Assert.NotNull(logger, nameof(logger));
     }
 
     public void Enter(INode node)

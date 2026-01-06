@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.VariableTypes.Declaration;
 
@@ -10,7 +10,7 @@ public sealed class PrimitiveVariableTypeDeclaration : VariableTypeDeclaration
 
     public PrimitiveVariableTypeDeclaration(string type, SourceReference reference) : base(reference)
     {
-        Type = type ?? throw new ArgumentNullException(nameof(type));
+        Type = Assert.NotNull(type, nameof(type));
     }
 
     protected bool Equals(PrimitiveVariableTypeDeclaration other)

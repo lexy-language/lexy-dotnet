@@ -1,5 +1,5 @@
-using System;
 using System.Text;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -13,7 +13,7 @@ public abstract class ParsableToken : Token
 
     protected ParsableToken(TokenCharacter character) : base(character)
     {
-        if (character == null) throw new ArgumentNullException(nameof(character));
+        Assert.NotNull(character, nameof(character));
         valueBuilder = new StringBuilder(character.Value.ToString());
     }
 

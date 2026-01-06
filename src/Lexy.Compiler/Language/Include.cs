@@ -1,7 +1,7 @@
-using System;
 using System.IO;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
@@ -15,7 +15,7 @@ public class Include
     private Include(string fileName, SourceReference reference)
     {
         this.reference = reference;
-        FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+        FileName = Assert.NotNull(fileName, nameof(fileName));
     }
 
     public static bool IsValid(Line line)

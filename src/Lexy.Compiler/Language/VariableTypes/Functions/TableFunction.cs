@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.VariableTypes.Functions;
 
@@ -15,7 +15,7 @@ internal abstract class TableFunction : ObjectTypeFunction
 
     protected TableFunction(Table table)
     {
-        Table = table ?? throw new ArgumentNullException(nameof(table));
+        Table = Assert.NotNull(table, nameof(table));
     }
 
     protected bool ValidateTable(IValidationContext context, SourceReference reference)

@@ -1,7 +1,9 @@
 using System;
 using System.Globalization;
 using Lexy.Compiler.Generation;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Specifications;
 
@@ -9,9 +11,9 @@ internal static class TypeConverter
 {
     public static object Convert(ICompilationResult compilationResult, object value, VariableType type)
     {
-        if (compilationResult == null) throw new ArgumentNullException(nameof(compilationResult));
-        if (value == null) throw new ArgumentNullException(nameof(value));
-        if (type == null) throw new ArgumentNullException(nameof(type));
+        Assert.NotNull(compilationResult, nameof(compilationResult));
+        Assert.NotNull(value, nameof(value));
+        Assert.NotNull(type, nameof(type));
 
         if (type is EnumType enumVariableType)
         {

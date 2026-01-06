@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -12,7 +12,7 @@ public abstract class Expression : Node
 
     protected Expression(ExpressionSource source, SourceReference reference) : base(reference)
     {
-        Source = source ?? throw new ArgumentNullException(nameof(source));
+        Source = Assert.NotNull(source, nameof(source));
     }
 
     public override string ToString()

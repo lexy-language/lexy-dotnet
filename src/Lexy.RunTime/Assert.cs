@@ -1,6 +1,6 @@
 using System;
 
-namespace Lexy.Compiler.Infrastructure;
+namespace Lexy.RunTime;
 
 public static class Assert
 {
@@ -22,16 +22,26 @@ public static class Assert
         throw new InvalidOperationException($"'{name}' should be of type '{typeof(T).Name}', but is '{value.GetType().Name}'");
     }
 
-    public static void NotNull(object value, string name)
+    public static T NotNull<T>(T value, string name)
     {
         if (value == null)
         {
             throw new InvalidOperationException($"'{name}' should not be null.");
         }
+
+        return value;
     }
 
     public static void Fail(string error)
     {
         throw new InvalidOperationException(error);
+    }
+
+    public static void NotNullOrEmpty(string value, string name)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new InvalidOperationException($"'{name}' should not be null or empty.");
+        }
     }
 }

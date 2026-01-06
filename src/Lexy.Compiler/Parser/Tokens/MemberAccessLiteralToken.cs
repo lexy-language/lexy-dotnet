@@ -1,6 +1,6 @@
-using System;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.VariableTypes;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -17,8 +17,8 @@ public class MemberAccessLiteralToken : Token, ILiteralToken
 
     public MemberAccessLiteralToken(string value, TokenCharacter character) : base(character)
     {
-        Value = value ?? throw new ArgumentNullException(nameof(value));
-        Parts = Value.Split(TokenValues.MemberAccess);
+        Value = Assert.NotNull(value, nameof(value));
+        Parts = value.Split(TokenValues.MemberAccess);
     }
 
     public VariableType DeriveType(IValidationContext context)

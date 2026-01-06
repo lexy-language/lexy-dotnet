@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -16,7 +18,7 @@ internal static class ExtractFunctionStatement
 
     public static IEnumerable<StatementSyntax> Create(ExtractResultsFunctionExpression expression)
     {
-        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        Assert.NotNull(expression, nameof(expression));
 
         return ExtractStatementSyntax(expression.Mapping, expression.FunctionResultVariable);
     }
@@ -24,7 +26,7 @@ internal static class ExtractFunctionStatement
     public static IEnumerable<StatementSyntax> ExtractStatementSyntax(IEnumerable<Mapping> mappings,
         string functionResultVariable)
     {
-        if (mappings == null) throw new ArgumentNullException(nameof(mappings));
+        Assert.NotNull(mappings, nameof(mappings));
 
         foreach (var mapping in mappings)
         {

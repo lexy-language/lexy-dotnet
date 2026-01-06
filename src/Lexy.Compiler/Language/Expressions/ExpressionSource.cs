@@ -1,6 +1,7 @@
-using System;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -12,10 +13,9 @@ public class ExpressionSource
 
     public ExpressionSource(Line line, TokenList tokens)
     {
-        Line = line ?? throw new ArgumentNullException(nameof(line));
-        File = line.File ?? throw new InvalidOperationException($"{nameof(line.File)} should not be null.");
-        if (tokens?.Length == 0) throw new InvalidOperationException("No tokens.");
-        Tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+        Line = Assert.NotNull(line, nameof(line));
+        File = Assert.NotNull(line.File, nameof(line));
+        Tokens = Assert.NotNull(tokens, nameof(tokens));
     }
 
     public SourceReference CreateReference(int tokenIndex = 0)

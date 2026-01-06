@@ -1,4 +1,4 @@
-using System;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -9,6 +9,6 @@ public abstract class Token : IToken
 
     protected Token(TokenCharacter firstCharacter)
     {
-        FirstCharacter = firstCharacter ?? throw new ArgumentNullException(nameof(firstCharacter));
+        FirstCharacter = Assert.NotNull(firstCharacter, nameof(firstCharacter));
     }
 }

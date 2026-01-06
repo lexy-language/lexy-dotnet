@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -197,7 +199,7 @@ public class BinaryExpression : Expression
 
     private static IList<TokenIndex> GetCurrentLevelSupportedTokens(TokenList tokens)
     {
-        if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+        Assert.NotNull(tokens, nameof(tokens));
 
         var result = new List<TokenIndex>();
         var countParentheses = 0;

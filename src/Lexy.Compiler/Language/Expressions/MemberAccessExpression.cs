@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -16,7 +18,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
     private MemberAccessExpression(IdentifierPath variablePath, MemberAccessLiteralToken literalToken, ExpressionSource source,
         SourceReference reference) : base(source, reference)
     {
-        MemberAccessLiteralToken = literalToken ?? throw new ArgumentNullException(nameof(literalToken));
+        MemberAccessLiteralToken = Assert.NotNull(literalToken, nameof(literalToken));
         VariablePath = variablePath;
     }
 

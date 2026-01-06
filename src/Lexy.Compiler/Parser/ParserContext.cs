@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -23,9 +23,9 @@ public class ParserContext : IParserContext
 
     public ParserContext(IParserLogger logger, IFileSystem fileSystem, ILibraries libraries, ParseOptions options)
     {
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Libraries = libraries ?? throw new ArgumentNullException(nameof(libraries));
+        this.fileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
+        Logger = Assert.NotNull(logger, nameof(logger));
+        Libraries = Assert.NotNull(libraries, nameof(libraries));
 
         Options = options ?? ParseOptions.Default();
 

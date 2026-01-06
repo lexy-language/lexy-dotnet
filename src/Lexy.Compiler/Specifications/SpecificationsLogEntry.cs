@@ -8,22 +8,13 @@ namespace Lexy.Compiler.Specifications;
 
 public class SpecificationsLogEntry
 {
-    public IComponentNode Node { get; }
-    public SourceReference Reference { get; }
-    public bool IsError { get; }
-    public string Message { get; }
-    public IEnumerable<string> Errors { get; }
-    public IEnumerable<ExecutionLogEntry> ExecutionLogging { get; }
+    private string Message { get; }
+    private IEnumerable<string> Errors { get; }
 
-    public SpecificationsLogEntry(SourceReference reference, IComponentNode node, bool isError,
-        string message, IEnumerable<string> errors = null, IEnumerable<ExecutionLogEntry> executionLogging = null)
+    public SpecificationsLogEntry(string message, IEnumerable<string> errors = null)
     {
-        Reference = reference;
-        Node = node;
-        IsError = isError;
         Message = message;
         Errors = errors;
-        ExecutionLogging = executionLogging;
     }
 
     public override string ToString()

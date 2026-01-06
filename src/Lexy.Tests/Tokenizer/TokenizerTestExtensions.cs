@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,7 @@ public static class TokenizerTestExtensions
 {
     public static TokenValidator Tokenize(this IServiceProvider serviceProvider, string value)
     {
-        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+        Assert.NotNull(serviceProvider, nameof(serviceProvider));
 
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
 
@@ -33,7 +34,7 @@ public static class TokenizerTestExtensions
 
     public static TokenizeResult TokenizeExpectError(this IServiceProvider serviceProvider, string value)
     {
-        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+        Assert.NotNull(serviceProvider, nameof(serviceProvider));
 
         var tokenizer = serviceProvider.GetRequiredService<ITokenizer>();
 

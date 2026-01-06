@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -12,7 +11,7 @@ public class ValidationTableHeader : Node
 
     private ValidationTableHeader(ValidationColumnHeader[] columns, SourceReference reference) : base(reference)
     {
-        Columns = columns ?? throw new ArgumentNullException(nameof(columns));
+        Columns = Assert.NotNull(columns, nameof(columns));
     }
 
     public static ValidationTableHeader Parse(IParseLineContext context)

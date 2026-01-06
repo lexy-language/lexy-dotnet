@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
@@ -21,7 +21,7 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
     private NewFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
     {
-        ValueExpression = valueExpression ?? throw new ArgumentNullException(nameof(valueExpression));
+        ValueExpression = Assert.NotNull(valueExpression, nameof(valueExpression));
         TypeLiteralToken = (valueExpression as MemberAccessExpression)?.MemberAccessLiteralToken;
     }
 

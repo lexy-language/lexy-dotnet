@@ -5,6 +5,7 @@ using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
@@ -14,7 +15,7 @@ public static class ParserExtensions
 {
     public static ParseResult<ComponentNodeList> ParseNodes(this IServiceProvider serviceProvider, string code)
     {
-        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+        Assert.NotNull(serviceProvider, nameof(serviceProvider));
 
         var parser = serviceProvider.GetRequiredService<ILexyParser>();
 

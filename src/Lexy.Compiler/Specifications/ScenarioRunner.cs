@@ -9,6 +9,7 @@ using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Specifications;
 
@@ -29,14 +30,13 @@ public class ScenarioRunner : IScenarioRunner
     public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, IComponentNodeList componentNodes, Scenario scenario,
         ISpecificationRunnerContext context, IParserLogger parserLogger)
     {
-        this.lexyCompiler = lexyCompiler;
-        this.fileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-        this.context = context;
+        this.lexyCompiler = Assert.NotNull(lexyCompiler, nameof(lexyCompiler));
+        this.fileName = Assert.NotNull(fileName, nameof(fileName));
+        this.context = Assert.NotNull(context, nameof(context));
+        this.componentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));
+        this.parserLogger = Assert.NotNull(parserLogger, nameof(parserLogger));
 
-        this.componentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
-        this.parserLogger = parserLogger ?? throw new ArgumentNullException(nameof(parserLogger));
-
-        Scenario = scenario ?? throw new ArgumentNullException(nameof(scenario));
+        Scenario = Assert.NotNull(scenario, nameof(scenario));
     }
 
     public int CountScenarios()

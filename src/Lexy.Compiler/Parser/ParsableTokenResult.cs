@@ -1,7 +1,9 @@
 using System;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -20,7 +22,7 @@ public class ParsableTokenResult : ParseResult<ParsableToken>
 
     public static ParsableTokenResult Success(ParsableToken result)
     {
-        if (result == null) throw new ArgumentNullException(nameof(result));
+        Assert.NotNull(result, nameof(result));
 
         return new ParsableTokenResult(result);
     }

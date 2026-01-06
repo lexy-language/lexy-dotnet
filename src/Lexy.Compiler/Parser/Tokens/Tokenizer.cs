@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -43,7 +45,7 @@ public class Tokenizer : ITokenizer
 
     public TokenizeResult Tokenize(Line line)
     {
-        if (line == null) throw new ArgumentNullException(nameof(line));
+        Assert.NotNull(line, nameof(line));
 
         var tokens = new List<Token>();
         ParsableToken current = null;

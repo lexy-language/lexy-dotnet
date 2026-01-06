@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -13,7 +15,7 @@ public class ParenthesizedExpression : Expression
     private ParenthesizedExpression(Expression expression, ExpressionSource source, SourceReference reference) : base(
         source, reference)
     {
-        Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+        Expression = Assert.NotNull(expression, nameof(expression));
     }
 
     public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
@@ -37,7 +39,7 @@ public class ParenthesizedExpression : Expression
 
     internal static int FindMatchingClosingParenthesis(TokenList tokens)
     {
-        if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+        Assert.NotNull(tokens, nameof(tokens));
 
         var count = 0;
         for (var index = 0; index < tokens.Length; index++)

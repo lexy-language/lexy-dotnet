@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
+using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -18,7 +20,7 @@ internal static class NewFunctionStatement
 
     public static IEnumerable<StatementSyntax> Create(VariableDeclarationExpression expression)
     {
-        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        Assert.NotNull(expression, nameof(expression));
 
         if (expression.Assignment is not FunctionCallExpression functionCallExpression)
         {

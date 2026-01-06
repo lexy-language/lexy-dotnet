@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.FunctionLibraries;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -36,10 +38,10 @@ public class ValidationContext : IValidationContext
 
     public ValidationContext(IParserLogger logger, ComponentNodeList componentNodes, ITreeValidationVisitor visitor, ILibraries libraries)
     {
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        ComponentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
-        Visitor = visitor ?? throw new ArgumentNullException(nameof(visitor));
-        Libraries = libraries ?? throw new ArgumentNullException(nameof(libraries));
+        Logger = Assert.NotNull(logger, nameof(logger));
+        ComponentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));
+        Visitor = Assert.NotNull(visitor, nameof(visitor));
+        Libraries = Assert.NotNull(libraries, nameof(libraries));
     }
 
     public IDisposable CreateVariableScope()

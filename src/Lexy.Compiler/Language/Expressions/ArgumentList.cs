@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -16,7 +18,8 @@ public static class ArgumentList
 
     public static ArgumentTokenParseResult Parse(TokenList tokens)
     {
-        if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+        Assert.NotNull(tokens, nameof(tokens));
+
         if (tokens.Length == 0) return ArgumentTokenParseResult.Success(Array.Empty<TokenList>());
 
         var context = new ParseContext();

@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -18,7 +18,7 @@ public class ValidationTableRow : Node
         SourceReference reference) : base(reference)
     {
         Index = index;
-        Values = values ?? throw new ArgumentNullException(nameof(values));
+        Values = Assert.NotNull(values, nameof(values));
         this.tableHeader = tableHeader;
     }
 

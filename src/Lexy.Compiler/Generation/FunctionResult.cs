@@ -12,7 +12,7 @@ public class FunctionResult
 
     public IReadOnlyList<ExecutionLogEntry> Logging { get; }
 
-    public FunctionResult(object valueObject, IReadOnlyList<ExecutionLogEntry> logging)
+    public FunctionResult(object? valueObject, IReadOnlyList<ExecutionLogEntry> logging)
     {
         this.valueObject = valueObject;
         Logging = logging;

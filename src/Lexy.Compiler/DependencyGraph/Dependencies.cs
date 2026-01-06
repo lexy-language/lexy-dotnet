@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.DependencyGraph;
 
@@ -23,7 +23,7 @@ public class Dependencies
 
     public Dependencies(IComponentNodeList componentNodes)
     {
-        this.componentNodes = componentNodes ?? throw new ArgumentNullException(nameof(componentNodes));
+        this.componentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));
         nodesToProcess = new Queue<IComponentNode>(this.componentNodes);
     }
 

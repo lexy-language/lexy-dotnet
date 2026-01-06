@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
@@ -20,8 +22,8 @@ public class VariableDefinition : Node, IHasNodeDependencies
     private VariableDefinition(string name, VariableTypeDeclaration type,
         VariableSource source, SourceReference reference, Expression defaultExpression = null) : base(reference)
     {
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        Name = name ?? throw new ArgumentNullException(nameof(name));
+        Type = Assert.NotNull(type, nameof(type));
+        Name = Assert.NotNull(name, nameof(name));
 
         DefaultExpression = defaultExpression;
         Source = source;

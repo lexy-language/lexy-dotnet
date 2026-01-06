@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -12,7 +14,7 @@ public class TableHeader : Node
 
     private TableHeader(ColumnHeader[] columns, SourceReference reference) : base(reference)
     {
-        Columns = columns ?? throw new ArgumentNullException(nameof(columns));
+        Columns = Assert.NotNull(columns, nameof(columns));
     }
 
     public static TableHeader Parse(IParseLineContext context)

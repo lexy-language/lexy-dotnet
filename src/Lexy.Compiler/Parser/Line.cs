@@ -1,5 +1,7 @@
 using System;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
@@ -15,8 +17,8 @@ public class Line
     public Line(int index, string line, SourceFile file)
     {
         Index = index;
-        Content = line ?? throw new ArgumentNullException(nameof(line));
-        File = file ?? throw new ArgumentNullException(nameof(file));
+        Content = Assert.NotNull(line, nameof(line));
+        File = Assert.NotNull(file, nameof(file));
     }
 
     public int? Indent(IParserLogger logger)

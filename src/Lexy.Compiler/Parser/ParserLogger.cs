@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language;
+using Lexy.RunTime;
 using Microsoft.Extensions.Logging;
 
 namespace Lexy.Compiler.Parser;
@@ -16,7 +17,7 @@ public class ParserLogger : IParserLogger
 
     public ParserLogger(ILogger logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.logger = Assert.NotNull(logger, nameof(logger));
     }
 
     public bool HasErrors()
@@ -36,8 +37,8 @@ public class ParserLogger : IParserLogger
 
     public void Log(SourceReference reference, string message)
     {
-        if (reference == null) throw new ArgumentNullException(nameof(reference));
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        Assert.NotNull(reference, nameof(reference));
+        Assert.NotNull(message, nameof(message));
 
         logger.LogDebug("{Reference}: {Message}", reference, message);
         logEntries.Add(new LogEntry(reference, currentNode, false, $"{reference}: {message}"));
@@ -45,8 +46,8 @@ public class ParserLogger : IParserLogger
 
     public void Fail(SourceReference reference, string message)
     {
-        if (reference == null) throw new ArgumentNullException(nameof(reference));
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        Assert.NotNull(reference, nameof(reference));
+        Assert.NotNull(message, nameof(message));
 
         failedMessages++;
 
@@ -56,8 +57,8 @@ public class ParserLogger : IParserLogger
 
     public void Fail(INode node, SourceReference reference, string message)
     {
-        if (reference == null) throw new ArgumentNullException(nameof(reference));
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        Assert.NotNull(reference, nameof(reference));
+        Assert.NotNull(message, nameof(message));
 
         failedMessages++;
 
@@ -87,7 +88,7 @@ public class ParserLogger : IParserLogger
 
     public void SetCurrentNode(IComponentNode node)
     {
-        currentNode = node ?? throw new ArgumentNullException(nameof(node));
+        currentNode = Assert.NotNull(node, nameof(node));
     }
 
     public void ResetCurrentNode()
@@ -97,7 +98,7 @@ public class ParserLogger : IParserLogger
 
     public bool NodeHasErrors(IComponentNode node)
     {
-        if (node == null) throw new ArgumentNullException(nameof(node));
+        Assert.NotNull(node, nameof(node));
 
         return logEntries.Any(message => message.IsError && message.Node == node);
     }

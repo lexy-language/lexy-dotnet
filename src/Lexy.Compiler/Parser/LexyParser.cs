@@ -5,6 +5,7 @@ using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.RunTime;
 using Microsoft.Extensions.Logging;
 
 namespace Lexy.Compiler.Parser;
@@ -20,12 +21,12 @@ public class LexyParser : ILexyParser
 
     public LexyParser(ISourceCodeDocument sourceCodeDocument, ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IFileSystem fileSystem, IExpressionFactory expressionFactory, ILibraries libraries)
     {
-        this.sourceCodeDocument = sourceCodeDocument ?? throw new ArgumentNullException(nameof(sourceCodeDocument));
-        this.baseLogger = baseLogger ?? throw new ArgumentNullException(nameof(baseLogger));
-        this.tokenizer = tokenizer ?? throw new ArgumentNullException(nameof(tokenizer));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.expressionFactory = expressionFactory ?? throw new ArgumentNullException(nameof(expressionFactory));
-        this.libraries = libraries ?? throw new ArgumentNullException(nameof(libraries));
+        this.sourceCodeDocument = Assert.NotNull(sourceCodeDocument, nameof(sourceCodeDocument));
+        this.baseLogger = Assert.NotNull(baseLogger, nameof(baseLogger));
+        this.tokenizer = Assert.NotNull(tokenizer, nameof(tokenizer));
+        this.fileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
+        this.expressionFactory = Assert.NotNull(expressionFactory, nameof(expressionFactory));
+        this.libraries = Assert.NotNull(libraries, nameof(libraries));
     }
 
     public ParserResult ParseFile(string fileName, ParseOptions options)
@@ -38,7 +39,7 @@ public class LexyParser : ILexyParser
 
     public ParserResult Parse(string[] code, string fullFileName, ParseOptions options)
     {
-        if (code == null) throw new ArgumentNullException(nameof(code));
+        Assert.NotNull(code, nameof(code));
 
         var parserLogger = new ParserLogger(baseLogger);
         var context = new ParserContext(parserLogger, fileSystem, libraries, options);

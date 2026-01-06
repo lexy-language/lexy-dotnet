@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
@@ -10,7 +12,7 @@ public abstract class Node : INode
 
     protected Node(SourceReference reference)
     {
-        Reference = reference ?? throw new ArgumentNullException(nameof(reference));
+        Reference = Assert.NotNull(reference, nameof(reference));
     }
 
     public virtual void ValidateTree(IValidationContext context)
