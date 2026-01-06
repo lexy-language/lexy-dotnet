@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Lexy.Compiler.Compiler;
+using Lexy.Compiler.Generation;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 using Microsoft.Extensions.Logging;

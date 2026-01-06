@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-using Lexy.Compiler.Compiler;
+using Lexy.Compiler.Generation;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 using Microsoft.Extensions.Logging;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Compiler;
+using Lexy.Compiler.Generation;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.RunTime;
 

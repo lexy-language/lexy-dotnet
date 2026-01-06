@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using Lexy.Compiler.Compiler;
+using Lexy.Compiler.Generation;
 using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
 using Lexy.Tests.Compiler;
