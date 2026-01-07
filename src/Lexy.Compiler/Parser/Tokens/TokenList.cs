@@ -63,7 +63,7 @@ public class TokenList : IEnumerable<Token>
         return new TokenList(range);
     }
 
-    public bool IsTokenType<T>(int index)
+    public bool IsTokenType<T>(int index) where T : Token
     {
         return index >= 0 && index <= values.Length - 1 && values[index].GetType() == typeof(T);
     }

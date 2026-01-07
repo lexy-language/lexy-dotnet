@@ -11,7 +11,7 @@ internal static class FunctionCallSyntax
         Func<FunctionCallExpression, bool> Matches,
         Func<FunctionCallExpression, ExpressionSyntax> CreateExpressionSyntax);
 
-    private static readonly IList<Entry> entries = new List<Entry>();
+    private static readonly IList<Entry> Entries = new List<Entry>();
 
     static FunctionCallSyntax()
     {
@@ -35,7 +35,7 @@ internal static class FunctionCallSyntax
             return create(specific);
         }
 
-        entries.Add(new Entry(Matches, Create));
+        Entries.Add(new Entry(Matches, Create));
     }
 
     private static TExpression CastExpression<TExpression>(FunctionCallExpression expression)
@@ -52,7 +52,7 @@ internal static class FunctionCallSyntax
 
     public static ExpressionSyntax CreateExpressionSyntax(FunctionCallExpression expression)
     {
-        foreach (var creator in entries)
+        foreach (var creator in Entries)
         {
             if (creator.Matches(expression))
             {

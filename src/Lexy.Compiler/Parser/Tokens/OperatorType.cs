@@ -25,5 +25,6 @@ public enum OperatorType
     And,
     Or,
 
-    ArgumentSeparator
+    ArgumentSeparator,
+    Spread
 }

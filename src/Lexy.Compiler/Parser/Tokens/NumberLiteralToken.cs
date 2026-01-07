@@ -76,11 +76,11 @@ public class NumberLiteralToken : ParsableToken, ILiteralToken
         }
 
         return allowedNextTokensValues.Contains(value)
-            ? Finalize()
+            ? EndOfLine()
             : ParseTokenResult.Invalid($"Invalid number token character: '{value}'");
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         numberValue = decimal.Parse(base.Value, CultureInfo.InvariantCulture);
         return ParseTokenResult.Finished(false);

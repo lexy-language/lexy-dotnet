@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
@@ -14,7 +12,7 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 {
     public const string Name = "fill";
 
-    private readonly IList<Mapping> mapping = new List<Mapping>();
+    private VariablesMapping mapping;
 
     private string FunctionHelp => $"{Name} expects 1 argument fill(Function.Parameters)";
 
@@ -63,18 +61,17 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 
         Type = generatedType;
 
-        GetMapping(Reference, context, generatedType, mapping);
+        mapping = GetMapping(Reference, context, generatedType);
     }
 
-    internal static void GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType,
-        IList<Mapping> mapping)
+    internal static VariablesMapping GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType)
     {
         Assert.NotNull(reference, nameof(reference));
         Assert.NotNull(context, nameof(context));
-        Assert.NotNull(mapping, nameof(mapping));
 
-        if (generatedType == null) return;
+        if (generatedType == null) return null;
 
+        var mapping = new List<Mapping>();
         foreach (var member in generatedType.Members)
         {
             var variable = context.VariableContext.GetVariable(member.Name);
@@ -96,6 +93,8 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
             context.Logger.Fail(reference,
                 "Invalid parameter mapping. No parameter could be mapped from variables.");
         }
+
+        return new VariablesMapping(generatedType, mapping);
     }
 
     public override VariableType DeriveType(IValidationContext context)

@@ -11,7 +11,7 @@ public class TableSeparatorToken : ParsableToken
         return ParseTokenResult.Finished(true);
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         return ParseTokenResult.Finished(true);
     }

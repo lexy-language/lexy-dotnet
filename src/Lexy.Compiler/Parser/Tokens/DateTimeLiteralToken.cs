@@ -91,7 +91,7 @@ public class DateTimeLiteralToken : ParsableToken, ILiteralToken
         return ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         return ParseTokenResult.Invalid(
             @"Unexpected end of line. Closing quote expected. Format: d""2024-12-18T14:17:30""");

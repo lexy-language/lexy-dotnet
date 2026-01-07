@@ -42,8 +42,16 @@ public class KeywordTests : ScopedServicesTestFixture
     public void TestExpectErrorKeywordWithQuotedAndInvalidChar()
     {
         ServiceProvider
-            .TokenizeExpectError(@"  expectError ""Invalid token 'Paraeters'"".")
-            .ErrorMessage.ShouldContain(@"Invalid character at 41 '.'");
+            .TokenizeExpectError(@"  expectError ""Invalid token 'Paraeters'""$")
+            .ErrorMessage.ShouldContain(@"Invalid character at 41 '$'");
+    }
+
+    [Test]
+    public void TestIncompleteSpreadOperator()
+    {
+        ServiceProvider
+            .TokenizeExpectError(@"  .")
+            .ErrorMessage.ShouldContain(@"Invalid token at end of line. Incomplete token: '.'");
     }
 
     [Test]

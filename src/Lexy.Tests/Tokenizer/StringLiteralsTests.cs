@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Shouldly;
 
 namespace Lexy.Tests.Tokenizer;
 
@@ -22,5 +23,13 @@ public class StringLiteralsTests : ScopedServicesTestFixture
             .Count(1)
             .StringLiteral(0, "ThisIsAStringLiteral")
             .Assert();
+    }
+
+    [Test]
+    public void TestOpenEndStringLiteral()
+    {
+        ServiceProvider
+            .TokenizeExpectError(@"   ""ThisIsAStringLiteral")
+            .ErrorMessage.ShouldBe("Invalid token at end of line. Closing quote expected.");
     }
 }

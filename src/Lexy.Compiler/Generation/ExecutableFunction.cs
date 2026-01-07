@@ -158,7 +158,7 @@ public class ExecutableFunction
     {
         if (value != null && value is not Dictionary<string, object>)
         {
-            validationErrors.Add($"{name}' should have a complex type '{generatedType.Name}'. Invalid type: '{value.GetType().Name}'");
+            validationErrors.Add($"{name}' should have a object type '{generatedType.Name}'. Invalid type: '{value.GetType().Name}'");
             return;
         }
 

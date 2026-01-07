@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
@@ -32,7 +31,9 @@ public class Tokenizer : ITokenizer
             { TokenValues.NotEqualStart, value => new OperatorToken(value) },
 
             { TokenValues.And, value => new OperatorToken(value) },
-            { TokenValues.Or, value => new OperatorToken(value) }
+            { TokenValues.Or, value => new OperatorToken(value) },
+
+            { TokenValues.Spread, value => new OperatorToken(value) }
         };
 
     private readonly IDictionary<Func<char, bool>, Func<TokenCharacter, ParsableToken>> tokensValidators =
@@ -93,7 +94,7 @@ public class Tokenizer : ITokenizer
 
         if (current != null)
         {
-            var result = current.Finalize();
+            var result = current.EndOfLine();
             if (result.Status != TokenStatus.Finished)
             {
                 return TokenizeResult.Failed(line.LineEndReference(), $"Invalid token at end of line. {result.ValidationError}");
@@ -115,7 +116,11 @@ public class Tokenizer : ITokenizer
     private ParsableTokenResult StartToken(TokenCharacter character, int index, Line line)
     {
         var value = character.Value;
-        if (knownTokens.ContainsKey(value)) return ParsableTokenResult.Success(knownTokens[value](character));
+        if (knownTokens.ContainsKey(value))
+        {
+            var token = knownTokens[value](character);
+            return ParsableTokenResult.Success(token);
+        }
 
         foreach (var validator in tokensValidators)
         {

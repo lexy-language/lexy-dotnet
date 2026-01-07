@@ -10,29 +10,30 @@ public class ExpressionFactory : IExpressionFactory
 {
     private record Entry(Func<TokenList, bool> IsValid, Func<ExpressionSource, IExpressionFactory, ParseExpressionResult> Parse);
 
-    private static readonly IList<Entry>
-        factories =
-            new List<Entry>()
-            {
-                new (IfExpression.IsValid, IfExpression.Parse),
-                new (ElseExpression.IsValid, ElseExpression.Parse),
-                new (ElseIfExpression.IsValid, ElseIfExpression.Parse),
-                new (SwitchExpression.IsValid, SwitchExpression.Parse),
-                new (CaseExpression.IsValid, CaseExpression.Parse),
-                new (VariableDeclarationExpression.IsValid, VariableDeclarationExpression.Parse),
-                new (AssignmentExpression.IsValid, AssignmentExpression.Parse),
-                new (ParenthesizedExpression.IsValid, ParenthesizedExpression.Parse),
-                new (BracketedExpression.IsValid, BracketedExpression.Parse),
-                new (IdentifierExpression.IsValid, IdentifierExpression.Parse),
-                new (MemberAccessExpression.IsValid, MemberAccessExpression.Parse),
-                new (LiteralExpression.IsValid, LiteralExpression.Parse),
-                new (BinaryExpression.IsValid, BinaryExpression.Parse),
-                new (FunctionCallExpression.IsValid, FunctionCallExpressionParser.Parse)
-            };
+    private static readonly IList<Entry> Factories =
+        new List<Entry>()
+        {
+            new (IfExpression.IsValid, IfExpression.Parse),
+            new (ElseExpression.IsValid, ElseExpression.Parse),
+            new (ElseIfExpression.IsValid, ElseIfExpression.Parse),
+            new (SwitchExpression.IsValid, SwitchExpression.Parse),
+            new (CaseExpression.IsValid, CaseExpression.Parse),
+            new (VariableDeclarationExpression.IsValid, VariableDeclarationExpression.Parse),
+            new (SpreadAssignmentExpression.IsValid, SpreadAssignmentExpression.Parse),
+            new (AssignmentExpression.IsValid, AssignmentExpression.Parse),
+            new (ParenthesizedExpression.IsValid, ParenthesizedExpression.Parse),
+            new (BracketedExpression.IsValid, BracketedExpression.Parse),
+            new (IdentifierExpression.IsValid, IdentifierExpression.Parse),
+            new (MemberAccessExpression.IsValid, MemberAccessExpression.Parse),
+            new (LiteralExpression.IsValid, LiteralExpression.Parse),
+            new (SpreadExpression.IsValid, SpreadExpression.Parse),
+            new (BinaryExpression.IsValid, BinaryExpression.Parse),
+            new (FunctionCallExpression.IsValid, FunctionCallExpressionParser.Parse)
+        };
 
     public ParseExpressionResult Parse(TokenList tokens, Line currentLine)
     {
-        foreach (var factory in factories)
+        foreach (var factory in Factories)
         {
             if (factory.IsValid(tokens))
             {

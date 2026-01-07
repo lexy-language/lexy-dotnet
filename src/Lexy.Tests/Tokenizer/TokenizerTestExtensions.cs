@@ -43,7 +43,7 @@ public static class TokenizerTestExtensions
         var tokenizeResult = line.Tokenize(tokenizer);
         if (tokenizeResult.IsSuccess)
         {
-            throw new InvalidOperationException( "Process didn't fail, but should have: " + tokenizeResult.ErrorMessage);
+            throw new InvalidOperationException( "Tokenizing didn't fail, but should have: " + tokenizeResult.ErrorMessage);
         }
 
         return tokenizeResult;

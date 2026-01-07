@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Generation.CSharp.Syntax;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
@@ -64,17 +64,9 @@ internal static class FillFunctionStatement
                 IdentifierName(variableName),
                 IdentifierName(mapping.VariableName));
 
-            var right = mapping.VariableSource == VariableSource.Code
-                ? IdentifierName(mapping.VariableName)
-                : mapping.VariableSource == VariableSource.Parameters
-                    ? (ExpressionSyntax)MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(LexyCodeConstants.ParameterVariable),
-                        IdentifierName(mapping.VariableName))
-                    : throw new InvalidOperationException("Invalid source: " + mapping.VariableSource);
+            var right = VariableMapping.VariableSyntax(mapping);
 
-            yield return ExpressionStatement(
-                AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, left, right));
+            yield return ExpressionStatement(AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, left, right));
         }
     }
 }

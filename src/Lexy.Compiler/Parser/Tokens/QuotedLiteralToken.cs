@@ -38,11 +38,10 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
         return ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         if (!quoteClosed) return ParseTokenResult.Invalid("Closing quote expected.");
-
-        return ParseTokenResult.Finished(true);
+        throw new InvalidOperationException("Token should be finished by the Parse method before reaching end of line");
     }
 
     public override string ToString()

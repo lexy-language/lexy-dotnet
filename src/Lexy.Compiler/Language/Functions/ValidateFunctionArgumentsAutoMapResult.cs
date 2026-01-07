@@ -6,12 +6,9 @@ public class ValidateFunctionArgumentsAutoMapResult : ValidateFunctionArgumentsR
 {
     public VariableType ParameterType { get; }
 
-    public VariableType ResultType { get; }
-
     private ValidateFunctionArgumentsAutoMapResult(VariableType parameterType, VariableType resultType): base(true)
     {
         ParameterType = parameterType;
-        ResultType = resultType;
     }
 
     public static ValidateFunctionArgumentsAutoMapResult SuccessAutoMap(VariableType parameterType, VariableType resultType)

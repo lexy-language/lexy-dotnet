@@ -13,7 +13,7 @@ public class CommentToken : ParsableToken
         return ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         return ParseTokenResult.Finished(true);
     }

@@ -119,13 +119,13 @@ function TestSimpleReturn
     public void CustomType()
     {
         using var script = ServiceProvider.CompileFunction(@"
-type SimpleComplex
+type SimpleObject
   number First
   string Second
     
 function TestCustomType
   results
-    SimpleComplex Result
+    SimpleObject Result
   Result.First = 777
   Result.Second = ""123""
 ");
@@ -139,16 +139,16 @@ function TestCustomType
     public void CustomTypeNestedProperties()
     {
         using var script = ServiceProvider.CompileFunction(@"
-type InnerComplex
+type InnerObject
   number First
   string Second
     
-type SimpleComplex
-  InnerComplex Inner
+type SimpleObject
+  InnerObject Inner
     
 function TestCustomType
   results
-    SimpleComplex Result
+    SimpleObject Result
   Result.Inner.First = 777
   Result.Inner.Second = ""123""
 ");

@@ -44,7 +44,7 @@ public class ObjectAssignmentDefinition : ParsableNode, IAssignmentDefinition
         if (variableType is not DeclaredType && variableType is not GeneratedType)
         {
             context.Logger.Fail(Reference,
-                $"Variable '{Variable}' without assignment should be a complex type, but is '{variableType}'.");
+                $"Variable '{Variable}' without assignment should be an object type, but is '{variableType}'.");
         }
     }
 

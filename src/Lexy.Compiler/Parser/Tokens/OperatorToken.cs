@@ -5,17 +5,52 @@ namespace Lexy.Compiler.Parser.Tokens;
 
 public class OperatorToken : ParsableToken
 {
+    private enum CombinationMatch
+    {
+        Invalid,
+        Incomplete,
+        Complete,
+        CompleteNotProcessed
+    }
+
     private class OperatorCombinations
     {
-        public char FirstChar { get; }
-        public char? SecondChar { get; }
+        private readonly char firstChar;
+        private readonly char? secondChar;
+        private readonly char? thirdChar;
+        private readonly int chars;
+
         public OperatorType Type { get; }
 
-        public OperatorCombinations(char firstChar, char? secondChar, OperatorType type)
+        public OperatorCombinations(OperatorType type, char firstChar, char? secondChar = null, char? thirdChar = null)
         {
-            FirstChar = firstChar;
-            SecondChar = secondChar;
             Type = type;
+            this.firstChar = firstChar;
+            this.secondChar = secondChar;
+            this.thirdChar = thirdChar;
+            chars = thirdChar.HasValue ? 3 : secondChar.HasValue ? 2 : 1;
+        }
+
+        public CombinationMatch Matches(char firstCharacter, char? secondCharacter, char? thirdCharacter)
+        {
+            if (firstCharacter != firstChar) return CombinationMatch.Invalid;
+
+            if (!secondCharacter.HasValue)
+            {
+                return chars == 1 ? CombinationMatch.Complete : CombinationMatch.Invalid;
+            }
+
+            if (!thirdCharacter.HasValue)
+            {
+                return chars switch
+                {
+                    3 => secondCharacter == secondChar ? CombinationMatch.Incomplete : CombinationMatch.Invalid,
+                    2 => secondCharacter == secondChar ? CombinationMatch.Complete : CombinationMatch.Invalid,
+                    1 => CombinationMatch.CompleteNotProcessed,
+                };
+            }
+
+            return thirdCharacter == thirdChar && secondCharacter == secondChar ? CombinationMatch.Complete : CombinationMatch.Invalid;
         }
     }
 
@@ -33,61 +68,58 @@ public class OperatorToken : ParsableToken
 
     private static readonly IList<OperatorCombinations> operatorCombinations = new List<OperatorCombinations>
     {
-        new(TokenValues.Assignment, null, OperatorType.Assignment),
-        new(TokenValues.Addition, null, OperatorType.Addition),
-        new(TokenValues.Subtraction, null, OperatorType.Subtraction),
-        new(TokenValues.Multiplication, null, OperatorType.Multiplication),
-        new(TokenValues.DivisionOrComment, null, OperatorType.Division),
-        new(TokenValues.Modulus, null, OperatorType.Modulus),
-        new(TokenValues.OpenParentheses, null, OperatorType.OpenParentheses),
-        new(TokenValues.CloseParentheses, null, OperatorType.CloseParentheses),
-        new(TokenValues.OpenBrackets, null, OperatorType.OpenBrackets),
-        new(TokenValues.CloseBrackets, null, OperatorType.CloseBrackets),
-        new(TokenValues.GreaterThan, null, OperatorType.GreaterThan),
-        new(TokenValues.LessThan, null, OperatorType.LessThan),
-        new(TokenValues.ArgumentSeparator, null, OperatorType.ArgumentSeparator),
+        new(OperatorType.GreaterThanOrEqual, TokenValues.GreaterThan, TokenValues.Assignment),
+        new(OperatorType.LessThanOrEqual, TokenValues.LessThan, TokenValues.Assignment),
+        new(OperatorType.Equals, TokenValues.Assignment, TokenValues.Assignment),
+        new(OperatorType.NotEqual, TokenValues.NotEqualStart, TokenValues.Assignment),
+        new(OperatorType.And, TokenValues.And, TokenValues.And),
+        new(OperatorType.Or, TokenValues.Or, TokenValues.Or),
 
-        new(TokenValues.GreaterThan, TokenValues.Assignment, OperatorType.GreaterThanOrEqual),
-        new(TokenValues.LessThan, TokenValues.Assignment, OperatorType.LessThanOrEqual),
-        new(TokenValues.Assignment, TokenValues.Assignment, OperatorType.Equals),
-        new(TokenValues.NotEqualStart, TokenValues.Assignment, OperatorType.NotEqual),
-        new(TokenValues.And, TokenValues.And, OperatorType.And),
-        new(TokenValues.Or, TokenValues.Or, OperatorType.Or)
+        new(OperatorType.Assignment, TokenValues.Assignment),
+        new(OperatorType.Addition, TokenValues.Addition),
+        new(OperatorType.Subtraction, TokenValues.Subtraction),
+        new(OperatorType.Multiplication, TokenValues.Multiplication),
+        new(OperatorType.Division, TokenValues.DivisionOrComment),
+        new(OperatorType.Modulus, TokenValues.Modulus),
+        new(OperatorType.OpenParentheses, TokenValues.OpenParentheses),
+        new(OperatorType.CloseParentheses, TokenValues.CloseParentheses),
+        new(OperatorType.OpenBrackets, TokenValues.OpenBrackets),
+        new(OperatorType.CloseBrackets, TokenValues.CloseBrackets),
+        new(OperatorType.GreaterThan, TokenValues.GreaterThan),
+        new(OperatorType.LessThan, TokenValues.LessThan),
+        new(OperatorType.ArgumentSeparator, TokenValues.ArgumentSeparator),
+
+        new(OperatorType.Spread, TokenValues.Spread, TokenValues.Spread, TokenValues.Spread)
     };
 
     public OperatorType Type { get; private set; } = OperatorType.NotSet;
 
+    public OperatorToken(TokenCharacter character, OperatorType operatorType) : base(character)
+    {
+        Type = operatorType;
+    }
+
     public OperatorToken(TokenCharacter character) : base(character)
     {
-        var operatorValue = character.Value;
-        foreach (var combination in operatorCombinations)
-        {
-            if (!combination.SecondChar.HasValue && combination.FirstChar == operatorValue)
-            {
-                Type = combination.Type;
-            }
-        }
     }
 
     public override ParseTokenResult Parse(TokenCharacter character)
     {
-        var value = character.Value;
-        if (Value.Length == 1)
+        var nextCharacter = character.Value;
+        var firstCharacter = Value[0];
+        var secondCharacter = Value.Length == 2 ? Value[1] : nextCharacter;
+        var thirdCharacter = Value.Length == 2 ? nextCharacter : (char?) null;
+
+        foreach (var combination in operatorCombinations)
         {
-            foreach (var combination in operatorCombinations)
-            {
-                if (combination.SecondChar.HasValue
-                 && combination.SecondChar.Value == value
-                 && combination.FirstChar == Value[0])
-                {
-                    Type = combination.Type;
-                    AppendValue(value);
-                    return ParseTokenResult.Finished(true);
-                }
-            }
+            var matches = combination.Matches(firstCharacter, secondCharacter, thirdCharacter);
+
+            if (matches == CombinationMatch.Invalid) continue;
+
+            return ParseToken(matches, combination, nextCharacter);
         }
 
-        if (char.IsLetterOrDigit(value) || TerminatorValues.Contains(value))
+        if (char.IsLetterOrDigit(nextCharacter) || TerminatorValues.Contains(nextCharacter))
         {
             if (Value.Length == 1 && Value[0] == TokenValues.TableSeparator)
             {
@@ -96,16 +128,50 @@ public class OperatorToken : ParsableToken
             return ParseTokenResult.Finished(false);
         }
 
-        return ParseTokenResult.Invalid($"Invalid token: {value}");
+        return ParseTokenResult.Invalid($"Invalid token at {character.Position}: '{nextCharacter}'");
     }
 
-    public override ParseTokenResult Finalize()
+    private ParseTokenResult ParseToken(CombinationMatch matches, OperatorCombinations combination, char nextCharacter)
+    {
+        if (matches is CombinationMatch.Incomplete)
+        {
+            AppendValue(nextCharacter);
+            return ParseTokenResult.InProgress();
+        }
+
+        Type = combination.Type;
+
+        if (matches is CombinationMatch.Complete)
+        {
+            AppendValue(nextCharacter);
+        }
+
+        return ParseTokenResult.Finished(matches == CombinationMatch.Complete);
+    }
+
+    public override ParseTokenResult EndOfLine()
     {
         if (Value == TokenValues.TableSeparator.ToString())
         {
             return ParseTokenResult.Finished(false, new TableSeparatorToken(FirstCharacter));
         }
 
-        return ParseTokenResult.Finished(false);
+        var firstCharacter = Value[0];
+        char? secondCharacter = Value.Length > 1 ? Value[1] : null;
+        char? thirdCharacter = Value.Length > 2 ? Value[2] : null;
+
+        foreach (var combination in operatorCombinations)
+        {
+            var matches = combination.Matches(firstCharacter, secondCharacter, thirdCharacter);
+
+            if (matches == CombinationMatch.Complete
+             || matches == CombinationMatch.CompleteNotProcessed)
+            {
+                Type = combination.Type;
+                return ParseTokenResult.Finished(false);
+            }
+        }
+
+        return ParseTokenResult.Invalid($"Incomplete token: '{Value}'");
     }
 }

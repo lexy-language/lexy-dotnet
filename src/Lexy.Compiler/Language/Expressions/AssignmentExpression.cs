@@ -39,8 +39,8 @@ public class AssignmentExpression : Expression
     public static bool IsValid(TokenList tokens)
     {
         return tokens.Length >= 3
-               && (tokens.IsTokenType<StringLiteralToken>(0) || tokens.IsTokenType<MemberAccessLiteralToken>(0))
-               && tokens.IsOperatorToken(1, OperatorType.Assignment);
+            && (tokens.IsTokenType<StringLiteralToken>(0) || tokens.IsTokenType<MemberAccessLiteralToken>(0))
+            && tokens.IsOperatorToken(1, OperatorType.Assignment);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -52,7 +52,8 @@ public class AssignmentExpression : Expression
     protected override void Validate(IValidationContext context)
     {
         if (Variable is not IHasVariableReference hasVariableReference
-            || hasVariableReference.Variable == null) {
+         || hasVariableReference.Variable == null)
+        {
             context.Logger.Fail(Reference, $"Unknown variable name: '{Variable}'.");
             return;
         }
@@ -71,14 +72,21 @@ public class AssignmentExpression : Expression
         return Assignment.DeriveType(context);
     }
 
-    public override IEnumerable<VariableUsage> UsedVariables() {
+    public override IEnumerable<VariableUsage> UsedVariables()
+    {
         if (Variable is not IHasVariableReference hasVariableReference
-            || hasVariableReference.Variable == null)
+         || hasVariableReference.Variable == null)
         {
             return Assignment.GetReadVariableUsage();
         }
+
         var assignmentVariable = hasVariableReference.Variable;
-        var writeVariableUsage = new VariableUsage(assignmentVariable.Path, assignmentVariable.ComponentType, assignmentVariable.VariableType, assignmentVariable.Source, VariableAccess.Write);
+        var writeVariableUsage = new VariableUsage(assignmentVariable.Path,
+            assignmentVariable.ComponentType,
+            assignmentVariable.VariableType,
+            assignmentVariable.Source,
+            VariableAccess.Write);
+
         return new [] { writeVariableUsage }
             .Union(Assignment.GetReadVariableUsage());
     }

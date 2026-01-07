@@ -34,8 +34,8 @@ public static class ExpressionVariablesExtensions
         var results = new List<VariableUsage>();
         NodesWalker.Walk(expression, node =>
         {
-            var expression = node as Expression;
-            expression.AddVariableExpression(results);
+            var expressionNode = node as Expression;
+            expressionNode.AddVariableExpression(results);
         });
         return results;
     }

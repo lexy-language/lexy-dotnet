@@ -23,9 +23,7 @@ public class TableType : ObjectType
         {
             Table.CountName => PrimitiveType.Number,
             Table.RowName => TableRowType(componentNodes),
-            _ => Table.Header?.GetColumn(name) != null
-                ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<ObjectTypeVariable>())
-                : null
+            _ => TableColumnType(name)
         };
     }
 
@@ -64,9 +62,15 @@ public class TableType : ObjectType
         return TableName;
     }
 
-
     private GeneratedType TableRowType(IComponentNodeList componentNodes)
     {
         return componentNodes.GetTable(TableName)?.GetRowType();
+    }
+
+    private GeneratedType TableColumnType(string name)
+    {
+        return Table.Header?.GetColumn(name) != null
+            ? new GeneratedType(name, Table, GeneratedTypeSource.TableColumn, Array.Empty<ObjectTypeVariable>())
+            : null;
     }
 }

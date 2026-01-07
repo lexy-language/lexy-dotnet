@@ -1,74 +1,106 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Generation.CSharp.Syntax;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Lexy.Compiler.Generation.CSharp.FunctionCalls;
 
 //LexyFunction(variable)
 internal static class LexyFunctionCallSyntax
 {
-    public static bool Matches(LexyFunctionCallExpression expression) => true;
+    public static bool Matches(LexyFunctionCallExpression expression)
+    {
+        return true;
+    }
 
     public static ExpressionSyntax Create(LexyFunctionCallExpression expression)
     {
-        var lexyFunctionCall = Assert.Is<LexyFunctionCall>(expression.FunctionCall, "expression.FunctionCall");
-
-        return RunFunction(expression.FunctionName, lexyFunctionCall.ArgumentExpressions);
+        return RunFunction(expression.FunctionName, expression.Arguments, expression.ParametersMapping);
     }
 
     public static InvocationExpressionSyntax RunFunction(string functionName, string variableName)
     {
         var argumentsSyntax = new SyntaxNodeOrToken[]
         {
-            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(variableName)),
-            SyntaxFactory.Token(SyntaxKind.CommaToken),
-            SyntaxFactory.Argument(SyntaxFactory.IdentifierName(LexyCodeConstants.ContextVariable))
+            Argument(IdentifierName(variableName)),
+            Token(SyntaxKind.CommaToken),
+            Argument(IdentifierName(LexyCodeConstants.ContextVariable))
         };
 
         return InvocationExpressionSyntax(LexyCodeConstants.RunMethod, functionName, argumentsSyntax);
     }
 
-    private static InvocationExpressionSyntax RunFunction(string functionName, IReadOnlyList<Expression> arguments)
+    private static InvocationExpressionSyntax RunFunction(string functionName, IReadOnlyList<Expression> arguments,
+        VariablesMapping mapping)
     {
-        var argumentsSyntax = GetArguments(arguments);
-        argumentsSyntax.Add(SyntaxFactory.Token(SyntaxKind.CommaToken));
-        argumentsSyntax.Add(SyntaxFactory.Argument(SyntaxFactory.IdentifierName(LexyCodeConstants.ContextVariable)));
+        var argumentsSyntax = GetArguments(arguments, mapping);
+        argumentsSyntax.Add(Token(SyntaxKind.CommaToken));
+        argumentsSyntax.Add(Argument(IdentifierName(LexyCodeConstants.ContextVariable)));
 
         return InvocationExpressionSyntax(LexyCodeConstants.RunMethod, functionName, argumentsSyntax);
     }
 
     private static InvocationExpressionSyntax InvocationExpressionSyntax(string runMethodName, string functionName, IReadOnlyList<SyntaxNodeOrToken> argumentsSyntax)
     {
-        return SyntaxFactory.InvocationExpression(
-                SyntaxFactory.MemberAccessExpression(
+        return InvocationExpression(
+                MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(ClassNames.FunctionClassName(functionName)),
-                    SyntaxFactory.IdentifierName(runMethodName)))
+                    IdentifierName(ClassNames.FunctionClassName(functionName)),
+                    IdentifierName(runMethodName)))
             .WithArgumentList(
-                SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SeparatedList<ArgumentSyntax>(argumentsSyntax)));
+                ArgumentList(
+                    SeparatedList<ArgumentSyntax>(argumentsSyntax)));
     }
 
-    private static List<SyntaxNodeOrToken> GetArguments(IReadOnlyList<Expression> arguments)
+    private static List<SyntaxNodeOrToken> GetArguments(IReadOnlyList<Expression> arguments, VariablesMapping mappings)
     {
-        var argumentsSyntax = new List<SyntaxNodeOrToken>();
+        if (arguments.Count == 1 && arguments[0] is SpreadExpression)
+        {
+            return new List<SyntaxNodeOrToken>{MappedParametersObject(mappings)};
+        }
 
+        var argumentsSyntax = new List<SyntaxNodeOrToken>();
         foreach (var argument in arguments)
         {
             if (argumentsSyntax.Count > 0)
             {
-                argumentsSyntax.Add(SyntaxFactory.Token(SyntaxKind.CommaToken));
+                argumentsSyntax.Add(Token(SyntaxKind.CommaToken));
             }
 
-            argumentsSyntax.Add(SyntaxFactory.Argument(Expressions.ExpressionSyntax(argument)));
+            argumentsSyntax.Add(Argument(Expressions.ExpressionSyntax(argument)));
         }
-
         return argumentsSyntax;
     }
+
+    private static ArgumentSyntax MappedParametersObject(VariablesMapping mappings)
+    {
+        Assert.NotNull(mappings, "expression.mapping");
+
+        var mappingsSyntax = new List<SyntaxNodeOrToken>();
+
+        for (var index = 0; index < mappings.Count; index++)
+        {
+            var mapping = mappings[index];
+            mappingsSyntax.Add(VariableMapping.AssignmentSyntax(mapping));
+
+            if (index < mappings.Count - 1)
+            {
+                mappingsSyntax.Add(Token(SyntaxKind.CommaToken));
+            }
+        }
+
+        return Argument(
+            ObjectCreationExpression(Types.Syntax(mappings.MappingType))
+            .WithInitializer(
+                InitializerExpression(
+                    SyntaxKind.ObjectInitializerExpression,
+                    SeparatedList<ExpressionSyntax>(
+                        mappingsSyntax))));
+    }
+
 }

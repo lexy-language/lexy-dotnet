@@ -18,7 +18,7 @@ internal static class ExpressionStatement
         Add<VariableDeclarationExpression>(NewFunctionStatement.Matches, NewFunctionStatement.Create);
         Add<VariableDeclarationExpression>(FillFunctionStatement.Matches, FillFunctionStatement.Create);
         Add<ExtractResultsFunctionExpression>(ExtractFunctionStatement.Matches, ExtractFunctionStatement.Create);
-        Add<LexyFunctionCallExpression>(AutoMapLexyFunctionStatement.Matches, AutoMapLexyFunctionStatement.Create);
+        Add<SpreadAssignmentExpression>(AutoMapLexyFunctionStatement.Matches, AutoMapLexyFunctionStatement.Create);
     }
 
     private static void Add<TExpression>(Func<TExpression, bool> matches, Func<TExpression, IEnumerable<StatementSyntax>> create)

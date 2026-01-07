@@ -14,7 +14,7 @@ public class DependencyOrderTests : ScopedServicesTestFixture
     EnumExample EnumValue
   results
     number Result
-  Result = lookUp(TableExample, EnumExample.Single, TableExample.Example, TableExample.Value)
+  Result = TableExample.LookUp(EnumExample.Single, TableExample.Example, TableExample.Value)
 
 table TableExample
   | EnumExample Example | number Value |
@@ -42,8 +42,8 @@ enum EnumExample
       TypeExample Example
     results
       number Result
-    FunctionWithFunctionDependency()
-    FunctionWithFunctionTypeDependency()
+    ... = FunctionWithFunctionDependency(...)
+    ... = FunctionWithFunctionTypeDependency(...)
   parameters
     Example.EnumValue = EnumExample.Single
     Example.Nested.EnumValue = EnumExample.Married
@@ -55,9 +55,9 @@ function FunctionWithFunctionDependency
     TypeExample Example
   results
     number Result
-  FunctionWithTypeDependency()
-  FunctionWithTableDependency()
-  FunctionWithEnumDependency()
+  ... = FunctionWithTypeDependency(...)
+  ... = FunctionWithTableDependency(...)
+  ... = FunctionWithEnumDependency(...)
 
 function FunctionWithFunctionTypeDependency
   parameters

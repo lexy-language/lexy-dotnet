@@ -98,7 +98,7 @@ internal static class Types
         return type switch
         {
             PrimitiveVariableTypeDeclaration primitive => Syntax(primitive.Type),
-            ObjectVariableTypeDeclaration complex => IdentifierNameSyntax(complex),
+            ObjectVariableTypeDeclaration objectDeclararion => IdentifierNameSyntax(objectDeclararion),
             ImplicitVariableTypeDeclaration implicitVariable => Syntax(implicitVariable.VariableType),
             _ => throw new InvalidOperationException("Couldn't map type: " + type)
         };

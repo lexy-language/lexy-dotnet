@@ -66,9 +66,9 @@ public class Function : ComponentNode, IHasNodeDependencies
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (parameter.Type is not ObjectVariableTypeDeclaration complexVariableType) continue;
+            if (parameter.Type is not ObjectVariableTypeDeclaration objectVariableType) continue;
 
-            var dependency = complexVariableType.GetNode(componentNodes);
+            var dependency = objectVariableType.GetNode(componentNodes);
             if (dependency != null)
             {
                 result.Add(dependency);
@@ -119,12 +119,12 @@ public class Function : ComponentNode, IHasNodeDependencies
     public ValidateFunctionArgumentsResult ValidateArguments(IValidationContext context,
         IReadOnlyList<Expression> arguments, SourceReference reference)
     {
-        return arguments.Count == 0
-            ? ValidateNoArgumentCall()
+        return HasSpreadArgument(arguments)
+            ? ValidateAutoMap()
             : ValidateWithArguments(context, arguments, reference);
     }
 
-    private ValidateFunctionArgumentsResult ValidateNoArgumentCall()
+    private ValidateFunctionArgumentsResult ValidateAutoMap()
     {
         return ValidateFunctionArgumentsAutoMapResult.SuccessAutoMap(GetParametersType(), GetResultsType());
     }
@@ -193,6 +193,15 @@ public class Function : ComponentNode, IHasNodeDependencies
         return new FunctionSignature(parameters, GetResultsType());
     }
 
-    private IReadOnlyList<VariableType> GetArgumentTypes(IEnumerable<Expression> arguments, IValidationContext context) =>
-        arguments.Select(argument => argument.DeriveType(context)).ToArray();
+    private IReadOnlyList<VariableType> GetArgumentTypes(IReadOnlyList<Expression> arguments, IValidationContext context)
+    {
+        return HasSpreadArgument(arguments)
+            ? new[] { GetResultsType() }
+            : arguments.Select(argument => argument.DeriveType(context)).ToArray();
+    }
+
+    private static bool HasSpreadArgument(IReadOnlyList<Expression> arguments)
+    {
+        return arguments.Count == 1 && arguments[0] is SpreadExpression;
+    }
 }

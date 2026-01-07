@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
@@ -12,14 +10,12 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
 {
     public const string Name = "extract";
 
-    private readonly IList<Mapping> mapping = new List<Mapping>();
-
     private string FunctionHelp => $"{Name} expects 1 argument. extract(variable)";
 
     public string FunctionResultVariable { get; }
     public Expression ValueExpression { get; }
 
-    public IEnumerable<Mapping> Mapping => mapping;
+    public VariablesMapping Mapping { get; private set; }
 
     private ExtractResultsFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
@@ -57,17 +53,17 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
                 $"Use new(Function.Results) or fill(Function.Results) to create new function results. {FunctionHelp}");
         }
 
-        GetMapping(Reference, context, generatedType, mapping);
+        Mapping = GetMapping(Reference, context, generatedType);
     }
 
-    internal static void GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType,
-        IList<Mapping> mapping)
+    internal static VariablesMapping GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType)
     {
         Assert.NotNull(reference, nameof(reference));
         Assert.NotNull(context, nameof(context));
-        Assert.NotNull(mapping, nameof(mapping));
 
-        if (generatedType == null) return;
+        if (generatedType == null) return null;
+
+        var mapping = new List<Mapping>();
 
         foreach (var member in generatedType.Members)
         {
@@ -90,6 +86,8 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
             context.Logger.Fail(reference,
                 "Invalid parameter mapping. No parameter could be mapped from variables.");
         }
+
+        return new VariablesMapping(generatedType, mapping);
     }
 
     public override VariableType DeriveType(IValidationContext context) => new VoidType();
@@ -102,6 +100,6 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
     public override IEnumerable<VariableUsage> UsedVariables()
     {
         return base.UsedVariables()
-            .Union(mapping.Select(map => map.ToUsedVariable(VariableAccess.Write)));
+            .Union(Mapping.Select(map => map.ToUsedVariable(VariableAccess.Write)));
     }
 }

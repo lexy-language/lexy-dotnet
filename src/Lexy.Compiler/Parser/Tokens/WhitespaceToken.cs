@@ -14,7 +14,7 @@ internal class WhitespaceToken : ParsableToken
             : ParseTokenResult.InProgress();
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         return ParseTokenResult.Finished(true);
     }

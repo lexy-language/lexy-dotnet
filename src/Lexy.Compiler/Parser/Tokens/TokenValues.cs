@@ -26,7 +26,9 @@ public static class TokenValues
     public const char And = '&';
     public const char Or = '|';
 
+    public const char Spread = '.';
     public const char DecimalSeparator = '.';
+
     public const string DateTimeStarter = "d";
 
     public const string BooleanTrue = "true";

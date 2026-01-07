@@ -34,5 +34,5 @@ public abstract class ParsableToken : Token
 
     public abstract ParseTokenResult Parse(TokenCharacter character);
 
-    public abstract ParseTokenResult Finalize();
+    public abstract ParseTokenResult EndOfLine();
 }

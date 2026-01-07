@@ -53,7 +53,7 @@ public class BuildLiteralToken : ParsableToken
         return ParseTokenResult.Invalid($"Unexpected character: '{value}'");
     }
 
-    public override ParseTokenResult Finalize()
+    public override ParseTokenResult EndOfLine()
     {
         if (lastMemberAccessor)
             return ParseTokenResult.Invalid(
