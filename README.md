@@ -16,7 +16,12 @@ Check [lexy-language](https://github.com/lexy-language/lexy-language) for more i
 - [ ] Code: get rid of all warnings
 - [ ] Benchmarking: add performance tests for compilation and execution across compilers and improve compilation time 
 - [ ] Packaging: publish NuGet package from GitHub Actions
+
+## Future ideas
 - [ ] Compilation: provide api to store compiled scripts (and assembly) on filesystem (or in db), and to execute them later without compiling.
+- [ ] Compilation: allow to include pre-compiled lexy scripts
+- [ ] Compilation: partial compilantion of single files without the need to recompile eveything
+- [ ] Compilation: create api for code completion: funciton names, variables (per function), function overloads
 
 # Implementations notes
 
