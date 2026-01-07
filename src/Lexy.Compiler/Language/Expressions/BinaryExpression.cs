@@ -10,7 +10,6 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class BinaryExpression : Expression
 {
-
     private class OperatorEntry
     {
         public OperatorType OperatorType { get; }

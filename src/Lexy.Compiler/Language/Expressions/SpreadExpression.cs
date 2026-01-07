@@ -40,6 +40,7 @@ public class SpreadExpression : Expression
 
     public override VariableType DeriveType(IValidationContext context)
     {
-        throw new InvalidOperationException("Not valid");
+        context.Logger.Fail(Reference, "Invalid spread operator. The spread operator '...' can only be used in an Lexy function call with as a single argument.");
+        return null;
     }
 }
