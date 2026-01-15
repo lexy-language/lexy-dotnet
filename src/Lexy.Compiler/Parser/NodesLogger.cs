@@ -11,7 +11,10 @@ public class NodesLogger
 
     public void Log(IEnumerable<INode> nodes)
     {
-        foreach (var node in nodes) Log(node);
+        foreach (var node in nodes)
+        {
+            Log(node);
+        }
     }
 
     private void Log(INode node)
@@ -19,9 +22,13 @@ public class NodesLogger
         builder.Append(new string(' ', indent));
 
         if (node is IComponentNode componentNode)
+        {
             builder.AppendLine($"{componentNode.GetType().Name}: {componentNode.NodeName}");
+        }
         else
+        {
             builder.AppendLine(node == null ? "<null>" : node?.GetType().Name);
+        }
 
         if (node == null) return;
 

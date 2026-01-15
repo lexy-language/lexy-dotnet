@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ namespace Lexy.Tests.Parser.Expressions;
 public class IfExpressionTests : ScopedServicesTestFixture
 {
     [Test]
-    public void CheckIfStatement()
+    public async Task CheckIfStatement()
     {
       const string code = @"
 function If
@@ -24,7 +25,7 @@ function If
     temp = 666
   Number = temp";
 
-        var (function, logger) = ServiceProvider.ParseFunction(code);
+        var (function, logger) = await ServiceProvider.ParseFunction(code);
 
         logger.AssertNoErrors();
 

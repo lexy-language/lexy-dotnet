@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Lexy.Compiler.Generation;
+using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Functions;
+using Lexy.Compiler.Language.Scenarios;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,11 +36,11 @@ public static class CompilerExtensions
         }
     }
 
-    public static CompileFunctionResult CompileFunction(this IServiceProvider serviceProvider, string code)
+    public static async Task<CompileFunctionResult> CompileFunction(this IServiceProvider serviceProvider, string code)
     {
         Assert.NotNull(code, nameof(code));
 
-        var (componentNodes, logger) = serviceProvider.ParseNodes(code);
+        var (componentNodes, logger, _) = await serviceProvider.ParseNodes(code);
         if (logger.HasErrors())
         {
             throw new InvalidOperationException("Parsing failed: " + logger.FormatMessages());
@@ -46,7 +49,16 @@ public static class CompilerExtensions
         var compiler = serviceProvider.GetRequiredService<ILexyCompiler>();
         var environment = compiler.Compile(componentNodes);
 
-        var firstOrDefault = componentNodes.OfType<Function>().FirstOrDefault();
-        return new CompileFunctionResult(environment.GetFunction(firstOrDefault), environment);
+        var functionNode = GetFunctionNode(componentNodes);
+
+        Assert.NotNull(functionNode, nameof(functionNode));
+
+        return new CompileFunctionResult(environment.GetFunction(functionNode), environment);
+    }
+
+    private static Function GetFunctionNode(ComponentNodeList componentNodes)
+    {
+        var node = componentNodes.FirstOrDefault(node => node is Function or Scenario);
+        return node is Function function ? function : (node as Scenario)?.Function;
     }
 }

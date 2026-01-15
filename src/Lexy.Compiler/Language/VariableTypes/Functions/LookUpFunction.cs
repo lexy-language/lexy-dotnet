@@ -10,8 +10,8 @@ internal class LookUpFunction : TableFunction
     private const string FunctionHelpValue =
         "Arguments: " +
            "TableName.LookUp(lookUpValue, Table.ResultColumn) " +
-        "or TableName.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn)" +
-        "or TableName.LookUp(discriminator, lookUpValue, Table.ResultColumn)" +
+        "or TableName.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn) " +
+        "or TableName.LookUp(discriminator, lookUpValue, Table.ResultColumn) " +
         "or TableName.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
 
     private record OverloadArguments(

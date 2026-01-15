@@ -1,15 +1,38 @@
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Lexy.Compiler.Infrastructure;
 
-class FileSystem : IFileSystem
+public class FileSystem : IFileSystem
 {
-    public string[] ReadAllLines(string fileName)
+    public Task<string[]> ReadAllLines(string fileName)
     {
-        return File.ReadAllLines(fileName);
+        return File.ReadAllLinesAsync(fileName);
     }
 
+    public Task<bool> FileExists(string fileName)
+    {
+        return Task.FromResult(Path.Exists(fileName));
+    }
+
+    public Task<bool> DirectoryExists(string directory)
+    {
+        return Task.FromResult(Directory.Exists(directory));
+    }
+    public Task<string[]> GetDirectoryFiles(string folder, string[] extensions)
+    {
+        var files = Directory.GetFiles(folder)
+            .Where(file => extensions.Any(file.EndsWith))
+            .ToArray();
+        return Task.FromResult(files);
+    }
+
+    public Task<string[]> GetDirectories(string folder)
+    {
+        var directories = Directory.GetDirectories(folder);
+        return Task.FromResult(directories);
+    }
     public string GetFileName(string fileName)
     {
         return Path.GetFileName(fileName);
@@ -17,7 +40,7 @@ class FileSystem : IFileSystem
 
     public string GetDirectoryName(string fileName)
     {
-        throw new System.NotImplementedException();
+        return Path.GetDirectoryName(fileName);
     }
 
     public string GetFullPath(string fileName)
@@ -28,38 +51,12 @@ class FileSystem : IFileSystem
 
     public string Combine(string fullPath, string fileName)
     {
-        throw new System.NotImplementedException();
+        return Path.Combine(fullPath, fileName);
     }
 
-    public bool FileExists(string fileName)
-    {
-        return Path.Exists(fileName);
-    }
+    public bool IsPathRooted(string folder) => Path.IsPathRooted(folder);
 
-    public bool DirectoryExists(string directory)
-    {
-        return Directory.Exists(directory);
-    }
+    public string LogFolders() => throw new System.NotImplementedException();
 
-    public bool IsPathRooted(string folder)
-    {
-        return Path.IsPathRooted(folder);
-    }
-
-    public string[] GetDirectoryFiles(string folder, string[] extensions)
-    {
-        return Directory.GetFiles(folder)
-            .Where(file => extensions.Any(file.EndsWith))
-            .ToArray();
-    }
-
-    public string[] GetDirectories(string folder)
-    {
-        return Directory.GetDirectories(folder);
-    }
-
-    public string LogFolders()
-    {
-        throw new System.NotImplementedException();
-    }
+    public string CurrentFolder() => Directory.GetCurrentDirectory();
 }

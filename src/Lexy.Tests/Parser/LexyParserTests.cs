@@ -1,4 +1,4 @@
-using Lexy.Compiler.Language.VariableTypes;
+using System.Threading.Tasks;
 using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
@@ -9,14 +9,14 @@ namespace Lexy.Tests.Parser;
 public class LexyParserTests : ScopedServicesTestFixture
 {
     [Test]
-    public void TestSimpleReturn()
+    public async Task TestSimpleReturn()
     {
         const string code = @"function TestSimpleReturn
   results
     number Result
   Result = 777";
 
-        var (function, logger) = ServiceProvider.ParseFunction(code);
+        var (function, logger) = await ServiceProvider.ParseFunction(code);
 
         logger.HasErrors().ShouldBeFalse(logger.ToString());
         function.Name.Value.ShouldBe("TestSimpleReturn");
@@ -29,14 +29,14 @@ public class LexyParserTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestFunctionKeywords()
+    public async Task TestFunctionKeywords()
     {
         const string code = @"function ValidateFunctionKeywords
 // Validate function keywords
   parameters
   results";
 
-        var (_, logger) = ServiceProvider.ParseFunction(code);
+        var (_, logger) = await ServiceProvider.ParseFunction(code);
         logger.HasErrors().ShouldBeFalse(logger.ToString());
     }
 }

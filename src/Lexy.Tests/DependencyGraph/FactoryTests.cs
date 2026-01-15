@@ -1,12 +1,10 @@
-using System.Linq;
-using Lexy.Compiler.Language.Enums;
-using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.Scenarios;
-using Lexy.Compiler.Language.Tables;
-using Lexy.Compiler.Language.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Lexy.Compiler.DependencyGraph;
+using Lexy.Compiler.Language;
 using NUnit.Framework;
-using Shouldly;
-using Table = Lexy.Compiler.Language.Tables.Table;
 
 namespace Lexy.Tests.DependencyGraph;
 
@@ -32,121 +30,189 @@ public class FactoryTests : ScopedServicesTestFixture
   Result = Value
 ";
 
+    private readonly Expression<Func<IComponentNode,string>> nodeType = item => item.NodeName;
+    private readonly Expression<Func<Dependencies,IReadOnlyList<IComponentNode>>> sortedNodes = value => value.SortedNodes;
+
     [Test]
-    public void SimpleEnum()
+    public async Task SimpleEnum()
     {
-        var dependencies = ServiceProvider.BuildGraph(enumDefinition);
-        dependencies.DependencyNodes.Count.ShouldBe(1);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleEnum");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
+        var dependencies = await ServiceProvider.BuildGraph(enumDefinition);
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 1)
+            .ContainsKey(model => model.DependencyNodes, "SimpleEnum", __ => __
+                .AreEqual(simpleEnum => simpleEnum.Dependencies.Count, 0)
+                .AreEqual(simpleEnum => simpleEnum.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleEnum")
+        );
     }
 
     [Test]
-    public void SimpleTable()
+    public async Task SimpleTable()
     {
-        var dependencies = ServiceProvider.BuildGraph(table);
-        dependencies.DependencyNodes.Count.ShouldBe(1);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleTable");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
+        var dependencies = await ServiceProvider.BuildGraph(table);
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 1)
+            .ContainsKey(model => model.DependencyNodes, "SimpleTable", __ => __
+                .AreEqual(simpleEnum => simpleEnum.Dependencies.Count, 0)
+                .AreEqual(simpleEnum => simpleEnum.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleTable")
+        );
     }
 
     [Test]
-    public void SimpleFunction()
+    public async Task SimpleFunction()
     {
-        var dependencies = ServiceProvider.BuildGraph(function);
-        dependencies.DependencyNodes.Count.ShouldBe(1);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleFunction");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
+        var dependencies = await ServiceProvider.BuildGraph(function);
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 1)
+            .ContainsKey(model => model.DependencyNodes, "SimpleFunction", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleFunction")
+        );
     }
 
     [Test]
-    public void FunctionNewFunctionParameters()
+    public async Task FunctionNewFunctionParameters()
     {
-        var dependencies = ServiceProvider.BuildGraph(function + @"
+        var dependencies = await ServiceProvider.BuildGraph(function + @"
 function Caller
   var params = new(SimpleFunction.Parameters)
 ");
 
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleFunction");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Caller");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Dependencies[0].ShouldBe("SimpleFunction");
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "SimpleFunction", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 1)
+                .ContainsKey(simpleFunction => simpleFunction.Dependants, "Caller")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Caller", __ => __
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+                .ContainsKey(caller => caller.Dependencies, "SimpleFunction")
+                .AreEqual(caller => caller.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleFunction")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Caller")
+        );
     }
 
     [Test]
-    public void FunctionNewFunctionResults()
+    public async Task FunctionNewFunctionResults()
     {
-        var dependencies = ServiceProvider.BuildGraph(function + @"
+        var dependencies = await ServiceProvider.BuildGraph(function + @"
 function Caller
   var params = new(SimpleFunction.Results)
 ");
 
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleFunction");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Caller");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Dependencies[0].ShouldBe("SimpleFunction");
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "SimpleFunction", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 1)
+                .ContainsKey(simpleFunction => simpleFunction.Dependants, "Caller")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Caller", __ => __
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+                .ContainsKey(caller => caller.Dependencies, "SimpleFunction")
+                .AreEqual(caller => caller.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleFunction")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Caller")
+        );
     }
 
     [Test]
-    public void FunctionFillFunctionParameters()
+    public async Task FunctionFillFunctionParameters()
     {
-        var dependencies = ServiceProvider.BuildGraph(function + @"
+        var dependencies = await ServiceProvider.BuildGraph(function + @"
+
 function Caller
   parameters
     number Value
   var params = fill(SimpleFunction.Parameters)
 ");
 
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleFunction");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Caller");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Dependencies[0].ShouldBe("SimpleFunction");
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "SimpleFunction", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 1)
+                .ContainsKey(simpleFunction => simpleFunction.Dependants, "Caller")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Caller", __ => __
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+                .ContainsKey(caller => caller.Dependencies, "SimpleFunction")
+                .AreEqual(caller => caller.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleFunction")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Caller")
+        );
     }
 
     [Test]
-    public void FunctionFillFunctionResults()
+    public async Task FunctionFillFunctionResults()
     {
-        var dependencies = ServiceProvider.BuildGraph(function + @"
+        var dependencies = await ServiceProvider.BuildGraph(function + @"
+
 function Caller
   parameters
     number Result
   var params = fill(SimpleFunction.Results)
 ");
 
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleFunction");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Caller");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Dependencies[0].ShouldBe("SimpleFunction");
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "SimpleFunction", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 1)
+                .ContainsKey(simpleFunction => simpleFunction.Dependants, "Caller")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Caller", __ => __
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+                .ContainsKey(caller => caller.Dependencies, "SimpleFunction")
+                .AreEqual(caller => caller.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleFunction")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Caller")
+        );
     }
 
     [Test]
-    public void TableLookup()
+    public async Task TableLookup()
     {
-        var dependencies = ServiceProvider.BuildGraph(table + @"
+        var dependencies = await ServiceProvider.BuildGraph(table + @"
 function Caller
   var result = SimpleTable.LookUp(2, SimpleTable.Search, SimpleTable.Value)
 ");
 
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleTable");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Caller");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Dependencies[0].ShouldBe("SimpleTable");
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "SimpleTable", __ => __
+                .AreEqual(simpleTable => simpleTable.Dependencies.Count, 0)
+                .AreEqual(simpleTable => simpleTable.Dependants.Count, 1)
+                .ContainsKey(simpleTable => simpleTable.Dependants, "Caller")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Caller", __ => __
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+                .ContainsKey(caller => caller.Dependencies, "SimpleTable")
+                .AreEqual(caller => caller.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleTable")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Caller")
+        );
     }
 
     [Test]
-    public void SimpleScenario()
+    public async Task SimpleScenario()
     {
-        var dependencies = ServiceProvider.BuildGraph(function + @"
+        var dependencies = await ServiceProvider.BuildGraph(function + @"
 
 scenario Simple
   function SimpleFunction
@@ -155,30 +221,47 @@ scenario Simple
   parameters
     Value = 2
 ");
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("SimpleFunction");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Simple");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "SimpleFunction", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 1)
+                .ContainsKey(simpleFunction => simpleFunction.Dependants, "Simple")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Simple", __ => __
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+                .ContainsKey(caller => caller.Dependencies, "SimpleFunction")
+                .AreEqual(caller => caller.Dependencies.Count, 1)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "SimpleFunction")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Simple")
+        );
     }
 
     [Test]
-    public void SimpleType()
+    public async Task SimpleType()
     {
-        var dependencies = ServiceProvider.BuildGraph(@"
+        var dependencies = await ServiceProvider.BuildGraph(@"
 type Simple
   number Value1
   string Value2
 ");
-        dependencies.DependencyNodes.Count.ShouldBe(1);
-        dependencies.DependencyNodes[0].Name.ShouldBe("Simple");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 1)
+            .ContainsKey(model => model.DependencyNodes, "Simple", __ => __
+                .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
+                .AreEqual(simpleFunction => simpleFunction.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "Simple")
+        );
     }
 
     [Test]
-    public void GeneratedType()
+    public async Task GeneratedType()
     {
-        var dependencies = ServiceProvider.BuildGraph(@"
+        var dependencies = await ServiceProvider.BuildGraph(@"
 type Inner
   number Value1
   string Value2
@@ -188,17 +271,28 @@ type Parent
   string Value2
   Inner Value3
 ");
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("Inner");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(0);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Parent");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "Inner", __ => __
+                .AreEqual(value => value.Dependencies.Count, 0)
+                .AreEqual(value => value.Dependants.Count, 1)
+                .ContainsKey(value => value.Dependants, "Parent")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Parent", __ => __
+                .AreEqual(value => value.Dependencies.Count, 1)
+                .ContainsKey(value => value.Dependencies, "Inner")
+                .AreEqual(value => value.Dependants.Count, 0)
+            )
+            .ValueAtEquals(sortedNodes, 0, nodeType, "Inner")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "Parent")
+        );
     }
 
     [Test]
-    public void CircularType()
+    public async Task CircularType()
     {
-        var dependencies = ServiceProvider.BuildGraph(@"
+        var dependencies = await ServiceProvider.BuildGraph(@"
 type Inner
   number Value1
   string Value2
@@ -209,20 +303,32 @@ type Parent
   string Value2
   Inner Value3
 ", false);
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("Inner");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Parent");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.CircularReferences.Count().ShouldBe(2);
-        dependencies.CircularReferences[0].NodeName.ShouldBe("Inner");
-        dependencies.CircularReferences[1].NodeName.ShouldBe("Parent");
+
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "Inner", __ => __
+                .AreEqual(value => value.Dependencies.Count, 1)
+                .ContainsKey(value => value.Dependencies, "Parent")
+                .AreEqual(value => value.Dependants.Count, 1)
+                .ContainsKey(value => value.Dependants, "Parent")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Parent", __ => __
+                .AreEqual(value => value.Dependencies.Count, 1)
+                .ContainsKey(value => value.Dependencies, "Inner")
+                .AreEqual(value => value.Dependants.Count, 1)
+                .ContainsKey(value => value.Dependants, "Inner")
+            )
+            .CountIs(model => model.CircularReferences, 2)
+            .ContainsKey(model => model.CircularReferences, "Inner")
+            .ContainsKey(model => model.CircularReferences, "Parent")
+            .AreEqual(model => model.SortedNodes.Count, 2)
+        );
     }
 
     [Test]
-    public void CircularFunctionCall()
+    public async Task CircularFunctionCall()
     {
-        var dependencies = ServiceProvider.BuildGraph(@"
+        var dependencies = await ServiceProvider.BuildGraph(@"
 function Inner
   Parent()
 
@@ -230,13 +336,24 @@ function Parent
   Inner()
 ", false);
 
-        dependencies.DependencyNodes.Count.ShouldBe(2);
-        dependencies.DependencyNodes[0].Name.ShouldBe("Inner");
-        dependencies.DependencyNodes[0].Dependencies.Count.ShouldBe(1);
-        dependencies.DependencyNodes[1].Name.ShouldBe("Parent");
-        dependencies.DependencyNodes[1].Dependencies.Count.ShouldBe(1);
-        dependencies.CircularReferences.Count().ShouldBe(2);
-        dependencies.CircularReferences[0].NodeName.ShouldBe("Inner");
-        dependencies.CircularReferences[1].NodeName.ShouldBe("Parent");
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 2)
+            .ContainsKey(model => model.DependencyNodes, "Inner", __ => __
+                .AreEqual(inner => inner.Dependencies.Count, 1)
+                .ContainsKey(inner => inner.Dependencies, "Parent")
+                .AreEqual(inner => inner.Dependants.Count, 1)
+                .ContainsKey(inner => inner.Dependants, "Parent")
+            )
+            .ContainsKey(model => model.DependencyNodes, "Parent", __ => __
+                .AreEqual(parent => parent.Dependencies.Count, 1)
+                .ContainsKey(parent => parent.Dependencies, "Inner")
+                .AreEqual(parent => parent.Dependants.Count, 1)
+                .ContainsKey(parent => parent.Dependants, "Inner")
+            )
+            .CountIs(model => model.CircularReferences, 2)
+            .ContainsKey(model => model.CircularReferences, "Inner")
+            .ContainsKey(model => model.CircularReferences, "Parent")
+            .AreEqual(model => model.SortedNodes.Count, 2)
+        );
     }
 }

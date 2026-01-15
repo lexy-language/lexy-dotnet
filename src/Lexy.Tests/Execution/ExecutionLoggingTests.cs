@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Lexy.Compiler.Generation;
 using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
@@ -13,9 +14,9 @@ namespace Lexy.Tests.Execution;
 public class ExecutionLoggingTests : ScopedServicesTestFixture
 {
     [Test]
-    public void SimpleFunction()
+    public async Task SimpleFunction()
     {
-        using var script = ServiceProvider.CompileFunction($@"
+        using var script = await ServiceProvider.CompileFunction($@"
 function SimpleFunction
 // Valid comment line
   parameters
@@ -28,9 +29,9 @@ function SimpleFunction
     }
 
     [Test]
-    public void LibraryFunctionPower()
+    public async Task LibraryFunctionPower()
     {
-        using var script = ServiceProvider.CompileFunction($@"
+        using var script = await ServiceProvider.CompileFunction($@"
 function SimpleFunction
   parameters
     number Value
@@ -42,9 +43,9 @@ function SimpleFunction
     }
 
     [Test]
-    public void TableVariablesShouldNotStoreFullTableInLogging()
+    public async Task TableVariablesShouldNotStoreFullTableInLogging()
     {
-        using var script = ServiceProvider.CompileFunction($@"table SimpleTable
+        using var script = await ServiceProvider.CompileFunction($@"table SimpleTable
 // Validate table keywords
   | number Search | number Value |
   | 0 | 0 |
@@ -59,9 +60,9 @@ function ValidateTableKeywordFunction
     }
 
     [Test]
-    public void TableVariablesShouldNotStoreFullTableInLoggingRow()
+    public async Task TableVariablesShouldNotStoreFullTableInLoggingRow()
     {
-        using var script = ServiceProvider.CompileFunction(@"table SimpleTable
+        using var script = await ServiceProvider.CompileFunction(@"table SimpleTable
   | number Search | number Value | string Extra |
   | 0 | 0 | ""ext"" |
   | 1 | 1 | ""ra""  |

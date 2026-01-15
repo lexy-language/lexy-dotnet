@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Lexy.Compiler.Specifications;
 using NUnit.Framework;
 
@@ -6,11 +7,11 @@ namespace Lexy.Tests.Specifications;
 public class RunLexySpecifications : ScopedServicesTestFixture
 {
     [Test]
-    public void RunAll()
+    public async Task RunAll()
     {
         LoggingConfiguration.LogFileNames();
 
         var runner = GetService<ISpecificationsRunner>();
-        runner.RunAll("../../../lexy-language/Specifications");
+        await runner.RunAll("../../../lexy-language/Specifications");
     }
 }

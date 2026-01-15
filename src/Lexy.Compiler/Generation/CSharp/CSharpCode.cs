@@ -19,7 +19,7 @@ internal static class CSharpCode
             EnumDefinition enumDefinition => EnumClass.CreateCode(enumDefinition),
             Table table => TableClass.CreateCode(table),
             TypeDefinition typeDefinition => TypeClass.CreateCode(typeDefinition),
-            Scenario _ => null,
+            Scenario scenario => scenario.Function != null ? FunctionClass.CreateCode(scenario.Function) : null,
             _ => throw new InvalidOperationException("No writer defined: " + componentNode.GetType())
         };
     }

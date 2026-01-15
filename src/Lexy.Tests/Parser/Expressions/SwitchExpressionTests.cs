@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ namespace Lexy.Tests.Parser.Expressions;
 public class SwitchExpressionTests : ScopedServicesTestFixture
 {
     [Test]
-    public void CheckSwitchStatement()
+    public async Task CheckSwitchStatement()
     {
         const string code = @"function NumberSwitch
   parameters
@@ -26,7 +27,7 @@ public class SwitchExpressionTests : ScopedServicesTestFixture
       temp = 888
   Number = temp";
 
-        var (function, logger) = ServiceProvider.ParseFunction(code);
+        var (function, logger) = await ServiceProvider.ParseFunction(code);
         logger.AssertNoErrors();
 
         function.ShouldNotBeNull();

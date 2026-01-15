@@ -5,6 +5,7 @@ using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
+using Lexy.RunTime;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
 namespace Lexy.Compiler.Language;
@@ -64,7 +65,7 @@ public class LexyScriptNode : ComponentNode
             Keywords.Function => Function.Create(tokenName.Name, reference, context.ExpressionFactory),
             Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
-            Keywords.TableKeyword => new Table(tokenName.Name, reference),
+            Keywords.TableKeyword => new Table(tokenName.Name,  reference),
             Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, reference),
             _ => InvalidNode(tokenName, context, reference)
         };
@@ -98,15 +99,17 @@ public class LexyScriptNode : ComponentNode
         return includes.Where(include => !include.IsProcessed).ToList();
     }
 
-    public void SortByDependency(IList<IComponentNode> sortedNodes)
+    public void SortByDependency(IEnumerable<IComponentNode> sortedNodes)
     {
+        Assert.NotNull(sortedNodes, nameof(sortedNodes));
         this.sortedNodes = WithoutScenarioInlineNode(sortedNodes);
     }
 
-    private IList<IComponentNode> WithoutScenarioInlineNode(IList<IComponentNode> sortedNodes)
+    private IList<IComponentNode> WithoutScenarioInlineNode(IEnumerable<IComponentNode> sortedNodes)
     {
         return sortedNodes
             .Where(where => ComponentNodes.GetNode(where.NodeName) != null)
+            //.Where(where => (where as INodeCanBeNested)?.Nested != true)
             .ToList();
     }
 }

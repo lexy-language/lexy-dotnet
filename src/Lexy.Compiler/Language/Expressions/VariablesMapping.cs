@@ -19,8 +19,8 @@ public class VariablesMapping : IReadOnlyList<Mapping>
 
     public VariablesMapping(GeneratedType mappingType, IReadOnlyList<Mapping> mapping)
     {
-        MappingType = Assert.NotNull(mappingType, "generatedType");
-        this.mapping = Assert.NotNull(mapping, "mapping");
+        MappingType = Assert.NotNull(mappingType, nameof(mappingType));
+        this.mapping = Assert.NotNull(mapping, nameof(mapping));
     }
 
     public IEnumerable<VariableUsage> UsedVariables(VariableAccess access)

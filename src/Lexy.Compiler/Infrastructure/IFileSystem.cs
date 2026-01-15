@@ -1,8 +1,16 @@
+using System.Threading.Tasks;
+
 namespace Lexy.Compiler.Infrastructure;
 
 public interface IFileSystem {
 
-    string[] ReadAllLines(string fileName);
+    Task<string[]> ReadAllLines(string fileName);
+
+    Task<bool> FileExists(string fileName);
+    Task<bool> DirectoryExists(string absoluteFolder);
+
+    Task<string[]> GetDirectoryFiles(string folder, string[] extensions);
+    Task<string[]> GetDirectories(string folder);
 
     string GetFileName(string fullFileName);
     string GetDirectoryName(string fileName);
@@ -10,13 +18,7 @@ public interface IFileSystem {
 
     string Combine(string fullPath, string fileName);
 
-    bool FileExists(string fileName);
-    bool DirectoryExists(string absoluteFolder);
-
     bool IsPathRooted(string folder);
-
-    string[] GetDirectoryFiles(string folder, string[] extensions);
-    string[] GetDirectories(string folder);
 
     string LogFolders();
 }

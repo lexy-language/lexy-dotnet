@@ -1,5 +1,4 @@
-using Lexy.Compiler.Parser;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Shouldly;
 
@@ -8,13 +7,13 @@ namespace Lexy.Tests.Parser;
 public class ParseEnumTests : ScopedServicesTestFixture
 {
     [Test]
-    public void SimpleEnum()
+    public async Task SimpleEnum()
     {
         const string code = @"enum Enum1
   First
   Second";
 
-        var (enumValue, _) = ServiceProvider.ParseEnum(code);
+        var (enumValue, _) = await ServiceProvider.ParseEnum(code);
 
         enumValue.Name.Value.ShouldBe("Enum1");
         enumValue.Members.Count.ShouldBe(2);
@@ -27,13 +26,13 @@ public class ParseEnumTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void EnumWithValues()
+    public async Task EnumWithValues()
     {
         const string code = @"enum Enum2
   First = 5
   Second = 6";
 
-        var (enumValue, _) = ServiceProvider.ParseEnum(code);
+        var (enumValue, _) = await ServiceProvider.ParseEnum(code);
 
         enumValue.Name.Value.ShouldBe("Enum2");
         enumValue.Members.Count.ShouldBe(2);

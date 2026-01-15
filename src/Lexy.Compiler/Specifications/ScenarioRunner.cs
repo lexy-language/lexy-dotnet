@@ -21,6 +21,7 @@ public class ScenarioRunner : IScenarioRunner
     private readonly ISpecificationRunnerContext context;
     private readonly IParserLogger parserLogger;
     private readonly IComponentNodeList componentNodes;
+    private readonly Dependencies dependencies;
 
     private Function function;
 
@@ -28,13 +29,14 @@ public class ScenarioRunner : IScenarioRunner
     public Scenario Scenario { get; }
 
     public ScenarioRunner(string fileName, ILexyCompiler lexyCompiler, IComponentNodeList componentNodes, Scenario scenario,
-        ISpecificationRunnerContext context, IParserLogger parserLogger)
+        ISpecificationRunnerContext context, IParserLogger parserLogger, Dependencies dependencies)
     {
         this.lexyCompiler = Assert.NotNull(lexyCompiler, nameof(lexyCompiler));
         this.fileName = Assert.NotNull(fileName, nameof(fileName));
         this.context = Assert.NotNull(context, nameof(context));
         this.componentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));
         this.parserLogger = Assert.NotNull(parserLogger, nameof(parserLogger));
+        this.dependencies = Assert.NotNull(dependencies, nameof(dependencies));
 
         Scenario = Assert.NotNull(scenario, nameof(scenario));
     }
@@ -51,7 +53,7 @@ public class ScenarioRunner : IScenarioRunner
         if (!ValidateScenarioErrors()) return;
         if (!ValidateErrors()) return;
 
-        var nodes = DependencyGraphFactory.NodeAndDependencies(componentNodes, function);
+        var nodes = dependencies.NodeAndDependencies(function);
 
         using var compilerResult = lexyCompiler.Compile(nodes);
 
@@ -233,7 +235,7 @@ public class ScenarioRunner : IScenarioRunner
             return null;
         }
 
-        var dependencies = DependencyGraphFactory.NodeAndDependencies(componentNodes, node);
+        var dependencies = this.dependencies.NodeAndDependencies(node);
         return parserLogger.ErrorNodesMessages(dependencies);
     }
 

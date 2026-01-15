@@ -8,7 +8,7 @@ using Lexy.Compiler.Language.VariableTypes;
 
 namespace Lexy.Compiler.Language;
 
-public interface IComponentNodeList : IEnumerable<IComponentNode>
+public interface IComponentNodeList : IReadOnlyList<IComponentNode>
 {
     IComponentNode GetNode(string name);
     bool Contains(string name);

@@ -8,8 +8,6 @@ namespace Lexy.Compiler.Parser;
 
 public class ParserContext : IParserContext
 {
-    private readonly IFileSystem fileSystem;
-
     private readonly IList<string> includedFiles = new List<string>();
 
     public ILibraries Libraries { get; }
@@ -21,9 +19,11 @@ public class ParserContext : IParserContext
     public IParserLogger Logger { get; }
     public ParseOptions Options { get; }
 
+    public IFileSystem FileSystem { get; }
+
     public ParserContext(IParserLogger logger, IFileSystem fileSystem, ILibraries libraries, ParseOptions options)
     {
-        this.fileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
+        FileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
         Logger = Assert.NotNull(logger, nameof(logger));
         Libraries = Assert.NotNull(libraries, nameof(libraries));
 
@@ -47,7 +47,7 @@ public class ParserContext : IParserContext
 
     private string NormalizePath(string fileName)
     {
-        return fileSystem.GetFullPath(fileName);
+        return FileSystem.GetFullPath(fileName);
     }
 
     public void SetFileLineFilter(string fileName)

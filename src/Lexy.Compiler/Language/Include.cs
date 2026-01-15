@@ -1,4 +1,4 @@
-using System.IO;
+using System.Threading.Tasks;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -39,7 +39,7 @@ public class Include
         return new Include(quotedString.Value, line.LineStartReference());
     }
 
-    public string Process(string parentFullFileName, IParserContext context)
+    public async Task<string> Process(string parentFullFileName, IParserContext context)
     {
         IsProcessed = true;
         if (string.IsNullOrEmpty(FileName))
@@ -48,11 +48,11 @@ public class Include
             return null;
         }
 
-        var directName = Path.GetDirectoryName(parentFullFileName);
-        var fullPath = Path.GetFullPath(directName);
-        var fullFileName = $"{Path.Combine(fullPath, FileName)}.{LexySourceDocument.FileExtension}";
+        var directName = context.FileSystem.GetDirectoryName(parentFullFileName);
+        var fullPath = context.FileSystem.GetFullPath(directName);
+        var fullFileName = $"{context.FileSystem.Combine(fullPath, FileName)}.{LexySourceDocument.FileExtension}";
 
-        if (!File.Exists(fullFileName))
+        if (!await context.FileSystem.FileExists(fullFileName))
         {
             context.Logger.Fail(reference, $"Invalid include file name '{FileName}'");
             return null;

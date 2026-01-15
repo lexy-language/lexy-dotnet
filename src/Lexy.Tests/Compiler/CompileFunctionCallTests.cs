@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Shouldly;
 
@@ -7,9 +8,9 @@ namespace Lexy.Tests.Compiler;
 public class CompileFunctionCallTests : ScopedServicesTestFixture
 {
     [Test]
-    public void LibraryFunctionPower()
+    public async Task LibraryFunctionPower()
     {
-        using var script = ServiceProvider.CompileFunction($@"
+        using var script = await ServiceProvider.CompileFunction($@"
 function SimpleFunction
   parameters
     number Value
@@ -22,9 +23,9 @@ function SimpleFunction
     }
 
     [Test]
-    public void NestedLibraryFunctionPower()
+    public async Task NestedLibraryFunctionPower()
     {
-        using var script = ServiceProvider.CompileFunction($@"
+        using var script = await ServiceProvider.CompileFunction($@"
 function SimpleFunction
   parameters
     string Value
@@ -37,9 +38,9 @@ function SimpleFunction
     }
 
     [Test]
-    public void LexyFunctionCallSpreadResults()
+    public async Task LexyFunctionCallSpreadResults()
     {
-      using var script = ServiceProvider.CompileFunction($@"
+      using var script = await ServiceProvider.CompileFunction($@"
 function Calling
   parameters
     number Value
@@ -62,9 +63,9 @@ function Caller
     }
 
     [Test]
-    public void LexyFunctionCallSpreadParameters()
+    public async Task LexyFunctionCallSpreadParameters()
     {
-      using var script = ServiceProvider.CompileFunction($@"
+      using var script = await ServiceProvider.CompileFunction($@"
 function Calling
   parameters
     number Value
@@ -86,9 +87,9 @@ function Caller
     }
 
     [Test]
-    public void LexyFunctionCallSpreadResultsAndParameters()
+    public async Task LexyFunctionCallSpreadResultsAndParameters()
     {
-      using var script = ServiceProvider.CompileFunction($@"
+      using var script = await ServiceProvider.CompileFunction($@"
 function Calling
   parameters
     number Value

@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace Lexy.Compiler.Specifications;
 
 public interface ISpecificationsRunner
 {
-    void Run(string folder);
-    void RunAll(string file);
+    Task Run(string folder);
+    Task RunAll(string file);
 }

@@ -35,4 +35,10 @@
       <ProjectReference Include="..\Lexy.Compiler\Lexy.Compiler.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Compiler\1mb.lexy">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
+using System.Text;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
@@ -17,8 +17,11 @@ public abstract class Expression : Node
 
     public override string ToString()
     {
-        var writer = new StringWriter();
-        foreach (var token in Source.Tokens) writer.Write(token.Value);
+        var writer = new StringBuilder();
+        foreach (var token in Source.Tokens)
+        {
+            writer.Append(token.Value);
+        }
         return writer.ToString();
     }
 

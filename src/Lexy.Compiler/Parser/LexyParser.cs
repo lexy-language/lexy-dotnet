@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
@@ -29,15 +30,15 @@ public class LexyParser : ILexyParser
         this.libraries = Assert.NotNull(libraries, nameof(libraries));
     }
 
-    public ParserResult ParseFile(string fileName, ParseOptions options)
+    public async Task<ParserResult> ParseFile(string fileName, ParseOptions options)
     {
         baseLogger.LogInformation("Parse file: {FileName}", fileName);
 
-        var code = fileSystem.ReadAllLines(fileName);
-        return Parse(code, fileName, options);
+        var code = await fileSystem.ReadAllLines(fileName);
+        return await Parse(code, fileName, options);
     }
 
-    public ParserResult Parse(string[] code, string fullFileName, ParseOptions options)
+    public async Task<ParserResult> Parse(string[] code, string fullFileName, ParseOptions options)
     {
         Assert.NotNull(code, nameof(code));
 
@@ -47,14 +48,16 @@ public class LexyParser : ILexyParser
         context.AddFileIncluded(fullFileName);
         context.SetFileLineFilter(fullFileName);
 
-        ParseDocument(code, fullFileName, context);
+
+        await ParseDocument(code, fullFileName, context);
 
         parserLogger.LogNodes(context.Nodes);
 
-        var dependencyGraph = SortByDependencyAndCheckCircularDependencies(context);
-        if (dependencyGraph != null)
+        var dependencies = SortByDependencyAndCheckCircularDependencies(context);
+
+        if (!dependencies.HasCircularReferences)
         {
-            context.RootNode.SortByDependency(dependencyGraph.SortedNodes);
+            context.RootNode.SortByDependency(dependencies.SortedNodes);
             ValidateNodesTree(context);
         }
 
@@ -63,10 +66,10 @@ public class LexyParser : ILexyParser
             parserLogger.AssertNoErrors();
         }
 
-        return new ParserResult(context.RootNode, context.Nodes, context.Logger);
+        return new ParserResult(context.RootNode, context.Nodes, context.Logger, dependencies);
     }
 
-    private void ParseDocument(string[] code, string fullFileName, IParserContext context)
+    private async Task ParseDocument(string[] code, string fullFileName, IParserContext context)
     {
         sourceCodeDocument.SetCode(code, fileSystem.GetFileName(fullFileName));
 
@@ -100,7 +103,7 @@ public class LexyParser : ILexyParser
 
         Reset(context);
 
-        LoadIncludedFiles(fullFileName, context);
+        await LoadIncludedFiles(fullFileName, context);
     }
 
     private bool GetIndent(IParserContext context, Line line, out int indent)
@@ -137,34 +140,32 @@ public class LexyParser : ILexyParser
         var tokenNames = string.Join(" ", sourceCodeDocument.CurrentLine.Tokens.Select(token =>
             $"{token.GetType().Name}({token.Value})").ToArray());
 
-        context.Logger.Log(line.LineStartReference(), "  Tokens: " + tokenNames);
-
         return tokens.IsSuccess;
     }
 
-    private void LoadIncludedFiles(string parentFullFileName, IParserContext context)
+    private async Task LoadIncludedFiles(string parentFullFileName, IParserContext context)
     {
         var includes = context.RootNode.GetDueIncludes();
         foreach (var include in includes)
         {
-            IncludeFiles(parentFullFileName, include, context);
+            await IncludeFiles(parentFullFileName, include, context);
         }
     }
 
-    private void IncludeFiles(string parentFullFileName, Include include, IParserContext context)
+    private async Task IncludeFiles(string parentFullFileName, Include include, IParserContext context)
     {
-        var fileName = include.Process(parentFullFileName, context);
+        var fileName = await include.Process(parentFullFileName, context);
         if (fileName == null) return;
 
         if (context.IsFileIncluded(fileName)) return;
 
         context.Logger.LogInfo("Parse file: " + fileName);
 
-        var code = fileSystem.ReadAllLines(fileName);
+        var code = await fileSystem.ReadAllLines(fileName);
 
         context.AddFileIncluded(fileName);
 
-        ParseDocument(code, fileName, context);
+        await ParseDocument(code, fileName, context);
     }
 
     private void ValidateNodesTree(IParserContext context)
@@ -181,12 +182,11 @@ public class LexyParser : ILexyParser
 
         foreach (var circularReference in dependencies.CircularReferences)
         {
-            context.Logger.SetCurrentNode(circularReference);
-            context.Logger.Fail(circularReference.Reference,
-                $"Circular reference detected in: '{circularReference.NodeName}'");
+            context.Logger.SetCurrentNode(circularReference.Value);
+            context.Logger.Fail(circularReference.Value.Reference,
+                $"Circular reference detected in: '{circularReference.Key}'");
         }
-
-        return null;
+        return dependencies;
     }
 
     private void Reset(IParserContext context)

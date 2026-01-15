@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Shouldly;
 
@@ -7,9 +8,9 @@ namespace Lexy.Tests.Compiler;
 public class CompileFunctionTests : ScopedServicesTestFixture
 {
     [Test]
-    public void TestSimpleReturn()
+    public async Task TestSimpleReturn()
     {
-        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
+        using var script = await ServiceProvider.CompileFunction(@"function TestSimpleReturn
   results
     number Result
   Result = 777");
@@ -18,9 +19,9 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestParameterDefaultReturn()
+    public async Task TestParameterDefaultReturn()
     {
-        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
+        using var script = await ServiceProvider.CompileFunction(@"function TestSimpleReturn
   parameters
     number Input = 5
   results
@@ -31,9 +32,9 @@ public class CompileFunctionTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestAssignmentReturn()
+    public async Task TestAssignmentReturn()
     {
-        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
+        using var script = await ServiceProvider.CompileFunction(@"function TestSimpleReturn
   parameters
     number Input = 5
 
@@ -49,9 +50,9 @@ public class CompileFunctionTests : ScopedServicesTestFixture
 
 
     [Test]
-    public void TestMemberAccessAssignment()
+    public async Task TestMemberAccessAssignment()
     {
-        using var script = ServiceProvider.CompileFunction(@"table ValidateTableKeyword
+        using var script = await ServiceProvider.CompileFunction(@"table ValidateTableKeyword
 // Validate table keywords
   | number Value | number Result |
   | 0 | 0 |
@@ -69,9 +70,9 @@ function ValidateTableKeywordFunction
     }
 
     [Test]
-    public void VariableDeclarationInCode()
+    public async Task VariableDeclarationInCode()
     {
-        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
+        using var script = await ServiceProvider.CompileFunction(@"function TestSimpleReturn
   parameters
     number Value = 5 
   results
@@ -85,9 +86,9 @@ function ValidateTableKeywordFunction
     }
 
     [Test]
-    public void VariableDeclarationWithDefaultInCode()
+    public async Task VariableDeclarationWithDefaultInCode()
     {
-        using var script = ServiceProvider.CompileFunction(@"function TestSimpleReturn
+        using var script = await ServiceProvider.CompileFunction(@"function TestSimpleReturn
   results
     number Result
   number temp = 5
@@ -99,9 +100,9 @@ function ValidateTableKeywordFunction
 
 
     [Test]
-    public void VariableDeclarationWithDefaultEnumInCode()
+    public async Task VariableDeclarationWithDefaultEnumInCode()
     {
-        using var script = ServiceProvider.CompileFunction(@"
+        using var script = await ServiceProvider.CompileFunction(@"
 enum SimpleEnum
   First
   Second
@@ -116,9 +117,9 @@ function TestSimpleReturn
     }
 
     [Test]
-    public void CustomType()
+    public async Task CustomType()
     {
-        using var script = ServiceProvider.CompileFunction(@"
+        using var script = await ServiceProvider.CompileFunction(@"
 type SimpleObject
   number First
   string Second
@@ -136,9 +137,9 @@ function TestCustomType
     }
 
     [Test]
-    public void CustomTypeNestedProperties()
+    public async Task CustomTypeNestedProperties()
     {
-        using var script = ServiceProvider.CompileFunction(@"
+        using var script = await ServiceProvider.CompileFunction(@"
 type InnerObject
   number First
   string Second

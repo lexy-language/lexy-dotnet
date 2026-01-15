@@ -12,6 +12,7 @@ public class EnumDefinition : ComponentNode
 
     public IList<EnumMember> Members { get; } = new List<EnumMember>();
 
+
     internal EnumDefinition(string name, SourceReference reference) : base(reference)
     {
         Name = new EnumName(reference);

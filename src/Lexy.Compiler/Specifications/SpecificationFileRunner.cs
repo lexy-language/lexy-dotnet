@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.Generation;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
@@ -31,17 +33,30 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         this.compiler = Assert.NotNull(compiler, nameof(compiler));
     }
 
-    public void Initialize()
+    public async Task Initialize()
     {
-        result = parser.ParseFile(fileName, new ParseOptions {SuppressException = true});
+        result = await Parse();
 
-        var runners = result
+        result
             .Nodes
             .GetScenarios()
-            .Select(scenario => CreateScenarioRunner(scenario, runnerContext, result.Nodes, result.Logger))
-            .ToList();
+            .ForEach(scenario =>
+            {
+                var scenarioRunner = CreateScenarioRunner(scenario, runnerContext, result.Nodes, result.Logger, result.Dependencies);
+                scenarioRunners.Add(scenarioRunner);
+            });
+    }
 
-        scenarioRunners.AddRange(runners);
+    private async Task<ParserResult> Parse()
+    {
+        try
+        {
+            return await parser.ParseFile(fileName, new ParseOptions { SuppressException = true });
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException("Error while parsing " + fileName, exception);
+        }
     }
 
     public void Run()
@@ -71,9 +86,16 @@ public class SpecificationFileRunner : ISpecificationFileRunner
     }
 
     private ScenarioRunner CreateScenarioRunner(Scenario scenario, ISpecificationRunnerContext context,
-        ComponentNodeList nodes, IParserLogger logger)
-    {   
-        return new ScenarioRunner(fileName, compiler, nodes, scenario, context, logger);
+        ComponentNodeList nodes, IParserLogger logger, Dependencies dependencies)
+    {
+        try
+        {
+            return new ScenarioRunner(fileName, compiler, nodes, scenario, context, logger, dependencies);
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException("Error occurred while create runner for: " + fileName, exception);
+        }
     }
 
     public int CountScenarioRunners()

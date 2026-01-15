@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Lexy.Compiler;
 using Lexy.Tests.Compiler;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,9 +15,9 @@ public class CustomLibrariesTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void LibraryFunctionString()
+    public async Task LibraryFunctionString()
     {
-        using var script = ServiceProvider.CompileFunction($@"
+        using var script = await ServiceProvider.CompileFunction($@"
 function SimpleFunction
   results
     string Result

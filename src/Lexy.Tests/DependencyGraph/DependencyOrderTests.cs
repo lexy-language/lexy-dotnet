@@ -1,19 +1,29 @@
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Lexy.Compiler.DependencyGraph;
+using Lexy.Compiler.Language;
 using NUnit.Framework;
-using Shouldly;
 
 namespace Lexy.Tests.DependencyGraph;
 
 public class DependencyOrderTests : ScopedServicesTestFixture
 {
+    private readonly Expression<Func<IComponentNode, string>> nodeType = item => item.NodeName;
+
+    private readonly Expression<Func<Dependencies, IReadOnlyList<IComponentNode>>> sortedNodes =
+        value => value.SortedNodes;
+
     [Test]
-    public void FunctionWithEnumAndTableDependency()
+    public async Task FunctionWithEnumAndTableDependency()
     {
-        var dependencies = ServiceProvider.BuildGraph(
+        var dependencies = await ServiceProvider.BuildGraph(
             @"function FunctionWithEnumDependency
   parameters
     EnumExample EnumValue
   results
-    number Result
+    number Result7
   Result = TableExample.LookUp(EnumExample.Single, TableExample.Example, TableExample.Value)
 
 table TableExample
@@ -25,17 +35,38 @@ enum EnumExample
   Married
   CivilPartnership", false);
 
-        dependencies.SortedNodes.Count.ShouldBe(3);
-        dependencies.SortedNodes[0].NodeName.ShouldBe("EnumExample");
-        dependencies.SortedNodes[1].NodeName.ShouldBe("TableExample");
-        dependencies.SortedNodes[2].NodeName.ShouldBe("FunctionWithEnumDependency");
-        dependencies.CircularReferences.Count.ShouldBe(0);
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(model => model.DependencyNodes, 3)
+            .ContainsKey(model => model.DependencyNodes, "TableExample", __ => __
+                .AreEqual(tableExample => tableExample.Dependencies.Count, 1)
+                .ContainsKey(tableExample => tableExample.Dependencies, "EnumExample")
+                .AreEqual(tableExample => tableExample.Dependants.Count, 1)
+                .ContainsKey(tableExample => tableExample.Dependants, "FunctionWithEnumDependency")
+            )
+            .ContainsKey(model => model.DependencyNodes, "EnumExample", __ => __
+                .AreEqual(enumExample => enumExample.Dependencies.Count, 0)
+                .AreEqual(enumExample => enumExample.Dependants.Count, 2)
+                .ContainsKey(enumExample => enumExample.Dependants, "TableExample")
+                .ContainsKey(enumExample => enumExample.Dependants, "FunctionWithEnumDependency")
+            )
+            .ContainsKey(model => model.DependencyNodes, "FunctionWithEnumDependency", __ => __
+                .AreEqual(functionWithEnumDependency => functionWithEnumDependency.Dependencies.Count, 2)
+                .ContainsKey(functionWithEnumDependency => functionWithEnumDependency.Dependencies, "TableExample")
+                .ContainsKey(functionWithEnumDependency => functionWithEnumDependency.Dependencies, "EnumExample")
+                .AreEqual(functionWithEnumDependency => functionWithEnumDependency.Dependants.Count, 0)
+            )
+            .CountIs(sortedNodes, 3)
+            .ValueAtEquals(sortedNodes, 0, nodeType, "EnumExample")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "TableExample")
+            .ValueAtEquals(sortedNodes, 2, nodeType, "FunctionWithEnumDependency")
+            .CountIs(value => value.CircularReferences, 0)
+        );
     }
 
     [Test]
-    public void ComplexDependencyGraph()
+    public async Task ComplexDependencyGraph()
     {
-        var dependencies = ServiceProvider.BuildGraph(
+        var dependencies = await ServiceProvider.BuildGraph(
             @"scenario ValidateBuiltOrder
   function
     parameters
@@ -108,18 +139,20 @@ enum EnumExample
   Married
   CivilPartnership", true);
 
-        dependencies.SortedNodes.Count.ShouldBe(11);
-        dependencies.SortedNodes[0].NodeName.ShouldBe("EnumExample");
-        dependencies.SortedNodes[1].NodeName.ShouldBe("NestedType");
-        dependencies.SortedNodes[2].NodeName.ShouldBe("TypeExample");
-        dependencies.SortedNodes[3].NodeName.ShouldBe("TableExample");
-        dependencies.SortedNodes[4].NodeName.ShouldBe("FunctionWithTypeDependency");
-        dependencies.SortedNodes[5].NodeName.ShouldBe("FunctionWithEnumDependency");
-        dependencies.SortedNodes[6].NodeName.ShouldBe("FunctionWithTableDependency");
-        dependencies.SortedNodes[7].NodeName.ShouldBe("FunctionWithFunctionTypeDependency");
-        dependencies.SortedNodes[8].NodeName.ShouldBe("FunctionWithFunctionDependency");
-        dependencies.SortedNodes[9].NodeName.ShouldBe("ValidateBuiltOrderFunction");
-        dependencies.SortedNodes[10].NodeName.ShouldBe("ValidateBuiltOrder");
-        dependencies.CircularReferences.Count.ShouldBe(0);
+        Verify<Dependencies>.Model(dependencies, _ => _
+            .CountIs(value => value.SortedNodes, 11)
+            .ValueAtEquals(sortedNodes, 0, nodeType, "EnumExample")
+            .ValueAtEquals(sortedNodes, 1, nodeType, "NestedType")
+            .ValueAtEquals(sortedNodes, 2, nodeType, "TypeExample")
+            .ValueAtEquals(sortedNodes, 3, nodeType, "TableExample")
+            .ValueAtEquals(sortedNodes, 4, nodeType, "FunctionWithTypeDependency")
+            .ValueAtEquals(sortedNodes, 5, nodeType, "FunctionWithEnumDependency")
+            .ValueAtEquals(sortedNodes, 6, nodeType, "FunctionWithTableDependency")
+            .ValueAtEquals(sortedNodes, 7, nodeType, "FunctionWithFunctionTypeDependency")
+            .ValueAtEquals(sortedNodes, 8, nodeType, "FunctionWithFunctionDependency")
+            .ValueAtEquals(sortedNodes, 9, nodeType, "ValidateBuiltOrderFunction")
+            .ValueAtEquals(sortedNodes, 10, nodeType, "ValidateBuiltOrder")
+            .CountIs(value => value.CircularReferences, 0)
+        );
     }
 }

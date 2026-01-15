@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Lexy.Compiler.Generation;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
@@ -23,19 +24,19 @@ public class SpecificationsRunner : ISpecificationsRunner
         this.logger = Assert.NotNull(logger, nameof(logger));
     }
 
-    public void Run(string file)
+    public async Task Run(string file)
     {
         var context = new SpecificationRunnerContext(logger);
 
-        CreateFileRunner(file, context);
+        await CreateFileRunner(file, context);
         RunScenarios(context);
     }
 
-    public void RunAll(string folder)
+    public async Task RunAll(string folder)
     {
         var context = new SpecificationRunnerContext(logger);
 
-        GetRunners(folder, context);
+        await GetRunners(folder, context);
         RunScenarios(context);
     }
 
@@ -65,45 +66,49 @@ public class SpecificationsRunner : ISpecificationsRunner
         throw new InvalidOperationException($"Specifications failed: {context.Failed}");
     }
 
-    private void GetRunners(string folder, ISpecificationRunnerContext context)
+    private async Task GetRunners(string folder, ISpecificationRunnerContext context)
     {
-        var absoluteFolder = GetAbsoluteFolder(folder);
+        var absoluteFolder = await GetAbsoluteFolder(folder);
 
         Console.WriteLine($"Specifications folder: {absoluteFolder}");
 
-        AddFolder(absoluteFolder, context);
+        await AddFolder(absoluteFolder, context);
     }
 
-    private void AddFolder(string folder, ISpecificationRunnerContext context)
+    private async Task AddFolder(string folder, ISpecificationRunnerContext context)
     {
-        var files = this.fileSystem.GetDirectoryFiles(folder, new []{
+        var files = await fileSystem.GetDirectoryFiles(folder, new []{
             $".{LexySourceDocument.FileExtension}",
             $".{LexySourceDocument.MarkdownExtension}"
         });
 
-        files
-            .OrderBy(name => name)
-            .ForEach(file => CreateFileRunner(file, context));
+        foreach (var file in files.OrderBy(name => name))
+        {
+            await CreateFileRunner(file, context);
+        }
 
-        fileSystem.GetDirectories(folder)
-            .OrderBy(name => name)
-            .ForEach(folder => AddFolder(folder, context));
+        var folders = await fileSystem.GetDirectories(folder);
+        foreach (var subFolder in folders.OrderBy(name => name))
+        {
+            var fullFolder = fileSystem.Combine(folder, subFolder);
+            await AddFolder(fullFolder, context);
+        }
     }
 
-    private void CreateFileRunner(string fileName, ISpecificationRunnerContext context)
+    private async Task CreateFileRunner(string fileName, ISpecificationRunnerContext context)
     {
         var runner = new SpecificationFileRunner(fileName, parser, context, compiler);
-        runner.Initialize();
+        await runner.Initialize();
         context.Add(runner);
     }
 
-    private string GetAbsoluteFolder(string folder)
+    private async Task<string> GetAbsoluteFolder(string folder)
     {
         var absoluteFolder = fileSystem.IsPathRooted(folder)
             ? folder
             : fileSystem.GetFullPath(folder);
 
-        if (!fileSystem.DirectoryExists(absoluteFolder))
+        if (!await fileSystem.DirectoryExists(absoluteFolder))
         {
             throw new InvalidOperationException($"Specifications folder doesn't exist: {absoluteFolder}");
         }

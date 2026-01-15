@@ -11,8 +11,8 @@ internal class LookUpRowFunction : TableFunction
     private const string FunctionHelpValue =
         "Arguments: " +
            "TableName.LookUpRow(lookUpValue) " +
-        "or TableName.LookUpRow(lookUpValue, Table.SearchColumn)" +
-        "or TableName.LookUpRow(discriminator, lookUpValue)" +
+        "or TableName.LookUpRow(lookUpValue, Table.SearchColumn) " +
+        "or TableName.LookUpRow(discriminator, lookUpValue) " +
         "or TableName.LookUpRow(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn)";
 
     private record OverloadArguments(

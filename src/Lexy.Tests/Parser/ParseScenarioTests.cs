@@ -1,5 +1,5 @@
+using System.Threading.Tasks;
 using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Language.VariableTypes.Declaration;
 using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
@@ -10,17 +10,17 @@ namespace Lexy.Tests.Parser;
 public class ParseScenarioTests : ScopedServicesTestFixture
 {
     [Test]
-    public void TestValidScenarioKeyword()
+    public async Task TestValidScenarioKeyword()
     {
         const string code = @"scenario TestScenario";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
+        var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
         scenario.Name.Value.ShouldBe("TestScenario");
     }
 
     [Test]
-    public void TestValidScenario()
+    public async Task TestValidScenario()
     {
         const string code = @"scenario TestScenario
   function TestScenarioFunction
@@ -29,7 +29,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   results
     Result = 456";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
+        var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
         scenario.Name.Value.ShouldBe("TestScenario");
         scenario.FunctionName.Value.ShouldBe("TestScenarioFunction");
@@ -44,7 +44,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestInvalidScenario()
+    public async Task TestInvalidScenario()
     {
         const string code = @"scenario TestScenario
   Functtion TestScenarioFunction
@@ -53,7 +53,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   results
     Result = 456";
 
-        var (scenario, logger) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = await ServiceProvider.ParseScenario(code);
 
         var errors = logger.ErrorNodeMessages(scenario);
 
@@ -67,7 +67,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestInvalidNumberValueScenario()
+    public async Task TestInvalidNumberValueScenario()
     {
         const string code = @"scenario TestScenario
   function
@@ -78,7 +78,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   results
     Result = 456";
 
-        var (scenario, logger) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = await ServiceProvider.ParseScenario(code);
 
         logger.NodeHasErrors(scenario).ShouldBeTrue();
 
@@ -88,7 +88,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestScenarioWithInlineFunction()
+    public async Task TestScenarioWithInlineFunction()
     {
         const string code = @"scenario ValidNumberIntAsParameter
   function
@@ -107,7 +107,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     Result1 = 123
     Result2 = 456";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
+        var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
         scenario.Name.Value.ShouldBe("ValidNumberIntAsParameter");
         scenario.Function.ShouldNotBeNull();
@@ -149,7 +149,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestScenarioWithEmptyParametersAndResults()
+    public async Task TestScenarioWithEmptyParametersAndResults()
     {
         const string code = @"scenario ValidateScenarioKeywords
 // Validate Scenario keywords
@@ -157,7 +157,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   parameters
   results";
 
-        var (scenario, _) = ServiceProvider.ParseScenario(code);
+        var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
         scenario.FunctionName.Value.ShouldBe("ValidateFunctionKeywords");
         scenario.Parameters.AllAssignments().Count.ShouldBe(0);
@@ -165,7 +165,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void TestValidScenarioWithInvalidInlineFunction()
+    public async Task TestValidScenarioWithInvalidInlineFunction()
     {
         const string code = @"scenario InvalidNumberEndsWithLetter
   function
@@ -176,7 +176,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
   expectErrors 
     ""Invalid token at 18: Invalid number token character: A""";
 
-        var (scenario, logger) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = await ServiceProvider.ParseScenario(code);
 
         logger.NodeHasErrors(scenario).ShouldBeFalse();
         logger.NodeHasErrors(scenario.Function).ShouldBeTrue();
@@ -186,25 +186,25 @@ public class ParseScenarioTests : ScopedServicesTestFixture
     }
 
     [Test]
-    public void ScenarioWithInlineFunctionShouldHaveAFunctionNameAfterKeywords()
+    public async Task ScenarioWithInlineFunctionShouldHaveAFunctionNameAfterKeywords()
     {
         const string code = @"scenario TestScenario
   function ThisShouldBeAllowed";
 
-        var (scenario, logger) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = await ServiceProvider.ParseScenario(code);
 
         logger.HasErrors().ShouldBeFalse();
         logger.NodeHasErrors(scenario).ShouldBeFalse();
     }
 
     [Test]
-    public void ScenarioWithInlineFunctionShouldLogErrorOnFunction()
+    public async Task ScenarioWithInlineFunctionShouldLogErrorOnFunction()
     {
         const string code = @"scenario TestScenario
   function
     scenario";
 
-        var (scenario, logger) = ServiceProvider.ParseScenario(code);
+        var (scenario, logger) = await ServiceProvider.ParseScenario(code);
 
         logger.NodeHasErrors(scenario.Function).ShouldBeTrue();
 
