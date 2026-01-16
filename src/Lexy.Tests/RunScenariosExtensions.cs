@@ -35,7 +35,7 @@ public static class RunScenariosExtensions
             var runner = new ScenarioRunner(currentFileName, lexyCompiler, nodes, scenario, context, parserLogger, dependencies);
             GlobalTiming.Log(currentFileName + "-" + scenario.Name);
             runner.Run();
-            GlobalTiming.Log(currentFileName + "-" + scenario.Name + ":runned");
+            GlobalTiming.Log(currentFileName + "-" + scenario.Name + ":ran");
         }
     }
 }

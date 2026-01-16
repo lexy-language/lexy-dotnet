@@ -14,7 +14,7 @@ public class CompileLargeFile : ScopedServicesTestFixture
     public async Task ParseCompileAndRun1000Scenarios()
     {
         var fileSystem = new FileSystem();
-        var fullPath = fileSystem.Combine(fileSystem.CurrentFolder(), "compiler/1mb.lexy");
+        var fullPath = fileSystem.Combine(fileSystem.CurrentFolder(), "Compiler/1mb.lexy");
         var bigLexy = await fileSystem.ReadAllLines(fullPath);
 
         Console.WriteLine("Lines: " + bigLexy.Length);
