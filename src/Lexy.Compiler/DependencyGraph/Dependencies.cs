@@ -18,7 +18,7 @@ public class Dependencies
 
     public IReadOnlyList<IComponentNode> SortedNodes { get; private set; }
 
-    public Dictionary<string, NodeDependencies> DependencyNodes => nodeDependencies;
+    public Dictionary<string, NodeDependencies> Nodes => nodeDependencies;
     public Dictionary<string, IComponentNode> CircularReferences => circularReferences;
 
     public Dependencies(IComponentNodeList componentNodes)
@@ -30,7 +30,7 @@ public class Dependencies
     {
         ProcessNodes();
         CheckCircularDependencies();
-        SortedNodes = SortByNodesBeforeItsDependants();
+        SortedNodes = SortNodesBeforeItsDependants();
     }
 
     public IEnumerable<IComponentNode> NodeAndDependencies(IComponentNode node)
@@ -163,7 +163,7 @@ public class Dependencies
         }
     }
 
-    private IReadOnlyList<IComponentNode> SortByNodesBeforeItsDependants()
+    private IReadOnlyList<IComponentNode> SortNodesBeforeItsDependants()
     {
         if (HasCircularReferences) return componentNodes.ToArray();
 

@@ -23,7 +23,7 @@ public class DependencyOrderTests : ScopedServicesTestFixture
   parameters
     EnumExample EnumValue
   results
-    number Result7
+    number Result
   Result = TableExample.LookUp(EnumExample.Single, TableExample.Example, TableExample.Value)
 
 table TableExample
@@ -36,20 +36,20 @@ enum EnumExample
   CivilPartnership", false);
 
         Verify<Dependencies>.Model(dependencies, _ => _
-            .CountIs(model => model.DependencyNodes, 3)
-            .ContainsKey(model => model.DependencyNodes, "TableExample", __ => __
+            .CountIs(model => model.Nodes, 3)
+            .ContainsKey(model => model.Nodes, "TableExample", __ => __
                 .AreEqual(tableExample => tableExample.Dependencies.Count, 1)
                 .ContainsKey(tableExample => tableExample.Dependencies, "EnumExample")
                 .AreEqual(tableExample => tableExample.Dependants.Count, 1)
                 .ContainsKey(tableExample => tableExample.Dependants, "FunctionWithEnumDependency")
             )
-            .ContainsKey(model => model.DependencyNodes, "EnumExample", __ => __
+            .ContainsKey(model => model.Nodes, "EnumExample", __ => __
                 .AreEqual(enumExample => enumExample.Dependencies.Count, 0)
                 .AreEqual(enumExample => enumExample.Dependants.Count, 2)
                 .ContainsKey(enumExample => enumExample.Dependants, "TableExample")
                 .ContainsKey(enumExample => enumExample.Dependants, "FunctionWithEnumDependency")
             )
-            .ContainsKey(model => model.DependencyNodes, "FunctionWithEnumDependency", __ => __
+            .ContainsKey(model => model.Nodes, "FunctionWithEnumDependency", __ => __
                 .AreEqual(functionWithEnumDependency => functionWithEnumDependency.Dependencies.Count, 2)
                 .ContainsKey(functionWithEnumDependency => functionWithEnumDependency.Dependencies, "TableExample")
                 .ContainsKey(functionWithEnumDependency => functionWithEnumDependency.Dependencies, "EnumExample")

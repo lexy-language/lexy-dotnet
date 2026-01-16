@@ -4,15 +4,15 @@ namespace Lexy.Tests;
 
 public class Verify<TModel>
 {
-    private readonly Context<TModel> context;
+    private readonly VerifyModelContext<TModel> verifyModelContext;
     private readonly VerifyLogging logging = new();
 
     private Verify(TModel model)
     {
-        context = new Context<TModel>(model, logging);
+        verifyModelContext = new VerifyModelContext<TModel>(model, logging);
     }
 
-    public static void Model(TModel model, Action<Context<TModel>> testHandler)
+    public static void Model(TModel model, Action<VerifyModelContext<TModel>> testHandler)
     {
         if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
 
@@ -21,9 +21,9 @@ public class Verify<TModel>
         verify.VerifyAll();
     }
 
-    private void Execute<TFactory>(Action<Context<TModel>> testHandler)
+    private void Execute<TFactory>(Action<VerifyModelContext<TModel>> testHandler)
     {
-        testHandler(context);
+        testHandler(verifyModelContext);
     }
 
     private void VerifyAll()

@@ -16,7 +16,7 @@ public class VerifyLogging
         return stringBuilder.ToString();
     }
 
-    public void ErrorOccured()
+    public void ErrorOccurred()
     {
         Errors = true;
     }

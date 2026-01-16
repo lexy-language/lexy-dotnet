@@ -6,7 +6,7 @@ namespace Lexy.Compiler.DependencyGraph;
 
 public class NodeDependencies
 {
-    private int? occurence;
+    private int? occurrence;
 
     public IComponentNode Node { get; }
 
@@ -32,16 +32,16 @@ public class NodeDependencies
 
     public int DecreaseOccurrence()
     {
-        if (occurence == null)
+        if (occurrence == null)
         {
-            occurence = Dependants.Count;
+            occurrence = Dependants.Count;
         }
         else
         {
-            occurence -= 1;
+            occurrence -= 1;
         }
 
-        return occurence.Value;
+        return occurrence.Value;
     }
 
     public override string ToString() => $"{Node.NodeName} (dependencies: {Dependencies.Count} dependants: {Dependants.Count})";

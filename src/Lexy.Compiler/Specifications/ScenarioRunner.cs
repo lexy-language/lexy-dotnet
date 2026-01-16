@@ -131,7 +131,7 @@ public class ScenarioRunner : IScenarioRunner
         {
             if (!ValidateExecutionErrors(exception))
             {
-                Fail("Execution error occured.", new[]
+                Fail("Execution error occurred.", new[]
                 {
                     "Error: ", exception.ToString()
                 });

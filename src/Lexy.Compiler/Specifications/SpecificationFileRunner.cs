@@ -81,7 +81,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         }
         catch (Exception innerException)
         {
-            throw new InvalidOperationException("Error occured while running: " + fileName, innerException);
+            throw new InvalidOperationException("Error occurred while running: " + fileName, innerException);
         }
     }
 

@@ -5,40 +5,40 @@ using System.Linq.Expressions;
 
 namespace Lexy.Tests;
 
-public class Context<TModel>
+public class VerifyModelContext<TModel>
 {
     private readonly TModel model;
     private readonly VerifyLogging logging;
 
-    public Context(TModel model, VerifyLogging logging)
+    public VerifyModelContext(TModel model, VerifyLogging logging)
     {
         this.model = model;
         this.logging = logging;
     }
 
-    public Context<TModel> Fail(string format, params object[] args)
+    public VerifyModelContext<TModel> Fail(string format, params object[] args)
     {
         var message = string.Format(CultureInfo.InvariantCulture, format, args);
         logging.AppendLine(">> " + message);
-        logging.ErrorOccured();
+        logging.ErrorOccurred();
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, bool>> expression, bool actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, bool>> expression, bool actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual<T>(Expression<Func<TModel, T>> expression, T actual) where T : IComparable
+    public VerifyModelContext<TModel> AreEqual<T>(Expression<Func<TModel, T>> expression, T actual) where T : IComparable
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value.CompareTo(actual) == 0, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual<T>(Expression<Func<TModel, T?>> expression, T? actual) where T : struct, IComparable
+    public VerifyModelContext<TModel> AreEqual<T>(Expression<Func<TModel, T?>> expression, T? actual) where T : struct, IComparable
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(
@@ -47,91 +47,91 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, bool?>> expression, bool? actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, bool?>> expression, bool? actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, Guid>> expression, Guid actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, Guid>> expression, Guid actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, string>> expression, string actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, string>> expression, string actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, int>> expression, int actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, int>> expression, int actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, int?>> expression, int? actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, int?>> expression, int? actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, decimal>> expression, decimal actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, decimal>> expression, decimal actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, DateTime>> expression, DateTime actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, DateTime>> expression, DateTime actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreEqual(Expression<Func<TModel, DateTime?>> expression, DateTime? actual)
+    public VerifyModelContext<TModel> AreEqual(Expression<Func<TModel, DateTime?>> expression, DateTime? actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == actual, message, "- AreEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreNotEqual(Expression<Func<TModel, string>> expression, string actual)
+    public VerifyModelContext<TModel> AreNotEqual(Expression<Func<TModel, string>> expression, string actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value != actual, message, "- AreNotEqual Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> AreSame<T>(Expression<Func<TModel, T>> expression, T actual)
+    public VerifyModelContext<TModel> AreSame<T>(Expression<Func<TModel, T>> expression, T actual)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(ReferenceEquals(value, actual), message, "- AreSame Failed '{0}' != '{1}': ", value, actual);
         return this;
     }
 
-    public Context<TModel> IsEmpty(Expression<Func<TModel, string>> expression)
+    public VerifyModelContext<TModel> IsEmpty(Expression<Func<TModel, string>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == string.Empty, message, "- IsEmpty Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> IsNotNull(Expression<Func<TModel, object>> expression)
+    public VerifyModelContext<TModel> IsNotNull(Expression<Func<TModel, object>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value != null, message, "- IsNotNull Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> IsNotNull<TSubModel>(Expression<Func<TModel, TSubModel>> expression, Action<Context<TSubModel>> subContext)
+    public VerifyModelContext<TModel> IsNotNull<TSubModel>(Expression<Func<TModel, TSubModel>> expression, Action<VerifyModelContext<TSubModel>> subContext)
     {
         var (value, message) = expression.CompileExpression(model);
         var valid = value != null;
@@ -142,42 +142,42 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> IsNull(Expression<Func<TModel, object>> expression)
+    public VerifyModelContext<TModel> IsNull(Expression<Func<TModel, object>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == null, message, "- IsNull Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> IsTrue(Expression<Func<TModel, bool>> expression)
+    public VerifyModelContext<TModel> IsTrue(Expression<Func<TModel, bool>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value, message, "- IsTrue Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> IsTrue(Expression<Func<TModel, bool?>> expression)
+    public VerifyModelContext<TModel> IsTrue(Expression<Func<TModel, bool?>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == true, message, "- IsTrue Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> IsFalse(Expression<Func<TModel, bool>> expression)
+    public VerifyModelContext<TModel> IsFalse(Expression<Func<TModel, bool>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(!value, message, "- IsFalse Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> IsFalse(Expression<Func<TModel, bool?>> expression)
+    public VerifyModelContext<TModel> IsFalse(Expression<Func<TModel, bool?>> expression)
     {
         var (value, message) = expression.CompileExpression(model);
         logging.LogAssert(value == false, message, "- IsFalse Failed '{0}': ", value);
         return this;
     }
 
-    public Context<TModel> AssertThrowsException<TException>(Action assertAction, string message = null) where TException : Exception
+    public VerifyModelContext<TModel> AssertThrowsException<TException>(Action assertAction, string message = null) where TException : Exception
     {
         try
         {
@@ -193,7 +193,7 @@ public class Context<TModel>
         }
     }
 
-    public Context<TModel> IsOfType<TExpected>(Expression<Func<TModel, object>> expression, Action<Context<TExpected>> subContext) where TExpected : class
+    public VerifyModelContext<TModel> IsOfType<TExpected>(Expression<Func<TModel, object>> expression, Action<VerifyModelContext<TExpected>> subContext) where TExpected : class
     {
         var (value, message) = expression.CompileExpression(model);
         var subInstance = value as TExpected;
@@ -207,7 +207,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> CountIs<T>(Expression<Func<TModel, IReadOnlyList<T>>> collection, int expected)
+    public VerifyModelContext<TModel> CountIs<T>(Expression<Func<TModel, IReadOnlyList<T>>> collection, int expected)
     {
         var (value, message) = collection.CompileExpression(model);
         var valid = value.Count == expected;
@@ -216,7 +216,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> CountIs<T>(Expression<Func<TModel, IReadOnlyCollection<T>>> collection, int expected)
+    public VerifyModelContext<TModel> CountIs<T>(Expression<Func<TModel, IReadOnlyCollection<T>>> collection, int expected)
     {
         var (value, message) = collection.CompileExpression(model);
         var valid = value.Count == expected;
@@ -225,7 +225,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> ContainsKey<TKey, TValue>(Expression<Func<TModel, IDictionary<TKey, TValue>>> collection, TKey key)
+    public VerifyModelContext<TModel> ContainsKey<TKey, TValue>(Expression<Func<TModel, IDictionary<TKey, TValue>>> collection, TKey key)
     {
         var (collectionValue, message) = collection.CompileExpression(model);
         var valid = collectionValue.TryGetValue(key, out var value);
@@ -234,7 +234,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> ContainsKey<TKey, TValue>(Expression<Func<TModel, IDictionary<TKey, TValue>>> collection, TKey key, Action<Context<TValue>> subContext)
+    public VerifyModelContext<TModel> ContainsKey<TKey, TValue>(Expression<Func<TModel, IDictionary<TKey, TValue>>> collection, TKey key, Action<VerifyModelContext<TValue>> subContext)
     {
         var (collectionValue, message) = collection.CompileExpression(model);
         var valid = collectionValue.TryGetValue(key, out var value);
@@ -247,7 +247,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> ValueAt<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, Action<Context<TItem>> subContext)
+    public VerifyModelContext<TModel> ValueAt<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, Action<VerifyModelContext<TItem>> subContext)
         where TItem : class
     {
         var (listValue, message) = list.CompileExpression(model);
@@ -261,7 +261,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> ValueAtEquals<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, TItem expected)
+    public VerifyModelContext<TModel> ValueAtEquals<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, TItem expected)
         where TItem : struct, IComparable
     {
         var (listValue, message) = list.CompileExpression(model);
@@ -277,7 +277,7 @@ public class Context<TModel>
         return this;
     }
 
-    public Context<TModel> ValueAtEquals<TItem, TValue>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, Expression<Func<TItem, TValue>> property, TValue expected)
+    public VerifyModelContext<TModel> ValueAtEquals<TItem, TValue>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, Expression<Func<TItem, TValue>> property, TValue expected)
         where TItem : class
         where TValue : IComparable
     {
@@ -296,16 +296,16 @@ public class Context<TModel>
         return this;
     }
 
-    private Context<TModel> InContext(Action<Context<TModel>> subContext)
+    private VerifyModelContext<TModel> InContext(Action<VerifyModelContext<TModel>> subContext)
     {
         logging.WithIndentation(() => subContext(this));
 
         return this;
     }
 
-    private Context<TModel> InContext<TSubModel>(Action<Context<TSubModel>> subContext, TSubModel value)
+    private VerifyModelContext<TModel> InContext<TSubModel>(Action<VerifyModelContext<TSubModel>> subContext, TSubModel value)
     {
-        logging.WithIndentation(() => subContext(new Context<TSubModel>(value, logging)));
+        logging.WithIndentation(() => subContext(new VerifyModelContext<TSubModel>(value, logging)));
 
         return this;
     }
