@@ -57,10 +57,10 @@ public class ExecutableFunction
 
         var parameters = CreateParameters(values);
 
-        var context = new ExecutionContext(this.executionLogger);
+        var context = new ExecutionContext(executionLogger);
         var results = runMethod.Invoke(null, new[] { parameters, context });
 
-        return new FunctionResult(results, context.Entries);
+        return new FunctionResult(function, results, context.Entries);
     }
 
     private void ValidateValues(IDictionary<string,object> values)

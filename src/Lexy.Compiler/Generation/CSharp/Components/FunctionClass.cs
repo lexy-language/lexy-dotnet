@@ -62,10 +62,12 @@ public static class FunctionClass
         }
 
         statements.Add(LogCalls.CloseScope());
-        statements.Add(ReturnResults());
+        statements.Add(ReturnResults(function));
+
+        var returnType = ReturnType(function);
 
         var functionSyntax = MethodDeclaration(
-                IdentifierName(LexyCodeConstants.ResultsType),
+                returnType,
                 Identifier(LexyCodeConstants.RunMethod))
             .WithModifiers(Modifiers.PublicStatic())
             .WithParameterList(
@@ -136,8 +138,10 @@ public static class FunctionClass
         parameters.Add(Parameter(Identifier(LexyCodeConstants.ContextVariable))
             .WithType(IdentifierName(nameof(IExecutionContext))));
 
+        var returnType = ReturnType(function);
+
         var functionSyntax = MethodDeclaration(
-                IdentifierName(LexyCodeConstants.ResultsType),
+                returnType,
                 Identifier(LexyCodeConstants.RunMethod))
             .WithModifiers(Modifiers.PublicStatic())
             .WithParameterList(
@@ -148,9 +152,29 @@ public static class FunctionClass
         return functionSyntax;
     }
 
-    private static StatementSyntax ReturnResults()
+    private static TypeSyntax ReturnType(Function function)
     {
-        return ReturnStatement(IdentifierName(LexyCodeConstants.ResultsVariable));
+        if (function.Results.Variables.Count != 1)
+        {
+            return IdentifierName(LexyCodeConstants.ResultsType);
+        }
+
+        var variableDefinition = function.Results.Variables[0];
+        return Types.Syntax(variableDefinition.Type);
+    }
+
+    private static StatementSyntax ReturnResults(Function function)
+    {
+        if (function.Results.Variables.Count != 1)
+        {
+            return ReturnStatement(IdentifierName(LexyCodeConstants.ResultsVariable));
+        }
+
+        var variableDefinition = function.Results.Variables[0];
+        return ReturnStatement(
+            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                IdentifierName(LexyCodeConstants.ResultsVariable),
+                IdentifierName(variableDefinition.Name)));
     }
 
     private static StatementSyntax InitializeResults()

@@ -13,7 +13,7 @@ public class RunSingleSpecification : ScopedServicesTestFixture
         LoggingConfiguration.LogFileNames();
 
         var runner = GetService<ISpecificationsRunner>();
-        await runner.Run("../../../lexy-language/Specifications/Function/FunctionCallSpread.lexy");
+        await runner.Run("../../../lexy-language/Specifications/Function/FunctionCallSingleReturn.lexy");
         //await runner.Run("../../../lexy-language/Specifications/Isolated.lexy");
 
         //await runner.Run("/Users/timcools/_/Lexy/lexy-language/src/Specifications/Table/Syntax.lexy");

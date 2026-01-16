@@ -70,7 +70,9 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
     public override VariableType DeriveType(IValidationContext context)
     {
         var function = GetFunction(context);
-        return function?.GetResultsType();
+        return function.Results.Variables.Count == 1
+             ? function.Results.Variables[0].VariableType
+             : function?.GetResultsType();
     }
 
     public override IEnumerable<VariableUsage> UsedVariables()

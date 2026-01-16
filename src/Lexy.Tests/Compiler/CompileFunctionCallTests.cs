@@ -46,7 +46,9 @@ function Calling
     number Value
   results
     number Result
-  Result = Value + 7 
+    string Message
+  Result = Value + 7
+  Message = ""Life is good"" 
 
 function Caller
   parameters
@@ -78,8 +80,8 @@ function Caller
     number Value
   results
     number Result
-  var result = Calling(...)
-  Result = result.Result");
+  Result = Calling(...)
+");
 
       var result = script.Run(new Dictionary<string, object> { { "Value", 2 } });
       var value = (decimal)result.GetValue("Result");
@@ -95,7 +97,9 @@ function Calling
     number Value
   results
     number Result
+    string Message
   Result = Value + 7 
+  Message = ""Life is good""
 
 function Caller
   parameters

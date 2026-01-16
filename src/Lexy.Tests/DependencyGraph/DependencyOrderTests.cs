@@ -67,12 +67,13 @@ enum EnumExample
     public async Task ComplexDependencyGraph()
     {
         var dependencies = await ServiceProvider.BuildGraph(
-            @"scenario ValidateBuiltOrder
+            @"scenario ValidateBuildOrder
   function
     parameters
       TypeExample Example
     results
       number Result
+      string Message
     ... = FunctionWithFunctionDependency(...)
     ... = FunctionWithFunctionTypeDependency(...)
   parameters
@@ -86,6 +87,7 @@ function FunctionWithFunctionDependency
     TypeExample Example
   results
     number Result
+    string Message
   ... = FunctionWithTypeDependency(...)
   ... = FunctionWithTableDependency(...)
   ... = FunctionWithEnumDependency(...)
@@ -95,6 +97,7 @@ function FunctionWithFunctionTypeDependency
     TypeExample Example
   results
     number Result
+    string Message
   var functionParametersFill = fill(FunctionWithTypeDependency.Parameters)
   var functionParametersNew = new(FunctionWithTypeDependency.Parameters)
   var tableParameters = new(TableExample.Row)
@@ -105,13 +108,15 @@ function FunctionWithTypeDependency
     TypeExample Example
   results
     number Result
+    string Message
   Result = Example.Nested.Result
 
 function FunctionWithTableDependency
   parameters
     TypeExample Example
   results
-    number Result
+    number Result   
+    string Message
   Result = TableExample.LookUp(EnumExample.Single, TableExample.Example, TableExample.Value)
 
 function FunctionWithEnumDependency
@@ -119,7 +124,8 @@ function FunctionWithEnumDependency
     EnumExample EnumValue
     TypeExample Example
   results
-    number Result
+    number Result   
+    string Message
   Result = 666
 
 type NestedType
@@ -150,8 +156,8 @@ enum EnumExample
             .ValueAtEquals(sortedNodes, 6, nodeType, "FunctionWithTableDependency")
             .ValueAtEquals(sortedNodes, 7, nodeType, "FunctionWithFunctionTypeDependency")
             .ValueAtEquals(sortedNodes, 8, nodeType, "FunctionWithFunctionDependency")
-            .ValueAtEquals(sortedNodes, 9, nodeType, "ValidateBuiltOrderFunction")
-            .ValueAtEquals(sortedNodes, 10, nodeType, "ValidateBuiltOrder")
+            .ValueAtEquals(sortedNodes, 9, nodeType, "ValidateBuildOrderFunction")
+            .ValueAtEquals(sortedNodes, 10, nodeType, "ValidateBuildOrder")
             .CountIs(value => value.CircularReferences, 0)
         );
     }
