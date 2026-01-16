@@ -106,7 +106,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
         var tokenName = Parser.NodeName.Parse(context);
 
-        Enum = EnumDefinition.Parse(tokenName, reference);
+        Enum = EnumDefinition.Parse(tokenName, true, reference);
         context.Logger.SetCurrentNode(Enum);
         return Enum;
     }

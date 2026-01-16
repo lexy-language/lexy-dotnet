@@ -38,7 +38,7 @@ public class BinaryExpression : Expression
 
     private static VariableType EnumType()
     {
-        return new EnumType("*", new EnumDefinition("*", new SourceReference(new SourceFile("*"), 1, 1)));
+        return new EnumType("*", new EnumDefinition("*", false, new SourceReference(new SourceFile("*"), 1, 1)));
     }
 
     private record OperatorCombination(VariableType LeftType, VariableType RightType,

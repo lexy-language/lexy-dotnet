@@ -63,7 +63,7 @@ public class LexyScriptNode : ComponentNode
         var componentNode = tokenName.Keyword switch
         {
             Keywords.Function => Function.Create(tokenName.Name, false, reference, context.ExpressionFactory),
-            Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, reference),
+            Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, false, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
             Keywords.TableKeyword => new Table(tokenName.Name,  reference),
             Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, reference),
@@ -108,7 +108,7 @@ public class LexyScriptNode : ComponentNode
     private IList<IComponentNode> WithoutScenarioInlineNode(IEnumerable<IComponentNode> sortedNodes)
     {
         return sortedNodes
-            .Where(where => (where as Function)?.Nested != true)
+            .Where(where => (where as INestedNode)?.Nested != true)
             .ToList();
     }
 }

@@ -9,7 +9,7 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Functions;
 
-public class Function : ComponentNode, IHasNodeDependencies
+public class Function : ComponentNode, IHasNodeDependencies, INestedNode
 {
     public const string ParameterName = "Parameters";
     public const string ResultsName = "Results";

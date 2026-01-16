@@ -4,7 +4,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Enums;
 
-public class EnumDefinition : ComponentNode
+public class EnumDefinition : ComponentNode, INestedNode
 {
     public EnumName Name { get; }
 
@@ -12,16 +12,18 @@ public class EnumDefinition : ComponentNode
 
     public IList<EnumMember> Members { get; } = new List<EnumMember>();
 
+    public bool Nested { get; }
 
-    internal EnumDefinition(string name, SourceReference reference) : base(reference)
+    internal EnumDefinition(string name, bool nested, SourceReference reference) : base(reference)
     {
         Name = new EnumName(reference);
         Name.ParseName(name);
+        Nested = nested;
     }
 
-    internal static EnumDefinition Parse(NodeName name, SourceReference reference)
+    internal static EnumDefinition Parse(NodeName name, bool nested, SourceReference reference)
     {
-        return new EnumDefinition(name.Name, reference);
+        return new EnumDefinition(name.Name, nested, reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
