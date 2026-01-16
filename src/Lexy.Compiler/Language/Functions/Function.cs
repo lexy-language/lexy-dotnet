@@ -21,8 +21,11 @@ public class Function : ComponentNode, IHasNodeDependencies
 
     public override string NodeName => Name.Value;
 
-    private Function(string name, SourceReference reference, IExpressionFactory factory) : base(reference)
+    public bool Nested { get; }
+
+    private Function(string name, bool nested, SourceReference reference, IExpressionFactory factory) : base(reference)
     {
+        Nested = nested;
         Name = new FunctionName(reference);
         Parameters = new FunctionParameters(reference);
         Results = new FunctionResults(reference);
@@ -39,9 +42,9 @@ public class Function : ComponentNode, IHasNodeDependencies
         return result;
     }
 
-    internal static Function Create(string name, SourceReference reference, IExpressionFactory factory)
+    internal static Function Create(string name, bool nested, SourceReference reference, IExpressionFactory factory)
     {
-        return new Function(name, reference, factory);
+        return new Function(name, nested, reference, factory);
     }
 
     public override IParsableNode Parse(IParseLineContext context)

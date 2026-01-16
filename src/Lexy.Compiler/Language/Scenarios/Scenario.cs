@@ -83,7 +83,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
             return ParseFunctionName(context, reference);
         }
 
-        Function = Function.Create($"{Name.Value}Function", reference, context.ExpressionFactory);
+        Function = Function.Create($"{Name.Value}Function", true, reference, context.ExpressionFactory);
         context.Logger.SetCurrentNode(Function);
         return Function;
     }
