@@ -37,7 +37,8 @@ public class FunctionResult
     public object GetValue(IdentifierPath expectedVariable)
     {
         var currentReference = expectedVariable;
-        var currentValue = GetField(valueObject, expectedVariable.RootIdentifier).GetValue(valueObject);
+        var field = GetField(valueObject, expectedVariable.RootIdentifier);
+        var currentValue = field.GetValue(valueObject);
         while (currentReference.HasChildIdentifiers)
         {
             currentReference = currentReference.ChildrenReference();

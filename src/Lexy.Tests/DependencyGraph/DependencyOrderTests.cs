@@ -116,7 +116,6 @@ function FunctionWithTableDependency
     TypeExample Example
   results
     number Result   
-    string Message
   Result = TableExample.LookUp(EnumExample.Single, TableExample.Example, TableExample.Value)
 
 function FunctionWithEnumDependency
