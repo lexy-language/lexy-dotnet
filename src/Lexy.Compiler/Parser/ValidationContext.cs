@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.FunctionLibraries;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.RunTime;
 

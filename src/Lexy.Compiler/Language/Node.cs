@@ -1,14 +1,14 @@
-using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
-public abstract class Node : INode
+public abstract class Node : INodeWithParent
 {
     public SourceReference Reference { get; }
+
+    public INode Parent { get; set; }
 
     protected Node(SourceReference reference)
     {
@@ -26,6 +26,11 @@ public abstract class Node : INode
     }
 
     public abstract IEnumerable<INode> GetChildren();
+
+    void INodeWithParent.SetParent(INode node)
+    {
+        Parent = node;
+    }
 
     protected abstract void Validate(IValidationContext context);
 

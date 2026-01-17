@@ -8,10 +8,10 @@ namespace Lexy.Compiler.Language.Enums;
 public class EnumMember : Node
 {
     public string Name { get; }
-    public NumberLiteralToken? ValueLiteral { get; }
+    public NumberLiteralToken ValueLiteral { get; }
     public int NumberValue { get; }
 
-    private EnumMember(string name, SourceReference reference, NumberLiteralToken? valueLiteral, int value) :
+    private EnumMember(string name, NumberLiteralToken valueLiteral, int value, SourceReference reference) :
         base(reference)
     {
         NumberValue = value;
@@ -19,7 +19,7 @@ public class EnumMember : Node
         ValueLiteral = valueLiteral;
     }
 
-    public static EnumMember? Parse(IParseLineContext context, int lastIndex)
+    public static EnumMember Parse(IParseLineContext context, int lastIndex, INode parent)
     {
         var valid = context.ValidateTokens<EnumMember>()
             .CountMinimum(1)
@@ -35,7 +35,7 @@ public class EnumMember : Node
 
         if (tokens.Length == 1)
         {
-            return new EnumMember(name, reference, null, lastIndex + 1);
+            return new EnumMember(name, null, lastIndex + 1, reference);
         }
 
         if (tokens.Length != 3)
@@ -53,7 +53,7 @@ public class EnumMember : Node
 
         var value = tokens.Token<NumberLiteralToken>(2);
 
-        return new EnumMember(name, reference, value, (int)value.NumberValue);
+        return new EnumMember(name, value, (int)value.NumberValue, reference);
     }
 
     public override IEnumerable<INode> GetChildren()

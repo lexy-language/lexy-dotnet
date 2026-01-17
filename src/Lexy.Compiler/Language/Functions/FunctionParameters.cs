@@ -5,7 +5,7 @@ namespace Lexy.Compiler.Language.Functions;
 
 public class FunctionParameters : ParsableNode
 {
-    private readonly List<VariableDefinition> variables = new List<VariableDefinition>();
+    private readonly List<VariableDefinition> variables = new();
 
     public IReadOnlyList<VariableDefinition> Variables => variables;
 

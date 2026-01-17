@@ -20,10 +20,14 @@ internal static class LexyFunctionCallSyntax
 
     public static ExpressionSyntax Create(LexyFunctionCallExpression expression)
     {
-        return RunFunction(expression.FunctionName, expression.Arguments, expression.ParametersMapping);
+        var runFunction = RunFunction(expression.FunctionName, expression.Arguments, expression.State.ParametersMapping);
+        if (expression.State.ReturnSingleResultsVariablesName == null) return runFunction;
+
+        var identifierName = IdentifierName(expression.State.ReturnSingleResultsVariablesName);
+        return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, runFunction, identifierName);
     }
 
-    public static InvocationExpressionSyntax RunFunction(string functionName, string variableName)
+    private static InvocationExpressionSyntax RunFunction(string functionName, string variableName)
     {
         var argumentsSyntax = new SyntaxNodeOrToken[]
         {
@@ -102,5 +106,4 @@ internal static class LexyFunctionCallSyntax
                     SeparatedList<ExpressionSyntax>(
                         mappingsSyntax))));
     }
-
 }

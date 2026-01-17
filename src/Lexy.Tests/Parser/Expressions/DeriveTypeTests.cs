@@ -1,5 +1,4 @@
 using System;
-using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;

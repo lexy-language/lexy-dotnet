@@ -2,23 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Functions;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Generation;
 
 public class FunctionResult
 {
-    private readonly Function function;
     private readonly object valueObject;
 
     public IReadOnlyList<ExecutionLogEntry> Logging { get; }
 
-    public FunctionResult(Function function, object valueObject, IReadOnlyList<ExecutionLogEntry> logging)
+    public FunctionResult(object valueObject, IReadOnlyList<ExecutionLogEntry> logging)
     {
-        this.function = Assert.NotNull(function, "function");
-        this.valueObject = Assert.NotNull(valueObject, "valueObject");
-        Logging = Assert.NotNull(logging, "logging");
+        this.valueObject = Assert.NotNull(valueObject, nameof(valueObject));
+        Logging = Assert.NotNull(logging, nameof(logging));
     }
 
     public decimal Number(string name)
@@ -31,10 +28,7 @@ public class FunctionResult
     {
         var type = parentObject.GetType();
         var field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public);
-        if (field == null)
-        {
-            throw new InvalidOperationException($"Couldn't find field: '{name}' on type: '{type.Name}'");
-        }
+        if (field == null) throw new InvalidOperationException($"Couldn't find field: '{name}' on type: '{type.Name}'");
         return field;
     }
 
@@ -43,7 +37,7 @@ public class FunctionResult
     public object GetValue(IdentifierPath expectedVariable)
     {
         var currentReference = expectedVariable;
-        var currentValue = function.Results.Variables.Count == 1 ? valueObject : GetField(valueObject, expectedVariable.RootIdentifier).GetValue(valueObject);
+        var currentValue = GetField(valueObject, expectedVariable.RootIdentifier).GetValue(valueObject);
         while (currentReference.HasChildIdentifiers)
         {
             currentReference = currentReference.ChildrenReference();

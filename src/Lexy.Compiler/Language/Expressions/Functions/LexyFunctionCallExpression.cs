@@ -14,8 +14,7 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
 
     public IReadOnlyList<Expression> Arguments { get; }
 
-    public VariablesMapping ParametersMapping { get; private set; }
-    public VariableType ResultsObjectType { get; private set; }
+    public LexyFunctionCallState State { get; private set; }
 
     public LexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
@@ -46,20 +45,22 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
         var result = function.ValidateArguments(context, Arguments, Reference);
         if (result is not { IsSuccess: true }) return;
 
-        if (result is ValidateFunctionArgumentsAutoMapResult autoMapResult)
-        {
-            AutoMapParameters(context, autoMapResult.ParameterType);
-        }
-
-        ResultsObjectType = function.GetResultsType();
+        var parametersMapping = AutoMapParameters(result, context);
+        var resultsObjectType = function.GetResultsType();
+        var returnSingleResultsVariablesName = ReturnSingleResultsVariablesName(function);
+        State = new LexyFunctionCallState(parametersMapping, resultsObjectType, returnSingleResultsVariablesName);
     }
 
-    private void AutoMapParameters(IValidationContext context, VariableType functionParametersType)
+    private VariablesMapping AutoMapParameters(ValidateFunctionArgumentsResult result, IValidationContext context)
     {
+        if (result is not ValidateFunctionArgumentsAutoMapResult autoMapResult) return null;
+
+        var functionParametersType = autoMapResult.ParameterType;
         if (functionParametersType is GeneratedType objectType)
         {
-            ParametersMapping = FillParametersFunctionExpression.GetMapping(Reference, context, objectType);
+            return FillParametersFunctionExpression.GetMapping(Reference, context, objectType);
         }
+        return null;
     }
 
     private Function GetFunction(IValidationContext context)
@@ -70,17 +71,30 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
     public override VariableType DeriveType(IValidationContext context)
     {
         var function = GetFunction(context);
-        return function.Results.Variables.Count == 1
-             ? function.Results.Variables[0].VariableType
-             : function?.GetResultsType();
+        var variable = ReturnSingleResultsVariable(function);
+        return variable != null ? variable.VariableType : function?.GetResultsType();
+    }
+
+    private string ReturnSingleResultsVariablesName(Function function)
+    {
+        var variable = ReturnSingleResultsVariable(function);
+        return variable?.Name;
+    }
+
+    private VariableDefinition ReturnSingleResultsVariable(Function function)
+    {
+        var parentIsSpreadExpression = Parent is SpreadAssignmentExpression;
+        return !parentIsSpreadExpression && function.Results.Variables.Count == 1
+            ? function.Results.Variables[0]
+            : null;
     }
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
         var result = base.UsedVariables();
-        if (ParametersMapping != null)
+        if (State?.ParametersMapping != null)
         {
-            result = result.Union(ParametersMapping.UsedVariables(VariableAccess.Read));
+            result = result.Union(State?.ParametersMapping.UsedVariables(VariableAccess.Read));
         }
         return result;
     }

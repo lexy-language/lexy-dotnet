@@ -29,7 +29,7 @@ public class EnumDefinition : ComponentNode, INestedNode
     public override IParsableNode Parse(IParseLineContext context)
     {
         var lastIndex = Members.LastOrDefault()?.NumberValue ?? -1;
-        var member = EnumMember.Parse(context, lastIndex);
+        var member = EnumMember.Parse(context, lastIndex, this);
         if (member != null) Members.Add(member);
         return this;
     }

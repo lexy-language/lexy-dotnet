@@ -11,6 +11,7 @@ public interface IValidationContext
 
     IVariableContext VariableContext { get; }
     ITreeValidationVisitor Visitor { get; }
+
     ILibraries Libraries { get; }
 
     IDisposable CreateVariableScope();

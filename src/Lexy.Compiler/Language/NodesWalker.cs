@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
@@ -27,5 +26,25 @@ internal static class NodesWalker
 
         var children = node.GetChildren();
         Walk(children, action);
+    }
+    
+    
+    public static void Walk(INode node, Action<INode, INode> action, INode parent)
+    {
+        Assert.NotNull(node, nameof(node));
+        Assert.NotNull(action, nameof(action));
+
+        action(node, parent);
+
+        var children = node.GetChildren();
+        Walk(children, action, node);
+    }
+
+    private static void Walk(IEnumerable<INode> children, Action<INode,INode> action, INode parent)
+    {
+        foreach (var node in children)
+        {
+            Walk(node, action, parent);
+        }
     }
 }

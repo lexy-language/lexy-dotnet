@@ -172,7 +172,23 @@ public class LexyParser : ILexyParser
     {
         var visitor = new TrackLoggingCurrentNodeVisitor(context.Logger);
         var validationContext = new ValidationContext(context.Logger, context.Nodes, visitor, context.Libraries);
+        GlobalTiming.Log("ValidationContext");
+        SetParents(context);
+        GlobalTiming.Log("SetParents");
         context.RootNode.ValidateTree(validationContext);
+    }
+
+    private static void SetParents(IParserContext context)
+    {
+        NodesWalker.Walk(context.RootNode, (node, parent) =>
+        {
+            if (node is not INodeWithParent nodeWithParent)
+            {
+                throw new InvalidOperationException("Each node should implement INodeWithParent");
+            }
+
+            nodeWithParent.SetParent(parent);
+        }, null);
     }
 
     private Dependencies SortByDependencyAndCheckCircularDependencies(IParserContext context)

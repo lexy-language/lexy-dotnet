@@ -50,7 +50,7 @@ public class ExecutableFunction
             && parameterType.Name == LexyCodeConstants.ParametersType;
     }
 
-    public FunctionResult Run(IDictionary<string, object>? values = null)
+    public FunctionResult Run(IDictionary<string, object> values = null)
     {
         values ??= new Dictionary<string, object>();
         ValidateValues(values);
@@ -60,7 +60,7 @@ public class ExecutableFunction
         var context = new ExecutionContext(executionLogger);
         var results = runMethod.Invoke(null, new[] { parameters, context });
 
-        return new FunctionResult(function, results, context.Entries);
+        return new FunctionResult(results, context.Entries);
     }
 
     private void ValidateValues(IDictionary<string,object> values)

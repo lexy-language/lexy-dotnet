@@ -16,7 +16,7 @@ public class ComponentNodeList : IComponentNodeList
     private readonly IList<IComponentNode> values;
     private readonly IDictionary<string, IComponentNode> index;
 
-    public int Count { get; }
+    public int Count => values.Count;
 
     public IComponentNode this[int index] => values[index];
 

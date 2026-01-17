@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Generation.CSharp.Syntax;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Functions;
 using Lexy.RunTime;
 using Microsoft.CodeAnalysis;
@@ -62,9 +60,9 @@ public static class FunctionClass
         }
 
         statements.Add(LogCalls.CloseScope());
-        statements.Add(ReturnResults(function));
+        statements.Add(ReturnResults());
 
-        var returnType = ReturnType(function);
+        var returnType = IdentifierName(LexyCodeConstants.ResultsType);
 
         var functionSyntax = MethodDeclaration(
                 returnType,
@@ -138,7 +136,7 @@ public static class FunctionClass
         parameters.Add(Parameter(Identifier(LexyCodeConstants.ContextVariable))
             .WithType(IdentifierName(nameof(IExecutionContext))));
 
-        var returnType = ReturnType(function);
+        var returnType = IdentifierName(LexyCodeConstants.ResultsType);
 
         var functionSyntax = MethodDeclaration(
                 returnType,
@@ -152,29 +150,10 @@ public static class FunctionClass
         return functionSyntax;
     }
 
-    private static TypeSyntax ReturnType(Function function)
+
+    private static StatementSyntax ReturnResults()
     {
-        if (function.Results.Variables.Count != 1)
-        {
-            return IdentifierName(LexyCodeConstants.ResultsType);
-        }
-
-        var variableDefinition = function.Results.Variables[0];
-        return Types.Syntax(variableDefinition.Type);
-    }
-
-    private static StatementSyntax ReturnResults(Function function)
-    {
-        if (function.Results.Variables.Count != 1)
-        {
-            return ReturnStatement(IdentifierName(LexyCodeConstants.ResultsVariable));
-        }
-
-        var variableDefinition = function.Results.Variables[0];
-        return ReturnStatement(
-            MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                IdentifierName(LexyCodeConstants.ResultsVariable),
-                IdentifierName(variableDefinition.Name)));
+        return ReturnStatement(IdentifierName(LexyCodeConstants.ResultsVariable));
     }
 
     private static StatementSyntax InitializeResults()
