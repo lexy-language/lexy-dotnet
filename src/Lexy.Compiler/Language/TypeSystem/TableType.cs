@@ -34,7 +34,7 @@ public class TableType : ObjectType
     {
         var members = new List<IObjectMember>
         {
-            new ObjectVariable(Table.CountName, ValueType.Number),
+            new ObjectVariable(Table.RowsCountName, ValueType.Number),
             new ObjectNestedType(Table.RowName, Table.GetRowType()),
         };
 

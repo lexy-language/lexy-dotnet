@@ -11,7 +11,7 @@ public class Table : ComponentNode, INodeWithType
     private bool invalidHeader;
     private readonly List<TableRow> rows = new();
 
-    public const string CountName = "Count";
+    public const string RowsCountName = "RowsCount";
     public const string RowName = "Row";
 
     public TableHeader Header { get; private set; }

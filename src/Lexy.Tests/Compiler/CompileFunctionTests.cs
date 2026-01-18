@@ -63,7 +63,7 @@ function ValidateTableKeywordFunction
   parameters
   results
     number Result
-  Result = ValidateTableKeyword.Count");
+  Result = ValidateTableKeyword.RowsCount");
 
         var result = script.Run();
         result.Number("Result").ShouldBe(2);

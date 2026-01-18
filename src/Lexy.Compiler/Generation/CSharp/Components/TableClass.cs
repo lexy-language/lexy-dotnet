@@ -131,7 +131,7 @@ internal static class TableClass
         yield return PropertyDeclaration(
                 PredefinedType(
                     Token(SyntaxKind.IntKeyword)),
-                Identifier("Count"))
+                Identifier(Table.RowsCountName))
             .WithModifiers(Modifiers.PublicStatic())
             .WithExpressionBody(
                 ArrowExpressionClause(
