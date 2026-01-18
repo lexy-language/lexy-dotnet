@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -88,7 +88,7 @@ public class CaseExpression : Expression, IParsableNode
     {
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return Value?.DeriveType(context);
     }

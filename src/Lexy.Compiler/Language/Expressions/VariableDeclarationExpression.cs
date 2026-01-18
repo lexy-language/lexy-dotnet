@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Declaration;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -10,17 +9,16 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class VariableDeclarationExpression : Expression
 {
-    private VariableType variableType;
+    private Type type;
 
-    public VariableTypeDeclaration Type { get; }
+    public TypeDeclaration TypeDeclaration { get; }
     public string Name { get; }
     public Expression Assignment { get; }
 
-    private VariableDeclarationExpression(VariableTypeDeclaration variableType, string variableName,
-        Expression assignment,
+    private VariableDeclarationExpression(TypeDeclaration typeDeclaration, string variableName, Expression assignment,
         ExpressionSource source, SourceReference reference) : base(source, reference)
     {
-        Type = Assert.NotNull(variableType, nameof(variableType));
+        TypeDeclaration = Assert.NotNull(typeDeclaration, nameof(typeDeclaration));
         Name = Assert.NotNull(variableName, nameof(variableName));
         Assignment = assignment;
     }
@@ -68,7 +66,7 @@ public class VariableDeclarationExpression : Expression
 
     public override IEnumerable<INode> GetChildren()
     {
-        yield return Type;
+        yield return TypeDeclaration;
         if (Assignment != null) yield return Assignment;
     }
 
@@ -83,37 +81,37 @@ public class VariableDeclarationExpression : Expression
         var variableType = GetVariableType(context, assignmentType);
         if (variableType == null)
         {
-            context.Logger.Fail(Reference, $"Invalid variable type '{Type}'");
+            context.Logger.Fail(Reference, $"Invalid variable type '{TypeDeclaration}'");
         }
 
         context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType, VariableSource.Code);
     }
 
-    private VariableType GetVariableType(IValidationContext context, VariableType assignmentType)
+    private Type GetVariableType(IValidationContext context, Type assignmentType)
     {
-        if (Type is ImplicitVariableTypeDeclaration implicitVariableType)
+        if (TypeDeclaration is ImplicitTypeDeclaration implicitVariableType)
         {
             implicitVariableType.Define(assignmentType);
             return assignmentType;
         }
 
-        variableType = Type.VariableType;
-        if (Assignment != null && (assignmentType == null || !assignmentType.Equals(variableType)))
+        type = TypeDeclaration.Type;
+        if (Assignment != null && (assignmentType == null || !assignmentType.Equals(type)))
         {
             context.Logger.Fail(Reference, "Invalid expression. Literal or enum value expression expected.");
         }
 
-        return variableType;
+        return type;
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return null;
     }
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
-        yield return new VariableUsage(IdentifierPath.Parse(Name), null, variableType, VariableSource.Code, VariableAccess.Write);
+        yield return new VariableUsage(IdentifierPath.Parse(Name), null, type, VariableSource.Code, VariableAccess.Write);
 
         if (Assignment == null) yield break;
 

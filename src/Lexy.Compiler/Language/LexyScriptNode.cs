@@ -15,7 +15,7 @@ public class LexyScriptNode : ComponentNode
     private readonly IList<Include> includes = new List<Include>();
     private IEnumerable<IComponentNode> sortedNodes;
 
-    public override string NodeName => nameof(LexyScriptNode);
+    public override string Name => nameof(LexyScriptNode);
 
     public Comments Comments { get; }
     public ComponentNodeList ComponentNodes { get; } = new();
@@ -52,7 +52,7 @@ public class LexyScriptNode : ComponentNode
         }
 
         var reference = context.Line.LineStartReference();
-        var tokenName = Parser.NodeName.Parse(context);
+        var tokenName = NodeName.Parse(context);
         if (tokenName == null)
         {
             var firstToken = context.Line.Tokens.Length > 0 ? context.Line.Tokens[0].Value : context.Line.Content;
@@ -63,7 +63,7 @@ public class LexyScriptNode : ComponentNode
         var componentNode = tokenName.Keyword switch
         {
             Keywords.Function => Function.Create(tokenName.Name, false, reference, context.ExpressionFactory),
-            Keywords.EnumKeyword => EnumDefinition.Parse(tokenName, false, reference),
+            Keywords.EnumKeyword => EnumDefinition.Parse(tokenName.Name, false, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
             Keywords.TableKeyword => new Table(tokenName.Name,  reference),
             Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, reference),
@@ -89,8 +89,8 @@ public class LexyScriptNode : ComponentNode
         DuplicateChecker.Validate(
             context,
             node => node.Reference,
-            node => node.NodeName,
-            node => $"Duplicated node name: '{node.NodeName}'",
+            node => node.Name,
+            node => $"Duplicated node name: '{node.Name}'",
             ComponentNodes);
     }
 

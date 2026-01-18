@@ -1,4 +1,4 @@
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -6,7 +6,7 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 public static class ValidateArgumentsExtensions
 {
     public static IValidationContext ValidateType(this IValidationContext context, Expression expression,
-        int argumentIndex, string name, VariableType type, SourceReference reference, string functionHelp)
+        int argumentIndex, string name, Type type, SourceReference reference, string functionHelp)
     {
         var valueTypeEnd = expression.DeriveType(context);
         if (valueTypeEnd == null || !valueTypeEnd.Equals(type))

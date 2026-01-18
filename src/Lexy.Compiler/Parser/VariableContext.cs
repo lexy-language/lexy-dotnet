@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Parser;
 
@@ -21,7 +21,7 @@ public class VariableContext : IVariableContext
         this.parentContext = parentContext;
     }
 
-    public void AddVariable(string name, VariableType type, VariableSource source)
+    public void AddVariable(string name, Type type, VariableSource source)
     {
         if (Contains(name)) return;
 
@@ -29,7 +29,7 @@ public class VariableContext : IVariableContext
         variables.Add(name, entry);
     }
 
-    public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, VariableType type,
+    public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, Type type,
         VariableSource source)
     {
         if (Contains(name))
@@ -47,24 +47,24 @@ public class VariableContext : IVariableContext
         return variables.ContainsKey(name) || parentContext != null && parentContext.Contains(name);
     }
 
-    public bool Contains(IdentifierPath path, IValidationContext context)
+    public bool Contains(IdentifierPath path)
     {
         var parent = GetVariable(path.RootIdentifier);
         if (parent == null) return false;
 
         return !path.HasChildIdentifiers ||
-               ContainsChild(parent.VariableType, path.ChildrenReference(), context);
+               ContainsChild(parent.Type, path.ChildrenReference());
     }
 
-    public VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path, IValidationContext validationContext)
+    public VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path)
     {
-        VariableReference ExecuteWithPriority(Func<IdentifierPath,IValidationContext, VariableReference> firstPriorityHandler,
-            Func<IdentifierPath,IValidationContext, VariableReference> secondPriorityHandler)
+        VariableReference ExecuteWithPriority(Func<IdentifierPath, VariableReference> firstPriorityHandler,
+            Func<IdentifierPath, VariableReference> secondPriorityHandler)
         {
-            var value1 = firstPriorityHandler(path, validationContext);
+            var value1 = firstPriorityHandler(path);
             if (value1 != null) return value1;
 
-            var value2 = secondPriorityHandler(path, validationContext);
+            var value2 = secondPriorityHandler(path);
             if (value2 != null) return value2;
 
             return null;
@@ -78,18 +78,18 @@ public class VariableContext : IVariableContext
             : ExecuteWithPriority(fromVariables, fromTypeSystem);
     }
 
-    private VariableReference CreateVariableReferenceFromRegisteredVariables(IdentifierPath path, IValidationContext validationContext)
+    private VariableReference CreateVariableReferenceFromRegisteredVariables(IdentifierPath path)
     {
         var variable = GetVariable(path.RootIdentifier);
         if (variable == null) return null;
 
-        var variableType = GetVariableType(path, validationContext);
+        var variableType = GetVariableType(path);
         if (variableType == null) return null;
 
         return new VariableReference(path, null, variableType, variable.VariableSource);
     }
 
-    private VariableReference CreateVariableReferenceFromTypeSystem(IdentifierPath path, IValidationContext validationContext)
+    private VariableReference CreateVariableReferenceFromTypeSystem(IdentifierPath path)
     {
         if (path.Parts > 2) return null;
 
@@ -102,26 +102,26 @@ public class VariableContext : IVariableContext
         }
 
         var member = path.LastPart();
-        var memberType = rootVariableType.MemberType(member, validationContext.ComponentNodes);
+        var memberType = rootVariableType.MemberType(member);
         if (memberType == null) return null;
         return new VariableReference(path, rootVariableType, memberType, VariableSource.Type);
     }
 
-    public VariableType GetVariableType(string name)
+    public Type GetVariableType(string name)
     {
         return variables.TryGetValue(name, out var value)
-            ? value.VariableType
+            ? value.Type
             : parentContext?.GetVariableType(name);
     }
 
-    public VariableType GetVariableType(IdentifierPath path, IValidationContext context)
+    public Type GetVariableType(IdentifierPath path)
     {
         Assert.NotNull(path, nameof(path));
 
         var parent = GetVariableType(path.RootIdentifier);
         return parent == null || !path.HasChildIdentifiers
             ? parent
-            : GetVariableType(parent, path.ChildrenReference(), context);
+            : GetVariableType(parent, path.ChildrenReference());
     }
 
     public VariableEntry GetVariable(string name)
@@ -131,27 +131,26 @@ public class VariableContext : IVariableContext
             : parentContext?.GetVariable(name);
     }
 
-    private static bool ContainsChild(VariableType parentType, IdentifierPath path, IValidationContext context)
+    private static bool ContainsChild(Type parentType, IdentifierPath path)
     {
         var objectType = parentType as IObjectType;
 
-        var memberVariableType = objectType?.MemberType(path.RootIdentifier, context.ComponentNodes);
+        var memberVariableType = objectType?.MemberType(path.RootIdentifier);
         if (memberVariableType == null) return false;
 
         return !path.HasChildIdentifiers
-               || ContainsChild(memberVariableType, path.ChildrenReference(), context);
+               || ContainsChild(memberVariableType, path.ChildrenReference());
     }
 
-    private VariableType GetVariableType(VariableType parentType, IdentifierPath path,
-        IValidationContext context)
+    private Type GetVariableType(Type parentType, IdentifierPath path)
     {
         if (parentType is not IObjectType objectType) return null;
 
-        var memberVariableType = objectType.MemberType(path.RootIdentifier, context.ComponentNodes);
+        var memberVariableType = objectType.MemberType(path.RootIdentifier);
         if (memberVariableType == null) return null;
 
         return !path.HasChildIdentifiers
             ? memberVariableType
-            : GetVariableType(memberVariableType, path.ChildrenReference(), context);
+            : GetVariableType(memberVariableType, path.ChildrenReference());
     }
 }

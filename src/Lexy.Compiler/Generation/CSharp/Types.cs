@@ -1,12 +1,15 @@
 using System;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Declaration;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Generation.CSharp;
 
@@ -44,7 +47,7 @@ internal static class Types
 
     public static TypeSyntax Syntax(VariableDefinition variableDefinition)
     {
-        return Syntax(variableDefinition.Type);
+        return Syntax(variableDefinition.TypeDeclaration);
     }
 
     public static TypeSyntax Syntax(string type)
@@ -59,22 +62,22 @@ internal static class Types
         };
     }
 
-    public static TypeSyntax Syntax(VariableType variableType)
+    public static TypeSyntax Syntax(Type type)
     {
-        return variableType switch
+        return type switch
         {
-            PrimitiveType primitive => Syntax(primitive.Type),
-            EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
-            TableType tableType => IdentifierName(tableType.TableName),
+            ValueType primitive => Syntax(primitive.Type),
+            EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Name)),
+            TableType tableType => IdentifierName(tableType.Name),
             DeclaredType declaredType => DeclaredTypeSyntax(declaredType),
             GeneratedType generatedType => ObjectTypeSyntax(generatedType),
-            _ => throw new InvalidOperationException($"Not supported: {variableType.GetType()}")
+            _ => throw new InvalidOperationException($"Not supported: {type.GetType()}")
         };
     }
 
     private static TypeSyntax DeclaredTypeSyntax(DeclaredType generatedType)
     {
-        return IdentifierName(ClassNames.TypeClassName(generatedType.Type));
+        return IdentifierName(ClassNames.TypeClassName(generatedType.Name));
     }
 
     private static TypeSyntax ObjectTypeSyntax(GeneratedType generatedType)
@@ -93,26 +96,26 @@ internal static class Types
         };
     }
 
-    public static TypeSyntax Syntax(VariableTypeDeclaration type)
+    public static TypeSyntax Syntax(TypeDeclaration typeDeclaration)
     {
-        return type switch
+        return typeDeclaration switch
         {
-            PrimitiveVariableTypeDeclaration primitive => Syntax(primitive.Type),
-            ObjectVariableTypeDeclaration objectDeclararion => IdentifierNameSyntax(objectDeclararion),
-            ImplicitVariableTypeDeclaration implicitVariable => Syntax(implicitVariable.VariableType),
-            _ => throw new InvalidOperationException("Couldn't map type: " + type)
+            PrimitiveTypeDeclaration primitive => Syntax(primitive.Type),
+            ObjectTypeDeclaration objectDeclararion => IdentifierNameSyntax(objectDeclararion),
+            ImplicitTypeDeclaration implicitVariable => Syntax(implicitVariable.Type),
+            _ => throw new InvalidOperationException("Couldn't map type: " + typeDeclaration)
         };
     }
 
-    private static TypeSyntax IdentifierNameSyntax(ObjectVariableTypeDeclaration objectVariableType)
+    private static TypeSyntax IdentifierNameSyntax(ObjectTypeDeclaration objectType)
     {
-        return objectVariableType.VariableType switch
+        return ((TypeDeclaration)objectType).Type switch
         {
-            EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Type)),
-            TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.TableName)),
-            DeclaredType declaredType => IdentifierName(ClassNames.TypeClassName(declaredType.Type)),
+            EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Name)),
+            TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.Name)),
+            DeclaredType declaredType => IdentifierName(ClassNames.TypeClassName(declaredType.Name)),
             GeneratedType generatedType => ObjectTypeIdentifierNameSyntax(generatedType),
-            _ => throw new InvalidOperationException("Couldn't map type: " + objectVariableType.VariableType)
+            _ => throw new InvalidOperationException("Couldn't map type: " + ((TypeDeclaration)objectType).Type)
         };
     }
 
@@ -133,34 +136,34 @@ internal static class Types
         };
     }
 
-    public static ExpressionSyntax TypeDefaultExpression(VariableTypeDeclaration variableTypeDeclaration)
+    public static ExpressionSyntax TypeDefaultExpression(TypeDeclaration typeDeclaration)
     {
-        return variableTypeDeclaration switch
+        return typeDeclaration switch
         {
-            PrimitiveVariableTypeDeclaration expression => PrimitiveTypeDefaultExpression(expression),
-            ObjectVariableTypeDeclaration declaredType => DefaultExpressionSyntax(declaredType),
+            PrimitiveTypeDeclaration expression => PrimitiveTypeDefaultExpression(expression),
+            ObjectTypeDeclaration declaredType => DefaultExpressionSyntax(declaredType),
             _ => throw new InvalidOperationException(
-                $"Wrong VariableDeclarationType {variableTypeDeclaration.GetType()}")
+                $"Wrong VariableDeclarationType {typeDeclaration.GetType()}")
         };
     }
 
-    private static ExpressionSyntax DefaultExpressionSyntax(ObjectVariableTypeDeclaration @object)
+    private static ExpressionSyntax DefaultExpressionSyntax(ObjectTypeDeclaration @object)
     {
-        if (@object.VariableType is DeclaredType)
+        if (((TypeDeclaration)@object).Type is DeclaredType)
         {
             return ObjectCreationExpression(IdentifierNameSyntax(@object)).WithArgumentList(ArgumentList());
         }
 
-        if (@object.VariableType is GeneratedType)
+        if (((TypeDeclaration)@object).Type is GeneratedType)
         {
             return ObjectCreationExpression(IdentifierNameSyntax(@object)).WithArgumentList(ArgumentList());
         }
         return DefaultExpression(IdentifierNameSyntax(@object));
     }
 
-    private static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveVariableTypeDeclaration type)
+    private static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveTypeDeclaration type)
     {
-        switch (type.Type)
+        switch (type.TypeName)
         {
             case TypeNames.Number:
             case TypeNames.Boolean:

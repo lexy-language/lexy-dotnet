@@ -5,11 +5,11 @@ using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Generation.CSharp.ExpressionStatements;
 
@@ -38,7 +38,7 @@ internal static class FillFunctionStatement
         return FillStatementSyntax(expression.Name, fillParametersFunction.Type, fillParametersFunction.Mapping);
     }
 
-    public static IEnumerable<StatementSyntax> FillStatementSyntax(string variableName, VariableType type,
+    public static IEnumerable<StatementSyntax> FillStatementSyntax(string variableName, Type type,
         IEnumerable<Mapping> mappings)
     {
         Assert.NotNull(variableName, nameof(variableName));

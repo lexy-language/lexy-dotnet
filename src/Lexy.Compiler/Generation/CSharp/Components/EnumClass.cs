@@ -16,7 +16,7 @@ public static class EnumClass
     {
         Assert.NotNull(enumDefinition, nameof(enumDefinition));
 
-        var className = ClassNames.EnumClassName(enumDefinition.Name.Value);
+        var className = ClassNames.EnumClassName(enumDefinition.Name);
         var members = WriteValues(enumDefinition);
 
         var enumNode = EnumDeclaration(className)

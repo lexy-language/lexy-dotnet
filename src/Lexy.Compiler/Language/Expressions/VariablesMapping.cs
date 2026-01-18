@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;

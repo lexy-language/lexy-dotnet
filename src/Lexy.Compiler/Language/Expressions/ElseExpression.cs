@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -50,7 +50,7 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
     {
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return null;
     }

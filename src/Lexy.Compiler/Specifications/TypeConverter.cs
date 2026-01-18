@@ -1,15 +1,16 @@
 using System;
 using System.Globalization;
 using Lexy.Compiler.Generation;
-using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Specifications;
 
 internal static class TypeConverter
 {
-    public static object Convert(ICompilationResult compilationResult, object value, VariableType type)
+    public static object Convert(ICompilationResult compilationResult, object value, Type type)
     {
         Assert.NotNull(compilationResult, nameof(compilationResult));
         Assert.NotNull(value, nameof(value));
@@ -20,7 +21,7 @@ internal static class TypeConverter
             return ConvertEnum(compilationResult, value, enumVariableType);
         }
 
-        if (type is PrimitiveType primitiveVariableType)
+        if (type is ValueType primitiveVariableType)
         {
             return ConvertPrimitive(value, primitiveVariableType);
         }
@@ -28,23 +29,23 @@ internal static class TypeConverter
         throw new InvalidOperationException($"Invalid type: '{type}'");
     }
 
-    private static object ConvertPrimitive(object value, PrimitiveType primitiveVariableType)
+    private static object ConvertPrimitive(object value, ValueType valueVariableType)
     {
         var valueAsString = value.ToString();
-        return primitiveVariableType.Type switch
+        return valueVariableType.Type switch
         {
             TypeNames.Number => value as decimal? ?? decimal.Parse(valueAsString, CultureInfo.InvariantCulture),
             TypeNames.Date => value as DateTime? ?? DateTime.Parse(valueAsString, CultureInfo.InvariantCulture),
             TypeNames.Boolean => value as bool? ?? bool.Parse(valueAsString),
             TypeNames.String => value,
-            _ => throw new InvalidOperationException($"Invalid type: '{primitiveVariableType.Type}'")
+            _ => throw new InvalidOperationException($"Invalid type: '{valueVariableType.Type}'")
         };
     }
 
     private static object ConvertEnum(ICompilationResult compilationResult, object value, EnumType enumVariableType)
     {
-        var enumType = compilationResult.GetEnumType(enumVariableType.Type);
-        if (enumType == null) throw new InvalidOperationException($"Unknown enum: {enumVariableType.Type}");
+        var enumType = compilationResult.GetEnumType(enumVariableType.Name);
+        if (enumType == null) throw new InvalidOperationException($"Unknown enum: {enumVariableType.Name}");
 
         var enumValueName = value.ToString();
         var indexOfSeparator = enumValueName.IndexOf(".", StringComparison.InvariantCulture);

@@ -48,7 +48,6 @@ public class LexyParser : ILexyParser
         context.AddFileIncluded(fullFileName);
         context.SetFileLineFilter(fullFileName);
 
-
         await ParseDocument(code, fullFileName, context);
 
         parserLogger.LogNodes(context.Nodes);

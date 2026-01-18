@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes.Declaration;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
@@ -16,7 +16,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
-        scenario.Name.Value.ShouldBe("TestScenario");
+        scenario.Name.ShouldBe("TestScenario");
     }
 
     [Test]
@@ -31,7 +31,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
-        scenario.Name.Value.ShouldBe("TestScenario");
+        scenario.Name.ShouldBe("TestScenario");
         scenario.FunctionName.Value.ShouldBe("TestScenarioFunction");
         var parameterAssignments = scenario.Parameters.AllAssignments();
         parameterAssignments.Count.ShouldBe(1);
@@ -109,25 +109,25 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
-        scenario.Name.Value.ShouldBe("ValidNumberIntAsParameter");
+        scenario.Name.ShouldBe("ValidNumberIntAsParameter");
         scenario.Function.ShouldNotBeNull();
         scenario.Function.Parameters.Variables.Count.ShouldBe(2);
         scenario.Function.Parameters.Variables[0].Name.ShouldBe("Value1");
-        scenario.Function.Parameters.Variables[0].Type.ValidateOfType<PrimitiveVariableTypeDeclaration>(value =>
-            ShouldBeStringTestExtensions.ShouldBe(value.Type, "number"));
+        scenario.Function.Parameters.Variables[0].TypeDeclaration.ValidateOfType<PrimitiveTypeDeclaration>(value =>
+            ShouldBeStringTestExtensions.ShouldBe(value.TypeName, "number"));
         scenario.Function.Parameters.Variables[0].DefaultExpression.ToString().ShouldBe("123");
         scenario.Function.Parameters.Variables[1].Name.ShouldBe("Value2");
-        scenario.Function.Parameters.Variables[1].Type.ValidateOfType<PrimitiveVariableTypeDeclaration>(value =>
-            value.Type.ShouldBe("number"));
+        scenario.Function.Parameters.Variables[1].TypeDeclaration.ValidateOfType<PrimitiveTypeDeclaration>(value =>
+            value.TypeName.ShouldBe("number"));
         scenario.Function.Parameters.Variables[1].DefaultExpression.ToString().ShouldBe("456");
         scenario.Function.Results.Variables.Count.ShouldBe(2);
         scenario.Function.Results.Variables[0].Name.ShouldBe("Result1");
-        scenario.Function.Results.Variables[0].Type.ValidateOfType<PrimitiveVariableTypeDeclaration>(value =>
-            value.Type.ShouldBe("number"));
+        scenario.Function.Results.Variables[0].TypeDeclaration.ValidateOfType<PrimitiveTypeDeclaration>(value =>
+            value.TypeName.ShouldBe("number"));
         scenario.Function.Results.Variables[0].DefaultExpression.ShouldBeNull();
         scenario.Function.Results.Variables[1].Name.ShouldBe("Result2");
-        scenario.Function.Results.Variables[1].Type.ValidateOfType<PrimitiveVariableTypeDeclaration>(value =>
-            value.Type.ShouldBe("number"));
+        scenario.Function.Results.Variables[1].TypeDeclaration.ValidateOfType<PrimitiveTypeDeclaration>(value =>
+            value.TypeName.ShouldBe("number"));
         scenario.Function.Results.Variables[1].DefaultExpression.ShouldBeNull();
         scenario.Function.Code.Expressions.Count.ShouldBe(2);
         scenario.Function.Code.Expressions[0].ToString().ShouldBe("Result1=Value1");

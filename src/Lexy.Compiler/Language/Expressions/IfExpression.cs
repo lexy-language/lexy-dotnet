@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -67,7 +68,7 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
     protected override void Validate(IValidationContext context)
     {
         var type = Condition.DeriveType(context);
-        if (type == null || !type.Equals(PrimitiveType.Boolean))
+        if (type == null || !type.Equals(ValueType.Boolean))
         {
             context.Logger.Fail(Reference,
                 $"'if' condition expression should be 'boolean', is of wrong type '{type}'.");
@@ -91,7 +92,7 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
         elseExpressions.Add((Expression)expression);
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return null;
     }

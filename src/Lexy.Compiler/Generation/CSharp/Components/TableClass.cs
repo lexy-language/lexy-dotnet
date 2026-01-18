@@ -16,7 +16,7 @@ internal static class TableClass
     {
         Assert.NotNull(table, nameof(table));
 
-        var className = ClassNames.TableClassName(table.Name.Value);
+        var className = ClassNames.TableClassName(table.Name);
 
         var members = new List<MemberDeclarationSyntax>();
         members.Add(GenerateRowClass(LexyCodeConstants.RowType, table));
@@ -47,10 +47,10 @@ internal static class TableClass
     private static FieldDeclarationSyntax Field(ColumnHeader header)
     {
         return FieldDeclaration(
-                VariableDeclaration(Types.Syntax(header.Type))
+                VariableDeclaration(Types.Syntax(header.TypeDeclaration))
                     .WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier(header.Name))
                         .WithInitializer(EqualsValueClause(
-                            Types.TypeDefaultExpression(header.Type))))))
+                            Types.TypeDefaultExpression(header.TypeDeclaration))))))
             .WithModifiers(Modifiers.Public());
     }
 

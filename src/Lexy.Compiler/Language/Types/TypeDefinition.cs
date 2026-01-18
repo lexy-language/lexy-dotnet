@@ -1,22 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Types;
 
-public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependencies
+public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependencies, INodeWithType
 {
     private readonly List<VariableDefinition> variables = new();
 
-    public TypeName Name { get; } = new();
-    public override string NodeName => Name.Value;
+    public override string Name { get; }
 
     public IReadOnlyList<VariableDefinition> Variables => variables;
 
     private TypeDefinition(string name, SourceReference reference) : base(reference)
     {
-        Name.ParseName(name);
+        Name = name;
+    }
+
+    public Type CreateType()
+    {
+        return new DeclaredType(this);
     }
 
     internal static TypeDefinition Parse(NodeName name, SourceReference reference)
@@ -34,7 +40,7 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var dependencies = Variables.SelectMany(variable =>
-            variable.Type is IHasNodeDependencies hasDependencies
+            variable.TypeDeclaration is IHasNodeDependencies hasDependencies
             ? hasDependencies.GetDependencies(componentNodes)
             : Array.Empty<IComponentNode>());
         return dependencies;

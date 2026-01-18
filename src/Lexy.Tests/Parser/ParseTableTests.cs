@@ -1,10 +1,6 @@
 using System.Threading.Tasks;
-using Lexy.Compiler.Language.Tables;
-using Lexy.Compiler.Language.Types;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Tests.Parser.ExpressionParser;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
@@ -22,12 +18,12 @@ public class ParseTableTests : ScopedServicesTestFixture
 
         var (table, _) = await ServiceProvider.ParseTable(code);
 
-        table.Name.Value.ShouldBe("TestTable");
+        table.Name.ShouldBe("TestTable");
         table.Header.Columns.Count.ShouldBe(2);
         table.Header.Columns[0].Name.ShouldBe("Value");
-        table.Header.Columns[0].Type.ShouldBePrimitiveType(TypeNames.Number);
+        table.Header.Columns[0].TypeDeclaration.ShouldBePrimitiveType(TypeNames.Number);
         table.Header.Columns[1].Name.ShouldBe("Result");
-        table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.String);
+        table.Header.Columns[1].TypeDeclaration.ShouldBePrimitiveType(TypeNames.String);
         table.Rows.Count.ShouldBe(2);
         table.Rows[0].Values[0].Expression.ValidateNumericLiteralExpression(7);
         table.Rows[0].Values[1].Expression.ValidateQuotedLiteralExpression("Test quoted");
@@ -45,12 +41,12 @@ public class ParseTableTests : ScopedServicesTestFixture
 
         var (table, _) = await ServiceProvider.ParseTable(code);
 
-        table.Name.Value.ShouldBe("TestTable");
+        table.Name.ShouldBe("TestTable");
         table.Header.Columns.Count.ShouldBe(2);
         table.Header.Columns[0].Name.ShouldBe("Value");
-        table.Header.Columns[0].Type.ShouldBePrimitiveType(TypeNames.Date);
+        table.Header.Columns[0].TypeDeclaration.ShouldBePrimitiveType(TypeNames.Date);
         table.Header.Columns[1].Name.ShouldBe("Result");
-        table.Header.Columns[1].Type.ShouldBePrimitiveType(TypeNames.Boolean);
+        table.Header.Columns[1].TypeDeclaration.ShouldBePrimitiveType(TypeNames.Boolean);
         table.Rows.Count.ShouldBe(2);
         table.Rows[0].Values[0].Expression.ValidateDateTimeLiteralExpression("2024-12-18T17:07:45");
         table.Rows[0].Values[1].Expression.ValidateBooleanLiteralExpression(false);

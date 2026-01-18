@@ -15,7 +15,7 @@ public class ParseEnumTests : ScopedServicesTestFixture
 
         var (enumValue, _) = await ServiceProvider.ParseEnum(code);
 
-        enumValue.Name.Value.ShouldBe("Enum1");
+        enumValue.Name.ShouldBe("Enum1");
         enumValue.Members.Count.ShouldBe(2);
         enumValue.Members[0].Name.ShouldBe("First");
         enumValue.Members[0].NumberValue.ShouldBe(0);
@@ -34,7 +34,7 @@ public class ParseEnumTests : ScopedServicesTestFixture
 
         var (enumValue, _) = await ServiceProvider.ParseEnum(code);
 
-        enumValue.Name.Value.ShouldBe("Enum2");
+        enumValue.Name.ShouldBe("Enum2");
         enumValue.Members.Count.ShouldBe(2);
         enumValue.Members[0].Name.ShouldBe("First");
         enumValue.Members[0].NumberValue.ShouldBe(5);

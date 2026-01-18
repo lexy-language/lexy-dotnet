@@ -1,5 +1,6 @@
 using System;
-using Lexy.Compiler.Language.VariableTypes;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -16,9 +17,9 @@ public class BooleanLiteralToken : Token, ILiteralToken
 
     public object TypedValue => BooleanValue;
 
-    public VariableType DeriveType(IValidationContext context)
+    public Type DeriveType(IValidationContext context)
     {
-        return PrimitiveType.Boolean;
+        return ValueType.Boolean;
     }
 
     public static BooleanLiteralToken Parse(string value, TokenCharacter character)

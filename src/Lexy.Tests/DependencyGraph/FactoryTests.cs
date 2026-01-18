@@ -30,7 +30,7 @@ public class FactoryTests : ScopedServicesTestFixture
   Result = Value
 ";
 
-    private readonly Expression<Func<IComponentNode,string>> nodeType = item => item.NodeName;
+    private readonly Expression<Func<IComponentNode,string>> nodeType = item => item.Name;
     private readonly Expression<Func<Dependencies,IReadOnlyList<IComponentNode>>> sortedNodes = value => value.SortedNodes;
 
     [Test]

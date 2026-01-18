@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Declaration;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Tables;
@@ -8,12 +7,12 @@ namespace Lexy.Compiler.Language.Tables;
 public class ColumnHeader : Node
 {
     public string Name { get; }
-    public VariableTypeDeclaration Type { get; }
+    public TypeDeclaration TypeDeclaration { get; }
 
-    private ColumnHeader(string name, VariableTypeDeclaration type, SourceReference reference) : base(reference)
+    private ColumnHeader(string name, TypeDeclaration typeDeclaration, SourceReference reference) : base(reference)
     {
         Name = name;
-        Type = type;
+        TypeDeclaration = typeDeclaration;
     }
 
     public static ColumnHeader Parse(string name, string typeName, SourceReference reference)
@@ -24,7 +23,7 @@ public class ColumnHeader : Node
 
     public override IEnumerable<INode> GetChildren()
     {
-        yield return Type;
+        yield return TypeDeclaration;
     }
 
     protected override void Validate(IValidationContext context)

@@ -1,5 +1,5 @@
 using System;
-using Lexy.Compiler.Language.VariableTypes;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -14,7 +14,7 @@ public class StringLiteralToken : Token, ILiteralToken
         Value = value;
     }
 
-    public VariableType DeriveType(IValidationContext context)
+    public Type DeriveType(IValidationContext context)
     {
         throw new InvalidOperationException("Not supported. Type should be defined by node or expression.");
     }

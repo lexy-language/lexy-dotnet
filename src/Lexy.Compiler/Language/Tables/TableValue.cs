@@ -29,7 +29,7 @@ public class TableValue : Node
         if (column == null) return;
 
         var actualType = Expression.DeriveType(context);
-        var expectedType = column.Type.VariableType;
+        var expectedType = column.TypeDeclaration.Type;
         if (expectedType?.Equals(actualType) != true)
         {
             context.Logger.Fail(Reference, $"Invalid value type '{actualType}'. Expected '{expectedType}'.");

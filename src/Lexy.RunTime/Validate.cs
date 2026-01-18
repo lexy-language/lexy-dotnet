@@ -43,7 +43,8 @@ public static class Validate
         }
     }
 
-    public static bool IsMissing(string name, object value, bool optional, string type, List<string> validationErrors) {
+    public static bool IsMissing(string name, object value, bool optional, string type, List<string> validationErrors)
+    {
         if (value != null) return false;
         if (!optional)
         {

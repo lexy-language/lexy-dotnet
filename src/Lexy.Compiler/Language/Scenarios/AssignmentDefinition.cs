@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -13,9 +13,9 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
     public ConstantValue ConstantValue { get; }
     public IdentifierPath Variable { get; }
 
-    public VariableType VariableType { get; private set; }
+    public Type Type { get; private set; }
 
-    public AssignmentDefinition(Language.IdentifierPath variable, ConstantValue constantValue, Expression variableExpression,
+    public AssignmentDefinition(IdentifierPath variable, ConstantValue constantValue, Expression variableExpression,
         Expression targetExpression, SourceReference reference)
         : base(reference)
     {
@@ -34,7 +34,7 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
 
     protected override void Validate(IValidationContext context)
     {
-        if (!context.VariableContext.Contains(Variable, context))
+        if (!context.VariableContext.Contains(Variable))
         {
             //logged by IdentifierExpressionValidation
             return;
@@ -42,11 +42,11 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
 
         var expressionType = targetExpression.DeriveType(context);
 
-        VariableType = context.VariableContext.GetVariableType(Variable, context);
-        if (expressionType != null && !expressionType.Equals(VariableType))
+        Type = context.VariableContext.GetVariableType(Variable);
+        if (expressionType != null && !expressionType.Equals(Type))
         {
             context.Logger.Fail(Reference,
-                $"Variable '{Variable}' of type '{VariableType}' is not assignable from expression of type '{expressionType}'.");
+                $"Variable '{Variable}' of type '{Type}' is not assignable from expression of type '{expressionType}'.");
         }
     }
 

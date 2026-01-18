@@ -1,6 +1,7 @@
 using System;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.RunTime;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

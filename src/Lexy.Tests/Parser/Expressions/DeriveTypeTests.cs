@@ -1,12 +1,13 @@
 using System;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Tests.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shouldly;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Tests.Parser.Expressions;
 
@@ -16,56 +17,56 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     public void NumberLiteral()
     {
         var type = DeriveType("5");
-        type.ShouldBe(PrimitiveType.Number);
+        type.ShouldBe(ValueType.Number);
     }
 
     [Test]
     public void StringLiteral()
     {
         var type = DeriveType(@"""abc""");
-        type.ShouldBe(PrimitiveType.String);
+        type.ShouldBe(ValueType.String);
     }
 
     [Test]
     public void BooleanLiteral()
     {
         var type = DeriveType(@"true");
-        type.ShouldBe(PrimitiveType.Boolean);
+        type.ShouldBe(ValueType.Boolean);
     }
 
     [Test]
     public void BooleanLiteralFalse()
     {
         var type = DeriveType(@"false");
-        type.ShouldBe(PrimitiveType.Boolean);
+        type.ShouldBe(ValueType.Boolean);
     }
 
     [Test]
     public void DateTimeLiteral()
     {
         var type = DeriveType(@"d""2024-12-24T10:05:00""");
-        type.ShouldBe(PrimitiveType.Date);
+        type.ShouldBe(ValueType.Date);
     }
 
     [Test]
     public void NumberCalculationLiteral()
     {
         var type = DeriveType(@"5 + 5");
-        type.ShouldBe(PrimitiveType.Number);
+        type.ShouldBe(ValueType.Number);
     }
 
     [Test]
     public void StringConcatLiteral()
     {
         var type = DeriveType(@"""abc"" + ""def""");
-        type.ShouldBe(PrimitiveType.String);
+        type.ShouldBe(ValueType.String);
     }
 
     [Test]
     public void BooleanLogicalLiteral()
     {
         var type = DeriveType(@"true && false");
-        type.ShouldBe(PrimitiveType.Boolean);
+        type.ShouldBe(ValueType.Boolean);
     }
 
     [Test]
@@ -73,11 +74,11 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"a", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.String,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.String,
                 VariableSource.Results);
         });
 
-        type.ShouldBe(PrimitiveType.String);
+        type.ShouldBe(ValueType.String);
     }
 
     [Test]
@@ -85,10 +86,10 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"a", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.Number,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.Number,
                 VariableSource.Results);
         });
-        type.ShouldBe(PrimitiveType.Number);
+        type.ShouldBe(ValueType.Number);
     }
 
     [Test]
@@ -96,10 +97,10 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"a", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.Boolean,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.Boolean,
                 VariableSource.Results);
         });
-        type.ShouldBe(PrimitiveType.Boolean);
+        type.ShouldBe(ValueType.Boolean);
     }
 
     [Test]
@@ -107,10 +108,10 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"a", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.Date,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.Date,
                 VariableSource.Results);
         });
-        type.ShouldBe(PrimitiveType.Date);
+        type.ShouldBe(ValueType.Date);
     }
 
     [Test]
@@ -118,10 +119,10 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"a + ""bc""", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.String,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.String,
                 VariableSource.Results);
         });
-        type.ShouldBe(PrimitiveType.String);
+        type.ShouldBe(ValueType.String);
     }
 
     [Test]
@@ -129,10 +130,10 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"a + 20", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.Number,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.Number,
                 VariableSource.Results);
         });
-        type.ShouldBe(PrimitiveType.Number);
+        type.ShouldBe(ValueType.Number);
     }
 
     [Test]
@@ -140,10 +141,10 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var type = DeriveType(@"(a + 20.05) * 3", context =>
         {
-            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", PrimitiveType.Number,
+            context.VariableContext.RegisterVariableAndVerifyUnique(NewReference(), "a", ValueType.Number,
                 VariableSource.Results);
         });
-        type.ShouldBe(PrimitiveType.Number);
+        type.ShouldBe(ValueType.Number);
     }
 
     private static SourceReference NewReference()
@@ -151,7 +152,7 @@ public class DeriveTypeTests : ScopedServicesTestFixture
         return new SourceReference(new SourceFile("tests.lexy"), 1, 1);
     }
 
-    private VariableType DeriveType(string expressionValue, Action<IValidationContext> validationContextHandler = null)
+    private Type DeriveType(string expressionValue, Action<IValidationContext> validationContextHandler = null)
     {
         var logger = new ParserLogger(ServiceProvider.GetRequiredService<ILogger<LexyParser>>());
         var visitor = new TrackLoggingCurrentNodeVisitor(logger);

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.Tables;
 
-public class Table : ComponentNode
+public class Table : ComponentNode, INodeWithType
 {
     private bool invalidHeader;
     private readonly List<TableRow> rows = new();
@@ -13,16 +14,20 @@ public class Table : ComponentNode
     public const string CountName = "Count";
     public const string RowName = "Row";
 
-    public TableName Name { get; } = new();
     public TableHeader Header { get; private set; }
 
     public IReadOnlyList<TableRow> Rows => rows;
 
-    public override string NodeName => Name.Value;
+    public override string Name { get; }
 
     public Table(string name, SourceReference reference) : base(reference)
     {
-        Name.ParseName(name);
+        Name = name;
+    }
+
+    public Type CreateType()
+    {
+        return new TableType(this);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -77,9 +82,9 @@ public class Table : ComponentNode
     public GeneratedType GetRowType()
     {
         var members = Header?.Columns
-            .Select(column => new ObjectTypeVariable(column.Name, column.Type.VariableType))
-            .ToList() ?? new List<ObjectTypeVariable>();
+            .Select(column => new ObjectVariable(column.Name, column.TypeDeclaration.Type))
+            .ToList() ?? new List<ObjectVariable>();
 
-        return new GeneratedType(Name.Value, this, GeneratedTypeSource.TableRow, members);
+        return new GeneratedType(Name, this, GeneratedTypeSource.TableRow, members);
     }
 }

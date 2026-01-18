@@ -10,7 +10,7 @@ namespace Lexy.Tests.DependencyGraph;
 
 public class DependencyOrderTests : ScopedServicesTestFixture
 {
-    private readonly Expression<Func<IComponentNode, string>> nodeType = item => item.NodeName;
+    private readonly Expression<Func<IComponentNode, string>> nodeType = item => item.Name;
 
     private readonly Expression<Func<Dependencies, IReadOnlyList<IComponentNode>>> sortedNodes =
         value => value.SortedNodes;
@@ -73,7 +73,6 @@ enum EnumExample
       TypeExample Example
     results
       number Result
-      string Message
     ... = FunctionWithFunctionDependency(...)
     ... = FunctionWithFunctionTypeDependency(...)
   parameters
@@ -87,7 +86,6 @@ function FunctionWithFunctionDependency
     TypeExample Example
   results
     number Result
-    string Message
   ... = FunctionWithTypeDependency(...)
   ... = FunctionWithTableDependency(...)
   ... = FunctionWithEnumDependency(...)
@@ -97,7 +95,6 @@ function FunctionWithFunctionTypeDependency
     TypeExample Example
   results
     number Result
-    string Message
   var functionParametersFill = fill(FunctionWithTypeDependency.Parameters)
   var functionParametersNew = new(FunctionWithTypeDependency.Parameters)
   var tableParameters = new(TableExample.Row)
@@ -108,7 +105,6 @@ function FunctionWithTypeDependency
     TypeExample Example
   results
     number Result
-    string Message
   Result = Example.Nested.Result
 
 function FunctionWithTableDependency
@@ -124,7 +120,6 @@ function FunctionWithEnumDependency
     TypeExample Example
   results
     number Result   
-    string Message
   Result = 666
 
 type NestedType

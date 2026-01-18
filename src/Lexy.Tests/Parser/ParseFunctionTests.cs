@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Lexy.Compiler.Parser;
 using NUnit.Framework;
 using Shouldly;
 
@@ -24,5 +23,31 @@ function ValidateTableKeyword
 
         logger.HasErrorMessage("Duplicated node name: 'ValidateTableKeyword'")
           .ShouldBeTrue(logger.FormatMessages());
+    }
+
+
+    [Test]
+    public async Task TestWithFunctionDependencyAfterDependant()
+    {
+      const string code = @"function Calling
+  parameters
+    number Value
+  results
+    number Result
+    string Message
+  Result = Value + 7
+
+function Caller
+  parameters
+    number Value
+  results
+    number Result
+  Calling.Parameters params
+  params.Value = Value
+  ... = Calling(params)";
+
+      var(_, logger, _) = await ServiceProvider.ParseNodes(code);
+
+      logger.AssertNoErrors();
     }
 }

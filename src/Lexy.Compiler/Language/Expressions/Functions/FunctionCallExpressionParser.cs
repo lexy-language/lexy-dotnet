@@ -10,9 +10,9 @@ public static class FunctionCallExpressionParser
     private static readonly IDictionary<string, Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
         SystemFunctions = new Dictionary<string, Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
         {
-            { NewFunctionExpression.Name, ForFirstArgument(NewFunctionExpression.Create) },
-            { FillParametersFunctionExpression.Name, ForFirstArgument(FillParametersFunctionExpression.Create) },
-            { ExtractResultsFunctionExpression.Name, ForFirstArgument(ExtractResultsFunctionExpression.Create) }
+            { NewFunctionExpression.FunctionName, ForFirstArgument(NewFunctionExpression.Create) },
+            { FillParametersFunctionExpression.FunctionName, ForFirstArgument(FillParametersFunctionExpression.Create) },
+            { ExtractResultsFunctionExpression.FunctionName, ForFirstArgument(ExtractResultsFunctionExpression.Create) }
         };
 
     public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)

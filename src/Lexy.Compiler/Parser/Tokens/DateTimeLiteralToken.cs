@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -36,9 +37,9 @@ public class DateTimeLiteralToken : ParsableToken, ILiteralToken
 
     public object TypedValue => DateTimeValue;
 
-    public VariableType DeriveType(IValidationContext context)
+    public Type DeriveType(IValidationContext context)
     {
-        return PrimitiveType.Date;
+        return ValueType.Date;
     }
 
     public override ParseTokenResult Parse(TokenCharacter character)

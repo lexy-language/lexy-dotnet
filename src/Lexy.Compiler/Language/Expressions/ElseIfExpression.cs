@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -57,7 +57,7 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
     protected override void Validate(IValidationContext context)
     {
         var type = Condition.DeriveType(context);
-        if (type == null || !type.Equals(PrimitiveType.Boolean))
+        if (type == null || !type.Equals(ValueType.Boolean))
         {
             context.Logger.Fail(Reference,
                 $"'elseif' condition expression should be 'boolean', is of wrong type '{type}'.");
@@ -72,7 +72,7 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
         return false;
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return null;
     }

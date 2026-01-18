@@ -5,27 +5,30 @@ using System.Reflection;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.Compiler.Specifications;
 using Lexy.RunTime;
 using Microsoft.Extensions.Logging;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Generation;
 
 public class ExecutableFunction
 {
-    private record ParameterSetter(VariableType VariableType, Action<object> SetValue);
+    private record ParameterSetter(Type Type, Action<object> SetValue);
 
     private readonly Function function;
     private readonly ICompilationEnvironment compilationEnvironment;
-    private readonly Type parametersType;
+    private readonly System.Type parametersType;
 
     private readonly MethodInfo runMethod;
     private readonly ILogger<ExecutionContext> executionLogger;
 
     public ExecutableFunction(Function function,
-        Type functionType,
+        System.Type functionType,
         ICompilationEnvironment compilationEnvironment,
         ILogger<ExecutionContext> executionLogger)
     {
@@ -37,7 +40,7 @@ public class ExecutableFunction
         parametersType = functionType.GetNestedType(LexyCodeConstants.ParametersType);
     }
 
-    private static bool IsDefaultRunMethod(Type functionType, MethodInfo method)
+    private static bool IsDefaultRunMethod(System.Type functionType, MethodInfo method)
     {
         if (method.Name != LexyCodeConstants.RunMethod) return false;
 
@@ -94,27 +97,27 @@ public class ExecutableFunction
     {
         var optional = parameter.DefaultExpression != null;
         var value = values.TryGetValue(parameter.Name, out var objectValue) ? objectValue : null;
-        switch (parameter.VariableType)
+        switch (parameter.Type)
         {
-            case DeclaredType declaredType:
-                ValidateCustomType(VariablePath(name, parameter.Name), declaredType, value, validationErrors);
-                break;
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, parameter.Name), enumType, value, optional, validationErrors);
                 break;
-            case PrimitiveType primitiveType:
+            case ValueType primitiveType:
                 ValidateType(VariablePath(name, parameter.Name), primitiveType, value, optional, validationErrors);
+                break;
+            case DeclaredType declaredType:
+                ValidateCustomType(VariablePath(name, parameter.Name), declaredType, value, validationErrors);
                 break;
             case GeneratedType generatedType:
                 ValidateObjectType(VariablePath(name, parameter.Name), generatedType, value, validationErrors);
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Unexpected variable type: '{parameter.VariableType?.GetType().Name}'");
+                    $"Unexpected variable type: '{parameter.Type?.GetType().Name}'");
         }
     }
 
-    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, ObjectTypeVariable variable)
+    private void ValidateMember(string name, IDictionary<string, object> values, List<string> validationErrors, IObjectMember variable)
     {
         var optional = false;
         var value = values.TryGetValue(variable.Name, out var objectValue) ? objectValue : null;
@@ -126,7 +129,7 @@ public class ExecutableFunction
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, variable.Name), enumType, value, optional, validationErrors);
                 break;
-            case PrimitiveType primitiveType:
+            case ValueType primitiveType:
                 ValidateType(VariablePath(name, variable.Name), primitiveType, value, optional, validationErrors);
                 break;
             case GeneratedType generatedType:
@@ -142,7 +145,7 @@ public class ExecutableFunction
     {
         if (value != null && value is not Dictionary<string, object>)
         {
-            validationErrors.Add($"{name}' should have a custom type '{declaredType.Type}'. Invalid type: '{value.GetType().Name}'");
+            validationErrors.Add($"{name}' should have a custom type '{declaredType.Name}'. Invalid type: '{value.GetType().Name}'");
             return;
         }
 
@@ -154,17 +157,17 @@ public class ExecutableFunction
         }
     }
 
-    private void ValidateObjectType(string name, GeneratedType generatedType, object value, List<string> validationErrors)
+    private void ValidateObjectType(string name, ObjectType objectType, object value, List<string> validationErrors)
     {
         if (value != null && value is not Dictionary<string, object>)
         {
-            validationErrors.Add($"{name}' should have a object type '{generatedType.Name}'. Invalid type: '{value.GetType().Name}'");
+            validationErrors.Add($"{name}' should have a object type '{objectType.Name}'. Invalid type: '{value.GetType().Name}'");
             return;
         }
 
         var dictionary = value != null ? (Dictionary<string, object>)value : new Dictionary<string, object>();
 
-        foreach (var member in generatedType.Members)
+        foreach (var member in objectType.Members)
         {
             ValidateMember(name, dictionary, validationErrors, member);
         }
@@ -172,29 +175,29 @@ public class ExecutableFunction
 
     private void ValidateEumType(string name, EnumType enumType, object value, bool optional, List<string>validationErrors)
     {
-        if (RunTime.Validate.IsMissing(name, value, optional, enumType.Type, validationErrors)) return;
+        if (RunTime.Validate.IsMissing(name, value, optional, enumType.Name, validationErrors)) return;
 
         if (value is not string stringValue)
         {
             validationErrors.Add(
-                $"'{name}' should have a '{enumType.Enum.Name.Value}' value. Invalid type: '{value.GetType().Name}'");
+                $"'{name}' should have a '{enumType.Name}' value. Invalid type: '{value.GetType().Name}'");
             return;
         }
 
         var parts = stringValue.Split(TokenValues.MemberAccess);
-        if (parts.Length != 2 || parts[0] != enumType.Type || !enumType.Enum.ContainsMember(parts[1]))
+        if (parts.Length != 2 || parts[0] != enumType.Name || !enumType.ContainsMember(parts[1]))
         {
             validationErrors.Add(
-                $"'{name}' should have a '{enumType.Enum.Name.Value}' value. Invalid value: '{stringValue}'");
+                $"'{name}' should have a '{enumType.Name}' value. Invalid value: '{stringValue}'");
         }
     }
 
-    private void ValidateType(string name, PrimitiveType primitiveType, object value, bool optional,
+    private void ValidateType(string name, ValueType valueType, object value, bool optional,
         List<string> validationErrors)
     {
-        if (RunTime.Validate.IsMissing(name, value, optional, primitiveType.Type, validationErrors)) return;
+        if (RunTime.Validate.IsMissing(name, value, optional, valueType.Type, validationErrors)) return;
 
-        switch (primitiveType.Type)
+        switch (valueType.Type)
         {
             case TypeNames.String:
                 RunTime.Validate.String(name, value, optional, validationErrors);
@@ -213,7 +216,7 @@ public class ExecutableFunction
                 return;
 
             default:
-                throw new InvalidOperationException($"Invalid primitive type: '{primitiveType.Type}'");
+                throw new InvalidOperationException($"Invalid primitive type: '{valueType.Type}'");
         }
     }
 
@@ -230,9 +233,9 @@ public class ExecutableFunction
         {
             var variablePath = VariablePath(parent, key);
             var field = GetParameterSetter(parameters, variablePath);
-            if (field.VariableType is not DeclaredType && field.VariableType is not GeneratedType)
+            if (field.Type is not DeclaredType && field.Type is not GeneratedType)
             {
-                var convertedValue = GetValue(value, field.VariableType);
+                var convertedValue = GetValue(value, field.Type);
                 field.SetValue(convertedValue);
             }
             else
@@ -246,7 +249,7 @@ public class ExecutableFunction
         return parent != null ? $"{parent}.{name}" : name;
     }
 
-    private object GetValue(object value, VariableType type)
+    private object GetValue(object value, Type type)
     {
         return TypeConverter.Convert(compilationEnvironment, value, type);
     }
@@ -271,26 +274,20 @@ public class ExecutableFunction
         return new ParameterSetter(parameterType, (value) => field.SetValue(currentValue, value));
     }
 
-    private VariableType GetFunctionParameterType(IdentifierPath currentPath)
+    private Type GetFunctionParameterType(IdentifierPath currentPath)
     {
         return function.Parameters.Variables.FirstOrDefault(parameter =>
-            parameter.Name == currentPath.RootIdentifier).VariableType;
+            parameter.Name == currentPath.RootIdentifier).Type;
     }
 
-    private static VariableType GetTypeVariableType(VariableType parameterType, IdentifierPath currentPath)
+    private static Type GetTypeVariableType(Type parameterType, IdentifierPath currentPath)
     {
-        switch (parameterType)
+        if (parameterType is not ObjectType objectType)
         {
-            case DeclaredType declaredType:
-                return declaredType.TypeDefinition.Variables
-                    .FirstOrDefault(variable => variable.Name == currentPath.RootIdentifier).VariableType;
-            case GeneratedType generatedType:
-                return generatedType.Members
-                    .FirstOrDefault(variable => variable.Name == currentPath.RootIdentifier)
-                    .Type;
-            default:
-                throw new InvalidOperationException("Unexpected type: " + parameterType);
+            throw new InvalidOperationException("Unexpected type: " + parameterType);
         }
+
+        return objectType.MemberType(currentPath.RootIdentifier);
     }
 
     private static FieldInfo GetField(string name, object valueObject)

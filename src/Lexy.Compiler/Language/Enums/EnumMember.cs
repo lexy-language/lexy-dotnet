@@ -8,7 +8,9 @@ namespace Lexy.Compiler.Language.Enums;
 public class EnumMember : Node
 {
     public string Name { get; }
+
     public NumberLiteralToken ValueLiteral { get; }
+
     public int NumberValue { get; }
 
     private EnumMember(string name, NumberLiteralToken valueLiteral, int value, SourceReference reference) :
@@ -19,7 +21,7 @@ public class EnumMember : Node
         ValueLiteral = valueLiteral;
     }
 
-    public static EnumMember Parse(IParseLineContext context, int lastIndex, INode parent)
+    public static EnumMember Parse(IParseLineContext context, int lastIndex)
     {
         var valid = context.ValidateTokens<EnumMember>()
             .CountMinimum(1)

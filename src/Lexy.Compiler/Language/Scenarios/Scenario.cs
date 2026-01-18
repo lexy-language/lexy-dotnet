@@ -9,8 +9,6 @@ namespace Lexy.Compiler.Language.Scenarios;
 
 public class Scenario : ComponentNode, IHasNodeDependencies
 {
-    public ScenarioName Name { get; }
-
     public Function Function { get; private set; }
     public EnumDefinition Enum { get; private set; }
     public Table Table { get; private set; }
@@ -26,11 +24,11 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     public ExpectComponentErrors ExpectComponentErrors { get; private set; }
     public ExpectExecutionErrors ExpectExecutionErrors { get; private set; }
 
-    public override string NodeName => Name.Value;
+    public override string Name { get; }
 
     private Scenario(string name, SourceReference reference) : base(reference)
     {
-        Name = new ScenarioName(name, reference);
+        Name = name;
     }
 
     internal static Scenario Parse(NodeName name, SourceReference reference)
@@ -57,7 +55,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
             Keywords.Parameters => Parameters = new Parameters(reference),
             Keywords.Results => Results = new Results(reference),
-            Keywords.ValidationTable => ValidationTable = new ValidationTable(Name.Value + "Table", reference),
+            Keywords.ValidationTable => ValidationTable = new ValidationTable($"{Name}Table", reference),
 
             Keywords.ExecutionLogging => ExecutionLogging = new ExecutionLogging(reference),
 
@@ -73,7 +71,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     {
         if (Function != null)
         {
-            context.Logger.Fail(reference, $"Duplicated inline Function '{NodeName}'.");
+            context.Logger.Fail(reference, $"Duplicated inline Function '{Name}'.");
             return null;
         }
 
@@ -83,7 +81,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
             return ParseFunctionName(context, reference);
         }
 
-        Function = Function.Create($"{Name.Value}Function", true, reference, context.ExpressionFactory);
+        Function = Function.Create($"{Name}Function", true, reference, context.ExpressionFactory);
         context.Logger.SetCurrentNode(Function);
         return Function;
     }
@@ -100,13 +98,13 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     {
         if (Enum != null)
         {
-            context.Logger.Fail(reference, $"Duplicated inline Enum '{NodeName}'.");
+            context.Logger.Fail(reference, $"Duplicated inline Enum '{Name}'.");
             return null;
         }
 
-        var tokenName = Parser.NodeName.Parse(context);
+        var tokenName = NodeName.Parse(context);
 
-        Enum = EnumDefinition.Parse(tokenName, true, reference);
+        Enum = EnumDefinition.Parse(tokenName.Name, true, reference);
         context.Logger.SetCurrentNode(Enum);
         return Enum;
     }
@@ -115,11 +113,11 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     {
         if (Table != null)
         {
-            context.Logger.Fail(reference, $"Duplicated inline table '{NodeName}'.");
+            context.Logger.Fail(reference, $"Duplicated inline table '{Name}'.");
             return null;
         }
 
-        var tokenName = Parser.NodeName.Parse(context);
+        var tokenName = NodeName.Parse(context);
 
         Table = new Table(tokenName.Name, reference);
         context.Logger.SetCurrentNode(Table);
@@ -137,8 +135,6 @@ public class Scenario : ComponentNode, IHasNodeDependencies
         if (Function != null) yield return Function;
         if (Enum != null) yield return Enum;
         if (Table != null) yield return Table;
-
-        yield return Name;
 
         if (FunctionName != null) yield return FunctionName;
         if (Parameters != null) yield return Parameters;
@@ -186,7 +182,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
         foreach (var result in definitions)
         {
-            var variableType = result.Type.VariableType;
+            var variableType = result.TypeDeclaration.Type;
             context.VariableContext.AddVariable(result.Name, variableType, source);
         }
     }

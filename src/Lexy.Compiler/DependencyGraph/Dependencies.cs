@@ -63,9 +63,9 @@ public class Dependencies
         var nodeDependenciesNodes = GetDependencies(componentNode);
         foreach (var dependency in nodeDependenciesNodes.Values)
         {
-            if (!nodesToProcess.ContainsKey(dependency.NodeName) && !this.nodeDependencies.ContainsKey(dependency.NodeName))
+            if (!nodesToProcess.ContainsKey(dependency.Name) && !this.nodeDependencies.ContainsKey(dependency.Name))
             {
-                nodesToProcess.Add(dependency.NodeName, dependency);
+                nodesToProcess.Add(dependency.Name, dependency);
             }
 
             var dependencyNodeDependencies = GetOrCreateNodeDependencies(dependency);
@@ -77,10 +77,10 @@ public class Dependencies
 
     private NodeDependencies GetOrCreateNodeDependencies(IComponentNode node)
     {
-        if (nodeDependencies.TryGetValue(node.NodeName, out var value)) return value;
+        if (nodeDependencies.TryGetValue(node.Name, out var value)) return value;
 
         value = new NodeDependencies(node);
-        nodeDependencies[node.NodeName] = value;
+        nodeDependencies[node.Name] = value;
         return value;
     }
 
@@ -110,9 +110,9 @@ public class Dependencies
 
         foreach (var dependency in nodeDependencies)
         {
-            if (!resultDependencies.ContainsKey(dependency.NodeName))
+            if (!resultDependencies.ContainsKey(dependency.Name))
             {
-                resultDependencies.Add(dependency.NodeName, dependency);
+                resultDependencies.Add(dependency.Name, dependency);
             }
         }
     }
@@ -184,7 +184,7 @@ public class Dependencies
                 var occurrences = dependant.DecreaseOccurrence();
 
                 if (occurrences == 1) {
-                    processing.Enqueue(dependency.NodeName);
+                    processing.Enqueue(dependency.Name);
                 }
             });
         }

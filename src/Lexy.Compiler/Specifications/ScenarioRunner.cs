@@ -176,7 +176,7 @@ public class ScenarioRunner : IScenarioRunner
         {
             var actual = result.GetValue(expected.Variable);
             var expectedValue =
-                TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.VariableType);
+                TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.Type);
 
             if (actual == null
              || expectedValue == null

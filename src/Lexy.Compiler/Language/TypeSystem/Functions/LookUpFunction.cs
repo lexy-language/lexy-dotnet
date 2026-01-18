@@ -1,0 +1,110 @@
+using System.Collections.Generic;
+using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Tables;
+using Lexy.Compiler.Parser;
+
+namespace Lexy.Compiler.Language.TypeSystem.Functions;
+
+internal class LookUpFunction : TableFunction
+{
+    private const string FunctionHelpValue =
+        "Arguments: " +
+           "TableName.LookUp(lookUpValue, Table.ResultColumn) " +
+        "or TableName.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn) " +
+        "or TableName.LookUp(discriminator, lookUpValue, Table.ResultColumn) " +
+        "or TableName.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
+
+    private record OverloadArguments(
+        int? Discriminator,
+        int LookUpValue,
+        int? DiscriminatorColumnArgument,
+        int? DefaultDiscriminatorColumn,
+        int? SearchColumnArgument,
+        int DefaultSearchColumn,
+        int ResultColumnArgument): IOverloadArguments;
+
+    protected override string FunctionHelp => FunctionHelpValue;
+
+    public const string Name = "LookUp";
+
+    internal LookUpFunction(Table table): base(Name, table)
+    {
+    }
+
+    public override Type GetResultsType(IReadOnlyList<Expression> arguments)
+    {
+        var overloadArguments = GetArgumentColumns(null, arguments, null);
+        if (overloadArguments == null) return null;
+
+        var argument = arguments[overloadArguments.ResultColumnArgument];
+        if (argument is not MemberAccessExpression columnExpression)
+        {
+            return null;
+        }
+
+        var column = Table.Header?.Get(columnExpression.VariablePath);
+        return column?.TypeDeclaration.Type;
+    }
+
+    public override ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
+        SourceReference reference)
+    {
+        if (!ValidateTable(context, reference)) return ValidateMemberFunctionArgumentsResult.Failed();
+
+        var overloadArguments = GetArgumentColumns(context, arguments, reference);
+        if (overloadArguments == null) return ValidateMemberFunctionArgumentsResult.Failed();
+
+        var searchColumnHeader = GetColumn(context, arguments, overloadArguments.SearchColumnArgument, overloadArguments.DefaultSearchColumn, reference) ;
+        var resultColumnHeader = GetColumn(context, arguments, overloadArguments.ResultColumnArgument, null, reference) ;
+
+        if (!ValidateArguments(overloadArguments, searchColumnHeader, resultColumnHeader)) return ValidateMemberFunctionArgumentsResult.Failed();
+
+        ValidateColumnValueType(context, arguments, overloadArguments.LookUpValue, "Search", searchColumnHeader, reference);
+
+        var discriminatorColumnHeader = ValidatorDiscriminator(context, arguments, reference, overloadArguments);
+
+        var result = new LookUpFunctionCall(
+            Table.Name,
+            arguments[overloadArguments.LookUpValue],
+            overloadArguments.Discriminator.HasValue ? arguments[overloadArguments.Discriminator.Value] : null,
+            resultColumnHeader.Name,
+            searchColumnHeader.Name,
+            discriminatorColumnHeader?.Name);
+
+        return ValidateMemberFunctionArgumentsResult.Success(result);
+    }
+
+    private bool ValidateArguments(OverloadArguments overloadArguments, ColumnHeader searchColumnHeader, ColumnHeader resultColumnHeader)
+    {
+        if (searchColumnHeader == null || resultColumnHeader == null) return false;
+
+        return true;
+    }
+
+    private OverloadArguments GetArgumentColumns(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference)
+    {
+        switch (arguments.Count)
+        {
+            case 2:
+                //"table.LookUp(lookUpValue, Table.ResultColumn) " +
+                return new OverloadArguments(null, 0, null, null, null, 0, 1);
+
+            case 3:
+                //"table.LookUp(lookUpValue, Table.SearchColumn, Table.ResultColumn)"
+                if (arguments[1] is MemberAccessExpression)
+                {
+                    return new OverloadArguments(null, 0, null, null, 1, 0, 2);
+                }
+                //"table.LookUp(discriminator, lookUpValue, Table.ResultColumn)"
+                return new OverloadArguments(0, 1, null, 0, null, 1, 2);
+
+            case 5:
+                //"table.LookUp(discriminator, lookUpValue, Table.DiscriminatorColumn, Table.SearchColumn, Table.ResultColumn)";
+                return new OverloadArguments(0, 1, 2, 0, 3, 1, 4);
+
+            default:
+                context?.Logger.Fail(reference, $"Invalid number of arguments. {FunctionHelpValue}");
+                return null;
+        }
+    }
+}

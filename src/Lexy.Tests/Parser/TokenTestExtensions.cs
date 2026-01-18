@@ -1,4 +1,3 @@
-using System;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Lexy.Tests.Parser.ExpressionParser;

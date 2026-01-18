@@ -1,16 +1,16 @@
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 
 namespace Lexy.Compiler.Parser;
 
 public class VariableEntry
 {
-    public VariableType VariableType { get; }
+    public Type Type { get; }
     public VariableSource VariableSource { get; }
 
-    public VariableEntry(VariableType variableType, VariableSource variableSource)
+    public VariableEntry(Type type, VariableSource variableSource)
     {
-        VariableType = variableType;
+        Type = type;
         VariableSource = variableSource;
     }
 }

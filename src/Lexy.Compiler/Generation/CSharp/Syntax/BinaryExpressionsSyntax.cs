@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.RunTime;
 using Lexy.RunTime.Libraries;
 using Microsoft.CodeAnalysis;
@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static Lexy.Compiler.Generation.CSharp.Syntax.Expressions;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Generation.CSharp.Syntax;
 
@@ -46,7 +47,7 @@ internal static class BinaryExpressionsSyntax
 
     public static ExpressionSyntax BinaryExpressionSyntax(BinaryExpression expression)
     {
-        if (expression.LeftVariableType.Equals(PrimitiveType.String) &&
+        if (expression.LeftType.Equals(ValueType.String) &&
             expression.Operator == ExpressionOperator.Addition)
         {
             return StringAdditionSyntax(expression);
@@ -67,15 +68,15 @@ internal static class BinaryExpressionsSyntax
     {
         var kind = Syntax(expression.Operator);
         var expressionSyntax = ExpressionSyntax(expression.Right);
-        if (expression.RightVariableType.Equals(PrimitiveType.Date))
+        if (expression.RightType.Equals(ValueType.Date))
         {
             expressionSyntax = FormatDate(expressionSyntax);
         }
-        else if (expression.RightVariableType.Equals(PrimitiveType.Boolean))
+        else if (expression.RightType.Equals(ValueType.Boolean))
         {
             expressionSyntax = FormatBoolean(expressionSyntax);
         }
-        else if (expression.RightVariableType is EnumType)
+        else if (expression.RightType is EnumType)
         {
             expressionSyntax = FormatEnum(expressionSyntax);
         }
@@ -160,8 +161,8 @@ internal static class BinaryExpressionsSyntax
 
     private static bool IsStringComparison(BinaryExpression expression)
     {
-        return expression.LeftVariableType.Equals(PrimitiveType.String)
-               && expression.RightVariableType.Equals(PrimitiveType.String)
+        return expression.LeftType.Equals(ValueType.String)
+               && expression.RightType.Equals(ValueType.String)
                && ComparisonOperators.Contains(expression.Operator);
     }
 

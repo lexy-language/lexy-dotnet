@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -63,7 +63,7 @@ public class LiteralExpression : Expression
     {
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return Literal.DeriveType(context);
     }

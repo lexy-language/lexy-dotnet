@@ -25,7 +25,7 @@ public static class FunctionClass
             RunMethodInlineArguments(function)
         };
 
-        var name = ClassNames.FunctionClassName(function.NodeName);
+        var name = ClassNames.FunctionClassName(function.Name);
 
         var classDeclaration = ClassDeclaration(name)
             .WithModifiers(Modifiers.PublicStatic())
@@ -41,7 +41,7 @@ public static class FunctionClass
             GuardStatements.VerifyNotNull(LexyCodeConstants.ParameterVariable),
             GuardStatements.VerifyNotNull(LexyCodeConstants.ContextVariable),
             LogCalls.SetFileName(function.Reference.File.FileName),
-            LogCalls.OpenScope($"Execute: {function.NodeName}", function.Reference.LineNumber ?? -1),
+            LogCalls.OpenScope($"Execute: {function.Name}", function.Reference.LineNumber ?? -1),
         };
 
         if (function.Parameters != null)
@@ -129,7 +129,7 @@ public static class FunctionClass
         foreach (var variable in function.Parameters.Variables)
         {
             parameters.Add(Parameter(Identifier(variable.Name))
-                    .WithType(Types.Syntax(variable.VariableType)));
+                    .WithType(Types.Syntax(variable.Type)));
             parameters.Add(Token(SyntaxKind.CommaToken));
         }
 

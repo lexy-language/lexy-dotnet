@@ -26,8 +26,6 @@ public class CompileLargeFile : ScopedServicesTestFixture
 
         GlobalTiming.Log("ServiceProvider.ParseLines: " + bigLexy.Length);
 
-        return;
-
         var testResult = ServiceProvider.RunScenarios("1mb.lexy", result.Nodes, result.Logger, result.Dependencies);
         testResult.Any(entry => entry.IsError).ShouldBeFalse();
 

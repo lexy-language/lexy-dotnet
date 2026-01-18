@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Functions;
+using Lexy.Compiler.Language.TypeSystem.Functions;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
 
@@ -55,7 +53,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
 
     private IObjectTypeFunction GetFunction(IValidationContext context)
     {
-        var variable = context.VariableContext.GetVariableType(FunctionPath.WithoutLastPart(), context);
+        var variable = context.VariableContext.GetVariableType(FunctionPath.WithoutLastPart());
         if (variable != null)
         {
             return GetVariableTypeFunction(context, variable);
@@ -69,7 +67,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         return GetLibraryFunction(context);
     }
 
-    private IObjectTypeFunction GetVariableTypeFunction(IValidationContext context, VariableType variable)
+    private IObjectTypeFunction GetVariableTypeFunction(IValidationContext context, Type variable)
     {
         return variable is not IObjectType typeWithMember
             ? null
@@ -82,7 +80,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         return library?.GetFunction(FunctionPath.LastPart());
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         var function = GetFunction(context);
         return function?.GetResultsType(Arguments);

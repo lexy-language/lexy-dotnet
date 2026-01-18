@@ -1,16 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class FillParametersFunctionExpression : FunctionCallExpression, IHasNodeDependencies
+public class FillParametersFunctionExpression : FunctionCallExpression, IHasNodeDependencies, INodeWithName
 {
-    public const string Name = "fill";
+    public const string FunctionName = "fill";
 
     private VariablesMapping mapping;
 
@@ -23,6 +24,8 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
     public GeneratedType Type { get; private set; }
 
     public IEnumerable<Mapping> Mapping => mapping;
+
+    public string Name => FunctionName;
 
     private FillParametersFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
@@ -77,14 +80,14 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
             var variable = context.VariableContext.GetVariable(member.Name);
             if (variable == null) continue;
 
-            if (!variable.VariableType.Equals(member.Type))
+            if (!variable.Type.Equals(member.Type))
             {
                 context.Logger.Fail(reference,
-                    $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.VariableType}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
+                    $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.Type}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
             }
             else
             {
-                mapping.Add(new Mapping(member.Name, variable.VariableType, variable.VariableSource));
+                mapping.Add(new Mapping(member.Name, variable.Type, variable.VariableSource));
             }
         }
 
@@ -97,7 +100,7 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
         return new VariablesMapping(generatedType, mapping);
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         var function = context.ComponentNodes.GetFunction(TypeLiteralToken.Parent);
         if (function == null) return null;

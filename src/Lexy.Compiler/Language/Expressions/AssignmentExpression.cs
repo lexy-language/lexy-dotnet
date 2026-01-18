@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -51,8 +51,7 @@ public class AssignmentExpression : Expression
 
     protected override void Validate(IValidationContext context)
     {
-        if (Variable is not IHasVariableReference hasVariableReference
-         || hasVariableReference.Variable == null)
+        if (Variable is not IHasVariableReference hasVariableReference || hasVariableReference.Variable == null)
         {
             context.Logger.Fail(Reference, $"Unknown variable name: '{Variable}'.");
             return;
@@ -60,14 +59,14 @@ public class AssignmentExpression : Expression
 
         var variableReference = hasVariableReference.Variable;
         var expressionType = Assignment.DeriveType(context);
-        if (expressionType != null && !variableReference.VariableType.Equals(expressionType))
+        if (expressionType != null && !variableReference.Type.Equals(expressionType))
         {
             context.Logger.Fail(Reference,
-                $"Variable '{variableReference}' of type '{variableReference.VariableType}' is not assignable from expression of type '{expressionType}'.");
+                $"Variable '{variableReference}' of type '{variableReference.Type}' is not assignable from expression of type '{expressionType}'.");
         }
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return Assignment.DeriveType(context);
     }
@@ -83,7 +82,7 @@ public class AssignmentExpression : Expression
         var assignmentVariable = hasVariableReference.Variable;
         var writeVariableUsage = new VariableUsage(assignmentVariable.Path,
             assignmentVariable.ComponentType,
-            assignmentVariable.VariableType,
+            assignmentVariable.Type,
             assignmentVariable.Source,
             VariableAccess.Write);
 

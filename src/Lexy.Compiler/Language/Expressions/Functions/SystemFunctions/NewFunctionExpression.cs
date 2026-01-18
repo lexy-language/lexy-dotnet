@@ -1,14 +1,15 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencies
+public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencies, INodeWithName
 {
-    public const string Name = "new";
+    public const string FunctionName = "new";
 
     protected string FunctionHelp => $"{Name} expects 1 argument new(Function.Parameters)";
 
@@ -17,6 +18,8 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
     public Expression ValueExpression { get; }
 
     public GeneratedType Type { get; private set; }
+
+    public string Name => FunctionName;
 
     private NewFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
@@ -56,9 +59,9 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
         Type = generatedType;
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         var nodeType = context.ComponentNodes.GetType(TypeLiteralToken.Parent);
-        return nodeType?.MemberType(TypeLiteralToken.Member, context.ComponentNodes) as GeneratedType;
+        return nodeType?.MemberType(TypeLiteralToken.Member) as GeneratedType;
     }
 }

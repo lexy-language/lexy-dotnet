@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 
@@ -25,7 +25,7 @@ public abstract class Expression : Node
         return writer.ToString();
     }
 
-    public abstract VariableType DeriveType(IValidationContext context);
+    public abstract Type DeriveType(IValidationContext context);
 
     public virtual IEnumerable<VariableUsage> UsedVariables()
     {

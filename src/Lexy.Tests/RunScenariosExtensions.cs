@@ -33,9 +33,7 @@ public static class RunScenariosExtensions
         foreach (var scenario in nodes.OfType<Scenario>())
         {
             var runner = new ScenarioRunner(currentFileName, lexyCompiler, nodes, scenario, context, parserLogger, dependencies);
-            GlobalTiming.Log(currentFileName + "-" + scenario.Name);
             runner.Run();
-            GlobalTiming.Log(currentFileName + "-" + scenario.Name + ":ran");
         }
     }
 }

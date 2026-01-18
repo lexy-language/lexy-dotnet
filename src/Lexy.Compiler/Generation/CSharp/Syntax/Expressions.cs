@@ -159,11 +159,11 @@ internal static class Expressions
 
     private static StatementSyntax VariableDeclarationExpressionSyntax(VariableDeclarationExpression expression)
     {
-        var typeSyntax = Types.Syntax(expression.Type);
+        var typeSyntax = Types.Syntax(expression.TypeDeclaration);
 
         var initialize = expression.Assignment != null
             ? ExpressionSyntax(expression.Assignment)
-            : Types.TypeDefaultExpression(expression.Type);
+            : Types.TypeDefaultExpression(expression.TypeDeclaration);
 
         var variable = VariableDeclarator(Identifier(expression.Name))
             .WithInitializer(EqualsValueClause(initialize));

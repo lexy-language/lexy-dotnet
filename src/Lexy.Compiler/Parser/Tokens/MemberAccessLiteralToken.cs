@@ -1,5 +1,6 @@
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
@@ -21,17 +22,17 @@ public class MemberAccessLiteralToken : Token, ILiteralToken
         Parts = value.Split(TokenValues.MemberAccess);
     }
 
-    public VariableType DeriveType(IValidationContext context)
+    public Type DeriveType(IValidationContext context)
     {
         var variableReference = new IdentifierPath(Parts);
-        var variableType = context.VariableContext.GetVariableType(variableReference, context);
+        var variableType = context.VariableContext.GetVariableType(variableReference);
         if (variableType != null) return variableType;
 
         if (Parts.Length != 2) return null;
 
         var componentType = context.ComponentNodes.GetType(Parent);
         return componentType is IObjectType objectType
-            ? objectType.MemberType(Member, context.ComponentNodes)
+            ? objectType.MemberType(Member)
             : null;
     }
 

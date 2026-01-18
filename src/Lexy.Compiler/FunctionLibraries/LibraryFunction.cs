@@ -5,22 +5,24 @@ using System.Reflection;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Functions;
+using Lexy.Compiler.Language.TypeSystem.Functions;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
 internal class LibraryFunction : IObjectTypeFunction
 {
     private readonly MemberInfo functionInfo;
-    private readonly VariableType returnType;
-    private readonly VariableType[] parameterTypes;
+    private readonly Type returnType;
+    private readonly Type[] parameterTypes;
 
     public IdentifierPath FullTypeName { get; }
 
-    private LibraryFunction(MemberInfo functionInfo, VariableType returnType, VariableType[] parameterTypes)
+    private LibraryFunction(MemberInfo functionInfo, Type returnType, Type[] parameterTypes)
     {
         this.functionInfo = Assert.NotNull(functionInfo, nameof(functionInfo));
         this.returnType = returnType;
@@ -53,7 +55,7 @@ internal class LibraryFunction : IObjectTypeFunction
             : ValidateMemberFunctionArgumentsResult.Success(new LibraryFunctionCall(FullTypeName, returnType));
     }
 
-    public VariableType GetResultsType(IReadOnlyList<Expression> arguments) => returnType;
+    public Type GetResultsType(IReadOnlyList<Expression> arguments) => returnType;
 
     private bool ValidateArgument(SourceReference reference, IValidationContext context, IReadOnlyList<Expression> arguments, int index)
     {
@@ -73,13 +75,13 @@ internal class LibraryFunction : IObjectTypeFunction
 
     public static LibraryFunction Build(MethodInfo staticMethod)
     {
-        var returnType = PrimitiveType.Parse(staticMethod.ReturnType);
+        var returnType = ValueType.Parse(staticMethod.ReturnType);
         var parameterTypes = BuildParametersTypes(staticMethod.GetParameters());
         return new LibraryFunction(staticMethod, returnType, parameterTypes);
     }
 
-    private static VariableType[] BuildParametersTypes(ParameterInfo[] parameters)
+    private static Type[] BuildParametersTypes(ParameterInfo[] parameters)
     {
-        return parameters.Select(parameter => PrimitiveType.Parse(parameter.ParameterType)).ToArray();
+        return parameters.Select(parameter => ValueType.Parse(parameter.ParameterType)).ToArray();
     }
 }

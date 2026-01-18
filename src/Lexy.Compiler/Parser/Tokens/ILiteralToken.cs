@@ -1,4 +1,4 @@
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -8,5 +8,5 @@ public interface ILiteralToken : IToken
 
     string Value { get; }
 
-    VariableType DeriveType(IValidationContext context);
+    Type DeriveType(IValidationContext context);
 }

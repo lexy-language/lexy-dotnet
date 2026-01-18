@@ -1,17 +1,17 @@
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 
 namespace Lexy.Compiler.Language.Functions;
 
 public class ValidateFunctionArgumentsAutoMapResult : ValidateFunctionArgumentsResult
 {
-    public VariableType ParameterType { get; }
+    public Type ParameterType { get; }
 
-    private ValidateFunctionArgumentsAutoMapResult(VariableType parameterType, VariableType resultType): base(true)
+    private ValidateFunctionArgumentsAutoMapResult(Type parameterType, Type resultType): base(true)
     {
         ParameterType = parameterType;
     }
 
-    public static ValidateFunctionArgumentsAutoMapResult SuccessAutoMap(VariableType parameterType, VariableType resultType)
+    public static ValidateFunctionArgumentsAutoMapResult SuccessAutoMap(Type parameterType, Type resultType)
     {
         return new ValidateFunctionArgumentsAutoMapResult(parameterType, resultType);
     }

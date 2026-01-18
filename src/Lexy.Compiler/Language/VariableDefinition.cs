@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Declaration;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language;
 
@@ -15,14 +14,14 @@ public class VariableDefinition : Node, IHasNodeDependencies
 {
     public Expression DefaultExpression { get; }
     public VariableSource Source { get; }
-    public VariableTypeDeclaration Type { get; }
-    public VariableType VariableType { get; private set; }
+    public TypeDeclaration TypeDeclaration { get; }
+    public Type Type { get; private set; }
     public string Name { get; }
 
-    private VariableDefinition(string name, VariableTypeDeclaration type,
+    private VariableDefinition(string name, TypeDeclaration type,
         VariableSource source, SourceReference reference, Expression defaultExpression = null) : base(reference)
     {
-        Type = Assert.NotNull(type, nameof(type));
+        TypeDeclaration = Assert.NotNull(type, nameof(type));
         Name = Assert.NotNull(name, nameof(name));
 
         DefaultExpression = defaultExpression;
@@ -31,7 +30,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        return Type is IHasNodeDependencies hasNodeDependencies
+        return TypeDeclaration is IHasNodeDependencies hasNodeDependencies
             ? hasNodeDependencies.GetDependencies(componentNodes)
             : Array.Empty<IComponentNode>();
     }
@@ -82,15 +81,15 @@ public class VariableDefinition : Node, IHasNodeDependencies
     public override IEnumerable<INode> GetChildren()
     {
         if (DefaultExpression != null) yield return DefaultExpression;
-        yield return Type;
+        yield return TypeDeclaration;
     }
 
     protected override void Validate(IValidationContext context)
     {
-        VariableType = Type.VariableType;
+        Type = TypeDeclaration.Type;
 
-        context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, VariableType, Source);
+        context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, Type, Source);
 
-        context.ValidateTypeAndDefault(Reference, Type, DefaultExpression);
+        context.ValidateTypeAndDefault(Reference, TypeDeclaration, DefaultExpression);
     }
 }

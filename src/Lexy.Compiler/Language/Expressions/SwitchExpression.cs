@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -73,8 +73,7 @@ public class SwitchExpression : Expression, IParsableNode
     protected override void Validate(IValidationContext context)
     {
         var type = Condition.DeriveType(context);
-        if (type == null
-            || !(type is PrimitiveType) && !(type is EnumType))
+        if (type == null || type is not ValueType && type is not EnumType)
         {
             context.Logger.Fail(Reference,
                 $"'Switch' condition expression should have a primitive or enum type. Not: '{type}'.");
@@ -87,17 +86,14 @@ public class SwitchExpression : Expression, IParsableNode
 
             var caseType = caseExpression.DeriveType(context);
             if (caseType == null || !type.Equals(caseType))
+            {
                 context.Logger.Fail(Reference,
                     $"'case' condition expression should be of type '{type}', is of wrong type '{caseType}'.");
+            }
         }
     }
 
-    internal void LinkElse(CaseExpression caseExpression)
-    {
-        cases.Add(caseExpression);
-    }
-
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return null;
     }

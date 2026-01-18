@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -38,7 +38,7 @@ public class SpreadExpression : Expression
     {
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         context.Logger.Fail(Reference, "Invalid spread operator. The spread operator '...' can only be used in an Lexy function call with as a single argument.");
         return null;

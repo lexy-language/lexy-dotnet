@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -57,7 +58,7 @@ public class SpreadAssignmentExpression : Expression
         }
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return Assignment.DeriveType(context);
     }

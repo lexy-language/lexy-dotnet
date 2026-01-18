@@ -1,15 +1,15 @@
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Functions;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Functions;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
 internal class LibraryFunctionCall : IMemberFunctionCall
 {
     public IdentifierPath FullTypeName { get; }
-    public VariableType ReturnType { get; }
+    public Type ReturnType { get; }
 
-    public LibraryFunctionCall(IdentifierPath fullTypeName, VariableType returnType)
+    public LibraryFunctionCall(IdentifierPath fullTypeName, Type returnType)
     {
         FullTypeName = fullTypeName;
         ReturnType = returnType;

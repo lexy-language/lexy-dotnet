@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 using Lexy.Compiler.Language.Functions;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 
@@ -68,11 +69,11 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
         return context.ComponentNodes.GetFunction(FunctionName);
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         var function = GetFunction(context);
         var variable = ReturnSingleResultsVariable(function);
-        return variable != null ? variable.VariableType : function?.GetResultsType();
+        return variable != null ? variable.Type : function?.GetResultsType();
     }
 
     private string ReturnSingleResultsVariablesName(Function function)
@@ -94,7 +95,7 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
         var result = base.UsedVariables();
         if (State?.ParametersMapping != null)
         {
-            result = result.Union(State?.ParametersMapping.UsedVariables(VariableAccess.Read));
+            result = result.Union(State.ParametersMapping.UsedVariables(VariableAccess.Read));
         }
         return result;
     }

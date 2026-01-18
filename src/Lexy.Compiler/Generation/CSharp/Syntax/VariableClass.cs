@@ -40,6 +40,6 @@ public static class VariableClass
         var defaultValue = variable.DefaultExpression != null
             ? Expressions.ExpressionSyntax(variable.DefaultExpression)
             : null;
-        return defaultValue ?? Types.TypeDefaultExpression(variable.Type);
+        return defaultValue ?? Types.TypeDefaultExpression(variable.TypeDeclaration);
     }
 }

@@ -31,7 +31,7 @@ internal static class NewFunctionStatement
             throw new InvalidOperationException("functionCallExpression.FunctionCallExpression should be NewFunction");
         }
 
-        var typeSyntax = Types.Syntax(expression.Type);
+        var typeSyntax = Types.Syntax(expression.TypeDeclaration);
 
         var initialize = ObjectCreationExpression(typeSyntax)
             .WithArgumentList(ArgumentList());

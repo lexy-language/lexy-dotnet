@@ -23,7 +23,7 @@ public class NodesLogger
 
         if (node is IComponentNode componentNode)
         {
-            builder.AppendLine($"{componentNode.GetType().Name}: {componentNode.NodeName}");
+            builder.AppendLine($"{componentNode.GetType().Name}: {componentNode.Name}");
         }
         else
         {

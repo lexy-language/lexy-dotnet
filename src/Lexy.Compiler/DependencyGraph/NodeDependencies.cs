@@ -10,7 +10,7 @@ public class NodeDependencies
 
     public IComponentNode Node { get; }
 
-    public string Name => Node.NodeName;
+    public string Name => Node.Name;
 
     public readonly Dictionary<string, IComponentNode> Dependencies = new();
     public readonly Dictionary<string, IComponentNode> Dependants = new();
@@ -21,13 +21,13 @@ public class NodeDependencies
     {
         foreach (var dependency in dependencies)
         {
-            Dependencies.TryAdd(dependency.NodeName, dependency);
+            Dependencies.TryAdd(dependency.Name, dependency);
         }
     }
 
     public void AddDependant(IComponentNode componentNode)
     {
-        Dependants.TryAdd(componentNode.NodeName, componentNode);
+        Dependants.TryAdd(componentNode.Name, componentNode);
     }
 
     public int DecreaseOccurrence()
@@ -44,5 +44,5 @@ public class NodeDependencies
         return occurrence.Value;
     }
 
-    public override string ToString() => $"{Node.NodeName} (dependencies: {Dependencies.Count} dependants: {Dependants.Count})";
+    public override string ToString() => $"{Node.Name} (dependencies: {Dependencies.Count} dependants: {Dependants.Count})";
 }

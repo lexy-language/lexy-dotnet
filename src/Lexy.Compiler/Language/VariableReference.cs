@@ -1,4 +1,4 @@
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 
 namespace Lexy.Compiler.Language;
 
@@ -6,15 +6,15 @@ public class VariableReference
 {
     public IdentifierPath Path { get; }
     public VariableSource Source { get; }
-    public VariableType ComponentType { get; }
-    public VariableType VariableType { get; }
+    public Type ComponentType { get; }
+    public Type Type { get; }
 
-    public VariableReference(IdentifierPath path, VariableType componentType,
-        VariableType variableType, VariableSource source)
+    public VariableReference(IdentifierPath path, Type componentType,
+        Type type, VariableSource source)
     {
         Path = path;
         ComponentType = componentType;
-        VariableType = variableType;
+        Type = type;
         Source = source;
     }
 

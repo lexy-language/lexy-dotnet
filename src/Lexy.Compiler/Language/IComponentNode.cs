@@ -1,6 +1,5 @@
 namespace Lexy.Compiler.Language;
 
-public interface IComponentNode : IParsableNode
+public interface IComponentNode : IParsableNode, INodeWithName
 {
-    string NodeName { get; }
 }

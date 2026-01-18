@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 
@@ -49,14 +49,14 @@ public class IdentifierExpression : Expression, IHasVariableReference
     private void CreateVariableReference(IValidationContext context)
     {
         var path = IdentifierPath.Parse(Identifier);
-        Variable = context.VariableContext.CreateVariableReference(Reference, path, context);
+        Variable = context.VariableContext.CreateVariableReference(Reference, path);
         if (Variable == null)
         {
             context.Logger.Fail(Reference, $"Invalid identifier: '{path.FullPath()}'");
         }
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return context.VariableContext.GetVariableType(Identifier);
     }

@@ -2,36 +2,59 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.VariableTypes;
-using Lexy.Compiler.Language.VariableTypes.Declaration;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
+using Microsoft.CodeAnalysis.CSharp;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Functions;
 
-public class Function : ComponentNode, IHasNodeDependencies, INestedNode
+public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeWithType
 {
     public const string ParameterName = "Parameters";
     public const string ResultsName = "Results";
 
-    public FunctionName Name { get; }
     public FunctionParameters Parameters { get; }
     public FunctionResults Results { get; }
     public FunctionCode Code { get; }
 
-    public override string NodeName => Name.Value;
+    public override string Name { get; }
 
     public bool Nested { get; }
 
     private Function(string name, bool nested, SourceReference reference, IExpressionFactory factory) : base(reference)
     {
         Nested = nested;
-        Name = new FunctionName(reference);
         Parameters = new FunctionParameters(reference);
         Results = new FunctionResults(reference);
         Code = new FunctionCode(reference, factory);
+        Name = name;
+    }
 
-        Name.ParseName(name);
+    public Type CreateType()
+    {
+        return new FunctionType(this);
+    }
+
+    public GeneratedType GetParametersType()
+    {
+        var members = Parameters.Variables
+            .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
+            .ToList();
+
+        return new GeneratedType(Name, this, GeneratedTypeSource.FunctionParameters, members);
+    }
+
+    public GeneratedType GetResultsType()
+    {
+        var members = Results.Variables
+            .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
+            .ToList();
+
+        return new GeneratedType(Name, this, GeneratedTypeSource.FunctionResults, members);
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
@@ -69,7 +92,7 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (parameter.Type is not ObjectVariableTypeDeclaration objectVariableType) continue;
+            if (parameter.TypeDeclaration is not ObjectTypeDeclaration objectVariableType) continue;
 
             var dependency = objectVariableType.GetNode(componentNodes);
             if (dependency != null)
@@ -89,8 +112,6 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode
 
     public override IEnumerable<INode> GetChildren()
     {
-        yield return Name;
-
         yield return Parameters;
         yield return Results;
 
@@ -99,24 +120,14 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode
 
     protected override void Validate(IValidationContext context)
     {
-    }
-
-    public GeneratedType GetParametersType()
-    {
-        var members = Parameters.Variables
-            .Select(parameter => new ObjectTypeVariable(parameter.Name, parameter.Type.VariableType))
-            .ToList();
-
-        return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionParameters, members);
-    }
-
-    public VariableType GetResultsType()
-    {
-        var members = Results.Variables
-            .Select(parameter => new ObjectTypeVariable(parameter.Name, parameter.Type.VariableType))
-            .ToList();
-
-        return new GeneratedType(Name.Value, this, GeneratedTypeSource.FunctionResults, members);
+        if (string.IsNullOrEmpty(Name))
+        {
+            context.Logger.Fail(Reference, $"Invalid function name: '{Name}'. Name should not be empty.");
+        }
+        else if (!SyntaxFacts.IsValidIdentifier(Name))
+        {
+            context.Logger.Fail(Reference, $"Invalid function name: '{Name}'.");
+        }
     }
 
     public ValidateFunctionArgumentsResult ValidateArguments(IValidationContext context,
@@ -129,7 +140,10 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode
 
     private ValidateFunctionArgumentsResult ValidateAutoMap()
     {
-        return ValidateFunctionArgumentsAutoMapResult.SuccessAutoMap(GetParametersType(), GetResultsType());
+        var parametersType = GetParametersType();
+        var resultsType = GetResultsType();
+
+        return ValidateFunctionArgumentsAutoMapResult.SuccessAutoMap(parametersType, resultsType);
     }
 
     private ValidateFunctionArgumentsResult ValidateWithArguments(IValidationContext context,
@@ -192,11 +206,11 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode
 
     private FunctionSignature InlineParametersArgumentsFunction()
     {
-        var parameters = Parameters.Variables.Select(parameter => parameter.VariableType).ToList();
+        var parameters = Parameters.Variables.Select(parameter => parameter.Type).ToList();
         return new FunctionSignature(parameters, GetResultsType());
     }
 
-    private IReadOnlyList<VariableType> GetArgumentTypes(IReadOnlyList<Expression> arguments, IValidationContext context)
+    private IReadOnlyList<Type> GetArgumentTypes(IReadOnlyList<Expression> arguments, IValidationContext context)
     {
         return HasSpreadArgument(arguments)
             ? new[] { GetResultsType() }

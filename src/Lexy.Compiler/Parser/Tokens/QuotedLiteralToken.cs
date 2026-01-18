@@ -1,5 +1,6 @@
 using System;
-using Lexy.Compiler.Language.VariableTypes;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -18,9 +19,9 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
 
     public object TypedValue => Value;
 
-    public VariableType DeriveType(IValidationContext context)
+    public Type DeriveType(IValidationContext context)
     {
-        return PrimitiveType.String;
+        return ValueType.String;
     }
 
     public override ParseTokenResult Parse(TokenCharacter character)

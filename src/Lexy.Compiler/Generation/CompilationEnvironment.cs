@@ -55,7 +55,7 @@ public class CompilationEnvironment : ICompilationEnvironment
 
     public ExecutableFunction GetFunction(Function function)
     {
-        return executables[function.NodeName];
+        return executables[function.Name];
     }
 
     public Type GetEnumType(string type)
@@ -82,7 +82,7 @@ public class CompilationEnvironment : ICompilationEnvironment
                 var instanceType = assembly.GetType(generatedClass.FullClassName);
                 var executable = new ExecutableFunction(function, instanceType, this, executionLogger);
 
-                executables.Add(generatedClass.Node.NodeName, executable);
+                executables.Add(generatedClass.Node.Name, executable);
                 break;
             }
             case EnumDefinition _:
@@ -112,7 +112,7 @@ public class CompilationEnvironment : ICompilationEnvironment
     {
         var instanceType = assembly.GetType(generatedClass.FullClassName);
 
-        dictionary.Add(generatedClass.Node.NodeName, instanceType);
+        dictionary.Add(generatedClass.Node.Name, instanceType);
     }
 
     public void Dispose()

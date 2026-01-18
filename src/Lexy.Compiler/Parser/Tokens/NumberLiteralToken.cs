@@ -1,7 +1,8 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using Lexy.Compiler.Language.VariableTypes;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -52,9 +53,9 @@ public class NumberLiteralToken : ParsableToken, ILiteralToken
 
     public object TypedValue => NumberValue;
 
-    public VariableType DeriveType(IValidationContext context)
+    public Type DeriveType(IValidationContext context)
     {
-        return PrimitiveType.Number;
+        return ValueType.Number;
     }
 
     public override ParseTokenResult Parse(TokenCharacter character)

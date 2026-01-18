@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -80,7 +80,7 @@ public class BracketedExpression : Expression
     {
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return Expression.DeriveType(context);
     }

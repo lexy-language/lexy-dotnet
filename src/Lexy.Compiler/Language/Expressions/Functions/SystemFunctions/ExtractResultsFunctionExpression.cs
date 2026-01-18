@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class ExtractResultsFunctionExpression : FunctionCallExpression
+public class ExtractResultsFunctionExpression : FunctionCallExpression, INodeWithName
 {
-    public const string Name = "extract";
+    public const string FunctionName = "extract";
 
     private string FunctionHelp => $"{Name} expects 1 argument. extract(variable)";
 
@@ -16,6 +17,8 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
     public Expression ValueExpression { get; }
 
     public VariablesMapping Mapping { get; private set; }
+
+    public string Name => FunctionName;
 
     private ExtractResultsFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
@@ -70,14 +73,14 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
             var variable = context.VariableContext.GetVariable(member.Name);
             if (variable == null || variable.VariableSource == VariableSource.Parameters) continue;
 
-            if (!variable.VariableType.Equals(member.Type))
+            if (!variable.Type.Equals(member.Type))
             {
                 context.Logger.Fail(reference,
-                    $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.VariableType}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
+                    $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.Type}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
             }
             else
             {
-                mapping.Add(new Mapping(member.Name, variable.VariableType, variable.VariableSource));
+                mapping.Add(new Mapping(member.Name, variable.Type, variable.VariableSource));
             }
         }
 
@@ -90,7 +93,7 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
         return new VariablesMapping(generatedType, mapping);
     }
 
-    public override VariableType DeriveType(IValidationContext context) => new VoidType();
+    public override Type DeriveType(IValidationContext context) => new VoidType();
 
     public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
     {

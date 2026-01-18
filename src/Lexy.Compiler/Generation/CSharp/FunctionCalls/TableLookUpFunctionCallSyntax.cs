@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Generation.CSharp.Syntax;
 using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Language.VariableTypes.Functions;
+using Lexy.Compiler.Language.TypeSystem.Functions;
 using Lexy.RunTime.Libraries;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

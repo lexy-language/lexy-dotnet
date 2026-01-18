@@ -2662,12 +2662,12 @@
         </Class>
         <Class>
           <Summary numSequencePoints="27" visitedSequencePoints="24" numBranchPoints="10" visitedBranchPoints="7" sequenceCoverage="88.88" branchCoverage="70" maxCyclomaticComplexity="10" minCyclomaticComplexity="1" visitedClasses="1" numClasses="1" visitedMethods="4" numMethods="5" />
-          <FullName>Lexy.Compiler.Parser.NodeName</FullName>
+          <FullName>Lexy.Compiler.Parser.Name</FullName>
           <Methods>
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="True" isSetter="False" isStatic="True">
               <Summary numSequencePoints="1" visitedSequencePoints="1" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>System.String Lexy.Compiler.Parser.NodeName::get_Name()</Name>
+              <Name>System.String Lexy.Compiler.Parser.Name::get_Name()</Name>
               <FileRef uid="14" />
               <SequencePoints>
                 <SequencePoint vc="672" uspid="5" ordinal="0" sl="5" sc="1" el="5" ec="2" bec="0" bev="0" fileid="14" />
@@ -2678,7 +2678,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="True" isSetter="False" isStatic="True">
               <Summary numSequencePoints="1" visitedSequencePoints="1" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>System.String Lexy.Compiler.Parser.NodeName::get_Keyword()</Name>
+              <Name>System.String Lexy.Compiler.Parser.Name::get_Keyword()</Name>
               <FileRef uid="14" />
               <SequencePoints>
                 <SequencePoint vc="492" uspid="6" ordinal="0" sl="6" sc="1" el="6" ec="2" bec="0" bev="0" fileid="14" />
@@ -2689,7 +2689,7 @@
             <Method cyclomaticComplexity="10" nPathComplexity="10" sequenceCoverage="100" branchCoverage="70" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="17" visitedSequencePoints="17" numBranchPoints="10" visitedBranchPoints="7" sequenceCoverage="100" branchCoverage="70" maxCyclomaticComplexity="10" minCyclomaticComplexity="10" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Parser.NodeName Lexy.Compiler.Parser.NodeName::Parse(Lexy.Compiler.Parser.IParseLineContext)</Name>
+              <Name>Lexy.Compiler.Parser.Name Lexy.Compiler.Parser.Name::Parse(Lexy.Compiler.Parser.IParseLineContext)</Name>
               <FileRef uid="14" />
               <SequencePoints>
                 <SequencePoint vc="672" uspid="15" ordinal="0" sl="15" sc="1" el="15" ec="2" bec="0" bev="0" fileid="14" />
@@ -2727,7 +2727,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="0" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="3" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>System.String Lexy.Compiler.Parser.NodeName::ToString()</Name>
+              <Name>System.String Lexy.Compiler.Parser.Name::ToString()</Name>
               <FileRef uid="14" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="41" ordinal="0" sl="41" sc="1" el="41" ec="2" bec="0" bev="0" fileid="14" />
@@ -2740,7 +2740,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="True" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>System.Void Lexy.Compiler.Parser.NodeName::.ctor(System.String,System.String)</Name>
+              <Name>System.Void Lexy.Compiler.Parser.Name::.ctor(System.String,System.String)</Name>
               <FileRef uid="14" />
               <SequencePoints>
                 <SequencePoint vc="671" uspid="8" ordinal="0" sl="8" sc="1" el="8" ec="2" bec="0" bev="0" fileid="14" />
@@ -7810,7 +7810,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="0" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="4" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Language.IRootNode Lexy.Compiler.Language.SourceCodeNode::InvalidNode(Lexy.Compiler.Parser.NodeName,Lexy.Compiler.Parser.IParseLineContext,Lexy.Compiler.Parser.SourceReference)</Name>
+              <Name>Lexy.Compiler.Language.IRootNode Lexy.Compiler.Language.SourceCodeNode::InvalidNode(Lexy.Compiler.Parser.Name,Lexy.Compiler.Parser.IParseLineContext,Lexy.Compiler.Parser.SourceReference)</Name>
               <FileRef uid="57" />
               <SequencePoints>
                 <SequencePoint vc="0" uspid="78" ordinal="0" sl="78" sc="1" el="78" ec="2" bec="0" bev="0" fileid="57" />
@@ -9995,7 +9995,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="3" visitedSequencePoints="3" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Language.Types.TypeDefinition Lexy.Compiler.Language.Types.TypeDefinition::Parse(Lexy.Compiler.Parser.NodeName,Lexy.Compiler.Parser.SourceReference)</Name>
+              <Name>Lexy.Compiler.Language.Types.TypeDefinition Lexy.Compiler.Language.Types.TypeDefinition::Parse(Lexy.Compiler.Parser.Name,Lexy.Compiler.Parser.SourceReference)</Name>
               <FileRef uid="77" />
               <SequencePoints>
                 <SequencePoint vc="21" uspid="21" ordinal="0" sl="21" sc="1" el="21" ec="2" bec="0" bev="0" fileid="77" />
@@ -12151,7 +12151,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="3" visitedSequencePoints="3" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Language.Scenarios.Scenario Lexy.Compiler.Language.Scenarios.Scenario::Parse(Lexy.Compiler.Parser.NodeName,Lexy.Compiler.Parser.SourceReference)</Name>
+              <Name>Lexy.Compiler.Language.Scenarios.Scenario Lexy.Compiler.Language.Scenarios.Scenario::Parse(Lexy.Compiler.Parser.Name,Lexy.Compiler.Parser.SourceReference)</Name>
               <FileRef uid="100" />
               <SequencePoints>
                 <SequencePoint vc="302" uspid="38" ordinal="0" sl="38" sc="1" el="38" ec="2" bec="0" bev="0" fileid="100" />
@@ -20165,7 +20165,7 @@
             <Method cyclomaticComplexity="1" nPathComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="False" isGetter="False" isSetter="False" isStatic="True">
               <Summary numSequencePoints="3" visitedSequencePoints="3" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken />
-              <Name>Lexy.Compiler.Language.Enums.EnumDefinition Lexy.Compiler.Language.Enums.EnumDefinition::Parse(Lexy.Compiler.Parser.NodeName,Lexy.Compiler.Parser.SourceReference)</Name>
+              <Name>Lexy.Compiler.Language.Enums.EnumDefinition Lexy.Compiler.Language.Enums.EnumDefinition::Parse(Lexy.Compiler.Parser.Name,Lexy.Compiler.Parser.SourceReference)</Name>
               <FileRef uid="171" />
               <SequencePoints>
                 <SequencePoint vc="28" uspid="22" ordinal="0" sl="22" sc="1" el="22" ec="2" bec="0" bev="0" fileid="171" />

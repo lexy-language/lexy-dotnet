@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.VariableTypes;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -60,14 +58,14 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
 
     private void CreateVariableReference(IValidationContext context)
     {
-        Variable = context.VariableContext.CreateVariableReference(Reference, VariablePath, context);
+        Variable = context.VariableContext.CreateVariableReference(Reference, VariablePath);
         if (Variable == null)
         {
             context.Logger.Fail(Reference, $"Invalid identifier: '{VariablePath.FullPath()}'");
         }
     }
 
-    public override VariableType DeriveType(IValidationContext context)
+    public override Type DeriveType(IValidationContext context)
     {
         return MemberAccessLiteralToken.DeriveType(context);
     }

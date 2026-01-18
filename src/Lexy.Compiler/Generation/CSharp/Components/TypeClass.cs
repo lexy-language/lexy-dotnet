@@ -10,7 +10,7 @@ internal static class TypeClass
     {
         Assert.NotNull(typeDefinition, nameof(typeDefinition));
 
-        var className = ClassNames.TypeClassName(typeDefinition.Name.Value);
+        var className = ClassNames.TypeClassName(typeDefinition.Name);
 
         var classDeclaration = VariableClass.Syntax(className, typeDefinition.Variables);
 

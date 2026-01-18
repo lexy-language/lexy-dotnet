@@ -5,7 +5,7 @@ using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Types;
-using Lexy.Compiler.Language.VariableTypes;
+using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.RunTime;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
@@ -23,7 +23,7 @@ public class ComponentNodeList : IComponentNodeList
     public ComponentNodeList(params IComponentNode[] values)
     {
         this.values = new List<IComponentNode>(values);
-        index = values.ToDictionary(value => value.NodeName, value => value);
+        index = values.ToDictionary(value => value.Name, value => value);
     }
 
     public IEnumerator<IComponentNode> GetEnumerator()
@@ -41,7 +41,7 @@ public class ComponentNodeList : IComponentNodeList
         Assert.NotNull(componentNode, nameof(componentNode));
 
         values.Add(componentNode);
-        index.TryAdd(componentNode.NodeName, componentNode);
+        index.TryAdd(componentNode.Name, componentNode);
     }
 
     internal bool ContainsEnum(string enumName)
@@ -94,14 +94,7 @@ public class ComponentNodeList : IComponentNodeList
 
     public ObjectType GetType(string name)
     {
-        var node = GetNode(name);
-        return node switch
-        {
-            Table table => new TableType(name, table),
-            Function function => new FunctionType(name, function),
-            EnumDefinition enumDefinition => new EnumType(name, enumDefinition),
-            TypeDefinition typeDefinition => new DeclaredType(name, typeDefinition),
-            _ => null
-        };
+        var nodeWithType = GetNode(name) as INodeWithType;
+        return nodeWithType?.CreateType() as ObjectType;
     }
 }
