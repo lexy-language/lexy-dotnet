@@ -76,7 +76,7 @@ public static class ValidateExecutionLoggingExtensions
 
     private static bool Equal(object expectedValue, LogVariable actualValue)
     {
-        if (actualValue.Type == LogVariableType.Enum)
+        if (actualValue.Type == LogType.Enum)
         {
             var originalEnumType = actualValue.Value.GetType().Name.Substring(LexyCodeConstants.EnumClassPrefix.Length);
             var actualEnumValue = $"{originalEnumType}.{actualValue.Value}";

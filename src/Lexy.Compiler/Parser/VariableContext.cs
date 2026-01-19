@@ -83,45 +83,45 @@ public class VariableContext : IVariableContext
         var variable = GetVariable(path.RootIdentifier);
         if (variable == null) return null;
 
-        var variableType = GetVariableType(path);
-        if (variableType == null) return null;
+        var type = GetType(path);
+        if (type == null) return null;
 
-        return new VariableReference(path, null, variableType, variable.VariableSource);
+        return new VariableReference(path, null, type, variable.VariableSource);
     }
 
     private VariableReference CreateVariableReferenceFromTypeSystem(IdentifierPath path)
     {
         if (path.Parts > 2) return null;
 
-        var rootVariableType = componentNodes.GetType(path.RootIdentifier);
-        if (rootVariableType == null) return null;
+        var rootType = componentNodes.GetType(path.RootIdentifier);
+        if (rootType == null) return null;
 
         if (path.Parts == 1)
         {
-            return new VariableReference(path, rootVariableType, rootVariableType, VariableSource.Type);
+            return new VariableReference(path, rootType, rootType, VariableSource.Type);
         }
 
         var member = path.LastPart();
-        var memberType = rootVariableType.MemberType(member);
+        var memberType = rootType.MemberType(member);
         if (memberType == null) return null;
-        return new VariableReference(path, rootVariableType, memberType, VariableSource.Type);
+        return new VariableReference(path, rootType, memberType, VariableSource.Type);
     }
 
-    public Type GetVariableType(string name)
+    public Type GetType(string name)
     {
         return variables.TryGetValue(name, out var value)
             ? value.Type
-            : parentContext?.GetVariableType(name);
+            : parentContext?.GetType(name);
     }
 
-    public Type GetVariableType(IdentifierPath path)
+    public Type GetType(IdentifierPath path)
     {
         Assert.NotNull(path, nameof(path));
 
-        var parent = GetVariableType(path.RootIdentifier);
+        var parent = GetType(path.RootIdentifier);
         return parent == null || !path.HasChildIdentifiers
             ? parent
-            : GetVariableType(parent, path.ChildrenReference());
+            : GetType(parent, path.ChildrenReference());
     }
 
     public VariableEntry GetVariable(string name)
@@ -133,24 +133,24 @@ public class VariableContext : IVariableContext
 
     private static bool ContainsChild(Type parentType, IdentifierPath path)
     {
-        var objectType = parentType as IObjectType;
+        var objectType = parentType as ObjectType;
 
-        var memberVariableType = objectType?.MemberType(path.RootIdentifier);
-        if (memberVariableType == null) return false;
+        var memberType = objectType?.MemberType(path.RootIdentifier);
+        if (memberType == null) return false;
 
         return !path.HasChildIdentifiers
-               || ContainsChild(memberVariableType, path.ChildrenReference());
+               || ContainsChild(memberType, path.ChildrenReference());
     }
 
-    private Type GetVariableType(Type parentType, IdentifierPath path)
+    private Type GetType(Type parentType, IdentifierPath path)
     {
-        if (parentType is not IObjectType objectType) return null;
+        if (parentType is not ObjectType objectType) return null;
 
-        var memberVariableType = objectType.MemberType(path.RootIdentifier);
-        if (memberVariableType == null) return null;
+        var memberType = objectType.MemberType(path.RootIdentifier);
+        if (memberType == null) return null;
 
         return !path.HasChildIdentifiers
-            ? memberVariableType
-            : GetVariableType(memberVariableType, path.ChildrenReference());
+            ? memberType
+            : GetType(memberType, path.ChildrenReference());
     }
 }

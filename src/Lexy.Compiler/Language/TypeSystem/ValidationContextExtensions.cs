@@ -19,12 +19,12 @@ public static class ValidationContextExtensions
 
         switch (type)
         {
-            case ObjectTypeDeclaration customVariableType:
-                ValidateCustomVariableType(context, reference, customVariableType, defaultValueExpression);
+            case ObjectTypeDeclaration customType:
+                ValidateCustomType(context, reference, customType, defaultValueExpression);
                 break;
 
-            case PrimitiveTypeDeclaration primitiveVariableType:
-                ValidatePrimitiveVariableType(context, reference, primitiveVariableType, defaultValueExpression);
+            case ValueTypeDeclaration valueType:
+                ValidateValueType(context, reference, valueType, defaultValueExpression);
                 break;
 
             default:
@@ -32,11 +32,11 @@ public static class ValidationContextExtensions
         }
     }
 
-    private static void ValidateCustomVariableType(IValidationContext context, SourceReference reference,
+    private static void ValidateCustomType(IValidationContext context, SourceReference reference,
         ObjectTypeDeclaration objectTypeDeclaration, Expression defaultValueExpression)
     {
-        var variablePathComplex = IdentifierPath.Parse(objectTypeDeclaration.TypeName);
-        var variable = context.VariableContext.CreateVariableReference(reference, variablePathComplex);
+        var identifierPathComplex = IdentifierPath.Parse(objectTypeDeclaration.TypeName);
+        var variable = context.VariableContext.CreateVariableReference(reference, identifierPathComplex);
         var type = variable?.Type;
         if (type == null ||
             type is not EnumType
@@ -57,79 +57,79 @@ public static class ValidationContextExtensions
         }
 
         if (defaultValueExpression is not MemberAccessExpression memberAccessExpression
-         || memberAccessExpression.VariablePath == null)
+         || memberAccessExpression.IdentifierPath == null)
         {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. (type: '{objectTypeDeclaration.Type}')");
             return;
         }
 
-        var variablePath = memberAccessExpression.VariablePath;
-        if (variablePath.Parts != 2)
+        var identifierPath = memberAccessExpression.IdentifierPath;
+        if (identifierPath.Parts != 2)
         {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. (type: '{objectTypeDeclaration.Type}')");
         }
-        if (variablePath.RootIdentifier != objectTypeDeclaration.TypeName)
+        if (identifierPath.RootIdentifier != objectTypeDeclaration.TypeName)
         {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. Invalid enum type. (type: '{objectTypeDeclaration.Type}')");
         }
 
-        var enumDeclaration = context.ComponentNodes.GetEnum(variablePath.RootIdentifier);
-        if (enumDeclaration == null || !enumDeclaration.ContainsMember(variablePath.Path[1]))
+        var enumDeclaration = context.ComponentNodes.GetEnum(identifierPath.RootIdentifier);
+        if (enumDeclaration == null || !enumDeclaration.ContainsMember(identifierPath.Path[1]))
         {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. Invalid member. (type: '{objectTypeDeclaration.Type}')");
         }
     }
 
-    private static void ValidatePrimitiveVariableType(IValidationContext context, SourceReference reference,
-        PrimitiveTypeDeclaration primitiveTypeDeclaration, Expression defaultValueExpression)
+    private static void ValidateValueType(IValidationContext context, SourceReference reference,
+        ValueTypeDeclaration valueTypeDeclaration, Expression defaultValueExpression)
     {
         if (defaultValueExpression == null) return;
 
-        switch (primitiveTypeDeclaration.TypeName)
+        switch (valueTypeDeclaration.TypeName)
         {
             case TypeNames.Number:
-                ValidateDefaultLiteral<NumberLiteralToken>(context, reference, primitiveTypeDeclaration,
+                ValidateDefaultLiteral<NumberLiteralToken>(context, reference, valueTypeDeclaration,
                     defaultValueExpression);
                 break;
 
             case TypeNames.String:
-                ValidateDefaultLiteral<QuotedLiteralToken>(context, reference, primitiveTypeDeclaration,
+                ValidateDefaultLiteral<QuotedLiteralToken>(context, reference, valueTypeDeclaration,
                     defaultValueExpression);
                 break;
 
             case TypeNames.Boolean:
-                ValidateDefaultLiteral<BooleanLiteralToken>(context, reference, primitiveTypeDeclaration,
+                ValidateDefaultLiteral<BooleanLiteralToken>(context, reference, valueTypeDeclaration,
                     defaultValueExpression);
                 break;
 
             case TypeNames.Date:
-                ValidateDefaultLiteral<DateTimeLiteralToken>(context, reference, primitiveTypeDeclaration,
+                ValidateDefaultLiteral<DateTimeLiteralToken>(context, reference, valueTypeDeclaration,
                     defaultValueExpression);
                 break;
 
             default:
-                throw new InvalidOperationException($"Unexpected type: {primitiveTypeDeclaration.Type}");
+                throw new InvalidOperationException($"Unexpected type: {valueTypeDeclaration.Type}");
         }
     }
 
     private static void ValidateDefaultLiteral<T>(IValidationContext context, SourceReference reference,
-        PrimitiveTypeDeclaration primitiveTypeDeclaration,
+        ValueTypeDeclaration valueTypeDeclaration,
         Expression defaultValueExpression)
         where T : ILiteralToken
     {
         if (defaultValueExpression is not LiteralExpression literalExpression)
         {
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{primitiveTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{valueTypeDeclaration.Type}')");
             return;
         }
 
         if (literalExpression.Literal is not T)
             context.Logger.Fail(reference,
-                $"Invalid default value '{defaultValueExpression}'. (type: '{primitiveTypeDeclaration.Type}')");
+                $"Invalid default value '{defaultValueExpression}'. (type: '{valueTypeDeclaration.Type}')");
     }
 }

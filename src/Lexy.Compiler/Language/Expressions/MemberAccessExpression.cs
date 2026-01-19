@@ -10,14 +10,14 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
 {
     public MemberAccessLiteralToken MemberAccessLiteralToken { get; }
 
-    public IdentifierPath VariablePath { get; }
+    public IdentifierPath IdentifierPath { get; }
     public VariableReference Variable { get; private set; }
 
-    private MemberAccessExpression(IdentifierPath variablePath, MemberAccessLiteralToken literalToken, ExpressionSource source,
+    private MemberAccessExpression(IdentifierPath identifierPath, MemberAccessLiteralToken literalToken, ExpressionSource source,
         SourceReference reference) : base(source, reference)
     {
         MemberAccessLiteralToken = Assert.NotNull(literalToken, nameof(literalToken));
-        VariablePath = variablePath;
+        IdentifierPath = identifierPath;
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
@@ -58,10 +58,10 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
 
     private void CreateVariableReference(IValidationContext context)
     {
-        Variable = context.VariableContext.CreateVariableReference(Reference, VariablePath);
+        Variable = context.VariableContext.CreateVariableReference(Reference, IdentifierPath);
         if (Variable == null)
         {
-            context.Logger.Fail(Reference, $"Invalid identifier: '{VariablePath.FullPath()}'");
+            context.Logger.Fail(Reference, $"Invalid identifier: '{IdentifierPath.FullPath()}'");
         }
     }
 

@@ -42,7 +42,7 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
 
         var expressionType = targetExpression.DeriveType(context);
 
-        Type = context.VariableContext.GetVariableType(Variable);
+        Type = context.VariableContext.GetType(Variable);
         if (expressionType != null && !expressionType.Equals(Type))
         {
             context.Logger.Fail(Reference,

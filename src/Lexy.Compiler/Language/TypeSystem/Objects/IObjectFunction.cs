@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
 
-public interface IObjectTypeFunction
+public interface IObjectFunction
 {
     ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference);
     Type GetResultsType(IReadOnlyList<Expression> arguments);

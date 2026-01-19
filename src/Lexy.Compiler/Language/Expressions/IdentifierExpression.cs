@@ -58,7 +58,7 @@ public class IdentifierExpression : Expression, IHasVariableReference
 
     public override Type DeriveType(IValidationContext context)
     {
-        return context.VariableContext.GetVariableType(Identifier);
+        return context.VariableContext.GetType(Identifier);
     }
 
     public override IEnumerable<VariableUsage> UsedVariables()

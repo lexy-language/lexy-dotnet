@@ -86,9 +86,9 @@ internal abstract class TableFunction : ObjectFunction
 
     private ColumnHeader GetColumnHeader(IValidationContext context, int argumentIndex, MemberAccessExpression column, SourceReference reference)
     {
-        if (!ValidateColumn(context, column.VariablePath, argumentIndex, reference)) return null;
+        if (!ValidateColumn(context, column.IdentifierPath, argumentIndex, reference)) return null;
 
-        var columnHeader = Table.Header?.Get(column.VariablePath);
+        var columnHeader = Table.Header?.Get(column.IdentifierPath);
         if (columnHeader == null)
         {
             context.Logger.Fail(reference,

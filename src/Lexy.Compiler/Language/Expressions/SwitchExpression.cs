@@ -76,7 +76,7 @@ public class SwitchExpression : Expression, IParsableNode
         if (type == null || type is not ValueType && type is not EnumType)
         {
             context.Logger.Fail(Reference,
-                $"'Switch' condition expression should have a primitive or enum type. Not: '{type}'.");
+                $"'Switch' condition expression should have a value or enum type. Not: '{type}'.");
             return;
         }
 

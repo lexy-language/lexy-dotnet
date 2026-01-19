@@ -3,23 +3,23 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public sealed class VariablePathParseResult : ParseResult<IdentifierPath>
+public sealed class IdentifierPathParseResult : ParseResult<IdentifierPath>
 {
-    private VariablePathParseResult(IdentifierPath result) : base(result)
+    private IdentifierPathParseResult(IdentifierPath result) : base(result)
     {
     }
 
-    private VariablePathParseResult(bool success, string errorMessage) : base(success, errorMessage)
+    private IdentifierPathParseResult(bool success, string errorMessage) : base(success, errorMessage)
     {
     }
 
-    public static VariablePathParseResult Success(IdentifierPath result)
+    public static IdentifierPathParseResult Success(IdentifierPath result)
     {
-        return new VariablePathParseResult(result);
+        return new IdentifierPathParseResult(result);
     }
 
-    public static VariablePathParseResult Failed(string errorMessage)
+    public static IdentifierPathParseResult Failed(string errorMessage)
     {
-        return new VariablePathParseResult(false, errorMessage);
+        return new IdentifierPathParseResult(false, errorMessage);
     }
 }

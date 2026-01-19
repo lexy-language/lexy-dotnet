@@ -102,8 +102,8 @@ public class ExecutableFunction
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, parameter.Name), enumType, value, optional, validationErrors);
                 break;
-            case ValueType primitiveType:
-                ValidateType(VariablePath(name, parameter.Name), primitiveType, value, optional, validationErrors);
+            case ValueType valueType:
+                ValidateType(VariablePath(name, parameter.Name), valueType, value, optional, validationErrors);
                 break;
             case DeclaredType declaredType:
                 ValidateCustomType(VariablePath(name, parameter.Name), declaredType, value, validationErrors);
@@ -129,15 +129,14 @@ public class ExecutableFunction
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, variable.Name), enumType, value, optional, validationErrors);
                 break;
-            case ValueType primitiveType:
-                ValidateType(VariablePath(name, variable.Name), primitiveType, value, optional, validationErrors);
+            case ValueType valueType:
+                ValidateType(VariablePath(name, variable.Name), valueType, value, optional, validationErrors);
                 break;
             case GeneratedType generatedType:
                 ValidateObjectType(VariablePath(name, variable.Name), generatedType, value, validationErrors);
                 break;
             default:
-                throw new InvalidOperationException(
-                    $"Unexpected variable type: '{variable.Type?.GetType().Name}'");
+                throw new InvalidOperationException($"Unexpected variable type: '{variable.Type?.GetType().Name}'");
         }
     }
 
@@ -216,7 +215,7 @@ public class ExecutableFunction
                 return;
 
             default:
-                throw new InvalidOperationException($"Invalid primitive type: '{valueType.Type}'");
+                throw new InvalidOperationException($"Invalid value type: '{valueType.Type}'");
         }
     }
 
@@ -268,7 +267,7 @@ public class ExecutableFunction
             currentReference = currentReference.ChildrenReference();
             currentValue = field.GetValue(currentValue);
             field = GetField(currentReference.RootIdentifier, currentValue);
-            parameterType = GetTypeVariableType(parameterType, currentReference);
+            parameterType = GetParameterType(parameterType, currentReference);
         }
 
         return new ParameterSetter(parameterType, (value) => field.SetValue(currentValue, value));
@@ -276,11 +275,12 @@ public class ExecutableFunction
 
     private Type GetFunctionParameterType(IdentifierPath currentPath)
     {
-        return function.Parameters.Variables.FirstOrDefault(parameter =>
-            parameter.Name == currentPath.RootIdentifier).Type;
+        return function.Parameters.Variables
+            .FirstOrDefault(parameter => parameter.Name == currentPath.RootIdentifier)
+            .Type;
     }
 
-    private static Type GetTypeVariableType(Type parameterType, IdentifierPath currentPath)
+    private static Type GetParameterType(Type parameterType, IdentifierPath currentPath)
     {
         if (parameterType is not ObjectType objectType)
         {

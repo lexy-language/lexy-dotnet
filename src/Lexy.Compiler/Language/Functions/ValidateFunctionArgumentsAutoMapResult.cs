@@ -6,13 +6,13 @@ public class ValidateFunctionArgumentsAutoMapResult : ValidateFunctionArgumentsR
 {
     public Type ParameterType { get; }
 
-    private ValidateFunctionArgumentsAutoMapResult(Type parameterType, Type resultType): base(true)
+    private ValidateFunctionArgumentsAutoMapResult(Type parameterType): base(true)
     {
         ParameterType = parameterType;
     }
 
     public static ValidateFunctionArgumentsAutoMapResult SuccessAutoMap(Type parameterType, Type resultType)
     {
-        return new ValidateFunctionArgumentsAutoMapResult(parameterType, resultType);
+        return new ValidateFunctionArgumentsAutoMapResult(parameterType);
     }
 }

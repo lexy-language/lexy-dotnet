@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
 
-public abstract class ObjectType : Type, IObjectType
+public abstract class ObjectType : Type
 {
     private readonly Lazy<IEnumerable<IObjectMember>> members;
 
@@ -40,7 +40,7 @@ public abstract class ObjectType : Type, IObjectType
 
     public override bool IsAssignableFrom(Type type)
     {
-        return type is IObjectType otherObjectType
+        return type is ObjectType otherObjectType
             && otherObjectType.GetType() == GetType()
             && otherObjectType.Name == Name;
     }

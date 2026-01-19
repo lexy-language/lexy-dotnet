@@ -3,11 +3,11 @@ using Shouldly;
 
 namespace Lexy.Tests.Parser;
 
-internal static class VariableTypeExtensions
+internal static class TypeExtensions
 {
-    public static void ShouldBePrimitiveType(this TypeDeclaration type, string name)
+    public static void ShouldBeValueType(this TypeDeclaration type, string name)
     {
-        type.ShouldBeOfType<PrimitiveTypeDeclaration>()
+        type.ShouldBeOfType<ValueTypeDeclaration>()
             .TypeName.ShouldBe(name);
     }
 }

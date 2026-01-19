@@ -10,10 +10,10 @@ public abstract class TypeDeclaration : Node
     {
     }
 
-    protected abstract Type ValidateVariableType(IValidationContext context);
+    protected abstract Type ValidateType(IValidationContext context);
 
     protected override void Validate(IValidationContext context)
     {
-        Type = ValidateVariableType(context);
+        Type = ValidateType(context);
     }
 }

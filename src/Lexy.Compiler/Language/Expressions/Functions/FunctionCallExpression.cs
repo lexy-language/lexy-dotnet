@@ -4,8 +4,10 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
 
-public abstract class FunctionCallExpression : Expression
+public abstract class FunctionCallExpression : Expression, INodeWithName
 {
+    public abstract string Name { get; }
+
     internal FunctionCallExpression(ExpressionSource source)
         : base(source, source.CreateReference())
     {

@@ -19,7 +19,7 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
 
     public GeneratedType Type { get; private set; }
 
-    public string Name => FunctionName;
+    public override string Name => FunctionName;
 
     private NewFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)

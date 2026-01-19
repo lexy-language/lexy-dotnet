@@ -182,8 +182,8 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
         foreach (var result in definitions)
         {
-            var variableType = result.TypeDeclaration.Type;
-            context.VariableContext.AddVariable(result.Name, variableType, source);
+            var type = result.TypeDeclaration.Type;
+            context.VariableContext.AddVariable(result.Name, type, source);
         }
     }
 

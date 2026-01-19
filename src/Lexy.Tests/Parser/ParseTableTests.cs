@@ -21,9 +21,9 @@ public class ParseTableTests : ScopedServicesTestFixture
         table.Name.ShouldBe("TestTable");
         table.Header.Columns.Count.ShouldBe(2);
         table.Header.Columns[0].Name.ShouldBe("Value");
-        table.Header.Columns[0].TypeDeclaration.ShouldBePrimitiveType(TypeNames.Number);
+        table.Header.Columns[0].TypeDeclaration.ShouldBeValueType(TypeNames.Number);
         table.Header.Columns[1].Name.ShouldBe("Result");
-        table.Header.Columns[1].TypeDeclaration.ShouldBePrimitiveType(TypeNames.String);
+        table.Header.Columns[1].TypeDeclaration.ShouldBeValueType(TypeNames.String);
         table.Rows.Count.ShouldBe(2);
         table.Rows[0].Values[0].Expression.ValidateNumericLiteralExpression(7);
         table.Rows[0].Values[1].Expression.ValidateQuotedLiteralExpression("Test quoted");
@@ -44,9 +44,9 @@ public class ParseTableTests : ScopedServicesTestFixture
         table.Name.ShouldBe("TestTable");
         table.Header.Columns.Count.ShouldBe(2);
         table.Header.Columns[0].Name.ShouldBe("Value");
-        table.Header.Columns[0].TypeDeclaration.ShouldBePrimitiveType(TypeNames.Date);
+        table.Header.Columns[0].TypeDeclaration.ShouldBeValueType(TypeNames.Date);
         table.Header.Columns[1].Name.ShouldBe("Result");
-        table.Header.Columns[1].TypeDeclaration.ShouldBePrimitiveType(TypeNames.Boolean);
+        table.Header.Columns[1].TypeDeclaration.ShouldBeValueType(TypeNames.Boolean);
         table.Rows.Count.ShouldBe(2);
         table.Rows[0].Values[0].Expression.ValidateDateTimeLiteralExpression("2024-12-18T17:07:45");
         table.Rows[0].Values[1].Expression.ValidateBooleanLiteralExpression(false);

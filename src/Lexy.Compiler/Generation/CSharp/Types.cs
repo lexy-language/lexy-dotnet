@@ -66,7 +66,7 @@ internal static class Types
     {
         return type switch
         {
-            ValueType primitive => Syntax(primitive.Type),
+            ValueType value => Syntax(value.Type),
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Name)),
             TableType tableType => IdentifierName(tableType.Name),
             DeclaredType declaredType => DeclaredTypeSyntax(declaredType),
@@ -100,7 +100,7 @@ internal static class Types
     {
         return typeDeclaration switch
         {
-            PrimitiveTypeDeclaration primitive => Syntax(primitive.Type),
+            ValueTypeDeclaration value => Syntax(value.Type),
             ObjectTypeDeclaration objectDeclararion => IdentifierNameSyntax(objectDeclararion),
             ImplicitTypeDeclaration implicitVariable => Syntax(implicitVariable.Type),
             _ => throw new InvalidOperationException("Couldn't map type: " + typeDeclaration)
@@ -109,13 +109,13 @@ internal static class Types
 
     private static TypeSyntax IdentifierNameSyntax(ObjectTypeDeclaration objectType)
     {
-        return ((TypeDeclaration)objectType).Type switch
+        return objectType.Type switch
         {
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Name)),
             TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.Name)),
             DeclaredType declaredType => IdentifierName(ClassNames.TypeClassName(declaredType.Name)),
             GeneratedType generatedType => ObjectTypeIdentifierNameSyntax(generatedType),
-            _ => throw new InvalidOperationException("Couldn't map type: " + ((TypeDeclaration)objectType).Type)
+            _ => throw new InvalidOperationException($"Couldn't map type: {objectType.Type}")
         };
     }
 
@@ -140,28 +140,28 @@ internal static class Types
     {
         return typeDeclaration switch
         {
-            PrimitiveTypeDeclaration expression => PrimitiveTypeDefaultExpression(expression),
+            ValueTypeDeclaration expression => ValueTypeDefaultExpression(expression),
             ObjectTypeDeclaration declaredType => DefaultExpressionSyntax(declaredType),
             _ => throw new InvalidOperationException(
                 $"Wrong VariableDeclarationType {typeDeclaration.GetType()}")
         };
     }
 
-    private static ExpressionSyntax DefaultExpressionSyntax(ObjectTypeDeclaration @object)
+    private static ExpressionSyntax DefaultExpressionSyntax(ObjectTypeDeclaration objectType)
     {
-        if (((TypeDeclaration)@object).Type is DeclaredType)
+        if (objectType.Type is DeclaredType)
         {
-            return ObjectCreationExpression(IdentifierNameSyntax(@object)).WithArgumentList(ArgumentList());
+            return ObjectCreationExpression(IdentifierNameSyntax(objectType)).WithArgumentList(ArgumentList());
         }
 
-        if (((TypeDeclaration)@object).Type is GeneratedType)
+        if (objectType.Type is GeneratedType)
         {
-            return ObjectCreationExpression(IdentifierNameSyntax(@object)).WithArgumentList(ArgumentList());
+            return ObjectCreationExpression(IdentifierNameSyntax(objectType)).WithArgumentList(ArgumentList());
         }
-        return DefaultExpression(IdentifierNameSyntax(@object));
+        return DefaultExpression(IdentifierNameSyntax(objectType));
     }
 
-    private static ExpressionSyntax PrimitiveTypeDefaultExpression(PrimitiveTypeDeclaration type)
+    private static ExpressionSyntax ValueTypeDefaultExpression(ValueTypeDeclaration type)
     {
         switch (type.TypeName)
         {

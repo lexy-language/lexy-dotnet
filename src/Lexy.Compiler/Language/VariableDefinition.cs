@@ -52,12 +52,15 @@ public class VariableDefinition : Node, IHasNodeDependencies
         }
 
         var name = tokens.TokenValue(1);
-        var type = tokens.TokenValue(0);
+        var typeToken = tokens.TokenValue(0);
 
-        var variableType = VariableDeclarationTypeParser.Parse(type, line.TokenReference(0));
-        if (variableType == null) return null;
+        var type = TypeDeclarationParser.Parse(typeToken, line.TokenReference(0));
+        if (type == null) return null;
 
-        if (tokens.Length == 2) return new VariableDefinition(name, variableType, source, line.LineStartReference());
+        if (tokens.Length == 2)
+        {
+            return new VariableDefinition(name, type, source, line.LineStartReference());
+        }
 
         if (tokens.Token<OperatorToken>(2).Type != OperatorType.Assignment)
         {
@@ -75,7 +78,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
         var defaultValue = context.ExpressionFactory.Parse(tokens.TokensFrom(3), line);
         if (context.Failed(defaultValue, line.TokenReference(3))) return null;
 
-        return new VariableDefinition(name, variableType, source, line.LineStartReference(), defaultValue.Result);
+        return new VariableDefinition(name, type, source, line.LineStartReference(), defaultValue.Result);
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -5,7 +5,7 @@ using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
 
-public abstract class ObjectFunction : IObjectMember, IObjectTypeFunction
+public abstract class ObjectFunction : IObjectMember, IObjectFunction
 {
     public string Name { get; }
     public Type Type { get; }

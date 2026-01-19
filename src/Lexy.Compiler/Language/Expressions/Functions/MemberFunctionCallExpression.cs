@@ -13,6 +13,8 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
     public IReadOnlyList<Expression> Arguments { get; }
     public IMemberFunctionCall FunctionCall { get; private set; }
 
+    public override string Name => FunctionPath.LastPart();
+
     public MemberFunctionCallExpression(IdentifierPath functionPath, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
         FunctionPath = Assert.NotNull(functionPath, nameof(functionPath));
@@ -51,30 +53,30 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         FunctionCall = result.FunctionCall;
     }
 
-    private IObjectTypeFunction GetFunction(IValidationContext context)
+    private IObjectFunction GetFunction(IValidationContext context)
     {
-        var variable = context.VariableContext.GetVariableType(FunctionPath.WithoutLastPart());
+        var variable = context.VariableContext.GetType(FunctionPath.WithoutLastPart());
         if (variable != null)
         {
-            return GetVariableTypeFunction(context, variable);
+            return GetTypeFunction(context, variable);
         }
 
         var type = context.ComponentNodes.GetType(FunctionPath.RootIdentifier);
         if (type != null)
         {
-            return GetVariableTypeFunction(context, type);
+            return GetTypeFunction(context, type);
         }
         return GetLibraryFunction(context);
     }
 
-    private IObjectTypeFunction GetVariableTypeFunction(IValidationContext context, Type variable)
+    private IObjectFunction GetTypeFunction(IValidationContext context, Type variable)
     {
-        return variable is not IObjectType typeWithMember
+        return variable is not ObjectType typeWithMember
             ? null
             : typeWithMember.GetFunction(FunctionPath.LastPart());
     }
 
-    private IObjectTypeFunction GetLibraryFunction(IValidationContext context)
+    private IObjectFunction GetLibraryFunction(IValidationContext context)
     {
         var library = context.Libraries.GetLibrary(FunctionPath.WithoutLastPart());
         return library?.GetFunction(FunctionPath.LastPart());

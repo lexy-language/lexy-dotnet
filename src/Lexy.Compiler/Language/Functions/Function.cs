@@ -92,9 +92,9 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     {
         foreach (var parameter in variableDefinitions)
         {
-            if (parameter.TypeDeclaration is not ObjectTypeDeclaration objectVariableType) continue;
+            if (parameter.TypeDeclaration is not ObjectTypeDeclaration objectType) continue;
 
-            var dependency = objectVariableType.GetNode(componentNodes);
+            var dependency = objectType.GetNode(componentNodes);
             if (dependency != null)
             {
                 result.Add(dependency);
@@ -206,8 +206,14 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     private FunctionSignature InlineParametersArgumentsFunction()
     {
-        var parameters = Parameters.Variables.Select(parameter => parameter.Type).ToList();
-        return new FunctionSignature(parameters, GetResultsType());
+        var parameters = GetParametersTypes();
+        var resultsType = GetResultsType();
+        return new FunctionSignature(parameters, resultsType);
+    }
+
+    private List<Type> GetParametersTypes()
+    {
+        return Parameters.Variables.Select(parameter => parameter.Type).ToList();
     }
 
     private IReadOnlyList<Type> GetArgumentTypes(IReadOnlyList<Expression> arguments, IValidationContext context)

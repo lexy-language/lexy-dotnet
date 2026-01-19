@@ -4,12 +4,12 @@ namespace Lexy.RunTime;
 
 public class LogVariable
 {
-    public LogVariableType Type { get; }
+    public LogType Type { get; }
     public object Value { get; }
 
-    public LogVariables LogVariables => Type == LogVariableType.LogVariables ? Value as LogVariables : null;
+    public LogVariables LogVariables => Type == LogType.LogVariables ? Value as LogVariables : null;
 
-    public LogVariable(object value, LogVariableType type)
+    public LogVariable(object value, LogType type)
     {
         Value = value;
         Type = type;

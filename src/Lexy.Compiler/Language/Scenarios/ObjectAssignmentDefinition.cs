@@ -40,11 +40,11 @@ public class ObjectAssignmentDefinition : ParsableNode, IAssignmentDefinition
             context.Logger.Fail(Reference, $"Variable '{Variable}' not found.");
         }
 
-        var variableType = context.VariableContext.GetVariableType(Variable);
-        if (variableType is not DeclaredType && variableType is not GeneratedType)
+        var type = context.VariableContext.GetType(Variable);
+        if (type is not DeclaredType && type is not GeneratedType)
         {
             context.Logger.Fail(Reference,
-                $"Variable '{Variable}' without assignment should be an object type, but is '{variableType}'.");
+                $"Variable '{Variable}' without assignment should be an object type, but is '{type}'.");
         }
     }
 

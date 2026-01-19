@@ -49,6 +49,6 @@ public class ValueType : Type
         if (type == typeof(double)) return Number;
         if (type == typeof(decimal)) return Number;
         if (type == typeof(DateTime)) return Date;
-        throw new InvalidOperationException($"Invalid primitive type: '{type.Namespace}.{type.Name}'");
+        throw new InvalidOperationException($"Invalid value type: '{type.Namespace}.{type.Name}'");
     }
 }

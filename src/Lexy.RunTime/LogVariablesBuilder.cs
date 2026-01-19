@@ -20,24 +20,24 @@ public class LogVariablesBuilder
         switch (value)
         {
             case DateTime:
-                return new LogVariable(value, LogVariableType.Date);
+                return new LogVariable(value, LogType.Date);
             case decimal:
-                return new LogVariable(value, LogVariableType.Number);
+                return new LogVariable(value, LogType.Number);
             case bool:
-                return new LogVariable(value, LogVariableType.Boolean);
+                return new LogVariable(value, LogType.Boolean);
             case string:
-                return new LogVariable(value, LogVariableType.String);
+                return new LogVariable(value, LogType.String);
         }
 
         if (value.GetType().IsEnum)
         {
-            return new LogVariable(value, LogVariableType.Enum);
+            return new LogVariable(value, LogType.Enum);
         }
         if (value.GetType().IsValueType)
         {
             throw new InvalidOperationException($"Invalid variable type: '{value.GetType().Name}'");
         }
-        return new LogVariable(CreateVariables(value), LogVariableType.LogVariables);
+        return new LogVariable(CreateVariables(value), LogType.LogVariables);
     }
 
     private LogVariables CreateVariables(object value)

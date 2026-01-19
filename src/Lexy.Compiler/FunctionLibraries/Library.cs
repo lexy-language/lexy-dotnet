@@ -19,7 +19,7 @@ public class Library : ILibrary
         this.functions = functions;
     }
 
-    public IObjectTypeFunction GetFunction(string identifier)
+    public IObjectFunction GetFunction(string identifier)
     {
         return functions.TryGetValue(identifier, out var libraryFunction) ? libraryFunction : null;
     }

@@ -26,7 +26,7 @@ public static class AssignmentDefinitionParser
         var targetExpression = context.ExpressionFactory.Parse(targetTokens, line);
         if (context.Failed(targetExpression, reference)) return null;
 
-        var variableReference = VariablePathExpressionParser.Parse(targetExpression.Result);
+        var variableReference = IdentifierPathExpressionParser.Parse(targetExpression.Result);
         if (context.Failed(variableReference, reference)) return null;
 
         if (assignmentIndex == tokens.Length - 1) {
@@ -46,21 +46,21 @@ public static class AssignmentDefinitionParser
     private static TokenList AddParentVariableAccessor(IdentifierPath parentVariable, TokenList targetTokens)
     {
         if (targetTokens.Length != 1) return targetTokens;
-        var variablePath = GetVariablePath(targetTokens);
-        if (variablePath == null) return targetTokens;
+        var identifierPath = GetIdentifierPath(targetTokens);
+        if (identifierPath == null) return targetTokens;
 
-        var newPath = parentVariable.Append(variablePath.Parts).FullPath();
-        var newToken = new MemberAccessLiteralToken(newPath, variablePath.FirstCharacter);
+        var newPath = parentVariable.Append(identifierPath.Parts).FullPath();
+        var newToken = new MemberAccessLiteralToken(newPath, identifierPath.FirstCharacter);
         return new TokenList(new Token[] {newToken});
     }
-    private record TokenVariablePath(string[] Parts, TokenCharacter FirstCharacter);
+    private record TokenIdentifierPath(string[] Parts, TokenCharacter FirstCharacter);
 
-    private static TokenVariablePath GetVariablePath(TokenList targetTokens)
+    private static TokenIdentifierPath GetIdentifierPath(TokenList targetTokens)
     {
         return targetTokens[0] switch
         {
-            MemberAccessLiteralToken memberAccess => new TokenVariablePath(memberAccess.Parts, memberAccess.FirstCharacter),
-            StringLiteralToken literal => new TokenVariablePath(new[] { literal.Value }, literal.FirstCharacter),
+            MemberAccessLiteralToken memberAccess => new TokenIdentifierPath(memberAccess.Parts, memberAccess.FirstCharacter),
+            StringLiteralToken literal => new TokenIdentifierPath(new[] { literal.Value }, literal.FirstCharacter),
             _ => null
         };
     }

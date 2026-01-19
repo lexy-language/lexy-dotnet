@@ -10,7 +10,7 @@ public sealed class ImplicitTypeDeclaration : TypeDeclaration
     {
     }
 
-    protected override Type ValidateVariableType(IValidationContext context)
+    protected override Type ValidateType(IValidationContext context)
     {
         throw new InvalidOperationException("Not supported. Nodes should be Validated first.");
     }

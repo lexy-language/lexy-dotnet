@@ -17,7 +17,7 @@ public class Mapping
 
     public VariableUsage ToUsedVariable(VariableAccess access)
     {
-        var variablePath = IdentifierPath.Parse(VariableName);
-        return new VariableUsage(variablePath, null, Type, VariableSource, access);
+        var identifierPath = IdentifierPath.Parse(VariableName);
+        return new VariableUsage(identifierPath, null, Type, VariableSource, access);
     }
 }

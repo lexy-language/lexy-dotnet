@@ -25,7 +25,7 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 
     public IEnumerable<Mapping> Mapping => mapping;
 
-    public string Name => FunctionName;
+    public override string Name => FunctionName;
 
     private FillParametersFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)

@@ -25,13 +25,13 @@ public class MemberAccessLiteralToken : Token, ILiteralToken
     public Type DeriveType(IValidationContext context)
     {
         var variableReference = new IdentifierPath(Parts);
-        var variableType = context.VariableContext.GetVariableType(variableReference);
-        if (variableType != null) return variableType;
+        var type = context.VariableContext.GetType(variableReference);
+        if (type != null) return type;
 
         if (Parts.Length != 2) return null;
 
         var componentType = context.ComponentNodes.GetType(Parent);
-        return componentType is IObjectType objectType
+        return componentType is ObjectType objectType
             ? objectType.MemberType(Member)
             : null;
     }

@@ -1,6 +1,6 @@
 namespace Lexy.RunTime;
 
-public enum LogVariableType
+public enum LogType
 {
     Date,
     String,

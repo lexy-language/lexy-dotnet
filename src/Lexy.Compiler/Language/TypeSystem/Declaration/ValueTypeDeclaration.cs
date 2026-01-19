@@ -4,16 +4,16 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
 
-public sealed class PrimitiveTypeDeclaration : TypeDeclaration
+public sealed class ValueTypeDeclaration : TypeDeclaration
 {
     public string TypeName { get; }
 
-    public PrimitiveTypeDeclaration(string type, SourceReference reference) : base(reference)
+    public ValueTypeDeclaration(string type, SourceReference reference) : base(reference)
     {
         TypeName = Assert.NotNull(type, nameof(type));
     }
 
-    protected bool Equals(PrimitiveTypeDeclaration other)
+    protected bool Equals(ValueTypeDeclaration other)
     {
         return TypeName == other.TypeName;
     }
@@ -23,7 +23,7 @@ public sealed class PrimitiveTypeDeclaration : TypeDeclaration
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((PrimitiveTypeDeclaration)obj);
+        return Equals((ValueTypeDeclaration)obj);
     }
 
     public override int GetHashCode()
@@ -36,7 +36,7 @@ public sealed class PrimitiveTypeDeclaration : TypeDeclaration
         return TypeName;
     }
 
-    protected override Type ValidateVariableType(IValidationContext context)
+    protected override Type ValidateType(IValidationContext context)
     {
         return new ValueType(TypeName);
     }

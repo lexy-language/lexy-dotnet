@@ -16,36 +16,36 @@ internal static class TypeConverter
         Assert.NotNull(value, nameof(value));
         Assert.NotNull(type, nameof(type));
 
-        if (type is EnumType enumVariableType)
+        if (type is EnumType enumType)
         {
-            return ConvertEnum(compilationResult, value, enumVariableType);
+            return ConvertEnum(compilationResult, value, enumType);
         }
 
-        if (type is ValueType primitiveVariableType)
+        if (type is ValueType valueType)
         {
-            return ConvertPrimitive(value, primitiveVariableType);
+            return ConvertValue(value, valueType);
         }
 
         throw new InvalidOperationException($"Invalid type: '{type}'");
     }
 
-    private static object ConvertPrimitive(object value, ValueType valueVariableType)
+    private static object ConvertValue(object value, ValueType valueType)
     {
         var valueAsString = value.ToString();
-        return valueVariableType.Type switch
+        return valueType.Type switch
         {
             TypeNames.Number => value as decimal? ?? decimal.Parse(valueAsString, CultureInfo.InvariantCulture),
             TypeNames.Date => value as DateTime? ?? DateTime.Parse(valueAsString, CultureInfo.InvariantCulture),
             TypeNames.Boolean => value as bool? ?? bool.Parse(valueAsString),
             TypeNames.String => value,
-            _ => throw new InvalidOperationException($"Invalid type: '{valueVariableType.Type}'")
+            _ => throw new InvalidOperationException($"Invalid type: '{valueType.Type}'")
         };
     }
 
-    private static object ConvertEnum(ICompilationResult compilationResult, object value, EnumType enumVariableType)
+    private static object ConvertEnum(ICompilationResult compilationResult, object value, EnumType enumDefinitionType)
     {
-        var enumType = compilationResult.GetEnumType(enumVariableType.Name);
-        if (enumType == null) throw new InvalidOperationException($"Unknown enum: {enumVariableType.Name}");
+        var enumType = compilationResult.GetEnumType(enumDefinitionType.Name);
+        if (enumType == null) throw new InvalidOperationException($"Unknown enum: {enumType.Name}");
 
         var enumValueName = value.ToString();
         var indexOfSeparator = enumValueName.IndexOf(".", StringComparison.InvariantCulture);

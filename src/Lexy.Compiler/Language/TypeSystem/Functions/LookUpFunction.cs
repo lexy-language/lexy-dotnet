@@ -42,7 +42,7 @@ internal class LookUpFunction : TableFunction
             return null;
         }
 
-        var column = Table.Header?.Get(columnExpression.VariablePath);
+        var column = Table.Header?.Get(columnExpression.IdentifierPath);
         return column?.TypeDeclaration.Type;
     }
 

@@ -13,8 +13,8 @@ public interface IVariableContext
     bool Contains(string variableName);
     bool Contains(IdentifierPath path);
 
-    Type GetVariableType(string variableName);
-    Type GetVariableType(IdentifierPath path);
+    Type GetType(string variableName);
+    Type GetType(IdentifierPath path);
 
     VariableEntry GetVariable(string variableName);
 

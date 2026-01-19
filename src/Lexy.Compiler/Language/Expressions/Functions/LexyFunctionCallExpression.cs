@@ -17,6 +17,8 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
 
     public LexyFunctionCallState State { get; private set; }
 
+    public override string Name => FunctionName;
+
     public LexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
     {
         FunctionName = Assert.NotNull(functionName, nameof(functionName));

@@ -14,7 +14,7 @@ using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.FunctionLibraries;
 
-internal class LibraryFunction : IObjectTypeFunction
+internal class LibraryFunction : IObjectFunction
 {
     private readonly MemberInfo functionInfo;
     private readonly Type returnType;

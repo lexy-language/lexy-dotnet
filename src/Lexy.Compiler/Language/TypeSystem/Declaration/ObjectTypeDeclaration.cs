@@ -31,7 +31,7 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
 
     public override int GetHashCode()
     {
-        return Type != null ? Type.GetHashCode() : 0;
+        return TypeName != null ? TypeName.GetHashCode() : 0;
     }
 
     public override string ToString()
@@ -41,17 +41,17 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        var type = GetVariableType(componentNodes);
-        if (type is IObjectType objectType)
+        var type = GetType(componentNodes);
+        if (type is ObjectType objectType)
         {
             return objectType.GetDependencies(componentNodes);
         }
         return Array.Empty<IComponentNode>();
     }
 
-    protected override Type ValidateVariableType(IValidationContext context)
+    protected override Type ValidateType(IValidationContext context)
     {
-        var type = GetVariableType(context.ComponentNodes);
+        var type = GetType(context.ComponentNodes);
         if (type == null)
         {
             context.Logger.Fail(Reference, $"Invalid type: '{TypeName}'");
@@ -59,7 +59,7 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
         return type;
     }
 
-    private Type GetVariableType(IComponentNodeList componentNodes)
+    private Type GetType(IComponentNodeList componentNodes)
     {
         if (!TypeName.Contains('.'))
         {

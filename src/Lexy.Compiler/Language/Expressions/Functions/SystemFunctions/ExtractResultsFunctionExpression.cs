@@ -7,7 +7,7 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class ExtractResultsFunctionExpression : FunctionCallExpression, INodeWithName
+public class ExtractResultsFunctionExpression : FunctionCallExpression
 {
     public const string FunctionName = "extract";
 
@@ -18,7 +18,7 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression, INodeWit
 
     public VariablesMapping Mapping { get; private set; }
 
-    public string Name => FunctionName;
+    public override string Name => FunctionName;
 
     private ExtractResultsFunctionExpression(Expression valueExpression, ExpressionSource source)
         : base(source)
@@ -40,14 +40,14 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression, INodeWit
             return;
         }
 
-        var variableType = context.VariableContext.GetVariableType(FunctionResultVariable);
-        if (variableType == null)
+        var type = context.VariableContext.GetType(FunctionResultVariable);
+        if (type == null)
         {
             context.Logger.Fail(Reference, $"Unknown variable: '{FunctionResultVariable}'. {FunctionHelp}");
             return;
         }
 
-        var generatedType = variableType as GeneratedType;
+        var generatedType = type as GeneratedType;
         if (generatedType == null)
         {
             context.Logger.Fail(Reference,

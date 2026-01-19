@@ -29,7 +29,7 @@ public class VariableDeclarationExpression : Expression
         if (!IsValid(tokens))
             return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
 
-        var type = VariableDeclarationTypeParser.Parse(tokens.TokenValue(0), source.CreateReference());
+        var type = TypeDeclarationParser.Parse(tokens.TokenValue(0), source.CreateReference());
         var name = tokens.TokenValue(1);
         var assignment = tokens.Length > 3
             ? factory.Parse(tokens.TokensFrom(3), source.Line)
@@ -78,20 +78,20 @@ public class VariableDeclarationExpression : Expression
             context.Logger.Fail(Reference, "Invalid expression. Could not derive type.");
         }
 
-        var variableType = GetVariableType(context, assignmentType);
-        if (variableType == null)
+        var type = GetType(context, assignmentType);
+        if (type == null)
         {
             context.Logger.Fail(Reference, $"Invalid variable type '{TypeDeclaration}'");
         }
 
-        context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, variableType, VariableSource.Code);
+        context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, type, VariableSource.Code);
     }
 
-    private Type GetVariableType(IValidationContext context, Type assignmentType)
+    private Type GetType(IValidationContext context, Type assignmentType)
     {
-        if (TypeDeclaration is ImplicitTypeDeclaration implicitVariableType)
+        if (TypeDeclaration is ImplicitTypeDeclaration implicitType)
         {
-            implicitVariableType.Define(assignmentType);
+            implicitType.Define(assignmentType);
             return assignmentType;
         }
 
