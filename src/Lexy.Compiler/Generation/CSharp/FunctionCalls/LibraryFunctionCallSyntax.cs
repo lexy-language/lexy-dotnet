@@ -14,11 +14,11 @@ namespace Lexy.Compiler.Generation.CSharp.FunctionCalls;
 
 internal static class LibraryFunctionCallSyntax
 {
-    public static bool Matches(MemberFunctionCallExpression expression) => expression.FunctionCall is LibraryFunctionCall;
+    public static bool Matches(MemberFunctionCallExpression expression) => expression.State is LibraryFunctionCallState;
 
     public static ExpressionSyntax Create(MemberFunctionCallExpression expression)
     {
-        var functionCall = expression.FunctionCall as LibraryFunctionCall
+        var functionCall = expression.State as LibraryFunctionCallState
             ?? throw new InvalidOperationException("expression.FunctionCall should not be null.");
 
         return CallFunction(functionCall.FullTypeName, expression.Arguments);

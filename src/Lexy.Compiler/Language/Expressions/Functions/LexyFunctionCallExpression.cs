@@ -5,6 +5,8 @@ using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -100,5 +102,10 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
             result = result.Union(State.ParametersMapping.UsedVariables(VariableAccess.Read));
         }
         return result;
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, $"function: {Name}", string.Empty, SymbolKind.Function);
     }
 }

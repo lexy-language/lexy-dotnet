@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -35,4 +37,6 @@ public class FunctionName : Node
     {
         return string.IsNullOrEmpty(Value);
     }
+
+    public override Symbol GetSymbol() => null;
 }

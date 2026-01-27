@@ -4,14 +4,14 @@ namespace Lexy.Compiler.Language.TypeSystem.Functions;
 
 public class ValidateMemberFunctionArgumentsResult
 {
-    private readonly IMemberFunctionCall functionCall;
+    private readonly IFunctionCallState functionCallState;
 
-    public IMemberFunctionCall FunctionCall
+    public IFunctionCallState FunctionCallState
     {
         get
         {
             if (!IsSuccess) throw new InvalidOperationException($"Can't get FunctionCall, IsSuccess: {IsSuccess}");
-            return functionCall;
+            return functionCallState;
         }
     }
 
@@ -22,10 +22,10 @@ public class ValidateMemberFunctionArgumentsResult
         IsSuccess = isSuccess;
     }
 
-    private ValidateMemberFunctionArgumentsResult(bool isSuccess, IMemberFunctionCall functionCall)
+    private ValidateMemberFunctionArgumentsResult(bool isSuccess, IFunctionCallState functionCallState)
     {
         IsSuccess = isSuccess;
-        this.functionCall = functionCall;
+        this.functionCallState = functionCallState;
     }
 
     public static ValidateMemberFunctionArgumentsResult Failed()
@@ -33,8 +33,8 @@ public class ValidateMemberFunctionArgumentsResult
         return new ValidateMemberFunctionArgumentsResult(false);
     }
 
-    public static ValidateMemberFunctionArgumentsResult Success(IMemberFunctionCall functionCall)
+    public static ValidateMemberFunctionArgumentsResult Success(IFunctionCallState functionCallState)
     {
-        return new ValidateMemberFunctionArgumentsResult(true, functionCall);
+        return new ValidateMemberFunctionArgumentsResult(true, functionCallState);
     }
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -84,4 +86,6 @@ public class BracketedExpression : Expression
     {
         return Expression.DeriveType(context);
     }
+
+    public override Symbol GetSymbol() => null;
 }

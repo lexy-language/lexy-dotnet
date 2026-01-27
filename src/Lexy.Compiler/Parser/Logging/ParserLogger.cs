@@ -5,7 +5,7 @@ using Lexy.Compiler.Language;
 using Lexy.RunTime;
 using Microsoft.Extensions.Logging;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Logging;
 
 public class ParserLogger : IParserLogger
 {
@@ -70,10 +70,9 @@ public class ParserLogger : IParserLogger
     {
         if (!logger.IsEnabled(LogLevel.Debug)) return;
 
-        var nodeLogger = new NodesLogger();
-        nodeLogger.Log(nodes);
+        var nodesLog = NodesLogger.Log(nodes);
 
-        logger.LogDebug("Parsed nodes: {Nodes}", nodeLogger.ToString());
+        logger.LogDebug("Parsed nodes: {Nodes}", nodesLog);
     }
 
     public bool HasErrorMessage(string expectedError)

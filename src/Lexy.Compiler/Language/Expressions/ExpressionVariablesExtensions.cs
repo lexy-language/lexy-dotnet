@@ -11,8 +11,9 @@ public static class ExpressionVariablesExtensions
         var reference = hasVariableReference.Variable;
         if (reference != null)
         {
-            var usage = new VariableUsage(reference.Path, reference.ComponentType, reference.Type, reference.Source,
-                VariableAccess.Read);
+            var usage = new VariableUsage(reference.Reference, reference.Path,
+                reference.ComponentType, reference.Type,
+                reference.Source, VariableAccess.Read);
             results.Add(usage);
         }
     }

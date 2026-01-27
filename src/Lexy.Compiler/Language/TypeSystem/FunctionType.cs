@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.TypeSystem.Objects;
+using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem;
 
@@ -35,5 +37,15 @@ public class FunctionType : ObjectType
             new ObjectNestedType(Function.ParameterName, Function.GetParametersType()),
             new ObjectNestedType(Function.ResultsName, Function.GetResultsType())
         };
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    public override Symbol GetSymbol(SourceReference reference)
+    {
+        return new Symbol(reference, $"function: {Name}", string.Empty, SymbolKind.Type);
     }
 }

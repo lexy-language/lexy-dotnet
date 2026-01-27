@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.TypeSystem.Functions;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
@@ -11,7 +13,7 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
 {
     public IdentifierPath FunctionPath { get; }
     public IReadOnlyList<Expression> Arguments { get; }
-    public IMemberFunctionCall FunctionCall { get; private set; }
+    public IFunctionCallState State { get; private set; }
 
     public override string Name => FunctionPath.LastPart();
 
@@ -48,9 +50,12 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         }
 
         var result = function.ValidateArguments(context, Arguments, Reference);
-        if (!result.IsSuccess) return;
+        if (!result.IsSuccess)
+        {
+            return;
+        }
 
-        FunctionCall = result.FunctionCall;
+        State = result.FunctionCallState;
     }
 
     private IObjectFunction GetFunction(IValidationContext context)
@@ -86,5 +91,10 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
     {
         var function = GetFunction(context);
         return function?.GetResultsType(Arguments);
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return State?.GetSymbol();
     }
 }

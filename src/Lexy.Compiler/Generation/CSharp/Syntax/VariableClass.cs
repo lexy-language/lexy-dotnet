@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language;
@@ -18,7 +19,7 @@ public static class VariableClass
 
     private static IEnumerable<MemberDeclarationSyntax> Syntax(IReadOnlyList<VariableDefinition> variables)
     {
-        return variables.Select(VariableSyntax);
+        return variables != null? variables.Select(VariableSyntax) : Array.Empty<MemberDeclarationSyntax>();
     }
 
     private static FieldDeclarationSyntax VariableSyntax(VariableDefinition variable)

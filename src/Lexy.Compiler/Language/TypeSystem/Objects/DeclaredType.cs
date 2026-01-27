@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Types;
+using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
 
@@ -37,5 +39,15 @@ public class DeclaredType : ObjectType
         return TypeDefinition.Variables
             .Select(variable => new ObjectVariable(variable.Name, variable.TypeDeclaration.Type))
             .ToArray();
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    public override Symbol GetSymbol(SourceReference reference)
+    {
+        return new Symbol(reference, $"type: {Name}", string.Empty, SymbolKind.Type);
     }
 }

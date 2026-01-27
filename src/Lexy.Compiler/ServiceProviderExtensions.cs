@@ -18,7 +18,6 @@ public static class ServiceProviderExtensions
     {
         return services.Singleton<ILexyParser, LexyParser>()
 
-            .Singleton<ISourceCodeDocument, SourceCodeDocument>()
             .Singleton<ITokenizer, Tokenizer>()
             .Singleton<IExpressionFactory, ExpressionFactory>()
 

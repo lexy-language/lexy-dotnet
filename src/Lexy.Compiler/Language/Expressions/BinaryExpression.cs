@@ -3,6 +3,8 @@ using System.Linq;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -38,7 +40,7 @@ public class BinaryExpression : Expression
 
     private static Type EnumType()
     {
-        var definition = new EnumDefinition("*", false, new SourceReference(new SourceFile("*"), 1, 1));
+        var definition = new EnumDefinition("*", false, new SourceReference("*", 1, 1, 1));
         return new EnumType(definition);
     }
 
@@ -167,7 +169,7 @@ public class BinaryExpression : Expression
         if (!right.IsSuccess) return left;
 
         var operatorValue = lowestPriorityOperation.ExpressionOperator;
-        var reference = source.CreateReference(lowestPriorityOperation.Index);
+        var reference = source.CreateReference(); /// TODO lowestPriorityOperation.Index);
 
         var binaryExpression = new BinaryExpression(left.Result, right.Result, operatorValue, source, reference);
         return ParseExpressionResult.Success(binaryExpression);
@@ -305,4 +307,6 @@ public class BinaryExpression : Expression
 
         return left.Equals(right) ? left : null;
     }
+
+    public override Symbol GetSymbol() => null;
 }

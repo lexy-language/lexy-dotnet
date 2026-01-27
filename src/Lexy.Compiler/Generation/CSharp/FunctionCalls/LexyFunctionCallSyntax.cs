@@ -98,8 +98,9 @@ internal static class LexyFunctionCallSyntax
             }
         }
 
+        var typeSyntax = Types.Syntax(mappings.MappingType);
         return Argument(
-            ObjectCreationExpression(Types.Syntax(mappings.MappingType))
+            ObjectCreationExpression(typeSyntax)
             .WithInitializer(
                 InitializerExpression(
                     SyntaxKind.ObjectInitializerExpression,

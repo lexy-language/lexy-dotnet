@@ -8,6 +8,7 @@ using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Specifications;

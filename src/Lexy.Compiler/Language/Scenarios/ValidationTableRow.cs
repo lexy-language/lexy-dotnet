@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -43,7 +45,7 @@ public class ValidationTableRow : Node
             values.Add(value);
         }
 
-        return new ValidationTableRow(index, tableHeader, values, context.Line.LineStartReference());
+        return new ValidationTableRow(index, tableHeader, values, context.Line.Tokens.AllReference());
     }
 
     private static ValidationTableValue ParseValue(IParseLineContext context,
@@ -57,12 +59,14 @@ public class ValidationTableRow : Node
 
         if (notValid) return null;
 
-        var reference = context.Line.TokenReference(tokenIndex);
+        var reference = context.Line.Tokens.Reference(tokenIndex, 1);
         var token = currentLineTokens.Token<Token>(tokenIndex);
-        var expression = context.ExpressionFactory.Parse(new TokenList(new[] { token }), context.Line);
-        if (context.Failed(expression, reference)) return null;
+        var tokens = new TokenList(context.Line, new[] { token });
+        var expression = context.ExpressionFactory.Parse(tokens, context.Line);
 
-        return new ValidationTableValue(valueIndex, expression.Result, tableHeader, reference);
+        return context.Failed(expression, reference)
+            ? null
+            : new ValidationTableValue(valueIndex, expression.Result, tableHeader, reference);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -78,4 +82,6 @@ public class ValidationTableRow : Node
                 $"Invalid number of values {Values.Count}. Expected {tableHeader.Columns.Count}.");
         }
     }
+
+    public override Symbol GetSymbol() => null;
 }

@@ -13,11 +13,11 @@ namespace Lexy.Compiler.Generation.CSharp.FunctionCalls;
 
 internal static class TableLookUpFunctionCallSyntax
 {
-    public static bool Matches(MemberFunctionCallExpression expression) => expression.FunctionCall is LookUpFunctionCall;
+    public static bool Matches(MemberFunctionCallExpression expression) => expression.State is LookUpFunctionCallState;
 
     public static ExpressionSyntax Create(MemberFunctionCallExpression expression)
     {
-        var lookupFunction = expression.FunctionCall as LookUpFunctionCall
+        var lookupFunction = expression.State as LookUpFunctionCallState
                              ?? throw new InvalidOperationException("expression.FunctionCall should be LookUpFunctionCall");
 
         var arguments = GetArguments(lookupFunction);
@@ -32,7 +32,7 @@ internal static class TableLookUpFunctionCallSyntax
                     SeparatedList<ArgumentSyntax>(arguments)));
     }
 
-    private static List<SyntaxNodeOrToken> GetArguments(LookUpFunctionCall lookupFunction)
+    private static List<SyntaxNodeOrToken> GetArguments(LookUpFunctionCallState lookupFunction)
     {
         var arguments = new List<SyntaxNodeOrToken>();
         if (lookupFunction.DiscriminatorExpression != null)

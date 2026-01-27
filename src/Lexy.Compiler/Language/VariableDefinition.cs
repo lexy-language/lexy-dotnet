@@ -4,6 +4,8 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -46,39 +48,40 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
         if (!result) return null;
 
-        if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessLiteralToken>(0)) {
-            context.Logger.Fail(line.TokenReference(0), "Unexpected token.");
+        if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessLiteralToken>(0))
+        {
+            context.Logger.Fail(tokens.Reference(0, 1), "Unexpected token.");
             return null;
         }
 
-        var name = tokens.TokenValue(1);
         var typeToken = tokens.TokenValue(0);
 
-        var type = TypeDeclarationParser.Parse(typeToken, line.TokenReference(0));
+        var type = TypeDeclarationParser.Parse(typeToken, tokens.Reference(0, 1));
         if (type == null) return null;
 
+        var name = tokens.TokenValue(1);
         if (tokens.Length == 2)
         {
-            return new VariableDefinition(name, type, source, line.LineStartReference());
+            return new VariableDefinition(name, type, source, tokens.AllReference());
         }
 
         if (tokens.Token<OperatorToken>(2).Type != OperatorType.Assignment)
         {
-            context.Logger.Fail(line.TokenReference(2), "Invalid variable declaration token. Expected '='.");
+            context.Logger.Fail(tokens.Reference(2, 1), "Invalid variable declaration token. Expected '='.");
             return null;
         }
 
         if (tokens.Length != 4)
         {
-            context.Logger.Fail(line.LineEndReference(),
+            context.Logger.Fail(tokens.AllReference(),
                 "Invalid variable declaration. Expected literal token.");
             return null;
         }
 
         var defaultValue = context.ExpressionFactory.Parse(tokens.TokensFrom(3), line);
-        if (context.Failed(defaultValue, line.TokenReference(3))) return null;
+        if (context.Failed(defaultValue, tokens.Reference(3))) return null;
 
-        return new VariableDefinition(name, type, source, line.LineStartReference(), defaultValue.Result);
+        return new VariableDefinition(name, type, source, tokens.AllReference(), defaultValue.Result);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -94,5 +97,24 @@ public class VariableDefinition : Node, IHasNodeDependencies
         context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, Type, Source);
 
         context.ValidateTypeAndDefault(Reference, TypeDeclaration, DefaultExpression);
+    }
+
+    public override Symbol GetSymbol()
+    {
+        var kind = Source == VariableSource.Parameters ? SymbolKind.ParameterVariable : SymbolKind.ResultVariable;
+        var prefix = GetPrefix();
+        return new Symbol(Reference, $"{prefix}: {Type} {Name}", string.Empty, kind);
+    }
+
+    private string GetPrefix()
+    {
+        return Source switch
+        {
+            VariableSource.Parameters => "parameter",
+            VariableSource.Results => "result",
+            VariableSource.Code => "variable",
+            VariableSource.Type => "type",
+            _ => "unknown"
+        };
     }
 }

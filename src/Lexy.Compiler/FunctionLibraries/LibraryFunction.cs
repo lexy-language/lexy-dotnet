@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem.Functions;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
@@ -32,8 +31,7 @@ internal class LibraryFunction : IObjectFunction
             IdentifierPath.Parse(functionInfo.DeclaringType?.Namespace, functionInfo.DeclaringType?.Name, functionInfo.Name);
     }
 
-    public ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments,
-        SourceReference reference)
+    public ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference)
     {
         if (arguments.Count != parameterTypes.Length)
         {
@@ -52,7 +50,7 @@ internal class LibraryFunction : IObjectFunction
 
         return failed
             ? ValidateMemberFunctionArgumentsResult.Failed()
-            : ValidateMemberFunctionArgumentsResult.Success(new LibraryFunctionCall(FullTypeName, returnType));
+            : ValidateMemberFunctionArgumentsResult.Success(new LibraryFunctionCallState(reference, FullTypeName, returnType));
     }
 
     public Type GetResultsType(IReadOnlyList<Expression> arguments) => returnType;

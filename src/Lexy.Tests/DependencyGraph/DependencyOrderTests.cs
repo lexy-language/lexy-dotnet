@@ -35,7 +35,7 @@ enum EnumExample
   Married
   CivilPartnership", false);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 3)
             .ContainsKey(model => model.Nodes, "TableExample", __ => __
                 .AreEqual(tableExample => tableExample.Dependencies.Count, 1)
@@ -139,7 +139,7 @@ enum EnumExample
   Married
   CivilPartnership", true);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(value => value.SortedNodes, 11)
             .ValueAtEquals(sortedNodes, 0, nodeType, "EnumExample")
             .ValueAtEquals(sortedNodes, 1, nodeType, "NestedType")

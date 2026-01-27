@@ -1,6 +1,8 @@
 using System;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.Tests.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -149,7 +151,7 @@ public class DeriveTypeTests : ScopedServicesTestFixture
 
     private static SourceReference NewReference()
     {
-        return new SourceReference(new SourceFile("tests.lexy"), 1, 1);
+        return new SourceReference("tests.lexy", 1, 1, 1);
     }
 
     private Type DeriveType(string expressionValue, Action<IValidationContext> validationContextHandler = null)

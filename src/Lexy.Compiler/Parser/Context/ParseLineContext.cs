@@ -1,22 +1,24 @@
-using System;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Parser.Logging;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public class ParseLineContext : IParseLineContext
 {
     public Line Line { get; }
     public IParserLogger Logger { get; }
     public IExpressionFactory ExpressionFactory { get; }
+    public DocumentSymbols Symbols { get; }
 
-    public ParseLineContext(Line line, IParserLogger logger, IExpressionFactory expressionFactory)
+    public ParseLineContext(Line line, IParserLogger logger, DocumentSymbols symbols, IExpressionFactory expressionFactory)
     {
         Line = Assert.NotNull(line, nameof(line));
         Logger = Assert.NotNull(logger, nameof(logger));
         ExpressionFactory = Assert.NotNull(expressionFactory, nameof(expressionFactory));
+        Symbols = Assert.NotNull(symbols, nameof(symbols));
     }
 
     public TokenValidator ValidateTokens<T>()

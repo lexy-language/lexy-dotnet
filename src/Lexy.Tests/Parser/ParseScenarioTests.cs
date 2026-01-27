@@ -59,11 +59,13 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         logger.NodeHasErrors(scenario).ShouldBeTrue();
 
-        errors.Length.ShouldBe(4, logger.ErrorMessages().Format(2));
-        errors[0].ShouldBe("tests.lexy(1, 1): ERROR - Scenario has no function, enum, table or expect errors.");
-        errors[1].ShouldBe("tests.lexy(2, 3): ERROR - Invalid token 'Functtion'. Keyword expected.");
-        errors[2].ShouldBe("tests.lexy(4, 5): ERROR - Invalid identifier: 'Value'");
-        errors[3].ShouldBe("tests.lexy(6, 5): ERROR - Invalid identifier: 'Result'");
+        Verify.Collection<string>(errors, _ => _
+            .Length(4, logger.ErrorMessages().Format(2))
+            .ValueAtEquals(0, "tests.lexy (1:1-21): ERROR - Scenario has no function, enum, table or expect errors.")
+            .ValueAtEquals(1, "tests.lexy (2:3-32): ERROR - Invalid token 'Functtion'. Keyword expected.")
+            .ValueAtEquals(2, "tests.lexy (4:5-9): ERROR - Invalid identifier: 'Value'")
+            .ValueAtEquals(3, "tests.lexy (6:5-10): ERROR - Invalid identifier: 'Result'"));
+
     }
 
     [Test]
@@ -84,7 +86,7 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var errors = logger.ErrorNodeMessages(scenario);
         errors.Length.ShouldBe(1, logger.FormatMessages());
-        errors[0].ShouldBe("tests.lexy(6, 15): ERROR - Invalid number token character: 'd'");
+        errors[0].ShouldBe("tests.lexy (6:15): ERROR - Invalid number token character: 'd'");
     }
 
     [Test]

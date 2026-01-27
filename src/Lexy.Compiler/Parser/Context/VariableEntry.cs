@@ -1,7 +1,7 @@
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.TypeSystem;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public class VariableEntry
 {

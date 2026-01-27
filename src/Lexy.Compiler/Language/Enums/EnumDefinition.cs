@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Lexy.Compiler.Language.Enums;
@@ -69,4 +71,11 @@ public class EnumDefinition : ComponentNode, INestedNode, INodeWithType
     {
         return Members.Any(member => member.Name == name);
     }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, $"enum: {Name}", string.Empty, SymbolKind.Enum);
+    }
+
+    public override string ToString() => Name;
 }

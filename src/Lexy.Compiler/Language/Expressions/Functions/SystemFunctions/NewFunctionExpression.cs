@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -63,5 +64,10 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
     {
         var nodeType = context.ComponentNodes.GetType(TypeLiteralToken.Parent);
         return nodeType?.MemberType(TypeLiteralToken.Member) as GeneratedType;
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, FunctionName, FunctionHelp, SymbolKind.SystemFunction);
     }
 }

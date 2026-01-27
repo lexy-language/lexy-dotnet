@@ -1,6 +1,4 @@
-using Lexy.Compiler.Parser.Tokens;
-
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Tokens;
 
 public interface ITokenizer
 {

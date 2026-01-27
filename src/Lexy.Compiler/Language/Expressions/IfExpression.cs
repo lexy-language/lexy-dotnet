@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -101,4 +103,6 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
     {
         return Condition.GetReadVariableUsage();
     }
+
+    public override Symbol GetSymbol() => null;
 }

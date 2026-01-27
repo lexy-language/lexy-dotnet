@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -41,7 +41,7 @@ public class TableRow : Node
             values.Add(value);
         }
 
-        return new TableRow(tableHeader, values, context.Line.LineStartReference());
+        return new TableRow(tableHeader, values, context.Line.Tokens.AllReference());
     }
 
     private static TableValue ParseValue(IParseLineContext context, TableHeader tableHeader,
@@ -54,9 +54,9 @@ public class TableRow : Node
 
         if (notValid) return null;
 
-        var reference = context.Line.TokenReference(tokenIndex);
+        var reference = context.Line.Tokens.Reference(tokenIndex, 1);
         var token = currentLineTokens.Token<Token>(tokenIndex);
-        var expression = context.ExpressionFactory.Parse(new TokenList(new[] { token }), context.Line);
+        var expression = context.ExpressionFactory.Parse(new TokenList(context.Line, token), context.Line);
         if (context.Failed(expression, reference)) return null;
 
         return new TableValue(valueIndex, expression.Result, tableHeader, reference);
@@ -75,4 +75,6 @@ public class TableRow : Node
                 $"Invalid number of values {Values.Count}. Expected {tableHeader.Columns.Count}.");
         }
     }
+
+    public override Symbol GetSymbol() => null;
 }

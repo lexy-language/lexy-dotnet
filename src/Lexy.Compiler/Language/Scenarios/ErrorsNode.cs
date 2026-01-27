@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -38,4 +40,6 @@ public class ErrorsNode<TNode> : ParsableNode
     protected override void Validate(IValidationContext context)
     {
     }
+
+    public override Symbol GetSymbol() => null;
 }

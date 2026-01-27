@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Parser.Logging;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public class ParserContext : IParserContext
 {
@@ -20,6 +22,7 @@ public class ParserContext : IParserContext
     public ParseOptions Options { get; }
 
     public IFileSystem FileSystem { get; }
+    public DocumentsSymbols Symbols { get; }
 
     public ParserContext(IParserLogger logger, IFileSystem fileSystem, ILibraries libraries, ParseOptions options)
     {
@@ -31,6 +34,7 @@ public class ParserContext : IParserContext
 
         RootNode = new LexyScriptNode();
         LineFilter = new DefaultLineFilter();
+        Symbols = new DocumentsSymbols();
     }
 
     public void AddFileIncluded(string fileName)

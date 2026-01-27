@@ -1,4 +1,5 @@
 using System;
+using Lexy.Compiler.Parser.Logging;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
@@ -201,7 +202,7 @@ public class TokenValidator
     {
         if (index < tokens.Length) return true;
 
-        Fail(line.LineEndReference(),  $"Token expected: '{name}'");
+        Fail(line.LineEndReference(), $"Token expected: '{name}'");
         IsValid = false;
 
         return false;
@@ -214,7 +215,7 @@ public class TokenValidator
 
     private void Fail(int index, string error)
     {
-        logger.Fail(line.TokenReference(index), $"({parserName}) {error}");
+        logger.Fail(line.Tokens.Reference(index, 1), $"({parserName}) {error}");
     }
 
     public void Assert()

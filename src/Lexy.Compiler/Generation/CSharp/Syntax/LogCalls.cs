@@ -201,18 +201,21 @@ internal static class LogCalls
         return AddWriteVariables(expression.Source.Line.Index, variables);
     }
 
-    private static IEnumerable<VariableUsage> GetUsedVariables(Expression expression, VariableAccess access) {
+    private static IEnumerable<VariableUsage> GetUsedVariables(Expression expression, VariableAccess access)
+    {
       var usage = expression.UsedVariables();
       return usage.Where(variable => variable.Access == access)
           .DistinctBy(variable => variable.Path.FullPath())
           .ToList();
     }
 
-    private static IEnumerable<VariableUsage> GetReadVariables(Expression expression) {
+    private static IEnumerable<VariableUsage> GetReadVariables(Expression expression)
+    {
       return GetUsedVariables(expression, VariableAccess.Read);
     }
 
-    private static IEnumerable<VariableUsage> GetWriteVariables(Expression expression) {
+    private static IEnumerable<VariableUsage> GetWriteVariables(Expression expression)
+    {
       return GetUsedVariables(expression, VariableAccess.Write);
     }
 }

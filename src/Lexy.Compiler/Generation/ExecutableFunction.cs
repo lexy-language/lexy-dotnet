@@ -194,9 +194,9 @@ public class ExecutableFunction
     private void ValidateType(string name, ValueType valueType, object value, bool optional,
         List<string> validationErrors)
     {
-        if (RunTime.Validate.IsMissing(name, value, optional, valueType.Type, validationErrors)) return;
+        if (RunTime.Validate.IsMissing(name, value, optional, valueType.Name, validationErrors)) return;
 
-        switch (valueType.Type)
+        switch (valueType.Name)
         {
             case TypeNames.String:
                 RunTime.Validate.String(name, value, optional, validationErrors);
@@ -215,7 +215,7 @@ public class ExecutableFunction
                 return;
 
             default:
-                throw new InvalidOperationException($"Invalid value type: '{valueType.Type}'");
+                throw new InvalidOperationException($"Invalid value type: '{valueType.Name}'");
         }
     }
 
@@ -244,7 +244,8 @@ public class ExecutableFunction
         }
     }
 
-    private static string VariablePath(string parent, string name) {
+    private static string VariablePath(string parent, string name)
+    {
         return parent != null ? $"{parent}.{name}" : name;
     }
 

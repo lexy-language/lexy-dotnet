@@ -18,7 +18,7 @@ public static class GlobalTiming
         if (totalMilliseconds > 1)
         {
             Console.WriteLine(
-                $"{message}: {(DateTime.Now - start).TotalSeconds} ({totalMilliseconds}) {(totalMilliseconds > 1 ? "!!!!" : "")}");
+                $"{message}: {(DateTime.Now - start).TotalSeconds} ({totalMilliseconds}) {(totalMilliseconds > 1 ? "!!!!" : string.Empty)}");
         }
 
         last = DateTime.Now;

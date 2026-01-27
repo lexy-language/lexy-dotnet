@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -34,5 +36,10 @@ public class Parameters : ParsableNode
     public IList<AssignmentDefinition> AllAssignments()
     {
         return assignments.Flatten().ToList();
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, "parameters", "Scenario parameter variables used to execute the function", SymbolKind.Keyword);
     }
 }

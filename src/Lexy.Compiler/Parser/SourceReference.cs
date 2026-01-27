@@ -1,33 +1,44 @@
-using System;
-using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;
 
 public class SourceReference
 {
-    public int? CharacterNumber { get; }
-    public int? LineNumber { get; }
+    public int LineNumber { get; }
 
-    public SourceFile File { get; }
+    public int Column { get; }
+    public int EndColumn { get; }
 
-    public string SortIndex {
+    public string FileName { get; }
+
+    public string SortIndex
+    {
         get
         {
-            var value = (LineNumber * 100000000 + CharacterNumber).ToString().PadLeft(16);
-            return $"{File.FileName}/{value}";
+            var value = (LineNumber * 100000000 + Column).ToString().PadLeft(16);
+            return $"{FileName}/{value}";
         }
     }
 
-    public SourceReference(SourceFile file, int? lineNumber, int? characterNumber)
+    public SourceReference(string fileName, int lineNumber, int column, int endColumn)
     {
-        File = Assert.NotNull(file, nameof(file));
-        CharacterNumber = characterNumber;
+        FileName = Assert.NotNull(fileName, nameof(fileName));
         LineNumber = lineNumber;
+        Column = column;
+        EndColumn = endColumn;
     }
 
     public override string ToString()
     {
-        return $"{File.FileName}({LineNumber}, {CharacterNumber})";
+        var suffix = Column != EndColumn ? $"-{EndColumn}" : string.Empty;
+        return $"{FileName} ({LineNumber}:{Column}{suffix})";
+    }
+
+    public bool Includes(Position position)
+    {
+        return position.LineNumber == LineNumber
+            && position.Column >= Column
+            && position.Column <= EndColumn;
     }
 }

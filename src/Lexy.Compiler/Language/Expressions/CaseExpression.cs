@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -20,15 +22,6 @@ public class CaseExpression : Expression, IParsableNode
         Value = value;
         IsDefault = isDefault;
         expressions = new ExpressionList(reference, factory);
-    }
-
-    public bool ValidatePreviousExpression(Expression expression, IParseLineContext context)
-    {
-        if (expression is SwitchExpression) return true;
-
-        context.Logger.Fail(Reference,
-            "'case' should be following a 'switch' statement. No 'switch' statement found.");
-        return false;
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -92,4 +85,6 @@ public class CaseExpression : Expression, IParsableNode
     {
         return Value?.DeriveType(context);
     }
+
+    public override Symbol GetSymbol() => null;
 }

@@ -1,35 +1,35 @@
 using System;
+using System.Collections.Generic;
 
 namespace Lexy.Tests;
 
-public class Verify<TModel>
+public class Verify
 {
-    private readonly VerifyModelContext<TModel> verifyModelContext;
-    private readonly VerifyLogging logging = new();
-
-    private Verify(TModel model)
-    {
-        verifyModelContext = new VerifyModelContext<TModel>(model, logging);
-    }
-
-    public static void Model(TModel model, Action<VerifyModelContext<TModel>> testHandler)
+    public static void Model<TModel>(TModel model, Action<VerifyModelContext<TModel>> testHandler)
     {
         if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
 
-        var verify = new Verify<TModel>(model);
-        verify.Execute<TModel>(testHandler);
-        verify.VerifyAll();
+        var logging = new VerifyLogging();
+        var verify = new VerifyModelContext<TModel>(model, logging);
+        testHandler(verify);
+        VerifyAll(logging);
     }
 
-    private void Execute<TFactory>(Action<VerifyModelContext<TModel>> testHandler)
+    public static void Collection<TItem>(IReadOnlyList<TItem> list, Action<VerifyCollectionContext<TItem>> testHandler)
+        where TItem : class, IComparable
     {
-        testHandler(verifyModelContext);
+        if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
+
+        var logging = new VerifyLogging();
+        var verify = new VerifyCollectionContext<TItem>(list, logging);
+        testHandler(verify);
+        VerifyAll(logging);
     }
 
-    private void VerifyAll()
+    private static void VerifyAll(VerifyLogging logging)
     {
         var summary = logging.ToString();
-        if (logging.Errors)
+        if (logging.Errors > 0)
         {
             throw new InvalidOperationException(summary);
         }

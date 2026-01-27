@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -31,28 +35,18 @@ public class TableHeader : Node
     {
         var headers = new List<ColumnHeader>();
         var tokens = context.Line.Tokens;
-        var index = 0;
-        while (++index < tokens.Length)
+        var index = 1;
+        while (index < tokens.Length)
         {
-            var isValid = context.ValidateTokens<TableHeader>()
-                .Type<StringLiteralToken>(index)
-                .Type<StringLiteralToken>(index + 1)
-                .Type<TableSeparatorToken>(index + 2)
-                .IsValid;
+            var header = ColumnHeader.Parse(context, index);
+            if (header == null) return null;
 
-            if (!isValid) return null;
-
-            var typeName = tokens.TokenValue(index);
-            var name = tokens.TokenValue(++index);
-            var reference = context.Line.TokenReference(index);
-
-            var header = ColumnHeader.Parse(name, typeName, reference);
             headers.Add(header);
 
-            ++index;
+            index += 3;
         }
 
-        return new TableHeader(headers.ToArray(), context.Line.LineStartReference());
+        return new TableHeader(headers.ToArray(), context.Line.Tokens.AllReference());
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -81,4 +75,6 @@ public class TableHeader : Node
     {
         return Columns.FirstOrDefault(value => value.Name == name);
     }
+
+    public override Symbol GetSymbol() => null;
 }

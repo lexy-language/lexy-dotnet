@@ -38,7 +38,7 @@ public class FactoryTests : ScopedServicesTestFixture
     {
         var dependencies = await ServiceProvider.BuildGraph(enumDefinition);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 1)
             .ContainsKey(model => model.Nodes, "SimpleEnum", __ => __
                 .AreEqual(simpleEnum => simpleEnum.Dependencies.Count, 0)
@@ -53,7 +53,7 @@ public class FactoryTests : ScopedServicesTestFixture
     {
         var dependencies = await ServiceProvider.BuildGraph(table);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 1)
             .ContainsKey(model => model.Nodes, "SimpleTable", __ => __
                 .AreEqual(simpleEnum => simpleEnum.Dependencies.Count, 0)
@@ -68,7 +68,7 @@ public class FactoryTests : ScopedServicesTestFixture
     {
         var dependencies = await ServiceProvider.BuildGraph(function);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 1)
             .ContainsKey(model => model.Nodes, "SimpleFunction", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -86,7 +86,7 @@ function Caller
   var params = new(SimpleFunction.Parameters)
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "SimpleFunction", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -111,7 +111,7 @@ function Caller
   var params = new(SimpleFunction.Results)
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "SimpleFunction", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -139,7 +139,7 @@ function Caller
   var params = fill(SimpleFunction.Parameters)
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "SimpleFunction", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -167,7 +167,7 @@ function Caller
   var params = fill(SimpleFunction.Results)
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "SimpleFunction", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -192,7 +192,7 @@ function Caller
   var result = SimpleTable.LookUp(2, SimpleTable.Search, SimpleTable.Value)
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "SimpleTable", __ => __
                 .AreEqual(simpleTable => simpleTable.Dependencies.Count, 0)
@@ -222,7 +222,7 @@ scenario Simple
     Value = 2
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "SimpleFunction", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -248,7 +248,7 @@ type Simple
   string Value2
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 1)
             .ContainsKey(model => model.Nodes, "Simple", __ => __
                 .AreEqual(simpleFunction => simpleFunction.Dependencies.Count, 0)
@@ -272,7 +272,7 @@ type Parent
   Inner Value3
 ");
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "Inner", __ => __
                 .AreEqual(value => value.Dependencies.Count, 0)
@@ -304,7 +304,7 @@ type Parent
   Inner Value3
 ", false);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "Inner", __ => __
                 .AreEqual(value => value.Dependencies.Count, 1)
@@ -336,7 +336,7 @@ function Parent
   Inner()
 ", false);
 
-        Verify<Dependencies>.Model(dependencies, _ => _
+        Verify.Model(dependencies, _ => _
             .CountIs(model => model.Nodes, 2)
             .ContainsKey(model => model.Nodes, "Inner", __ => __
                 .AreEqual(inner => inner.Dependencies.Count, 1)

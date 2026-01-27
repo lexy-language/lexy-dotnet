@@ -5,6 +5,8 @@ using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
@@ -20,7 +22,7 @@ public class LexyScriptNode : ComponentNode
     public Comments Comments { get; }
     public ComponentNodeList ComponentNodes { get; } = new();
 
-    public LexyScriptNode() : base(new SourceReference(new SourceFile(nameof(LexyScriptNode)), 1, 1))
+    public LexyScriptNode() : base(new SourceReference(nameof(LexyScriptNode), 1, 1, 1))
     {
         Comments = new Comments(Reference);
     }
@@ -35,6 +37,7 @@ public class LexyScriptNode : ComponentNode
         if (componentNode == null) return this;
 
         ComponentNodes.Add(componentNode);
+        context.Symbols.Add(componentNode);
 
         return componentNode;
     }
@@ -51,7 +54,7 @@ public class LexyScriptNode : ComponentNode
             }
         }
 
-        var reference = context.Line.LineStartReference();
+        var reference = context.Line.Tokens.AllReference();
         var tokenName = NodeName.Parse(context);
         if (tokenName == null)
         {
@@ -111,4 +114,6 @@ public class LexyScriptNode : ComponentNode
             .Where(where => (where as INestedNode)?.Nested != true)
             .ToList();
     }
+
+    public override Symbol GetSymbol() => null;
 }

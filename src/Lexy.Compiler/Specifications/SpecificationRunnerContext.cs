@@ -29,7 +29,7 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
     {
         Failed++;
 
-        var suffix = index != null ? $"[{index}]" : "";
+        var suffix = index != null ? $"[{index}]" : string.Empty;
         var scenarioName = scenario.Name + suffix;
         var entry = new SpecificationsLogEntry(scenario.Reference, scenario, true, $"FAILED - {scenarioName}: {message}", errors);
         logEntries.Add(entry);
@@ -57,7 +57,7 @@ public class SpecificationRunnerContext : ISpecificationRunnerContext
 
     public void Success(Scenario scenario, IEnumerable<ExecutionLogEntry> logging = null, int? index = null)
     {
-        var suffix = index != null ? $"[{index}]" : "";
+        var suffix = index != null ? $"[{index}]" : string.Empty;
         var scenarioName = scenario.Name + suffix;
 
         var entry = new SpecificationsLogEntry(scenario.Reference, scenario, false, $"SUCCESS - {scenarioName}");

@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public class ValidationContext : IValidationContext
 {

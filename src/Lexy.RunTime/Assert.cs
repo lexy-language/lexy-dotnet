@@ -12,6 +12,15 @@ public static class Assert
         }
     }
 
+
+    public static void False(bool condition, string error)
+    {
+        if (condition)
+        {
+            throw new InvalidOperationException(error);
+        }
+    }
+
     public static T Is<T>(object value, string name)
     {
         NotNull(value, name);

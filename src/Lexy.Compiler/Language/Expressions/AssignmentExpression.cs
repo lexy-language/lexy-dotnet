@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -45,8 +47,8 @@ public class AssignmentExpression : Expression
 
     public override IEnumerable<INode> GetChildren()
     {
-        yield return Assignment;
         yield return Variable;
+        yield return Assignment;
     }
 
     protected override void Validate(IValidationContext context)
@@ -80,7 +82,9 @@ public class AssignmentExpression : Expression
         }
 
         var assignmentVariable = hasVariableReference.Variable;
-        var writeVariableUsage = new VariableUsage(assignmentVariable.Path,
+        var writeVariableUsage = new VariableUsage(
+            Reference,
+            assignmentVariable.Path,
             assignmentVariable.ComponentType,
             assignmentVariable.Type,
             assignmentVariable.Source,
@@ -89,4 +93,6 @@ public class AssignmentExpression : Expression
         return new [] { writeVariableUsage }
             .Union(Assignment.GetReadVariableUsage());
     }
+
+    public override Symbol GetSymbol() => null;
 }

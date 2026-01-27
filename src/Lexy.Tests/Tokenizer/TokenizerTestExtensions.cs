@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
-using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +17,7 @@ public static class TokenizerTestExtensions
 
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
 
-        var file = new SourceFile("tests.lexy");
-        var line = new Line(0, value, file);
+        var line = new Line(0, value, "tests.lexy");
         var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)
         {
@@ -38,8 +37,7 @@ public static class TokenizerTestExtensions
 
         var tokenizer = serviceProvider.GetRequiredService<ITokenizer>();
 
-        var file = new SourceFile("tests.lexy");
-        var line = new Line(0, value, file);
+        var line = new Line(0, value, "tests.lexy");
         var tokenizeResult = line.Tokenize(tokenizer);
         if (tokenizeResult.IsSuccess)
         {

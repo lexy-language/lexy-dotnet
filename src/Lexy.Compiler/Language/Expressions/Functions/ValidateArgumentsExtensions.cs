@@ -1,5 +1,6 @@
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
 

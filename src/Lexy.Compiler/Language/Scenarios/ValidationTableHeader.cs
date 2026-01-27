@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -38,13 +40,13 @@ public class ValidationTableHeader : Node
             if (!isValid) return null;
 
             var name = tokens.TokenValue(index);
-            var reference = context.Line.TokenReference(index++);
+            var reference = context.Line.Tokens.Reference(index++, 1);
 
             var header = ValidationColumnHeader.Parse(name, reference);
             headers.Add(header);
         }
 
-        return new ValidationTableHeader(headers.ToArray(), context.Line.LineStartReference());
+        return new ValidationTableHeader(headers.ToArray(), context.Line.Tokens.AllReference());
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -60,4 +62,6 @@ public class ValidationTableHeader : Node
     {
         return index >= 0 && index < Columns.Count ? Columns[index] : null;
     }
+
+    public override Symbol GetSymbol() => null;
 }

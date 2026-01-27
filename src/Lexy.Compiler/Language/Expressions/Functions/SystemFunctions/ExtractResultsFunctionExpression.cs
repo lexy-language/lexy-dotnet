@@ -3,6 +3,8 @@ using System.Linq;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
@@ -80,7 +82,7 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
             }
             else
             {
-                mapping.Add(new Mapping(member.Name, variable.Type, variable.VariableSource));
+                mapping.Add(new Mapping(reference, member.Name, variable.Type, variable.VariableSource));
             }
         }
 
@@ -104,5 +106,10 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
     {
         return base.UsedVariables()
             .Union(Mapping.Select(map => map.ToUsedVariable(VariableAccess.Write)));
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, FunctionName, FunctionHelp, SymbolKind.SystemFunction);
     }
 }

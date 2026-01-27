@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Language.TypeSystem.Functions;
 using Lexy.Compiler.Language.TypeSystem.Objects;
+using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem;
 
@@ -38,18 +40,33 @@ public class TableType : ObjectType
             new ObjectNestedType(Table.RowName, Table.GetRowType()),
         };
 
-        if (Table.Header?.Columns != null)
-        {
-            foreach (var column in Table.Header?.Columns)
-            {
-                var columnType = new GeneratedType(column.Name, Table, GeneratedTypeSource.TableColumn, Array.Empty<IObjectMember>());
-                members.Add(new ObjectVariable(column.Name, columnType ));
-            }
-        }
+        AddColumns(members);
 
         members.Add(new LookUpFunction(Table));
         members.Add(new LookUpRowFunction(Table));
 
         return members;
+    }
+
+    private void AddColumns(List<IObjectMember> members)
+    {
+        if (Table.Header?.Columns == null) return;
+
+        foreach (var column in Table.Header?.Columns)
+        {
+            var columnType = new GeneratedType(Name, column.Name, Table, GeneratedTypeSource.TableColumn,
+                Array.Empty<IObjectMember>());
+            members.Add(new ObjectVariable(column.Name, columnType));
+        }
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    public override Symbol GetSymbol(SourceReference reference)
+    {
+        return new Symbol(reference, $"table: {Name}", string.Empty, SymbolKind.Table);
     }
 }

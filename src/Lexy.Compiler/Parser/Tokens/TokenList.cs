@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
@@ -14,9 +13,11 @@ public class TokenList : IEnumerable<Token>
     public Token this[int index] => values[index];
 
     public int Length => values.Length;
+    public Line Line { get; }
 
-    public TokenList(Token[] values)
+    public TokenList(Line line, params Token[] values)
     {
+        Line = Assert.NotNull(line, nameof(line));
         this.values = Assert.NotNull(values, nameof(values));
     }
 
@@ -42,15 +43,15 @@ public class TokenList : IEnumerable<Token>
 
     public TokenList TokensFrom(int index)
     {
-        if (index == this.values.Length) return new TokenList(Array.Empty<Token>());
+        if (index == this.values.Length) return new TokenList(Line, Array.Empty<Token>());
         CheckValidTokenIndex(index);
 
-        return new TokenList(values[index..]);
+        return new TokenList(Line, values[index..]);
     }
 
     public TokenList TokensFromStart(int count)
     {
-        return new TokenList(values[..count]);
+        return new TokenList(Line, values[..count]);
     }
 
     public TokenList TokensRange(int start, int last)
@@ -60,7 +61,7 @@ public class TokenList : IEnumerable<Token>
 
         Array.Copy(values, start, range, 0, length);
 
-        return new TokenList(range);
+        return new TokenList(Line, range);
     }
 
     public bool IsTokenType<T>(int index) where T : Token
@@ -95,23 +96,23 @@ public class TokenList : IEnumerable<Token>
     public bool IsKeyword(int index, string keyword)
     {
         return index >= 0
-               && index <= values.Length - 1
-               && (values[index] as KeywordToken)?.Value == keyword;
+            && index <= values.Length - 1
+            && (values[index] as KeywordToken)?.Value == keyword;
     }
 
     public bool IsOperatorToken(int index, OperatorType type)
     {
         return index >= 0
-               && index <= values.Length - 1
-               && values[index] is OperatorToken operatorToken
-               && operatorToken.Type == type;
+            && index <= values.Length - 1
+            && values[index] is OperatorToken operatorToken
+            && operatorToken.Type == type;
     }
 
     public OperatorToken OperatorToken(int index)
     {
         return index >= 0
-               && index <= values.Length - 1
-               && values[index] is OperatorToken operatorToken
+            && index <= values.Length - 1
+            && values[index] is OperatorToken operatorToken
             ? operatorToken
             : null;
     }
@@ -134,11 +135,16 @@ public class TokenList : IEnumerable<Token>
         }
     }
 
-    public int? CharacterPosition(int tokenIndex)
+    public int? CharacterColumn(int tokenIndex)
     {
         if (tokenIndex < 0 || tokenIndex >= values.Length) return null;
 
         return values[tokenIndex].FirstCharacter.Position;
+    }
+
+    public int? LastColumn()
+    {
+        return values[^1].EndColumn;
     }
 
     public int Find<T>(Func<T, bool> func) where T : Token
@@ -155,5 +161,39 @@ public class TokenList : IEnumerable<Token>
         }
 
         return -1;
+    }
+
+
+    public SourceReference Reference(int tokenIndex, int? numberOfTokens = null)
+    {
+        Assert.True(numberOfTokens is null or >= 1, $"numberOfTokens should be >= 1 ({numberOfTokens})");
+
+        var column = CharacterColumn(tokenIndex) + 1;
+        if (column == null)
+        {
+            throw new InvalidOperationException("TokenReference: " + tokenIndex);
+        }
+
+        var endColumn = numberOfTokens != null
+            ? CharacterColumn(tokenIndex + numberOfTokens.Value)
+            : LastColumn() ;
+        if (column == null)
+        {
+            throw new InvalidOperationException($"TokenReference end: {tokenIndex + numberOfTokens}");
+        }
+        endColumn = endColumn == null ? Line.Content.Length : endColumn + 1;
+
+        return new SourceReference(Line.FileName, Line.Index + 1, column.Value, endColumn.Value);
+    }
+    public SourceReference AllReference()
+    {
+        if (Length == 0)
+        {
+            return new SourceReference(Line.FileName ?? "runtime", Line.Index + 1, 1, Line.Content.Length + 1);
+        }
+
+        var column = this[0].FirstCharacter.Position + 1;
+        var columnEnd = this[^1].EndColumn + 1;
+        return new SourceReference(Line.FileName ?? "runtime", Line.Index + 1, column, columnEnd);
     }
 }

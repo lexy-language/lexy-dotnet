@@ -183,7 +183,8 @@ public class Dependencies
                 var dependant = GetOrCreateNodeDependencies(dependency);
                 var occurrences = dependant.DecreaseOccurrence();
 
-                if (occurrences == 1) {
+                if (occurrences == 1)
+                {
                     processing.Enqueue(dependency.Name);
                 }
             });

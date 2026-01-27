@@ -5,20 +5,17 @@ namespace Lexy.Tests;
 
 public class VerifyLogging
 {
-    private readonly StringBuilder stringBuilder = new();
+    private readonly StringBuilder stringBuilder = new(Environment.NewLine);
 
     private int indention;
 
-    public bool Errors { get; private set; }
+    public int Errors { get; private set; }
 
-    public override string ToString()
-    {
-        return stringBuilder.ToString();
-    }
+    public override string ToString() => "Errors: " + Errors + "\n" + stringBuilder;
 
     public void ErrorOccurred()
     {
-        Errors = true;
+        Errors++;
     }
 
     public void AppendLine(string message)
@@ -37,7 +34,7 @@ public class VerifyLogging
 
         var titleFormat = string.Format(title, args);
         stringBuilder.AppendLine(titleFormat + message);
-        Errors = true;
+        Errors ++;
     }
 
     public void WithIndentation(Action action)

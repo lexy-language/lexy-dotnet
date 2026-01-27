@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
@@ -43,4 +47,6 @@ public class SpreadExpression : Expression
         context.Logger.Fail(Reference, "Invalid spread operator. The spread operator '...' can only be used in an Lexy function call with as a single argument.");
         return null;
     }
+
+    public override Symbol GetSymbol() => new Symbol(Reference, "spread operator", string.Empty, SymbolKind.Operator);
 }

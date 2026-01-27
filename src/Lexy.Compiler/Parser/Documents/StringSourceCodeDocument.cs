@@ -1,21 +1,23 @@
 using System;
 using System.Linq;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Documents;
 
-public class SourceCodeDocument : ISourceCodeDocument
+public class StringSourceCodeDocument : ISourceCodeDocument
 {
-    private Line[] code;
-    private int index;
-    private SourceFile file;
+    private readonly Line[] code;
+    private readonly string fileName;
 
+    private int index;
+
+    public string FullFileName => fileName;
     public Line CurrentLine { get; private set; }
 
-    public void SetCode(string[] lines, string fileName)
+    public StringSourceCodeDocument(string[] code, string fileName)
     {
         index = -1;
-        file = new SourceFile(fileName);
-        code = lines.Select((line, index) => new Line(index, line, file)).ToArray();
+        this.fileName = fileName;
+        this.code = code.Select((line, index) => new Line(index, line, fileName)).ToArray();
     }
 
     public bool HasMoreLines()
@@ -29,10 +31,5 @@ public class SourceCodeDocument : ISourceCodeDocument
 
         CurrentLine = code[++index];
         return CurrentLine;
-    }
-
-    public void Reset()
-    {
-        CurrentLine = null;
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Logging;
 
 public interface IParserLogger
 {

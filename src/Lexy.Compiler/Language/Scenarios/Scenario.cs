@@ -3,6 +3,8 @@ using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -40,7 +42,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     {
         var line = context.Line;
         var name = line.Tokens.TokenValue(0);
-        var reference = line.LineStartReference();
+        var reference = line.Tokens.AllReference();
         if (!line.Tokens.IsTokenType<KeywordToken>(0))
         {
             context.Logger.Fail(reference, $"Invalid token '{name}'. Keyword expected.");
@@ -75,7 +77,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
             return null;
         }
 
-        var tokenName = Parser.NodeName.Parse(context);
+        var tokenName = NodeName.Parse(context);
         if (tokenName.Name != null)
         {
             return ParseFunctionName(context, reference);
@@ -171,8 +173,8 @@ public class Scenario : ComponentNode, IHasNodeDependencies
         var function = Function ?? (FunctionName != null ? context.ComponentNodes.GetFunction(FunctionName.Value) : null);
         if (function == null) return;
 
-        AddVariablesForValidation(context, function.Parameters.Variables, VariableSource.Parameters);
-        AddVariablesForValidation(context, function.Results.Variables, VariableSource.Results);
+        AddVariablesForValidation(context, function.Parameters?.Variables, VariableSource.Parameters);
+        AddVariablesForValidation(context, function.Results?.Variables, VariableSource.Results);
     }
 
     private static void AddVariablesForValidation(IValidationContext context, IReadOnlyList<VariableDefinition> definitions,
@@ -190,10 +192,10 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     protected override void Validate(IValidationContext context)
     {
         if ((FunctionName == null || FunctionName.IsEmpty())
-            && Function == null
-            && Enum == null
-            && Table == null
-            && (ExpectComponentErrors == null || !ExpectComponentErrors.HasValues))
+         && Function == null
+         && Enum == null
+         && Table == null
+         && (ExpectComponentErrors == null || !ExpectComponentErrors.HasValues))
         {
             context.Logger.Fail(Reference, "Scenario has no function, enum, table or expect errors.");
         }
@@ -206,12 +208,18 @@ public class Scenario : ComponentNode, IHasNodeDependencies
         if (FunctionName?.IsEmpty() == false)
         {
             var functionNode = componentNodes.GetFunction(FunctionName.Value);
-            if (functionNode != null) {
+            if (functionNode != null)
+            {
                 result.Add(functionNode);
             }
         }
         if (Enum != null) result.Add(Enum);
         if (Table != null) result.Add(this.Table);
         return result;
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, "scenario: " + Name, "Test scenario", SymbolKind.Scenario);
     }
 }

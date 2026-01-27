@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Text;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -66,5 +69,16 @@ public class SpreadAssignmentExpression : Expression
     public override IEnumerable<VariableUsage> UsedVariables()
     {
         return Assignment.GetReadVariableUsage();
+    }
+
+    public override Symbol GetSymbol()
+    {
+        var builder = new StringBuilder();
+        foreach (var mapping in Mapping)
+        {
+            builder.AppendLine($"- {mapping.Type} {mapping.VariableName} (from {mapping.VariableSource})");
+        }
+        var variablesString = builder.ToString();
+        return new Symbol(Reference, "spread operator", variablesString, SymbolKind.Operator);
     }
 }

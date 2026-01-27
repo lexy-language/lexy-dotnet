@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -27,7 +29,7 @@ public class SwitchExpression : Expression, IParsableNode
         var expression = factory.Parse(line.Tokens, line);
         if (!expression.IsSuccess)
         {
-            context.Logger.Fail(line.LineStartReference(), expression.ErrorMessage);
+            context.Logger.Fail(line.Tokens.AllReference(), expression.ErrorMessage);
             return this;
         }
 
@@ -97,4 +99,6 @@ public class SwitchExpression : Expression, IParsableNode
     {
         return null;
     }
+
+    public override Symbol GetSymbol() => null;
 }

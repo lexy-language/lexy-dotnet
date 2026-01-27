@@ -32,13 +32,13 @@ internal static class TypeConverter
     private static object ConvertValue(object value, ValueType valueType)
     {
         var valueAsString = value.ToString();
-        return valueType.Type switch
+        return valueType.Name switch
         {
             TypeNames.Number => value as decimal? ?? decimal.Parse(valueAsString, CultureInfo.InvariantCulture),
             TypeNames.Date => value as DateTime? ?? DateTime.Parse(valueAsString, CultureInfo.InvariantCulture),
             TypeNames.Boolean => value as bool? ?? bool.Parse(valueAsString),
             TypeNames.String => value,
-            _ => throw new InvalidOperationException($"Invalid type: '{valueType.Type}'")
+            _ => throw new InvalidOperationException($"Invalid type: '{valueType.Name}'")
         };
     }
 

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
@@ -26,6 +28,8 @@ public abstract class Node : INodeWithParent
     }
 
     public abstract IEnumerable<INode> GetChildren();
+
+    public abstract Symbol GetSymbol();
 
     void INodeWithParent.SetParent(INode node)
     {

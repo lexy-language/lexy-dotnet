@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -37,4 +39,6 @@ public class ValidationTableValue : Node
         var literal = Expression as LiteralExpression;
         return literal?.Literal.TypedValue;
     }
+
+    public override Symbol GetSymbol() => null;
 }

@@ -1,4 +1,6 @@
 using System;
+using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem;
 
@@ -9,18 +11,18 @@ public class ValueType : Type
     public static ValueType Number => new(TypeNames.Number);
     public static ValueType Date => new(TypeNames.Date);
 
-    public string Type { get; }
+    public string Name { get; }
 
-    public ValueType(string type)
+    public ValueType(string name)
     {
-        Type = type;
+        Name = name;
     }
 
     public override bool IsAssignableFrom(Type type) => Equals(type);
 
     protected bool Equals(ValueType other)
     {
-        return Type == other.Type;
+        return Name == other.Name;
     }
 
     public override bool Equals(object obj)
@@ -33,12 +35,7 @@ public class ValueType : Type
 
     public override int GetHashCode()
     {
-        return Type != null ? Type.GetHashCode() : 0;
-    }
-
-    public override string ToString()
-    {
-        return Type;
+        return Name != null ? Name.GetHashCode() : 0;
     }
 
     public static Type Parse(System.Type type)
@@ -50,5 +47,15 @@ public class ValueType : Type
         if (type == typeof(decimal)) return Number;
         if (type == typeof(DateTime)) return Date;
         throw new InvalidOperationException($"Invalid value type: '{type.Namespace}.{type.Name}'");
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    public override Symbol GetSymbol(SourceReference reference)
+    {
+        return new Symbol(reference, $"value type: {Name}", string.Empty, SymbolKind.ValueType);
     }
 }

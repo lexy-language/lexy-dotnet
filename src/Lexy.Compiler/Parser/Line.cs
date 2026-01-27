@@ -1,5 +1,4 @@
-using System;
-using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -10,15 +9,16 @@ public class Line
     public int Index { get; }
 
     internal string Content { get; }
-    public SourceFile File { get; }
+
+    public string FileName { get; }
 
     public TokenList Tokens { get; private set; }
 
-    public Line(int index, string line, SourceFile file)
+    public Line(int index, string line, string fileName)
     {
         Index = index;
         Content = Assert.NotNull(line, nameof(line));
-        File = Assert.NotNull(file, nameof(file));
+        FileName = Assert.NotNull(fileName, nameof(fileName));
     }
 
     public int? Indent(IParserLogger logger)
@@ -72,47 +72,21 @@ public class Line
         return Tokens.Length == 0;
     }
 
-    public int FirstCharacter()
-    {
-        for (var index = 0; index < Content.Length; index++)
-        {
-            if (Content[index] != ' ' && Content[index] != '\\')
-            {
-                return index;
-            }
-        }
 
-        return 0;
-    }
-
-    public SourceReference TokenReference(int tokenIndex)
+    public SourceReference LineReference(int characterIndex)
     {
-        return new SourceReference(
-            File,
-            Index + 1,
-            Tokens.CharacterPosition(tokenIndex) + 1);
+        return new SourceReference(FileName ?? "runtime", Index + 1, characterIndex + 1, characterIndex + 1);
     }
 
     public SourceReference LineEndReference()
     {
-        return new SourceReference(File,
-            Index + 1,
-            Content.Length);
-    }
+        if (Tokens == null || Tokens.Length == 0)
+        {
+            return new SourceReference(FileName ?? "runtime", Index + 1, 1, Content.Length + 1);
+        }
 
-    public SourceReference LineStartReference()
-    {
-        var lineStart = FirstCharacter();
-        return new SourceReference(File,
-            Index + 1,
-            lineStart + 1);
-    }
-
-    public SourceReference LineReference(int characterIndex)
-    {
-        return new SourceReference(File ?? new SourceFile("runtime"),
-            Index + 1,
-            characterIndex + 1);
+        var columnEnd = Tokens[^1].EndColumn;
+        return new SourceReference(FileName ?? "runtime", Index + 1, columnEnd - 1, columnEnd);
     }
 
     public TokenizeResult Tokenize(ITokenizer tokenizer)

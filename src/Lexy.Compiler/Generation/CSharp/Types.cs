@@ -66,7 +66,7 @@ internal static class Types
     {
         return type switch
         {
-            ValueType value => Syntax(value.Type),
+            ValueType value => Syntax(value.Name),
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Name)),
             TableType tableType => IdentifierName(tableType.Name),
             DeclaredType declaredType => DeclaredTypeSyntax(declaredType),
@@ -82,18 +82,25 @@ internal static class Types
 
     private static TypeSyntax ObjectTypeSyntax(GeneratedType generatedType)
     {
-        return generatedType.Source switch
+        var functionClassName = generatedType.Source switch
         {
-            GeneratedTypeSource.FunctionParameters => QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(generatedType.Name)),
-                IdentifierName(LexyCodeConstants.ParametersType)),
-            GeneratedTypeSource.FunctionResults => QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(generatedType.Name)),
-                IdentifierName(LexyCodeConstants.ResultsType)),
-            GeneratedTypeSource.TableRow => QualifiedName(IdentifierName(ClassNames.TableClassName(generatedType.Name)),
-                IdentifierName(LexyCodeConstants.RowType)),
+            GeneratedTypeSource.FunctionParameters => ClassNames.FunctionClassName(generatedType.TypeName),
+            GeneratedTypeSource.FunctionResults => ClassNames.FunctionClassName(generatedType.TypeName),
+            GeneratedTypeSource.TableRow => ClassNames.TableClassName(generatedType.TypeName),
             _ => throw new InvalidOperationException($"Invalid type: {generatedType}")
         };
+
+        var memberName = generatedType.Source switch
+        {
+            GeneratedTypeSource.FunctionParameters => LexyCodeConstants.ParametersType,
+            GeneratedTypeSource.FunctionResults => LexyCodeConstants.ResultsType,
+            GeneratedTypeSource.TableRow => LexyCodeConstants.RowType,
+            _ => throw new InvalidOperationException($"Invalid type: {generatedType}")
+        };
+
+        return QualifiedName(
+            IdentifierName(functionClassName),
+            IdentifierName(memberName));
     }
 
     public static TypeSyntax Syntax(TypeDeclaration typeDeclaration)
@@ -101,7 +108,7 @@ internal static class Types
         return typeDeclaration switch
         {
             ValueTypeDeclaration value => Syntax(value.Type),
-            ObjectTypeDeclaration objectDeclararion => IdentifierNameSyntax(objectDeclararion),
+            ObjectTypeDeclaration objectDeclaration => IdentifierNameSyntax(objectDeclaration),
             ImplicitTypeDeclaration implicitVariable => Syntax(implicitVariable.Type),
             _ => throw new InvalidOperationException("Couldn't map type: " + typeDeclaration)
         };
@@ -114,25 +121,8 @@ internal static class Types
             EnumType enumType => IdentifierName(ClassNames.EnumClassName(enumType.Name)),
             TableType tableType => IdentifierName(ClassNames.TableClassName(tableType.Name)),
             DeclaredType declaredType => IdentifierName(ClassNames.TypeClassName(declaredType.Name)),
-            GeneratedType generatedType => ObjectTypeIdentifierNameSyntax(generatedType),
+            GeneratedType generatedType => ObjectTypeSyntax(generatedType),
             _ => throw new InvalidOperationException($"Couldn't map type: {objectType.Type}")
-        };
-    }
-
-    private static TypeSyntax ObjectTypeIdentifierNameSyntax(GeneratedType generatedType)
-    {
-        return generatedType.Source switch
-        {
-            GeneratedTypeSource.FunctionParameters => QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(generatedType.Name)),
-                IdentifierName(LexyCodeConstants.ParametersType)),
-            GeneratedTypeSource.FunctionResults => QualifiedName(
-                IdentifierName(ClassNames.FunctionClassName(generatedType.Name)),
-                IdentifierName(LexyCodeConstants.ResultsType)),
-            GeneratedTypeSource.TableRow => QualifiedName(
-                IdentifierName(ClassNames.TableClassName(generatedType.Name)),
-                IdentifierName(LexyCodeConstants.RowType)),
-            _ => throw new InvalidOperationException("Invalid GeneratedType source: " + generatedType.Source)
         };
     }
 
@@ -173,7 +163,7 @@ internal static class Types
             case TypeNames.String:
                 return LiteralExpression(
                     SyntaxKind.StringLiteralExpression,
-                    Literal(""));
+                    Literal(string.Empty));
 
             case TypeNames.Date:
                 return DateSyntax(DateTypeDefault.Value);

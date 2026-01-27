@@ -7,24 +7,26 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class ExpressionSource
 {
-    public SourceFile File { get; }
+    public string FileName { get; }
     public Line Line { get; }
     public TokenList Tokens { get; }
 
     public ExpressionSource(Line line, TokenList tokens)
     {
         Line = Assert.NotNull(line, nameof(line));
-        File = Assert.NotNull(line.File, nameof(line));
+        FileName = Assert.NotNull(line.FileName, nameof(line));
         Tokens = Assert.NotNull(tokens, nameof(tokens));
     }
 
-    public SourceReference CreateReference(int tokenIndex = 0)
+    public SourceReference CreateReference()
     {
-        var token = Tokens[tokenIndex];
+        var token = Tokens[0];
+        var tokenEnd = Tokens[^1];
 
         return new SourceReference(
-            File,
+            FileName,
             Line.Index + 1,
-            token.FirstCharacter.Position + 1);
+            token.FirstCharacter.Position + 1,
+            tokenEnd.EndColumn + 1);
     }
 }

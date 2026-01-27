@@ -6,9 +6,6 @@ public class ParseOptions
 
     public static ParseOptions Default()
     {
-        return new ParseOptions
-        {
-            SuppressException = false
-        };
+        return new ParseOptions { SuppressException = false };
     }
 }

@@ -10,10 +10,8 @@ public abstract class TypeDeclaration : Node
     {
     }
 
-    protected abstract Type ValidateType(IValidationContext context);
-
-    protected override void Validate(IValidationContext context)
+    public override string ToString()
     {
-        Type = ValidateType(context);
+        return Type?.ToString();
     }
 }

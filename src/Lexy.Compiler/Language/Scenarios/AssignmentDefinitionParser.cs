@@ -6,11 +6,13 @@ namespace Lexy.Compiler.Language.Scenarios;
 
 public static class AssignmentDefinitionParser
 {
+    private record TokenIdentifierPath(string[] Parts, TokenCharacter FirstCharacter);
+
     public static IAssignmentDefinition Parse(IParseLineContext context, IdentifierPath parentVariable = null)
     {
         var line = context.Line;
         var tokens = line.Tokens;
-        var reference = line.LineStartReference();
+        var reference = line.Tokens.AllReference();
 
         var assignmentIndex = tokens.Find<OperatorToken>(token => token.Type == OperatorType.Assignment);
         if (assignmentIndex <= 0)
@@ -20,7 +22,8 @@ public static class AssignmentDefinitionParser
         }
 
         var targetTokens = tokens.TokensFromStart(assignmentIndex);
-        if (parentVariable != null) {
+        if (parentVariable != null)
+        {
             targetTokens = AddParentVariableAccessor(parentVariable, targetTokens);
         }
         var targetExpression = context.ExpressionFactory.Parse(targetTokens, line);
@@ -29,7 +32,8 @@ public static class AssignmentDefinitionParser
         var variableReference = IdentifierPathExpressionParser.Parse(targetExpression.Result);
         if (context.Failed(variableReference, reference)) return null;
 
-        if (assignmentIndex == tokens.Length - 1) {
+        if (assignmentIndex == tokens.Length - 1)
+        {
             return new ObjectAssignmentDefinition(variableReference.Result, reference);
         }
 
@@ -51,9 +55,8 @@ public static class AssignmentDefinitionParser
 
         var newPath = parentVariable.Append(identifierPath.Parts).FullPath();
         var newToken = new MemberAccessLiteralToken(newPath, identifierPath.FirstCharacter);
-        return new TokenList(new Token[] {newToken});
+        return new TokenList(targetTokens.Line, new Token[] {newToken});
     }
-    private record TokenIdentifierPath(string[] Parts, TokenCharacter FirstCharacter);
 
     private static TokenIdentifierPath GetIdentifierPath(TokenList targetTokens)
     {

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Functions;
 
@@ -27,5 +29,10 @@ public class FunctionParameters : ParsableNode
 
     protected override void Validate(IValidationContext context)
     {
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, "parameters", "function parameter variables", SymbolKind.Keyword);
     }
 }

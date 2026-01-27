@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -68,5 +70,12 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
     public override Type DeriveType(IValidationContext context)
     {
         return MemberAccessLiteralToken.DeriveType(context);
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return Variable != null
+             ? Variable.GetSymbol()
+             : new Symbol(Reference, MemberAccessLiteralToken.ToString(), string.Empty, SymbolKind.Variable);
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
+using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -12,8 +12,8 @@ public static class ArgumentList
     {
         public List<TokenList> Result { get; } = new();
         public List<Token> ArgumentTokens { get; } = new();
-        public int CountParentheses = 0;
-        public int CountBrackets = 0;
+        public int CountParentheses;
+        public int CountBrackets;
     }
 
     public static ArgumentTokenParseResult Parse(TokenList tokens)
@@ -25,7 +25,7 @@ public static class ArgumentList
         var context = new ParseContext();
         foreach (var token in tokens)
         {
-            var result = ProcessToken(context, token);
+            var result = ProcessToken(context, token, tokens.Line);
             if (result != null) return result;
         }
 
@@ -34,12 +34,12 @@ public static class ArgumentList
             return ArgumentTokenParseResult.Failed(@"Invalid token ','. No tokens before comma.");
         }
 
-        context.Result.Add(new TokenList(context.ArgumentTokens.ToArray()));
+        context.Result.Add(new TokenList(tokens.Line, context.ArgumentTokens.ToArray()));
 
         return ArgumentTokenParseResult.Success(context.Result);
     }
 
-    private static ArgumentTokenParseResult ProcessToken(ParseContext context, Token token)
+    private static ArgumentTokenParseResult ProcessToken(ParseContext context, Token token, Line line)
     {
         if (token is not OperatorToken operatorToken)
         {
@@ -58,7 +58,7 @@ public static class ArgumentList
                 return ArgumentTokenParseResult.Failed(@"Invalid token ','. No tokens before comma.");
             }
 
-            context.Result.Add(new TokenList(context.ArgumentTokens.ToArray()));
+            context.Result.Add(new TokenList(line, context.ArgumentTokens.ToArray()));
             context.ArgumentTokens.Clear();
         }
         else

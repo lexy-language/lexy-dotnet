@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -54,4 +56,6 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
     {
         yield return this;
     }
+
+    public override Symbol GetSymbol() => null;
 }

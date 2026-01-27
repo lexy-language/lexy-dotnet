@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -8,14 +10,14 @@ public class ValidationTable : ParsableNode
     private bool invalidHeader;
     private readonly List<ValidationTableRow> rows = new();
 
-    public ValidationTableName Name { get; } = new();
+    public string Name { get; }
     public ValidationTableHeader Header { get; private set; }
 
     public IReadOnlyList<ValidationTableRow> Rows => rows;
 
     public ValidationTable(string name, SourceReference reference) : base(reference)
     {
-        Name.ParseName(name);
+        Name = name;
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -69,4 +71,6 @@ public class ValidationTable : ParsableNode
             base.ValidateTree(context);
         }
     }
+
+    public override Symbol GetSymbol() => null;
 }

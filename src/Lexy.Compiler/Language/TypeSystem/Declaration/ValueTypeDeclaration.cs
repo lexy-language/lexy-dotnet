@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
@@ -36,13 +38,18 @@ public sealed class ValueTypeDeclaration : TypeDeclaration
         return TypeName;
     }
 
-    protected override Type ValidateType(IValidationContext context)
+    protected override void Validate(IValidationContext context)
     {
-        return new ValueType(TypeName);
+        Type = new ValueType(TypeName);
     }
 
     public override IEnumerable<INode> GetChildren()
     {
         yield break;
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, $"value type: {Type}", null, SymbolKind.ValueType);
     }
 }

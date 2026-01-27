@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -29,14 +30,14 @@ public class Include
         var lineTokens = line.Tokens;
         if (lineTokens.Length != 2 || !lineTokens.IsQuotedString(1))
         {
-            context.Logger.Fail(line.LineStartReference(),
+            context.Logger.Fail(lineTokens.AllReference(),
                 "Invalid syntax. Expected: 'include \"FileName\"");
             return null;
         }
 
         var quotedString = lineTokens.Token<QuotedLiteralToken>(1);
 
-        return new Include(quotedString.Value, line.LineStartReference());
+        return new Include(quotedString.Value, lineTokens.AllReference());
     }
 
     public async Task<string> Process(string parentFullFileName, IParserContext context)

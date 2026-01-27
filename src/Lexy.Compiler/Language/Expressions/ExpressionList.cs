@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Expressions;
 
@@ -51,7 +53,7 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
         var expression = factory.Parse(line.Tokens, line);
         if (!expression.IsSuccess)
         {
-            context.Logger.Fail(line.LineStartReference(), expression.ErrorMessage);
+            context.Logger.Fail(line.Tokens.AllReference(), expression.ErrorMessage);
             return expression;
         }
 
@@ -71,10 +73,14 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
         }
     }
 
-    private void AddToParent(IChildExpression childExpression, IParseLineContext context) {
+    private void AddToParent(IChildExpression childExpression, IParseLineContext context)
+    {
         var parentExpression = values.LastOrDefault() as IParentExpression;
-        if (childExpression.ValidateParentExpression(parentExpression, context)) {
+        if (childExpression.ValidateParentExpression(parentExpression, context))
+        {
             parentExpression.LinkChildExpression(childExpression);
         }
     }
+
+    public override Symbol GetSymbol() => null;
 }

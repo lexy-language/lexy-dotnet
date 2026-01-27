@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -44,7 +47,7 @@ public class Table : ComponentNode, INodeWithType
         }
         else
         {
-            var tableRow = TableRow.Parse(context, this.Header);
+            var tableRow = TableRow.Parse(context, Header);
             if (tableRow != null) rows.Add(tableRow);
         }
 
@@ -85,6 +88,19 @@ public class Table : ComponentNode, INodeWithType
             .Select(column => new ObjectVariable(column.Name, column.TypeDeclaration.Type))
             .ToList() ?? new List<ObjectVariable>();
 
-        return new GeneratedType(Name, this, GeneratedTypeSource.TableRow, members);
+        return new GeneratedType(Name, RowName, this, GeneratedTypeSource.TableRow, members);
+    }
+
+    public override Symbol GetSymbol()
+    {
+        if (Header == null) return null;
+
+        var builder = new StringBuilder();
+        foreach (var column in Header.Columns)
+        {
+            builder.AppendLine($"- {column.TypeDeclaration} {column.Name}");
+        }
+        var variablesString = builder.ToString();
+        return new Symbol(Reference, "table: " + Name, variablesString, SymbolKind.Table);
     }
 }

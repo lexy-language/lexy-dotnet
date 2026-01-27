@@ -103,12 +103,12 @@ public class Tokenizer : ITokenizer
             tokens.Add(result.NewToken ?? current);
         }
 
-        return TokenizeResult.Success(DiscardWhitespaceAndComments(tokens));
+        return TokenizeResult.Success(DiscardWhitespaceAndComments(line, tokens));
     }
 
-    private static TokenList DiscardWhitespaceAndComments(List<Token> tokens)
+    private static TokenList DiscardWhitespaceAndComments(Line line, List<Token> tokens)
     {
-        return new TokenList(tokens.Where(NotWhitespaceOrComment).ToArray());
+        return new TokenList(line, tokens.Where(NotWhitespaceOrComment).ToArray());
     }
 
     private static bool NotWhitespaceOrComment(Token token) => token is not CommentToken && token is not WhitespaceToken;

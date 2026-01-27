@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.TypeSystem.Objects;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public class VariableContext : IVariableContext
 {
@@ -58,13 +59,13 @@ public class VariableContext : IVariableContext
 
     public VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path)
     {
-        VariableReference ExecuteWithPriority(Func<IdentifierPath, VariableReference> firstPriorityHandler,
-            Func<IdentifierPath, VariableReference> secondPriorityHandler)
+        VariableReference ExecuteWithPriority(Func<SourceReference, IdentifierPath, VariableReference> firstPriorityHandler,
+            Func<SourceReference, IdentifierPath, VariableReference> secondPriorityHandler)
         {
-            var value1 = firstPriorityHandler(path);
+            var value1 = firstPriorityHandler(reference, path);
             if (value1 != null) return value1;
 
-            var value2 = secondPriorityHandler(path);
+            var value2 = secondPriorityHandler(reference, path);
             if (value2 != null) return value2;
 
             return null;
@@ -78,7 +79,7 @@ public class VariableContext : IVariableContext
             : ExecuteWithPriority(fromVariables, fromTypeSystem);
     }
 
-    private VariableReference CreateVariableReferenceFromRegisteredVariables(IdentifierPath path)
+    private VariableReference CreateVariableReferenceFromRegisteredVariables(SourceReference reference, IdentifierPath path)
     {
         var variable = GetVariable(path.RootIdentifier);
         if (variable == null) return null;
@@ -86,10 +87,10 @@ public class VariableContext : IVariableContext
         var type = GetType(path);
         if (type == null) return null;
 
-        return new VariableReference(path, null, type, variable.VariableSource);
+        return new VariableReference(reference, path, null, type, variable.VariableSource);
     }
 
-    private VariableReference CreateVariableReferenceFromTypeSystem(IdentifierPath path)
+    private VariableReference CreateVariableReferenceFromTypeSystem(SourceReference reference, IdentifierPath path)
     {
         if (path.Parts > 2) return null;
 
@@ -98,13 +99,13 @@ public class VariableContext : IVariableContext
 
         if (path.Parts == 1)
         {
-            return new VariableReference(path, rootType, rootType, VariableSource.Type);
+            return new VariableReference(reference, path, rootType, rootType, VariableSource.Type);
         }
 
         var member = path.LastPart();
         var memberType = rootType.MemberType(member);
         if (memberType == null) return null;
-        return new VariableReference(path, rootType, memberType, VariableSource.Type);
+        return new VariableReference(reference, path, rootType, memberType, VariableSource.Type);
     }
 
     public Type GetType(string name)

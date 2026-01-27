@@ -6,6 +6,8 @@ using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis.CSharp;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -17,8 +19,8 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     public const string ParameterName = "Parameters";
     public const string ResultsName = "Results";
 
-    public FunctionParameters Parameters { get; }
-    public FunctionResults Results { get; }
+    public FunctionParameters Parameters { get; private set; }
+    public FunctionResults Results { get; private set; }
     public FunctionCode Code { get; }
 
     public override string Name { get; }
@@ -28,8 +30,6 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     private Function(string name, bool nested, SourceReference reference, IExpressionFactory factory) : base(reference)
     {
         Nested = nested;
-        Parameters = new FunctionParameters(reference);
-        Results = new FunctionResults(reference);
         Code = new FunctionCode(reference, factory);
         Name = name;
     }
@@ -41,27 +41,31 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     public GeneratedType GetParametersType()
     {
-        var members = Parameters.Variables
-            .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
-            .ToList();
+        var members = Parameters?.Variables == null
+            ? new List<ObjectVariable>()
+            : Parameters.Variables
+                .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
+                .ToList();
 
-        return new GeneratedType(Name, this, GeneratedTypeSource.FunctionParameters, members);
+        return new GeneratedType(Name, ParameterName, this, GeneratedTypeSource.FunctionParameters, members);
     }
 
     public GeneratedType GetResultsType()
     {
-        var members = Results.Variables
-            .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
-            .ToList();
+        var members = Results?.Variables == null
+            ? new List<ObjectVariable>()
+            : Results.Variables
+                .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
+                .ToList();
 
-        return new GeneratedType(Name, this, GeneratedTypeSource.FunctionResults, members);
+        return new GeneratedType(Name, ResultsName, this, GeneratedTypeSource.FunctionResults, members);
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var result = new List<IComponentNode>();
-        AddObjectTypes(componentNodes, Parameters.Variables, result);
-        AddObjectTypes(componentNodes, Results.Variables, result);
+        AddObjectTypes(componentNodes, Parameters?.Variables, result);
+        AddObjectTypes(componentNodes, Results?.Variables, result);
         return result;
     }
 
@@ -78,18 +82,22 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
             return Code.Parse(context);
         }
 
+        var reference = line.Tokens.AllReference();
         var name = line.Tokens.TokenValue(0);
         return name switch
         {
-            Keywords.Parameters => Parameters,
-            Keywords.Results => Results,
+            Keywords.Parameters => Parameters = new FunctionParameters(reference),
+            Keywords.Results => Results = new FunctionResults(reference),
             _ => Code.Parse(context)
         };
     }
 
-    private static void AddObjectTypes(IComponentNodeList componentNodes, IReadOnlyList<VariableDefinition> variableDefinitions,
-        List<IComponentNode> result)
+    private static void AddObjectTypes(IComponentNodeList componentNodes,
+        IReadOnlyList<VariableDefinition> variableDefinitions,
+        ICollection<IComponentNode> result)
     {
+        if (variableDefinitions == null) return;
+
         foreach (var parameter in variableDefinitions)
         {
             if (parameter.TypeDeclaration is not ObjectTypeDeclaration objectType) continue;
@@ -112,8 +120,8 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     public override IEnumerable<INode> GetChildren()
     {
-        yield return Parameters;
-        yield return Results;
+        if (Parameters != null) yield return Parameters;
+        if (Results != null) yield return Results;
 
         yield return Code;
     }
@@ -226,5 +234,10 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     private static bool HasSpreadArgument(IReadOnlyList<Expression> arguments)
     {
         return arguments.Count == 1 && arguments[0] is SpreadExpression;
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, $"function: {Name}", string.Empty, SymbolKind.Function);
     }
 }

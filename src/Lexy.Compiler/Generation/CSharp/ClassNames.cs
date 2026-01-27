@@ -61,8 +61,10 @@ public static class ClassNames
     private static string Normalize(string functionName, string functionClassPrefix)
     {
         var nameBuilder = new StringBuilder(functionClassPrefix);
-        foreach (var @char in functionName.Where(ValidCharacter)) nameBuilder.Append(@char);
-
+        foreach (var @char in functionName.Where(ValidCharacter))
+        {
+            nameBuilder.Append(@char);
+        }
         return nameBuilder.ToString();
     }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser;

@@ -7,6 +7,7 @@ using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.Compiler.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;

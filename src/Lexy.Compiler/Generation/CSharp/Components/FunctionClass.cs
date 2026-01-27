@@ -19,8 +19,8 @@ public static class FunctionClass
 
         var members = new List<MemberDeclarationSyntax>
         {
-            VariableClass.Syntax(LexyCodeConstants.ParametersType, function.Parameters.Variables),
-            VariableClass.Syntax(LexyCodeConstants.ResultsType, function.Results.Variables),
+            VariableClass.Syntax(LexyCodeConstants.ParametersType, function.Parameters?.Variables),
+            VariableClass.Syntax(LexyCodeConstants.ResultsType, function.Results?.Variables),
             RunMethod(function),
             RunMethodInlineArguments(function)
         };
@@ -40,8 +40,8 @@ public static class FunctionClass
         {
             GuardStatements.VerifyNotNull(LexyCodeConstants.ParameterVariable),
             GuardStatements.VerifyNotNull(LexyCodeConstants.ContextVariable),
-            LogCalls.SetFileName(function.Reference.File.FileName),
-            LogCalls.OpenScope($"Execute: {function.Name}", function.Reference.LineNumber ?? -1),
+            LogCalls.SetFileName(function.Reference.FileName),
+            LogCalls.OpenScope($"Execute: {function.Name}", function.Reference.LineNumber),
         };
 
         if (function.Parameters != null)
@@ -102,14 +102,17 @@ public static class FunctionClass
                                                 ArgumentList()))))))
         };
 
-        statements.AddRange(function.Parameters.Variables
-            .Select(variable => ExpressionStatement(
-                AssignmentExpression(
-                    SyntaxKind.SimpleAssignmentExpression,
-                    MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(LexyCodeConstants.ParameterVariable),
-                        IdentifierName(variable.Name)),
-                    IdentifierName(variable.Name)))));
+        if (function.Parameters != null)
+        {
+            statements.AddRange(function.Parameters.Variables
+                .Select(variable => ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(LexyCodeConstants.ParameterVariable),
+                            IdentifierName(variable.Name)),
+                        IdentifierName(variable.Name)))));
+        }
 
         statements.Add(
             ReturnStatement(
@@ -126,11 +129,14 @@ public static class FunctionClass
 
         var parameters = new List<SyntaxNodeOrToken>();
 
-        foreach (var variable in function.Parameters.Variables)
+        if (function.Parameters != null)
         {
-            parameters.Add(Parameter(Identifier(variable.Name))
+            foreach (var variable in function.Parameters.Variables)
+            {
+                parameters.Add(Parameter(Identifier(variable.Name))
                     .WithType(Types.Syntax(variable.Type)));
-            parameters.Add(Token(SyntaxKind.CommaToken));
+                parameters.Add(Token(SyntaxKind.CommaToken));
+            }
         }
 
         parameters.Add(Parameter(Identifier(LexyCodeConstants.ContextVariable))

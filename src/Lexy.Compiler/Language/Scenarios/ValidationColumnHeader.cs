@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -31,4 +33,6 @@ public class ValidationColumnHeader : Node
             context.Logger.Fail(Reference,  $"Unknown variable: '{Name}'");
         }
     }
+
+    public override Symbol GetSymbol() => null;
 }

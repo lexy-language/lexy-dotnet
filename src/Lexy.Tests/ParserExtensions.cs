@@ -7,6 +7,7 @@ using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Logging;
 using Lexy.RunTime;
 using Microsoft.Extensions.DependencyInjection;
 using Table = Lexy.Compiler.Language.Tables.Table;
@@ -23,7 +24,7 @@ public static class ParserExtensions
 
         var parser = serviceProvider.GetRequiredService<ILexyParser>();
 
-        var context = await parser.Parse(lines, "tests.lexy", new ParseOptions() {SuppressException = true});
+        var context = await parser.ParseCode("tests.lexy", lines, new ParseOptions {SuppressException = true});
 
         return new ParseResult(context.Nodes, context.Logger, context.Dependencies);
     }

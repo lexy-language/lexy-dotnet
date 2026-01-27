@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Types;
@@ -61,5 +64,16 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
         {
             base.ValidateTree(context);
         }
+    }
+
+    public override Symbol GetSymbol()
+    {
+        var builder = new StringBuilder();
+        foreach (var variable in Variables)
+        {
+            builder.AppendLine("- " + variable.Type + " " + variable.Name);
+        }
+        var variablesString = builder.ToString();
+        return new Symbol(Reference, "type: " + Name, variablesString, SymbolKind.Type);
     }
 }

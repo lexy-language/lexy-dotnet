@@ -4,12 +4,14 @@ using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class FillParametersFunctionExpression : FunctionCallExpression, IHasNodeDependencies, INodeWithName
+public class FillParametersFunctionExpression : FunctionCallExpression, IHasNodeDependencies
 {
     public const string FunctionName = "fill";
 
@@ -87,7 +89,7 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
             }
             else
             {
-                mapping.Add(new Mapping(member.Name, variable.Type, variable.VariableSource));
+                mapping.Add(new Mapping(reference, member.Name, variable.Type, variable.VariableSource));
             }
         }
 
@@ -117,5 +119,10 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
     {
         return base.UsedVariables()
             .Union(mapping.Select(map => map.ToUsedVariable(VariableAccess.Read)));
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return new Symbol(Reference, FunctionName, FunctionHelp, SymbolKind.SystemFunction);
     }
 }

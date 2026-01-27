@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.TypeSystem.Objects;
+using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem;
 
@@ -40,5 +42,15 @@ public class EnumType : ObjectType
     protected override IEnumerable<IObjectMember> CreateMembers()
     {
         return enumDefinition.Members.Select(member => new ObjectVariable(member.Name, this));
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    public override Symbol GetSymbol(SourceReference reference)
+    {
+        return new Symbol(reference, $"enum: {Name}", string.Empty, SymbolKind.Enum);
     }
 }

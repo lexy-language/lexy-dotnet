@@ -4,6 +4,7 @@ using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.TypeSystem.Functions;
@@ -51,7 +52,7 @@ internal abstract class TableFunction : ObjectFunction
         }
     }
 
-    protected ColumnHeader ValidatorDiscriminator(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference,
+    protected ColumnHeader ValidateDiscriminator(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference,
         IOverloadArguments overloadArguments)
     {
         if (overloadArguments.Discriminator == null) return null;

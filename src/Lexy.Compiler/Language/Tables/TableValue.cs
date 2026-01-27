@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -35,4 +37,6 @@ public class TableValue : Node
             context.Logger.Fail(Reference, $"Invalid value type '{actualType}'. Expected '{expectedType}'.");
         }
     }
+
+    public override Symbol GetSymbol() => null;
 }

@@ -1,8 +1,9 @@
 using System;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Parser.Logging;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public interface IValidationContext
 {

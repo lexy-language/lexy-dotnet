@@ -58,5 +58,4 @@ public abstract class ObjectType : Type
     {
         throw new InvalidOperationException("Derived classes should provide members by constructor or by overriding this method.");
     }
-
 }

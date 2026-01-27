@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
 
@@ -49,14 +51,13 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
         return Array.Empty<IComponentNode>();
     }
 
-    protected override Type ValidateType(IValidationContext context)
+    protected override void Validate(IValidationContext context)
     {
-        var type = GetType(context.ComponentNodes);
-        if (type == null)
+        Type = GetType(context.ComponentNodes);
+        if (Type == null)
         {
             context.Logger.Fail(Reference, $"Invalid type: '{TypeName}'");
         }
-        return type;
     }
 
     private Type GetType(IComponentNodeList componentNodes)
@@ -89,5 +90,11 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
     public override IEnumerable<INode> GetChildren()
     {
         yield break;
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return Type?.GetSymbol(Reference)
+            ?? new Symbol(Reference, "unknown", string.Empty, SymbolKind.Keyword);
     }
 }

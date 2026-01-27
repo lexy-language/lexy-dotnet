@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.TypeSystem.Functions;
 
@@ -46,14 +47,16 @@ internal class LookUpRowFunction : TableFunction
 
         ValidateColumnValueType(context, arguments, overloadArguments.LookUpValue, "Search", searchColumnHeader, reference);
 
-        var discriminatorColumnHeader = ValidatorDiscriminator(context, arguments, reference, overloadArguments);
+        var discriminatorColumnHeader = ValidateDiscriminator(context, arguments, reference, overloadArguments);
 
-        var result = new LookUpRowFunctionCall(
+        var result = new LookUpRowFunctionCallState(
+            reference,
             Table.Name,
             arguments[overloadArguments.LookUpValue],
             overloadArguments.Discriminator.HasValue ? arguments[overloadArguments.Discriminator.Value] : null,
             searchColumnHeader.Name,
-            discriminatorColumnHeader?.Name);
+            discriminatorColumnHeader?.Name,
+            GetResultsType(arguments));
 
         return ValidateMemberFunctionArgumentsResult.Success(result);
     }

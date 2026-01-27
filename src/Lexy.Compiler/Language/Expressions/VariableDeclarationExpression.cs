@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -14,12 +16,14 @@ public class VariableDeclarationExpression : Expression
     public TypeDeclaration TypeDeclaration { get; }
     public string Name { get; }
     public Expression Assignment { get; }
+    public VariableNameExpression NameExpression { get; }
 
-    private VariableDeclarationExpression(TypeDeclaration typeDeclaration, string variableName, Expression assignment,
+    private VariableDeclarationExpression(TypeDeclaration typeDeclaration, VariableNameExpression nameExpression, Expression assignment,
         ExpressionSource source, SourceReference reference) : base(source, reference)
     {
         TypeDeclaration = Assert.NotNull(typeDeclaration, nameof(typeDeclaration));
-        Name = Assert.NotNull(variableName, nameof(variableName));
+        NameExpression = Assert.NotNull(nameExpression, nameof(nameExpression));
+        Name = nameExpression.Name;
         Assignment = assignment;
     }
 
@@ -27,20 +31,35 @@ public class VariableDeclarationExpression : Expression
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens))
+        {
             return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
+        }
 
-        var type = TypeDeclarationParser.Parse(tokens.TokenValue(0), source.CreateReference());
-        var name = tokens.TokenValue(1);
+        var type = TypeDeclarationParser.Parse(tokens.TokenValue(0), tokens.Reference(0, 1));
         var assignment = tokens.Length > 3
             ? factory.Parse(tokens.TokensFrom(3), source.Line)
             : null;
         if (assignment is { IsSuccess: false }) return assignment;
 
+        var name = GetNameExpression(tokens);
+        if (!name.IsSuccess)
+        {
+            return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
+        }
+
         var reference = source.CreateReference();
 
-        var expression = new VariableDeclarationExpression(type, name, assignment?.Result, source, reference);
+        var expression = new VariableDeclarationExpression(type, name.Result, assignment?.Result, source, reference);
 
         return ParseExpressionResult.Success(expression);
+    }
+
+    private static ParseVariableNameExpressionResult GetNameExpression(TokenList tokens)
+    {
+        var nameToken = tokens[1];
+        var nameTokens = new TokenList(tokens.Line, nameToken);
+        var expressionSource = new ExpressionSource(tokens.Line, nameTokens);
+        return VariableNameExpression.Parse(expressionSource, SymbolKind.Variable);
     }
 
     public static bool IsValid(TokenList tokens)
@@ -67,6 +86,7 @@ public class VariableDeclarationExpression : Expression
     public override IEnumerable<INode> GetChildren()
     {
         yield return TypeDeclaration;
+        yield return NameExpression;
         if (Assignment != null) yield return Assignment;
     }
 
@@ -111,7 +131,7 @@ public class VariableDeclarationExpression : Expression
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
-        yield return new VariableUsage(IdentifierPath.Parse(Name), null, type, VariableSource.Code, VariableAccess.Write);
+        yield return new VariableUsage(Reference, IdentifierPath.Parse(Name), null, type, VariableSource.Code, VariableAccess.Write);
 
         if (Assignment == null) yield break;
 
@@ -120,5 +140,10 @@ public class VariableDeclarationExpression : Expression
         {
             yield return readVariable;
         }
+    }
+
+    public override Symbol GetSymbol()
+    {
+        return null;
     }
 }

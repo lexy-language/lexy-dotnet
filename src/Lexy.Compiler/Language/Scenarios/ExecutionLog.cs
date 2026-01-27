@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -24,16 +26,16 @@ public class ExecutionLog : ParsableNode
     {
         var line = context.Line;
         var tokens = line.Tokens;
-        var reference = line.LineStartReference();
+        var reference = tokens.AllReference();
         if (!tokens.IsKeyword(0, Keywords.ExecutionLog))
         {
-            context.Logger.Fail(line.LineStartReference(), "Keyword expected 'Log'");
+            context.Logger.Fail(tokens.AllReference(), "Keyword expected 'Log'");
             return null;
         }
 
         if (tokens.Length != 2)
         {
-            context.Logger.Fail(line.LineStartReference(),
+            context.Logger.Fail(tokens.AllReference(),
                 $"Invalid number of tokens '{tokens.Length}'. Expected: '2'");
             return null;
         }
@@ -42,7 +44,7 @@ public class ExecutionLog : ParsableNode
 
         if (token is not QuotedLiteralToken messageToken)
         {
-            context.Logger.Fail(line.TokenReference(1), "Invalid token. \"Message\" expected.");
+            context.Logger.Fail(tokens.AllReference(), "Invalid token. \"Message\" expected.");
             return null;
         }
 
@@ -85,4 +87,6 @@ public class ExecutionLog : ParsableNode
     protected override void Validate(IValidationContext context)
     {
     }
+
+    public override Symbol GetSymbol() => null;
 }

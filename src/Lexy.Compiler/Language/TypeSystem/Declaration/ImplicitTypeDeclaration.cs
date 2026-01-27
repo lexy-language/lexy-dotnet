@@ -1,6 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
+using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
 
@@ -8,11 +9,6 @@ public sealed class ImplicitTypeDeclaration : TypeDeclaration
 {
     public ImplicitTypeDeclaration(SourceReference reference) : base(reference)
     {
-    }
-
-    protected override Type ValidateType(IValidationContext context)
-    {
-        throw new InvalidOperationException("Not supported. Nodes should be Validated first.");
     }
 
     public void Define(Type type)
@@ -25,8 +21,12 @@ public sealed class ImplicitTypeDeclaration : TypeDeclaration
         yield break;
     }
 
+    public override Symbol GetSymbol()
+    {
+        return Type?.GetSymbol(Reference);
+    }
+
     protected override void Validate(IValidationContext context)
     {
-        //suppress base validator
     }
 }
