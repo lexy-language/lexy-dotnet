@@ -1,37 +1,38 @@
 using System.Collections.Generic;
 using System.Text;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
 public class SpreadAssignmentExpression : Expression
 {
-    public Expression Assignment { get; }
+    public Expression Assignment { get; private set; }
     public VariablesMapping Mapping { get; private set; }
 
-    private SpreadAssignmentExpression(Expression assignment, ExpressionSource source,
-        SourceReference reference) : base(source, reference)
+    private SpreadAssignmentExpression(Expression assignment, ExpressionSource source, NodeReference parentReference, SourceReference reference) :
+        base(source, parentReference, reference)
     {
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParseExpressionResult>("Invalid expression.");
 
-        var assignment = factory.Parse(tokens.TokensFrom(2), source.Line);
-        if (!assignment.IsSuccess) return assignment;
+        var expressionReference = new NodeReference();
+        var assignment = factory.Parse(expressionReference, tokens.TokensFrom(2), source.Line);
+        if (!assignment.IsSuccess) return null;
 
         var reference = source.CreateReference();
 
-        var expression = new SpreadAssignmentExpression(assignment.Result, source, reference);
+        var expression = new SpreadAssignmentExpression(assignment.Result, source, parentReference, reference);
+        expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);
     }

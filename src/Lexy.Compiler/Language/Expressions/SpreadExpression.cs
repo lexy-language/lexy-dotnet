@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
-using Lexy.Compiler.Language.Expressions.Functions;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
@@ -12,19 +8,19 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class SpreadExpression : Expression
 {
-    private SpreadExpression(ExpressionSource source, SourceReference reference) :
-        base(source, reference)
+    private SpreadExpression(ExpressionSource source, NodeReference parentReference, SourceReference reference) :
+        base(source, parentReference, reference)
     {
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<LiteralExpression>("Invalid expression.");
 
         var reference = source.CreateReference();
 
-        var expression = new SpreadExpression( source, reference);
+        var expression = new SpreadExpression(source, parentReference, reference);
         return ParseExpressionResult.Success(expression);
     }
 

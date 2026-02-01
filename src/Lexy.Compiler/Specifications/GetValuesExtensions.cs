@@ -81,7 +81,7 @@ public static class GetValuesExtensions
             }
 
             valueObject = dictionary;
-            reference = reference.ChildrenReference();
+            reference = reference.ChildrenPath();
         }
 
         valueObject.Add(reference.RootIdentifier, value);

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -14,15 +14,15 @@ public class ObjectAssignmentDefinition : ParsableNode, IAssignmentDefinition
 
     public IReadOnlyList<IAssignmentDefinition> Assignments => assignments;
 
-    public ObjectAssignmentDefinition(IdentifierPath variable, SourceReference reference)
-        : base(reference)
+    public ObjectAssignmentDefinition(IdentifierPath variable, NodeReference parentReference, SourceReference reference)
+        : base(parentReference, reference)
     {
         Variable = variable;
     }
 
     public override IParsableNode Parse(IParseLineContext context)
     {
-        var assignment = AssignmentDefinitionParser.Parse(context, Variable);
+        var assignment = AssignmentDefinitionParser.Parse(context, this, Variable);
         if (assignment == null) return this;
 
         assignments.Add(assignment);

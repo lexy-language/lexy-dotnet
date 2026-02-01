@@ -15,5 +15,5 @@ public interface IValidationContext
 
     ILibraries Libraries { get; }
 
-    IDisposable CreateVariableScope();
+    void InNodeVariableScope(INode node, Action<IValidationContext> action);
 }

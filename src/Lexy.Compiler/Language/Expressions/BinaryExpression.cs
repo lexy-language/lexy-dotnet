@@ -1,14 +1,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Enums;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
+
+public class BinaryState
+{
+    public Type LeftType { get; }
+    public Type RightType { get; }
+
+    public BinaryState(Type leftType, Type rightType)
+    {
+        LeftType = leftType;
+        RightType = rightType;
+    }
+}
 
 public class BinaryExpression : Expression
 {
@@ -40,12 +51,11 @@ public class BinaryExpression : Expression
 
     private static Type EnumType()
     {
-        var definition = new EnumDefinition("*", false, new SourceReference("*", 1, 1, 1));
+        var definition = new EnumDefinition("*", false, new NodeReference(null), new SourceReference("*", 1, 1, 1));
         return new EnumType(definition);
     }
 
-    private record OperatorCombination(Type LeftType, Type RightType,
-        ExpressionOperator ExpressionOperator);
+    private record OperatorCombination(Type LeftType, Type RightType, ExpressionOperator ExpressionOperator);
 
     private static readonly IList<ExpressionOperator> ComparisonOperators = new[]
     {
@@ -127,18 +137,18 @@ public class BinaryExpression : Expression
     public Expression Right { get; }
     public ExpressionOperator Operator { get; }
 
-    public Type LeftType { get; private set; }
-    public Type RightType { get; private set; }
+    public BinaryState State { get; private set; }
 
     private BinaryExpression(Expression left, Expression right, ExpressionOperator operatorValue,
-        ExpressionSource source, SourceReference reference) : base(source, reference)
+        ExpressionSource source, NodeReference parentReference, SourceReference reference) :
+        base(source, parentReference, reference)
     {
         Left = left;
         Right = right;
         Operator = operatorValue;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         var supportedTokens = GetCurrentLevelSupportedTokens(tokens);
@@ -162,16 +172,19 @@ public class BinaryExpression : Expression
                 $"No tokens right from: {lowestPriorityOperation.Index} ({tokens})");
         }
 
-        var left = factory.Parse(leftTokens, source.Line);
+        var expressionReference = new NodeReference();
+        var left = factory.Parse(expressionReference, leftTokens, source.Line);
         if (!left.IsSuccess) return left;
 
-        var right = factory.Parse(rightTokens, source.Line);
+        var right = factory.Parse(expressionReference, rightTokens, source.Line);
         if (!right.IsSuccess) return left;
 
         var operatorValue = lowestPriorityOperation.ExpressionOperator;
-        var reference = source.CreateReference(); /// TODO lowestPriorityOperation.Index);
+        var reference = source.CreateReference();
 
-        var binaryExpression = new BinaryExpression(left.Result, right.Result, operatorValue, source, reference);
+        var binaryExpression = new BinaryExpression(left.Result, right.Result, operatorValue, source, parentReference,  reference);
+        expressionReference.SetNode(binaryExpression);
+
         return ParseExpressionResult.Success(binaryExpression);
     }
 
@@ -250,19 +263,22 @@ public class BinaryExpression : Expression
 
     protected override void Validate(IValidationContext context)
     {
-        LeftType = Left.DeriveType(context);
-        RightType = Right.DeriveType(context);
-        if (LeftType == null || RightType == null)
+        var leftType = Left.DeriveType(context);
+        var rightType = Right.DeriveType(context);
+
+        State = new BinaryState(leftType, rightType);
+
+        if (leftType == null || rightType == null)
         {
             context.Logger.Fail(Reference,
                 $"Invalid operator '{Operator}'. Can't derive type.");
             return;
         }
 
-        if (!IsAllowedOperation(LeftType, RightType))
+        if (!IsAllowedOperation(leftType, rightType))
         {
             context.Logger.Fail(Reference,
-                $"Invalid operator '{Operator}'. Left type: '{LeftType}' and right type '{RightType}' not supported.");
+                $"Invalid operator '{Operator}'. Left type: '{leftType}' and right type '{rightType}' not supported.");
         }
     }
 

@@ -25,7 +25,7 @@ public class LexyParserTests : ScopedServicesTestFixture
         function.Results.Variables[0].TypeDeclaration.ValidateOfType<ValueTypeDeclaration>(type =>
             type.TypeName.ShouldBe("number"));
         function.Code.Expressions.Count.ShouldBe(1);
-        function.Code.Expressions[0].ToString().ShouldBe("Result=777");
+        function.Code.Expressions[0].ToString().ShouldBe("(AssignmentExpression) Result = 777");
     }
 
     [Test]

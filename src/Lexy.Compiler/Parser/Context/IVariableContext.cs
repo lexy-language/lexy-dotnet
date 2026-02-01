@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.TypeSystem;
 
@@ -10,6 +11,8 @@ public interface IVariableContext
     void RegisterVariableAndVerifyUnique(SourceReference reference, string variableName, Type type,
         VariableSource source);
 
+    VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path);
+
     bool Contains(string variableName);
     bool Contains(IdentifierPath path);
 
@@ -17,6 +20,4 @@ public interface IVariableContext
     Type GetType(IdentifierPath path);
 
     VariableEntry GetVariable(string variableName);
-
-    VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path);
 }

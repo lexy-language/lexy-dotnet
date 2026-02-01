@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -14,18 +14,18 @@ namespace Lexy.Compiler.Language.Expressions;
 public class IfExpression : Expression, IParsableNode, IParentExpression
 {
     private readonly ExpressionList trueExpressions;
-    private readonly List<Expression> elseExpressions = new List<Expression>();
+    private readonly List<Expression> elseExpressions = new ();
 
     public Expression Condition { get; }
     public IEnumerable<Expression> TrueExpressions => trueExpressions;
 
     public IReadOnlyList<Expression> ElseExpressions => elseExpressions;
 
-    private IfExpression(Expression condition, ExpressionSource source, SourceReference reference, IExpressionFactory factory) : base(source,
-        reference)
+    private IfExpression(Expression condition, ExpressionSource source, NodeReference parentReference, SourceReference reference, IExpressionFactory factory) :
+        base(source, parentReference, reference)
     {
         Condition = condition;
-        trueExpressions = new ExpressionList(reference, factory);
+        trueExpressions = new ExpressionList(this, reference, factory);
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -44,20 +44,22 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
         }
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
 
         if (tokens.Length == 1) return ParseExpressionResult.Invalid<IfExpression>("No condition found");
 
+        var expressionReference = new NodeReference();
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = factory.Parse(condition, source.Line);
+        var conditionExpression = factory.Parse(expressionReference, condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new IfExpression(conditionExpression.Result, source, reference, factory);
+        var expression = new IfExpression(conditionExpression.Result, source, parentReference, reference, factory);
+        expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);
     }
@@ -105,4 +107,12 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override SuggestionEdit[] GetSuggestions()
+    {
+        return Suggestions.Edit(with => with
+            .Keyword(Keywords.Else)
+            .Keyword(Keywords.ElseIf)
+        );
+    }
 }

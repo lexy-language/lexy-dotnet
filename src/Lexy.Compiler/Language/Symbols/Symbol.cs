@@ -1,4 +1,7 @@
-namespace Lexy.Compiler.Parser.Symbols;
+using Lexy.Compiler.Parser;
+using Lexy.RunTime;
+
+namespace Lexy.Compiler.Language.Symbols;
 
 public class Symbol
 {
@@ -10,8 +13,8 @@ public class Symbol
 
     public Symbol(SourceReference reference, string name, string description, SymbolKind kind, Signatures signatures = null)
     {
-        Reference = reference;
-        Name = name;
+        Reference = Assert.NotNull(reference, nameof(reference));
+        Name = Assert.NotNull(name, nameof(name));
         Description = description;
         Kind = kind;
         Signatures = signatures;

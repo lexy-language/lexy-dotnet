@@ -4,7 +4,7 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
-internal static class NodesWalker
+public static class NodesWalker
 {
     public static void Walk(IEnumerable<INode> nodes, Action<INode> action)
     {

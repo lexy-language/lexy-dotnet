@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
 

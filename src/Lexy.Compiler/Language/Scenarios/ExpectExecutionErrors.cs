@@ -1,10 +1,9 @@
-using Lexy.Compiler.Parser;
-
 namespace Lexy.Compiler.Language.Scenarios;
 
 public class ExpectExecutionErrors : ErrorsNode<ExpectExecutionErrors>
 {
-    public ExpectExecutionErrors(SourceReference reference) : base(reference)
+    public ExpectExecutionErrors(Scenario scenario, SourceReference reference) :
+        base(new NodeReference(scenario), reference)
     {
     }
 }

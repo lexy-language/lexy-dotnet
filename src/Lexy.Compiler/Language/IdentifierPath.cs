@@ -19,7 +19,7 @@ public class IdentifierPath
     public string FullPath() => string.Join(".", Path);
     public override string ToString() => FullPath();
 
-    public IdentifierPath ChildrenReference()
+    public IdentifierPath ChildrenPath()
     {
         var parts = Path[1..];
         return new IdentifierPath(parts);

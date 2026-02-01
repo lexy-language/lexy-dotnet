@@ -34,7 +34,7 @@ public class ParserContext : IParserContext
 
         RootNode = new LexyScriptNode();
         LineFilter = new DefaultLineFilter();
-        Symbols = new DocumentsSymbols();
+        Symbols = new DocumentsSymbols(RootNode);
     }
 
     public void AddFileIncluded(string fileName)

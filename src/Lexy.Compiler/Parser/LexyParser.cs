@@ -103,6 +103,8 @@ public class LexyParser : ILexyParser
         while (sourceCodeDocument.HasMoreLines())
         {
             var line = sourceCodeDocument.NextLine();
+            symbols.Add(line);
+
             if (!TokenizeLine(line, context))
             {
                 currentIndent = line?.Indent(context.Logger) ?? currentIndent;
@@ -195,25 +197,11 @@ public class LexyParser : ILexyParser
         await ParseDocument(document, context);
     }
 
-    private void ValidateNodesTree(IParserContext context)
+    private static void ValidateNodesTree(IParserContext context)
     {
         var visitor = new TrackLoggingCurrentNodeVisitor(context.Logger);
-        var validationContext = new ValidationContext(context.Logger, context.Nodes, visitor, context.Libraries);
-        SetParents(context);
+        var validationContext = new ValidationContext(context.Logger, context.Nodes, visitor, context.Libraries, context.Symbols);
         context.RootNode.ValidateTree(validationContext);
-    }
-
-    private static void SetParents(IParserContext context)
-    {
-        NodesWalker.Walk(context.RootNode, (node, parent) =>
-        {
-            if (node is not INodeWithParent nodeWithParent)
-            {
-                throw new InvalidOperationException("Each node should implement INodeWithParent");
-            }
-
-            nodeWithParent.SetParent(parent);
-        }, null);
     }
 
     private Dependencies SortByDependencyAndCheckCircularDependencies(IParserContext context)
@@ -244,6 +232,8 @@ public class LexyParser : ILexyParser
         }
 
         var parseLineContext = new ParseLineContext(line, context.Logger, documentSymbols, expressionFactory);
+        currentNode.ExpandArea(line.EndPosition);
+
         var node = currentNode.Parse(parseLineContext);
         if (node == null)
         {

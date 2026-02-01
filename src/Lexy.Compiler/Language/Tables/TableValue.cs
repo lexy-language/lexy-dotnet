@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
+using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -13,7 +14,8 @@ public class TableValue : Node
 
     public Expression Expression { get; }
 
-    public TableValue(int index, Expression expression, TableHeader tableHeader, SourceReference reference) : base(reference)
+    private TableValue(int index, Expression expression, TableHeader tableHeader, NodeReference parentReference, SourceReference reference) :
+        base(parentReference, reference)
     {
         Expression = expression;
         this.index = index;
@@ -39,4 +41,25 @@ public class TableValue : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public static TableValue Parse(IParseLineContext context, TableHeader tableHeader,
+        TokenList currentLineTokens, NodeReference parentReference, int tokenIndex, int valueIndex)
+    {
+        var notValid = !context.ValidateTokens<TableRow>()
+            .IsLiteralToken(tokenIndex)
+            .Type<TableSeparatorToken>(tokenIndex + 1)
+            .IsValid;
+
+        if (notValid) return null;
+
+        var valueReference = new NodeReference();
+        var reference = context.Line.Tokens.Reference(tokenIndex, 1);
+        var token = currentLineTokens.Token<Token>(tokenIndex);
+        var expression = context.ExpressionFactory.Parse(valueReference, new TokenList(context.Line, token), context.Line);
+        if (context.Failed(expression, reference)) return null;
+
+        var tableValue = new TableValue(valueIndex, expression.Result, tableHeader, parentReference, reference);
+        valueReference.SetNode(tableValue);
+        return tableValue;
+    }
 }

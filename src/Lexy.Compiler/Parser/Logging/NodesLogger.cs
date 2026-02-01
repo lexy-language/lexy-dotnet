@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Lexy.Compiler.Language;
@@ -9,14 +10,19 @@ public static class NodesLogger
     public static string Log(IEnumerable<INode> nodes)
     {
         var builder = new StringBuilder();
-        Log(nodes, builder, 0);
+        Log(null, nodes, builder, 0);
         return builder.ToString();
     }
 
-    private static void Log(IEnumerable<INode> nodes, StringBuilder builder, int indent)
+    private static void Log(INode parent, IEnumerable<INode> nodes, StringBuilder builder, int indent)
     {
+        var index = 0;
         foreach (var node in nodes)
         {
+            if (node == null)
+            {
+                throw new InvalidOperationException($"Node {index++} of '{parent.GetType()}' is null.");
+            }
             Log(node, builder, indent);
         }
     }
@@ -36,6 +42,6 @@ public static class NodesLogger
 
         var children = node.GetChildren();
 
-        Log(children, builder, indent + 2);
+        Log(node, children, builder, indent + 2);
     }
 }

@@ -33,9 +33,9 @@ function If
         function.Code.Expressions.Count.ShouldBe(3);
         function.Code.Expressions[1].ValidateOfType<IfExpression>(expression =>
         {
-          expression.TrueExpressions.Count().ShouldBe(1);
-          expression.TrueExpressions.ToArray()[0].ValidateOfType<AssignmentExpression>(assignment =>
-            assignment.ToString().ShouldBe("temp=666"));
+            expression.TrueExpressions.Count().ShouldBe(1);
+            expression.TrueExpressions.ToArray()[0].ValidateOfType<AssignmentExpression>(assignment =>
+                assignment.ToString().ShouldBe("(AssignmentExpression) temp = 666"));
         });
     }
 }

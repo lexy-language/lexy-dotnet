@@ -1,9 +1,8 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Functions;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
@@ -17,7 +16,8 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
 
     public override string Name => FunctionPath.LastPart();
 
-    public MemberFunctionCallExpression(IdentifierPath functionPath, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
+    public MemberFunctionCallExpression(IdentifierPath functionPath,  IReadOnlyList<Expression> arguments,
+        NodeReference parentReference, ExpressionSource source) : base(parentReference, source)
     {
         FunctionPath = Assert.NotNull(functionPath, nameof(functionPath));
         Arguments = Assert.NotNull(arguments, nameof(arguments));

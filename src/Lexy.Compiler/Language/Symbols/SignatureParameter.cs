@@ -1,4 +1,6 @@
-namespace Lexy.Compiler.Parser.Symbols;
+using Lexy.RunTime;
+
+namespace Lexy.Compiler.Language.Symbols;
 
 public class SignatureParameter
 {
@@ -7,8 +9,8 @@ public class SignatureParameter
 
     public SignatureParameter(string name, string documentation)
     {
-        Name = name;
-        Documentation = documentation;
+        Name = Assert.NotNull(name, nameof(name));
+        Documentation = Assert.NotNull(documentation, nameof(documentation));
     }
 
     public override string ToString()

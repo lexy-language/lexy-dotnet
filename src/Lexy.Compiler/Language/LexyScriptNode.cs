@@ -3,10 +3,10 @@ using System.Linq;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.Types;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 using Table = Lexy.Compiler.Language.Tables.Table;
 
@@ -17,14 +17,12 @@ public class LexyScriptNode : ComponentNode
     private readonly IList<Include> includes = new List<Include>();
     private IEnumerable<IComponentNode> sortedNodes;
 
-    public override string Name => nameof(LexyScriptNode);
-
     public Comments Comments { get; }
     public ComponentNodeList ComponentNodes { get; } = new();
 
-    public LexyScriptNode() : base(new SourceReference(nameof(LexyScriptNode), 1, 1, 1))
+    public LexyScriptNode() : base(nameof(LexyScriptNode), new NodeReference(null), new SourceReference(nameof(LexyScriptNode), 1, 1, 1))
     {
-        Comments = new Comments(Reference);
+        Comments = new Comments(new NodeReference(this), Reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -65,11 +63,11 @@ public class LexyScriptNode : ComponentNode
 
         var componentNode = tokenName.Keyword switch
         {
-            Keywords.Function => Function.Create(tokenName.Name, false, reference, context.ExpressionFactory),
-            Keywords.EnumKeyword => EnumDefinition.Parse(tokenName.Name, false, reference),
-            Keywords.ScenarioKeyword => Scenario.Parse(tokenName, reference),
-            Keywords.TableKeyword => new Table(tokenName.Name,  reference),
-            Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, reference),
+            Keywords.Function => Function.Create(tokenName.Name, false, new NodeReference(this), reference, context.ExpressionFactory),
+            Keywords.EnumKeyword => EnumDefinition.Parse(tokenName.Name, false, this, reference),
+            Keywords.ScenarioKeyword => Scenario.Parse(tokenName, this, reference),
+            Keywords.TableKeyword => new Table(tokenName.Name, new NodeReference(this), reference),
+            Keywords.TypeKeyword => TypeDefinition.Parse(tokenName, this, reference),
             _ => InvalidNode(tokenName, context, reference)
         };
 
@@ -99,7 +97,7 @@ public class LexyScriptNode : ComponentNode
 
     public IEnumerable<Include> GetDueIncludes()
     {
-        return includes.Where(include => !include.IsProcessed).ToList();
+        return includes.Where(include => include.State?.IsProcessed != true).ToList();
     }
 
     public void SortByDependency(IEnumerable<IComponentNode> sortedNodes)
@@ -116,4 +114,16 @@ public class LexyScriptNode : ComponentNode
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override SuggestionEdit[] GetSuggestions()
+    {
+        return Suggestions.Edit(SuggestionsScope.CurrentLevel, with => with
+            .Keyword(Keywords.Function)
+            .Keyword(Keywords.EnumKeyword)
+            .Keyword(Keywords.TypeKeyword)
+            .Keyword(Keywords.TableKeyword)
+            .Keyword(Keywords.ScenarioKeyword)
+            .Keyword(Keywords.Include)
+        );
+    }
 }

@@ -1,10 +1,11 @@
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Tests.Symbols;
 
 public static class VerifySymbolsExtensions
 {
-    public static VerifyModelContext<DocumentsSymbols> VerifyDescription(this VerifyModelContext<DocumentsSymbols> symbols, int lineNumber, int column,
+    public static VerifyModelContext<DocumentsSymbols> Description(this VerifyModelContext<DocumentsSymbols> symbols, int lineNumber, int column,
         string expectedName, SymbolKind expectedKind, string expectedDescription = null)
     {
         var extraMessage = $"Symbol at ({lineNumber}:{column})";

@@ -1,25 +1,36 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions;
 
+public class VariableDeclarationState
+{
+    public Type Type { get; }
+
+    public VariableDeclarationState(Type type)
+    {
+        Type = type;
+    }
+}
+
 public class VariableDeclarationExpression : Expression
 {
-    private Type type;
 
     public TypeDeclaration TypeDeclaration { get; }
     public string Name { get; }
     public Expression Assignment { get; }
     public VariableNameExpression NameExpression { get; }
 
+    public VariableDeclarationState State { get; private set; }
+
     private VariableDeclarationExpression(TypeDeclaration typeDeclaration, VariableNameExpression nameExpression, Expression assignment,
-        ExpressionSource source, SourceReference reference) : base(source, reference)
+        ExpressionSource source, NodeReference parentReference, SourceReference reference) : base(source, parentReference, reference)
     {
         TypeDeclaration = Assert.NotNull(typeDeclaration, nameof(typeDeclaration));
         NameExpression = Assert.NotNull(nameExpression, nameof(nameExpression));
@@ -27,7 +38,7 @@ public class VariableDeclarationExpression : Expression
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens))
@@ -35,13 +46,14 @@ public class VariableDeclarationExpression : Expression
             return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
         }
 
-        var type = TypeDeclarationParser.Parse(tokens.TokenValue(0), tokens.Reference(0, 1));
+        var expressionReference = new NodeReference();
+        var type = TypeDeclarationParser.Parse(tokens.TokenValue(0), expressionReference, tokens.Reference(0, 1));
         var assignment = tokens.Length > 3
-            ? factory.Parse(tokens.TokensFrom(3), source.Line)
+            ? factory.Parse(expressionReference, tokens.TokensFrom(3), source.Line)
             : null;
         if (assignment is { IsSuccess: false }) return assignment;
 
-        var name = GetNameExpression(tokens);
+        var name = GetNameExpression(expressionReference, tokens);
         if (!name.IsSuccess)
         {
             return ParseExpressionResult.Invalid<VariableDeclarationExpression>("Invalid expression.");
@@ -49,17 +61,18 @@ public class VariableDeclarationExpression : Expression
 
         var reference = source.CreateReference();
 
-        var expression = new VariableDeclarationExpression(type, name.Result, assignment?.Result, source, reference);
+        var expression = new VariableDeclarationExpression(type, name.Result, assignment?.Result, source, parentReference, reference);
+        expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);
     }
 
-    private static ParseVariableNameExpressionResult GetNameExpression(TokenList tokens)
+    private static ParseVariableNameExpressionResult GetNameExpression(NodeReference expressionReference, TokenList tokens)
     {
         var nameToken = tokens[1];
         var nameTokens = new TokenList(tokens.Line, nameToken);
         var expressionSource = new ExpressionSource(tokens.Line, nameTokens);
-        return VariableNameExpression.Parse(expressionSource, SymbolKind.Variable);
+        return VariableNameExpression.Parse(expressionSource, expressionReference, SymbolKind.Variable);
     }
 
     public static bool IsValid(TokenList tokens)
@@ -71,7 +84,7 @@ public class VariableDeclarationExpression : Expression
                && tokens.IsTokenType<StringLiteralToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
             || tokens.Length == 2
-               && tokens.IsTokenType<MemberAccessLiteralToken>(0)
+               && tokens.IsTokenType<MemberAccessToken>(0)
                && tokens.IsTokenType<StringLiteralToken>(1)
             || tokens.Length >= 4
                && tokens.IsKeyword(0, Keywords.ImplicitVariableDeclaration)
@@ -105,6 +118,8 @@ public class VariableDeclarationExpression : Expression
         }
 
         context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, type, VariableSource.Code);
+
+        State = new VariableDeclarationState(type);
     }
 
     private Type GetType(IValidationContext context, Type assignmentType)
@@ -115,7 +130,7 @@ public class VariableDeclarationExpression : Expression
             return assignmentType;
         }
 
-        type = TypeDeclaration.Type;
+        var type = TypeDeclaration.Type;
         if (Assignment != null && (assignmentType == null || !assignmentType.Equals(type)))
         {
             context.Logger.Fail(Reference, "Invalid expression. Literal or enum value expression expected.");
@@ -131,7 +146,7 @@ public class VariableDeclarationExpression : Expression
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
-        yield return new VariableUsage(Reference, IdentifierPath.Parse(Name), null, type, VariableSource.Code, VariableAccess.Write);
+        yield return new VariableUsage(Reference, IdentifierPath.Parse(Name), null, State.Type, VariableSource.Code, VariableAccess.Write);
 
         if (Assignment == null) yield break;
 
@@ -142,8 +157,5 @@ public class VariableDeclarationExpression : Expression
         }
     }
 
-    public override Symbol GetSymbol()
-    {
-        return null;
-    }
+    public override Symbol GetSymbol() => null;
 }

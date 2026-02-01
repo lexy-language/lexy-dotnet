@@ -59,6 +59,7 @@ public class Dependencies
     private void ProcessNode(IComponentNode componentNode)
     {
         var nodeDependencies = GetOrCreateNodeDependencies(componentNode);
+        if (nodeDependencies == null) return;
 
         var nodeDependenciesNodes = GetDependencies(componentNode);
         foreach (var dependency in nodeDependenciesNodes.Values)
@@ -77,6 +78,8 @@ public class Dependencies
 
     private NodeDependencies GetOrCreateNodeDependencies(IComponentNode node)
     {
+        if (node.Name == null) return null;
+
         if (nodeDependencies.TryGetValue(node.Name, out var value)) return value;
 
         value = new NodeDependencies(node);

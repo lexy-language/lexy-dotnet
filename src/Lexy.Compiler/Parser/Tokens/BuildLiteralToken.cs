@@ -30,8 +30,10 @@ public class BuildLiteralToken : ParsableToken
         if (value == '.')
         {
             if (lastMemberAccessor)
+            {
                 return ParseTokenResult.Invalid(
                     $"Unexpected character: '{value}'. Member accessor should be followed by member name.");
+            }
 
             hasMemberAccessor = true;
             lastMemberAccessor = true;
@@ -55,9 +57,7 @@ public class BuildLiteralToken : ParsableToken
 
     public override ParseTokenResult EndOfLine()
     {
-        if (lastMemberAccessor)
-            return ParseTokenResult.Invalid(
-                "Unexpected end of line. Member accessor should be followed by member name.");
+
 
         return ParseTokenResult.Finished(true, SealLiteral());
     }
@@ -75,9 +75,14 @@ public class BuildLiteralToken : ParsableToken
             return BooleanLiteralToken.Parse(value, FirstCharacter);
         }
 
+        if (lastMemberAccessor)
+        {
+            return new IncompleteMemberAccessToken(Value, FirstCharacter);
+        }
+
         if (hasMemberAccessor)
         {
-            return new MemberAccessLiteralToken(value, FirstCharacter);
+            return new MemberAccessToken(value, FirstCharacter);
         }
 
         return new StringLiteralToken(value, FirstCharacter);

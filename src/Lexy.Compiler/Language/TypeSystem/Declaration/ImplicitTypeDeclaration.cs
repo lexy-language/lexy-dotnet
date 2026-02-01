@@ -1,13 +1,13 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
 
 public sealed class ImplicitTypeDeclaration : TypeDeclaration
 {
-    public ImplicitTypeDeclaration(SourceReference reference) : base(reference)
+    public ImplicitTypeDeclaration(NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
     }
 

@@ -1,27 +1,40 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language;
 
+public class VariableDefinitionState
+{
+    public Type Type { get; }
+
+    public VariableDefinitionState(Type type)
+    {
+        Type = type;
+    }
+}
+
 public class VariableDefinition : Node, IHasNodeDependencies
 {
     public Expression DefaultExpression { get; }
     public VariableSource Source { get; }
     public TypeDeclaration TypeDeclaration { get; }
-    public Type Type { get; private set; }
     public string Name { get; }
 
-    private VariableDefinition(string name, TypeDeclaration type,
-        VariableSource source, SourceReference reference, Expression defaultExpression = null) : base(reference)
+    public VariableDefinitionState State { get; private set; }
+
+    private VariableDefinition(string name,  TypeDeclaration type,
+        VariableSource source, NodeReference parentReference,
+        SourceReference reference, Expression defaultExpression = null) :
+        base(parentReference, reference)
     {
         TypeDeclaration = Assert.NotNull(type, nameof(type));
         Name = Assert.NotNull(name, nameof(name));
@@ -37,7 +50,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
             : Array.Empty<IComponentNode>();
     }
 
-    public static VariableDefinition Parse(VariableSource source, IParseLineContext context)
+    public static VariableDefinition Parse(VariableSource source, IParseLineContext context, NodeReference parentReference)
     {
         var line = context.Line;
         var tokens = line.Tokens;
@@ -48,40 +61,52 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
         if (!result) return null;
 
-        if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessLiteralToken>(0))
+        if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessToken>(0))
         {
             context.Logger.Fail(tokens.Reference(0, 1), "Unexpected token.");
             return null;
         }
 
-        var typeToken = tokens.TokenValue(0);
-
-        var type = TypeDeclarationParser.Parse(typeToken, tokens.Reference(0, 1));
-        if (type == null) return null;
-
+        var definitionReference = new NodeReference();
         var name = tokens.TokenValue(1);
-        if (tokens.Length == 2)
+
+        var defaultValue = ParseDefaultExpression(context, tokens, definitionReference, line);
+        if (!defaultValue.IsSuccess) return null;
+
+        var typeToken = tokens.TokenValue(0);
+        var typeDeclaration = TypeDeclarationParser.Parse(typeToken, definitionReference, tokens.Reference(0, 1));
+        if (typeDeclaration == null) return null;
+
+        var variableDefinition = new VariableDefinition(name, typeDeclaration, source, parentReference, tokens.AllReference(), defaultValue.Result);
+        definitionReference.SetNode(variableDefinition);
+        return variableDefinition;
+    }
+
+    private static ParseExpressionResult ParseDefaultExpression(IParseLineContext context, TokenList tokens,
+        NodeReference definitionReference, Line line)
+    {
+        if (tokens.Length <= 2)
         {
-            return new VariableDefinition(name, type, source, tokens.AllReference());
+            return ParseExpressionResult.Success(null);
         }
 
         if (tokens.Token<OperatorToken>(2).Type != OperatorType.Assignment)
         {
             context.Logger.Fail(tokens.Reference(2, 1), "Invalid variable declaration token. Expected '='.");
-            return null;
+            return ParseExpressionResult.Invalid<Expression>("failed");
         }
 
         if (tokens.Length != 4)
         {
             context.Logger.Fail(tokens.AllReference(),
                 "Invalid variable declaration. Expected literal token.");
-            return null;
+            return ParseExpressionResult.Invalid<Expression>("failed");
         }
 
-        var defaultValue = context.ExpressionFactory.Parse(tokens.TokensFrom(3), line);
-        if (context.Failed(defaultValue, tokens.Reference(3))) return null;
-
-        return new VariableDefinition(name, type, source, tokens.AllReference(), defaultValue.Result);
+        var defaultValue = context.ExpressionFactory.Parse(definitionReference, tokens.TokensFrom(3), line);
+        return context.Failed(defaultValue, tokens.Reference(3))
+            ? ParseExpressionResult.Invalid<Expression>("failed")
+            : defaultValue;
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -92,9 +117,9 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
     protected override void Validate(IValidationContext context)
     {
-        Type = TypeDeclaration.Type;
+        State = new VariableDefinitionState(TypeDeclaration.Type);
 
-        context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, Type, Source);
+        context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, State.Type, Source);
 
         context.ValidateTypeAndDefault(Reference, TypeDeclaration, DefaultExpression);
     }
@@ -103,7 +128,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
     {
         var kind = Source == VariableSource.Parameters ? SymbolKind.ParameterVariable : SymbolKind.ResultVariable;
         var prefix = GetPrefix();
-        return new Symbol(Reference, $"{prefix}: {Type} {Name}", string.Empty, kind);
+        return new Symbol(Reference, $"{prefix}: {TypeDeclaration} {Name}", string.Empty, kind);
     }
 
     private string GetPrefix()
@@ -114,7 +139,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
             VariableSource.Results => "result",
             VariableSource.Code => "variable",
             VariableSource.Type => "type",
-            _ => "unknown"
+            _ => throw new InvalidOperationException("Invalid source: " + Source)
         };
     }
 }

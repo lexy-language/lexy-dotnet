@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 
 namespace Lexy.Compiler.Parser.Documents;
 
@@ -31,5 +32,15 @@ public class StringSourceCodeDocument : ISourceCodeDocument
 
         CurrentLine = code[++index];
         return CurrentLine;
+    }
+
+    public override string ToString()
+    {
+        var sourceCode = new StringBuilder();
+        foreach (var line in code)
+        {
+            sourceCode.AppendLine(line.ToString());
+        }
+        return "Code: " + sourceCode;
     }
 }

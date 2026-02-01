@@ -8,15 +8,15 @@ public abstract class FunctionCallExpression : Expression, INodeWithName
 {
     public abstract string Name { get; }
 
-    internal FunctionCallExpression(ExpressionSource source)
-        : base(source, source.CreateReference())
+    internal FunctionCallExpression(NodeReference parent, ExpressionSource source)
+        : base(source, parent, source.CreateReference())
     {
     }
 
     public static bool IsValid(TokenList tokens)
     {
         return (tokens.IsTokenType<StringLiteralToken>(0)
-             || tokens.IsTokenType<MemberAccessLiteralToken>(0))
+             || tokens.IsTokenType<MemberAccessToken>(0))
                && tokens.IsOperatorToken(1, OperatorType.OpenParentheses);
     }
 

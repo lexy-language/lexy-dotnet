@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -17,14 +17,16 @@ public class ValidationTableRow : Node
     public IList<ValidationTableValue> Values { get; }
 
     private ValidationTableRow(int index, ValidationTableHeader tableHeader, IList<ValidationTableValue> values,
-        SourceReference reference) : base(reference)
+        ValidationTable validationTable, SourceReference reference) :
+        base(new NodeReference(validationTable), reference)
     {
         Index = index;
         Values = Assert.NotNull(values, nameof(values));
         this.tableHeader = tableHeader;
     }
 
-    public static ValidationTableRow Parse(IParseLineContext context, int index, ValidationTableHeader tableHeader)
+    public static ValidationTableRow Parse(IParseLineContext context, int index,
+        ValidationTableHeader tableHeader, ValidationTable validationTable)
     {
         var tokenIndex = 0;
 
@@ -33,11 +35,12 @@ public class ValidationTableRow : Node
             return null;
         }
 
+        var tableRowReference = new NodeReference();
         var values = new List<ValidationTableValue>();
         var currentLineTokens = context.Line.Tokens;
         while (++tokenIndex < currentLineTokens.Length)
         {
-            var value = ParseValue(context, tableHeader, currentLineTokens, tokenIndex++, values.Count);
+            var value = ParseValue(context, tableRowReference, currentLineTokens, tokenIndex++);
             if (value == null)
             {
                 return null;
@@ -45,12 +48,15 @@ public class ValidationTableRow : Node
             values.Add(value);
         }
 
-        return new ValidationTableRow(index, tableHeader, values, context.Line.Tokens.AllReference());
+        var validationTableRow = new ValidationTableRow(index, tableHeader, values, validationTable, context.Line.Tokens.AllReference());
+        tableRowReference.SetNode(validationTableRow);
+
+        return validationTableRow;
     }
 
     private static ValidationTableValue ParseValue(IParseLineContext context,
-        ValidationTableHeader tableHeader,
-        TokenList currentLineTokens, int tokenIndex, int valueIndex)
+        NodeReference tableRowReference,
+        TokenList currentLineTokens, int tokenIndex)
     {
         var notValid = !context.ValidateTokens<ValidationTableRow>()
             .IsLiteralToken(tokenIndex)
@@ -62,11 +68,14 @@ public class ValidationTableRow : Node
         var reference = context.Line.Tokens.Reference(tokenIndex, 1);
         var token = currentLineTokens.Token<Token>(tokenIndex);
         var tokens = new TokenList(context.Line, new[] { token });
-        var expression = context.ExpressionFactory.Parse(tokens, context.Line);
+        var tableValueReference = new NodeReference();
+        var expression = context.ExpressionFactory.Parse(tableValueReference, tokens, context.Line);
 
-        return context.Failed(expression, reference)
-            ? null
-            : new ValidationTableValue(valueIndex, expression.Result, tableHeader, reference);
+        if (context.Failed(expression, reference)) return null;
+
+        var validationTableValue = new ValidationTableValue(expression.Result, tableRowReference, reference);
+        tableValueReference.SetNode(validationTableValue);
+        return validationTableValue;
     }
 
     public override IEnumerable<INode> GetChildren()

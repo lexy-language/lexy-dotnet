@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Functions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -15,38 +14,36 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 {
     public const string FunctionName = "fill";
 
-    private VariablesMapping mapping;
-
     private string FunctionHelp => $"{Name} expects 1 argument fill(Function.Parameters)";
 
-    public MemberAccessLiteralToken TypeLiteralToken { get; }
+    public MemberAccessToken TypeToken { get; }
 
     public Expression ValueExpression { get; }
 
     public GeneratedType Type { get; private set; }
 
-    public IEnumerable<Mapping> Mapping => mapping;
-
     public override string Name => FunctionName;
 
-    private FillParametersFunctionExpression(Expression valueExpression, ExpressionSource source)
-        : base(source)
+    public FillParametersFunctionState State { get; private set; }
+
+    private FillParametersFunctionExpression(Expression valueExpression, NodeReference parentReference, ExpressionSource source)
+        : base(parentReference, source)
     {
         ValueExpression = Assert.NotNull(valueExpression, nameof(valueExpression));
-        TypeLiteralToken = (valueExpression as MemberAccessExpression)?.MemberAccessLiteralToken;
+        TypeToken = (valueExpression as MemberAccessExpression)?.MemberAccessToken;
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        if (TypeLiteralToken == null) yield break;
+        if (TypeToken == null) yield break;
 
-        var componentNode = componentNodes.GetNode(TypeLiteralToken.ToString());
+        var componentNode = componentNodes.GetNode(TypeToken.ToString());
         if (componentNode != null) yield return componentNode;
     }
 
-    public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
+    public static FunctionCallExpression Create(Expression expression, NodeReference parent, ExpressionSource source)
     {
-        return new FillParametersFunctionExpression(expression, source);
+        return new FillParametersFunctionExpression(expression, parent, source);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -66,7 +63,8 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 
         Type = generatedType;
 
-        mapping = GetMapping(Reference, context, generatedType);
+        var mapping = GetMapping(Reference, context, generatedType);
+        State = new FillParametersFunctionState(mapping);
     }
 
     internal static VariablesMapping GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType)
@@ -104,10 +102,10 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 
     public override Type DeriveType(IValidationContext context)
     {
-        var function = context.ComponentNodes.GetFunction(TypeLiteralToken.Parent);
+        var function = context.ComponentNodes.GetFunction(TypeToken.Parent);
         if (function == null) return null;
 
-        return TypeLiteralToken.Member switch
+        return TypeToken.Member switch
         {
             Function.ParameterName => function.GetParametersType(),
             Function.ResultsName => function.GetResultsType(),
@@ -118,7 +116,7 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
     public override IEnumerable<VariableUsage> UsedVariables()
     {
         return base.UsedVariables()
-            .Union(mapping.Select(map => map.ToUsedVariable(VariableAccess.Read)));
+            .Union(State.Mapping.Select(map => map.ToUsedVariable(VariableAccess.Read)));
     }
 
     public override Symbol GetSymbol()

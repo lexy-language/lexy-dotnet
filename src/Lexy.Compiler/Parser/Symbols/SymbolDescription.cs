@@ -1,3 +1,5 @@
+using Lexy.Compiler.Language.Symbols;
+
 namespace Lexy.Compiler.Parser.Symbols;
 
 public class SymbolDescription

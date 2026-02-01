@@ -6,17 +6,34 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
+public class IncludeState
+{
+    public bool IsProcessed { get; private set; }
+
+    public IncludeState(bool isProcessed)
+    {
+        IsProcessed = isProcessed;
+    }
+
+    public void SetProcessed()
+    {
+        IsProcessed = true;
+    }
+}
+
 public class Include
 {
     private readonly SourceReference reference;
 
-    public bool IsProcessed { get; private set; }
     public string FileName { get; }
+
+    public IncludeState State { get; private set; }
 
     private Include(string fileName, SourceReference reference)
     {
         this.reference = reference;
         FileName = Assert.NotNull(fileName, nameof(fileName));
+        State = new IncludeState(false);
     }
 
     public static bool IsValid(Line line)
@@ -42,7 +59,7 @@ public class Include
 
     public async Task<string> Process(string parentFullFileName, IParserContext context)
     {
-        IsProcessed = true;
+        State.SetProcessed();
         if (string.IsNullOrEmpty(FileName))
         {
             context.Logger.Fail(reference, "No include file name specified.");

@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -12,15 +11,16 @@ namespace Lexy.Compiler.Language.Tables;
 public class TableRow : Node
 {
     private readonly TableHeader tableHeader;
+
     public IList<TableValue> Values { get; }
 
-    private TableRow(TableHeader tableHeader, IList<TableValue> values, SourceReference reference) : base(reference)
+    private TableRow(Table table, IList<TableValue> values, SourceReference reference) : base(table, reference)
     {
         Values = Assert.NotNull(values, nameof(values));
-        this.tableHeader = tableHeader;
+        tableHeader = table.Header;
     }
 
-    public static TableRow Parse(IParseLineContext context, TableHeader tableHeader)
+    public static TableRow Parse(IParseLineContext context, TableHeader tableHeader, Table table)
     {
         var tokenIndex = 0;
 
@@ -29,11 +29,12 @@ public class TableRow : Node
             return null;
         }
 
+        var rowReference = new NodeReference();
         var values = new List<TableValue>();
         var currentLineTokens = context.Line.Tokens;
         while (++tokenIndex < currentLineTokens.Length)
         {
-            var value = ParseValue(context, tableHeader, currentLineTokens, tokenIndex++, values.Count);
+            var value = TableValue.Parse(context, tableHeader, currentLineTokens, rowReference, tokenIndex++, values.Count);
             if (value == null)
             {
                 return null;
@@ -41,25 +42,9 @@ public class TableRow : Node
             values.Add(value);
         }
 
-        return new TableRow(tableHeader, values, context.Line.Tokens.AllReference());
-    }
-
-    private static TableValue ParseValue(IParseLineContext context, TableHeader tableHeader,
-        TokenList currentLineTokens, int tokenIndex, int valueIndex)
-    {
-        var notValid = !context.ValidateTokens<TableRow>()
-            .IsLiteralToken(tokenIndex)
-            .Type<TableSeparatorToken>(tokenIndex + 1)
-            .IsValid;
-
-        if (notValid) return null;
-
-        var reference = context.Line.Tokens.Reference(tokenIndex, 1);
-        var token = currentLineTokens.Token<Token>(tokenIndex);
-        var expression = context.ExpressionFactory.Parse(new TokenList(context.Line, token), context.Line);
-        if (context.Failed(expression, reference)) return null;
-
-        return new TableValue(valueIndex, expression.Result, tableHeader, reference);
+        var tableRow = new TableRow(table, values, context.Line.Tokens.AllReference());
+        rowReference.SetNode(tableRow);
+        return tableRow;
     }
 
     public override IEnumerable<INode> GetChildren()

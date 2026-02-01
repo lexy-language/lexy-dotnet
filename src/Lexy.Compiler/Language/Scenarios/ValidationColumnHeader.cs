@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -9,14 +8,15 @@ public class ValidationColumnHeader : Node
 {
     public string Name { get; }
 
-    private ValidationColumnHeader(string name, SourceReference reference) : base(reference)
+    private ValidationColumnHeader(string name, NodeReference parentReference, SourceReference reference) :
+        base(parentReference, reference)
     {
         Name = name;
     }
 
-    public static ValidationColumnHeader Parse(string name, SourceReference reference)
+    public static ValidationColumnHeader Parse(string name, NodeReference parentReference, SourceReference reference)
     {
-        return new ValidationColumnHeader(name, reference);
+        return new ValidationColumnHeader(name, parentReference, reference);
     }
 
     public override IEnumerable<INode> GetChildren()

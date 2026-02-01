@@ -47,7 +47,7 @@ internal static class BinaryExpressionsSyntax
 
     public static ExpressionSyntax BinaryExpressionSyntax(BinaryExpression expression)
     {
-        if (expression.LeftType.Equals(ValueType.String) &&
+        if (expression.State.LeftType.Equals(ValueType.String) &&
             expression.Operator == ExpressionOperator.Addition)
         {
             return StringAdditionSyntax(expression);
@@ -68,15 +68,15 @@ internal static class BinaryExpressionsSyntax
     {
         var kind = Syntax(expression.Operator);
         var expressionSyntax = ExpressionSyntax(expression.Right);
-        if (expression.RightType.Equals(ValueType.Date))
+        if (expression.State.RightType.Equals(ValueType.Date))
         {
             expressionSyntax = FormatDate(expressionSyntax);
         }
-        else if (expression.RightType.Equals(ValueType.Boolean))
+        else if (expression.State.RightType.Equals(ValueType.Boolean))
         {
             expressionSyntax = FormatBoolean(expressionSyntax);
         }
-        else if (expression.RightType is EnumType)
+        else if (expression.State.RightType is EnumType)
         {
             expressionSyntax = FormatEnum(expressionSyntax);
         }
@@ -161,9 +161,9 @@ internal static class BinaryExpressionsSyntax
 
     private static bool IsStringComparison(BinaryExpression expression)
     {
-        return expression.LeftType.Equals(ValueType.String)
-               && expression.RightType.Equals(ValueType.String)
-               && ComparisonOperators.Contains(expression.Operator);
+        return expression.State.LeftType.Equals(ValueType.String)
+            && expression.State.RightType.Equals(ValueType.String)
+            && ComparisonOperators.Contains(expression.Operator);
     }
 
     private static SyntaxKind Syntax(ExpressionOperator expressionOperator)

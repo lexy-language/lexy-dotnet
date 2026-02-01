@@ -10,10 +10,11 @@ namespace Lexy.Compiler.Parser.Context;
 
 public class VariableContext : IVariableContext
 {
+    private readonly IDictionary<string, VariableEntry> index = new Dictionary<string, VariableEntry>();
+    private readonly List<VariableEntry> values = new();
     private readonly IParserLogger logger;
     private readonly ComponentNodeList componentNodes;
     private readonly IVariableContext parentContext;
-    private readonly IDictionary<string, VariableEntry> variables = new Dictionary<string, VariableEntry>();
 
     public VariableContext(ComponentNodeList componentNodes, IParserLogger logger, IVariableContext parentContext)
     {
@@ -22,12 +23,15 @@ public class VariableContext : IVariableContext
         this.parentContext = parentContext;
     }
 
+    public IReadOnlyList<VariableEntry> ScopedVariables() => values;
+
     public void AddVariable(string name, Type type, VariableSource source)
     {
         if (Contains(name)) return;
 
-        var entry = new VariableEntry(type, source);
-        variables.Add(name, entry);
+        var entry = new VariableEntry(name, type, source);
+        index.Add(name, entry);
+        values.Add(entry);
     }
 
     public void RegisterVariableAndVerifyUnique(SourceReference reference, string name, Type type,
@@ -39,13 +43,14 @@ public class VariableContext : IVariableContext
             return;
         }
 
-        var entry = new VariableEntry(type, source);
-        variables.Add(name, entry);
+        var entry = new VariableEntry(name, type, source, reference);
+        index.Add(name, entry);
+        values.Add(entry);
     }
 
     public bool Contains(string name)
     {
-        return variables.ContainsKey(name) || parentContext != null && parentContext.Contains(name);
+        return index.ContainsKey(name) || parentContext != null && parentContext.Contains(name);
     }
 
     public bool Contains(IdentifierPath path)
@@ -54,7 +59,7 @@ public class VariableContext : IVariableContext
         if (parent == null) return false;
 
         return !path.HasChildIdentifiers ||
-               ContainsChild(parent.Type, path.ChildrenReference());
+               ContainsChild(parent.Type, path.ChildrenPath());
     }
 
     public VariableReference CreateVariableReference(SourceReference reference, IdentifierPath path)
@@ -63,12 +68,7 @@ public class VariableContext : IVariableContext
             Func<SourceReference, IdentifierPath, VariableReference> secondPriorityHandler)
         {
             var value1 = firstPriorityHandler(reference, path);
-            if (value1 != null) return value1;
-
-            var value2 = secondPriorityHandler(reference, path);
-            if (value2 != null) return value2;
-
-            return null;
+            return value1 ?? secondPriorityHandler(reference, path);
         };
 
         var containsMemberAccess = path.Parts > 1;
@@ -110,7 +110,7 @@ public class VariableContext : IVariableContext
 
     public Type GetType(string name)
     {
-        return variables.TryGetValue(name, out var value)
+        return index.TryGetValue(name, out var value)
             ? value.Type
             : parentContext?.GetType(name);
     }
@@ -122,12 +122,12 @@ public class VariableContext : IVariableContext
         var parent = GetType(path.RootIdentifier);
         return parent == null || !path.HasChildIdentifiers
             ? parent
-            : GetType(parent, path.ChildrenReference());
+            : GetType(parent, path.ChildrenPath());
     }
 
     public VariableEntry GetVariable(string name)
     {
-        return variables.TryGetValue(name, out var value)
+        return index.TryGetValue(name, out var value)
             ? value
             : parentContext?.GetVariable(name);
     }
@@ -140,7 +140,7 @@ public class VariableContext : IVariableContext
         if (memberType == null) return false;
 
         return !path.HasChildIdentifiers
-               || ContainsChild(memberType, path.ChildrenReference());
+               || ContainsChild(memberType, path.ChildrenPath());
     }
 
     private Type GetType(Type parentType, IdentifierPath path)
@@ -152,6 +152,6 @@ public class VariableContext : IVariableContext
 
         return !path.HasChildIdentifiers
             ? memberType
-            : GetType(memberType, path.ChildrenReference());
+            : GetType(memberType, path.ChildrenPath());
     }
 }

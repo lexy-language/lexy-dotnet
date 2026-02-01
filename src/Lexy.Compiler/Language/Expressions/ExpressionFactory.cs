@@ -8,10 +8,10 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class ExpressionFactory : IExpressionFactory
 {
-    private record Entry(Func<TokenList, bool> IsValid, Func<ExpressionSource, IExpressionFactory, ParseExpressionResult> Parse);
+    private record Entry(Func<TokenList, bool> IsValid, Func<ExpressionSource, NodeReference, IExpressionFactory, ParseExpressionResult> Parse);
 
     private static readonly IList<Entry> Factories =
-        new List<Entry>()
+        new List<Entry>
         {
             new (IfExpression.IsValid, IfExpression.Parse),
             new (ElseExpression.IsValid, ElseExpression.Parse),
@@ -31,14 +31,20 @@ public class ExpressionFactory : IExpressionFactory
             new (FunctionCallExpression.IsValid, FunctionCallExpressionParser.Parse)
         };
 
-    public ParseExpressionResult Parse(TokenList tokens, Line currentLine)
+
+    public ParseExpressionResult Parse(INode parent, TokenList tokens, Line currentLine)
+    {
+        return Parse(new NodeReference(parent), tokens, currentLine);
+    }
+
+    public ParseExpressionResult Parse(NodeReference parentReference, TokenList tokens, Line currentLine)
     {
         foreach (var factory in Factories)
         {
             if (factory.IsValid(tokens))
             {
                 var source = new ExpressionSource(currentLine, tokens);
-                return factory.Parse(source, this);
+                return factory.Parse(source, parentReference, this);
             }
         }
 

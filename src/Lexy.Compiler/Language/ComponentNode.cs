@@ -1,12 +1,11 @@
-using Lexy.Compiler.Parser;
-
 namespace Lexy.Compiler.Language;
 
 public abstract class ComponentNode : ParsableNode, IComponentNode
 {
-    public abstract string Name { get; }
+    public string Name { get; }
 
-    protected ComponentNode(SourceReference reference) : base(reference)
+    protected ComponentNode(string name, NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
+        Name = name;
     }
 }

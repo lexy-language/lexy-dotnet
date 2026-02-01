@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Functions;
 
@@ -11,13 +11,13 @@ public class FunctionParameters : ParsableNode
 
     public IReadOnlyList<VariableDefinition> Variables => variables;
 
-    public FunctionParameters(SourceReference reference) : base(reference)
+    public FunctionParameters(Function parent, SourceReference reference) : base(new NodeReference(parent), reference)
     {
     }
 
     public override IParsableNode Parse(IParseLineContext context)
     {
-        var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context);
+        var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context, new NodeReference(this));
         if (variableDefinition != null) variables.Add(variableDefinition);
         return this;
     }

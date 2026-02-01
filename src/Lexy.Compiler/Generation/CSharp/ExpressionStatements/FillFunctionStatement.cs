@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Generation.CSharp.Syntax;
-using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Expressions.Functions;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
@@ -35,7 +34,7 @@ internal static class FillFunctionStatement
                 "functionCallExpression.FunctionCallExpression should be FillParametersFunction");
         }
 
-        return FillStatementSyntax(expression.Name, fillParametersFunction.Type, fillParametersFunction.Mapping);
+        return FillStatementSyntax(expression.Name, fillParametersFunction.Type, fillParametersFunction.State.Mapping);
     }
 
     public static IEnumerable<StatementSyntax> FillStatementSyntax(string variableName, Type type,

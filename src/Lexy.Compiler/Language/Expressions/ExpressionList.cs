@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-internal class ExpressionList : Node, IReadOnlyList<Expression>
+public class ExpressionList : Node, IReadOnlyList<Expression>
 {
     private readonly IExpressionFactory factory;
     private readonly List<Expression> values = new();
@@ -15,7 +15,8 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
     public int Count => values.Count;
     public Expression this[int index] => values[index];
 
-    public ExpressionList(SourceReference reference, IExpressionFactory factory) : base(reference)
+    public ExpressionList(INode parent, SourceReference reference, IExpressionFactory factory) :
+        base(new NodeReference(parent), reference)
     {
         this.factory = factory;
     }
@@ -41,16 +42,13 @@ internal class ExpressionList : Node, IReadOnlyList<Expression>
 
     public override void ValidateTree(IValidationContext context)
     {
-        using (context.CreateVariableScope())
-        {
-            base.ValidateTree(context);
-        }
+        context.InNodeVariableScope(this, base.ValidateTree);
     }
 
     public ParseExpressionResult Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var expression = factory.Parse(line.Tokens, line);
+        var expression = factory.Parse(new NodeReference(this), line.Tokens, line);
         if (!expression.IsSuccess)
         {
             context.Logger.Fail(line.Tokens.AllReference(), expression.ErrorMessage);

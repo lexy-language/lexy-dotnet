@@ -134,7 +134,7 @@ public static class FunctionClass
             foreach (var variable in function.Parameters.Variables)
             {
                 parameters.Add(Parameter(Identifier(variable.Name))
-                    .WithType(Types.Syntax(variable.Type)));
+                    .WithType(Types.Syntax(variable.State.Type)));
                 parameters.Add(Token(SyntaxKind.CommaToken));
             }
         }

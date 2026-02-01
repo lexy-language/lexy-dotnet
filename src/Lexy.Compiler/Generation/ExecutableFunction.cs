@@ -97,7 +97,7 @@ public class ExecutableFunction
     {
         var optional = parameter.DefaultExpression != null;
         var value = values.TryGetValue(parameter.Name, out var objectValue) ? objectValue : null;
-        switch (parameter.Type)
+        switch (parameter.State.Type)
         {
             case EnumType enumType:
                 ValidateEumType(VariablePath(name, parameter.Name), enumType, value, optional, validationErrors);
@@ -113,7 +113,7 @@ public class ExecutableFunction
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Unexpected variable type: '{parameter.Type?.GetType().Name}'");
+                    $"Unexpected variable type: '{parameter.State.Type?.GetType().Name}'");
         }
     }
 
@@ -265,7 +265,7 @@ public class ExecutableFunction
 
         while (currentReference.HasChildIdentifiers)
         {
-            currentReference = currentReference.ChildrenReference();
+            currentReference = currentReference.ChildrenPath();
             currentValue = field.GetValue(currentValue);
             field = GetField(currentReference.RootIdentifier, currentValue);
             parameterType = GetParameterType(parameterType, currentReference);
@@ -278,7 +278,7 @@ public class ExecutableFunction
     {
         return function.Parameters.Variables
             .FirstOrDefault(parameter => parameter.Name == currentPath.RootIdentifier)
-            .Type;
+            .State.Type;
     }
 
     private static Type GetParameterType(Type parameterType, IdentifierPath currentPath)

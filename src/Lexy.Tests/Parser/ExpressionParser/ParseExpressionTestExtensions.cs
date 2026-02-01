@@ -1,4 +1,5 @@
 using System;
+using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
 using Shouldly;
@@ -20,7 +21,7 @@ public static class ParseExpressionTestExtensions
             throw new InvalidOperationException($"Tokenizing failed: {tokens.ErrorMessage}");
         }
 
-        var result = expressionFactory.Parse(line.Tokens, line);
+        var result = expressionFactory.Parse((INode) null, line.Tokens, line);
         result.IsSuccess.ShouldBeTrue(result.ErrorMessage);
         return result.Result;
     }
@@ -39,7 +40,7 @@ public static class ParseExpressionTestExtensions
             throw new InvalidOperationException($"Tokenizing failed: {tokens.ErrorMessage}");
         }
 
-        var result = expressionFactory.Parse(line.Tokens, line);
+        var result = expressionFactory.Parse((INode) null, line.Tokens, line);
         result.IsSuccess.ShouldBeFalse();
         result.ErrorMessage.ShouldBe(errorMessage);
     }

@@ -6,7 +6,7 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
-public class MemberAccessLiteralToken : Token, ILiteralToken
+public class MemberAccessToken : Token, ILiteralToken
 {
     public string Parent => Parts.Length >= 1 ? Parts[0] : null;
     public string Member => Parts.Length >= 2 ? Parts[1] : null;
@@ -17,7 +17,7 @@ public class MemberAccessLiteralToken : Token, ILiteralToken
 
     public object TypedValue => Parts;
 
-    public MemberAccessLiteralToken(string value, TokenCharacter character) : base(character)
+    public MemberAccessToken(string value, TokenCharacter character) : base(character)
     {
         Value = Assert.NotNull(value, nameof(value));
         Parts = value.Split(TokenValues.MemberAccess);

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language;
@@ -10,7 +10,7 @@ public class Comments : ParsableNode
 {
     private readonly IList<string> content = new List<string>();
 
-    public Comments(SourceReference sourceReference) : base(sourceReference)
+    public Comments(NodeReference parentReference, SourceReference sourceReference) : base(parentReference, sourceReference)
     {
     }
 

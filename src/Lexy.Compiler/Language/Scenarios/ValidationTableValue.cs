@@ -1,23 +1,18 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
 public class ValidationTableValue : Node
 {
-    private readonly int index;
-    private readonly ValidationTableHeader tableHeader;
-
     public Expression Expression { get; }
 
-    public ValidationTableValue(int index, Expression expression, ValidationTableHeader tableHeader, SourceReference reference) : base(reference)
+    public ValidationTableValue(Expression expression, NodeReference parentReference, SourceReference reference) :
+        base(parentReference, reference)
     {
         Expression = expression;
-        this.index = index;
-        this.tableHeader = tableHeader;
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -31,9 +26,9 @@ public class ValidationTableValue : Node
 
     public object GetValue()
     {
-        if (Expression is MemberAccessExpression enumValue)
+        if (Expression is MemberAccessExpression memberAccessExpression)
         {
-            return enumValue.ToString();
+            return memberAccessExpression.IdentifierPath.ToString();
         }
 
         var literal = Expression as LiteralExpression;

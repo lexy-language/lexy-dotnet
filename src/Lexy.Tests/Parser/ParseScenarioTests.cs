@@ -59,13 +59,13 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         logger.NodeHasErrors(scenario).ShouldBeTrue();
 
-        Verify.Collection<string>(errors, _ => _
+        Verify.ComparableCollection<string>(errors, _ => _
             .Length(4, logger.ErrorMessages().Format(2))
             .ValueAtEquals(0, "tests.lexy (1:1-21): ERROR - Scenario has no function, enum, table or expect errors.")
             .ValueAtEquals(1, "tests.lexy (2:3-32): ERROR - Invalid token 'Functtion'. Keyword expected.")
             .ValueAtEquals(2, "tests.lexy (4:5-9): ERROR - Invalid identifier: 'Value'")
-            .ValueAtEquals(3, "tests.lexy (6:5-10): ERROR - Invalid identifier: 'Result'"));
-
+            .ValueAtEquals(3, "tests.lexy (6:5-10): ERROR - Invalid identifier: 'Result'")
+        );
     }
 
     [Test]
@@ -132,8 +132,8 @@ public class ParseScenarioTests : ScopedServicesTestFixture
             value.TypeName.ShouldBe("number"));
         scenario.Function.Results.Variables[1].DefaultExpression.ShouldBeNull();
         scenario.Function.Code.Expressions.Count.ShouldBe(2);
-        scenario.Function.Code.Expressions[0].ToString().ShouldBe("Result1=Value1");
-        scenario.Function.Code.Expressions[1].ToString().ShouldBe("Result2=Value2");
+        scenario.Function.Code.Expressions[0].ToString().ShouldBe("(AssignmentExpression) Result1 = Value1");
+        scenario.Function.Code.Expressions[1].ToString().ShouldBe("(AssignmentExpression) Result2 = Value2");
 
         var parameterAssignments = scenario.Parameters.AllAssignments();
         parameterAssignments.Count.ShouldBe(2);

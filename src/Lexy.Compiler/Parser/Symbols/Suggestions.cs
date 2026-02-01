@@ -1,13 +1,23 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Symbols;
 
-public class Suggestions
+public class SuggestionsResult
 {
-    private readonly List<Suggestion> result;
+    public IReadOnlyList<Suggestion> Filtered { get; }
+    public IReadOnlyList<Suggestion> All { get; }
 
-    public Suggestions(List<Suggestion> result)
+    public SuggestionsResult()
     {
-        this.result = result;
+        Filtered = new List<Suggestion>();
+        All = new List<Suggestion>();
+    }
+
+    public SuggestionsResult(IReadOnlyList<Suggestion> filtered, IReadOnlyList<Suggestion> all)
+    {
+        Filtered = Assert.NotNull(filtered, nameof(filtered));
+        All = Assert.NotNull(all, nameof(all));
     }
 }

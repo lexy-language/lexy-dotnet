@@ -3,26 +3,19 @@ using System.Collections.Generic;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Parser.Logging;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Context;
 
 public class ValidationContext : IValidationContext
 {
-    private class OnDispose : IDisposable
-    {
-        private readonly Action onDispose;
-
-        public OnDispose(Action onDispose) => this.onDispose = onDispose;
-
-        public void Dispose() => onDispose();
-    }
-
-    private readonly Stack<IVariableContext> contexts = new();
-    private IVariableContext variableContext;
+    private readonly Stack<VariableContext> contexts = new();
+    private VariableContext variableContext;
 
     public ILibraries Libraries { get; }
     public IParserLogger Logger { get; }
+    public DocumentsSymbols Symbols { get; }
     public ComponentNodeList ComponentNodes { get; }
 
     public ITreeValidationVisitor Visitor { get; }
@@ -36,21 +29,27 @@ public class ValidationContext : IValidationContext
         }
     }
 
-    public ValidationContext(IParserLogger logger, ComponentNodeList componentNodes, ITreeValidationVisitor visitor, ILibraries libraries)
+    public ValidationContext(IParserLogger logger, ComponentNodeList componentNodes, ITreeValidationVisitor visitor, ILibraries libraries, DocumentsSymbols symbols)
     {
         Logger = Assert.NotNull(logger, nameof(logger));
         ComponentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));
         Visitor = Assert.NotNull(visitor, nameof(visitor));
         Libraries = Assert.NotNull(libraries, nameof(libraries));
+        Symbols = Assert.NotNull(symbols, nameof(symbols));
     }
 
-    public IDisposable CreateVariableScope()
+    public void InNodeVariableScope(INode node, Action<IValidationContext> action)
     {
         StoreCurrentVariableContext();
 
         variableContext = new VariableContext(ComponentNodes, Logger, variableContext);
 
-        return new OnDispose(RevertToPreviousVariableContext);
+        action(this);
+
+        var result = variableContext.ScopedVariables();
+        Symbols.AddNodeVariables(node, result);
+
+        RevertToPreviousVariableContext();
     }
 
     private void StoreCurrentVariableContext()

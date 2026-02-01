@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -13,9 +13,10 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
 
     public IEnumerable<Expression> FalseExpressions => falseExpressions;
 
-    private ElseExpression(ExpressionSource source, SourceReference reference, IExpressionFactory factory) : base(source, reference)
+    private ElseExpression(ExpressionSource source, NodeReference parentReference, SourceReference reference, IExpressionFactory factory) :
+        base(source, parentReference, reference)
     {
-        falseExpressions = new ExpressionList(reference, factory);
+        falseExpressions = new ExpressionList(this, reference, factory);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -29,7 +30,7 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
         return expression.Result is IParsableNode node ? node : this;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ElseExpression>("Not valid.");
@@ -38,7 +39,7 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
 
         var reference = source.CreateReference();
 
-        var expression = new ElseExpression(source, reference, factory);
+        var expression = new ElseExpression(source, parentReference, reference, factory);
 
         return ParseExpressionResult.Success(expression);
     }
@@ -67,4 +68,12 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override SuggestionEdit[] GetSuggestions()
+    {
+        return Suggestions.Edit(with => with
+            .RemoveKeyword(Keywords.Else)
+            .RemoveKeyword(Keywords.ElseIf)
+        );
+    }
 }

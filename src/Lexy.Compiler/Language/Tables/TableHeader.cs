@@ -1,14 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Language.Expressions;
-using Lexy.Compiler.Language.TypeSystem.Declaration;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
-using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -16,29 +11,30 @@ public class TableHeader : Node
 {
     public IList<ColumnHeader> Columns { get; }
 
-    private TableHeader(ColumnHeader[] columns, SourceReference reference) : base(reference)
+    private TableHeader(ColumnHeader[] columns, Table table, SourceReference reference) : base(table, reference)
     {
-        Columns = Assert.NotNull(columns, nameof(columns));
+        Columns = columns;
     }
 
-    public static TableHeader Parse(IParseLineContext context)
+    public static TableHeader Parse(IParseLineContext context, Table table)
     {
         var startsWithTableSeparator = context.ValidateTokens<TableHeader>()
             .Type<TableSeparatorToken>(0).IsValid;
 
         if (!startsWithTableSeparator) return null;
 
-        return ParseWithColumnType(context);
+        return ParseWithColumnType(context, table);
     }
 
-    private static TableHeader ParseWithColumnType(IParseLineContext context)
+    private static TableHeader ParseWithColumnType(IParseLineContext context, Table table)
     {
+        var headerReference = new NodeReference();
         var headers = new List<ColumnHeader>();
         var tokens = context.Line.Tokens;
         var index = 1;
         while (index < tokens.Length)
         {
-            var header = ColumnHeader.Parse(context, index);
+            var header = ColumnHeader.Parse(context, headerReference, index);
             if (header == null) return null;
 
             headers.Add(header);
@@ -46,7 +42,9 @@ public class TableHeader : Node
             index += 3;
         }
 
-        return new TableHeader(headers.ToArray(), context.Line.Tokens.AllReference());
+        var tableHeader = new TableHeader(headers.ToArray(), table, context.Line.Tokens.AllReference());
+        headerReference.SetNode(tableHeader);
+        return tableHeader;
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -12,7 +12,6 @@ public static class Assert
         }
     }
 
-
     public static void False(bool condition, string error)
     {
         if (condition)

@@ -1,8 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -13,34 +12,35 @@ public class IdentifierExpression : Expression, IHasVariableReference
 
     public VariableReference Variable { get; private set; }
 
-    private IdentifierExpression(string identifier, ExpressionSource source, SourceReference reference) : base(source,
-        reference)
+    public string Path => Identifier;
+
+    private IdentifierExpression(string identifier, ExpressionSource source, NodeReference parentReference, SourceReference reference) :
+        base(source, parentReference, reference)
     {
         Identifier = identifier;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IdentifierExpression>("Invalid expression");
 
-        var expression = ParseExpression(source, tokens);
+        var expression = ParseExpression(parentReference, source, tokens);
         return ParseExpressionResult.Success(expression);
     }
 
-    private static IdentifierExpression ParseExpression(ExpressionSource source, TokenList tokens)
+    private static IdentifierExpression ParseExpression(NodeReference parentReference, ExpressionSource source, TokenList tokens)
     {
         var variableName = tokens.TokenValue(0);
         var reference = source.CreateReference();
 
-        var expression = new IdentifierExpression(variableName, source, reference);
-        return expression;
+        return new IdentifierExpression(variableName, source, parentReference, reference);
     }
 
     public static bool IsValid(TokenList tokens)
     {
         return tokens.Length == 1
-               && tokens.IsTokenType<StringLiteralToken>(0);
+            && tokens.IsTokenType<StringLiteralToken>(0);
     }
 
     public override IEnumerable<INode> GetChildren()

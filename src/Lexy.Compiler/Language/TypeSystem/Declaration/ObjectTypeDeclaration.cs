@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
 
@@ -13,7 +13,7 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
 {
     public string TypeName { get; }
 
-    public ObjectTypeDeclaration(string typeName, SourceReference reference) : base(reference)
+    public ObjectTypeDeclaration(string typeName, NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
         TypeName = typeName;
     }

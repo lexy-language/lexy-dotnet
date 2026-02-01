@@ -1,4 +1,3 @@
-using Lexy.Compiler.Language.Expressions;
 
 namespace Lexy.Compiler.Language.Scenarios;
 

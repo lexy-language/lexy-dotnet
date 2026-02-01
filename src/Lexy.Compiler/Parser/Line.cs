@@ -1,3 +1,5 @@
+using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Logging;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -13,12 +15,14 @@ public class Line
     public string FileName { get; }
 
     public TokenList Tokens { get; private set; }
+    public Position EndPosition { get; }
 
     public Line(int index, string line, string fileName)
     {
         Index = index;
         Content = Assert.NotNull(line, nameof(line));
         FileName = Assert.NotNull(fileName, nameof(fileName));
+        EndPosition = new Position(index + 1, line.Length);
     }
 
     public int? Indent(IParserLogger logger)

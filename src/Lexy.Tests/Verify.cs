@@ -3,8 +3,18 @@ using System.Collections.Generic;
 
 namespace Lexy.Tests;
 
-public class Verify
+public static class Verify
 {
+    public static void All(Action<VerifyContext> testHandler)
+    {
+        if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
+
+        var logging = new VerifyLogging();
+        var verify = new VerifyContext(logging);
+        testHandler(verify);
+        VerifyAll(logging);
+    }
+
     public static void Model<TModel>(TModel model, Action<VerifyModelContext<TModel>> testHandler)
     {
         if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
@@ -16,12 +26,23 @@ public class Verify
     }
 
     public static void Collection<TItem>(IReadOnlyList<TItem> list, Action<VerifyCollectionContext<TItem>> testHandler)
-        where TItem : class, IComparable
+        where TItem : class
     {
         if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
 
         var logging = new VerifyLogging();
         var verify = new VerifyCollectionContext<TItem>(list, logging);
+        testHandler(verify);
+        VerifyAll(logging);
+    }
+
+    public static void ComparableCollection<TItem>(IReadOnlyList<TItem> list, Action<VerifyComparableCollectionContext<TItem>> testHandler)
+        where TItem : class, IComparable
+    {
+        if (testHandler == null) throw new ArgumentNullException(nameof(testHandler));
+
+        var logging = new VerifyLogging();
+        var verify = new VerifyComparableCollectionContext<TItem>(list, logging);
         testHandler(verify);
         VerifyAll(logging);
     }

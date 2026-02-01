@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Tables;
 
@@ -21,11 +21,9 @@ public class Table : ComponentNode, INodeWithType
 
     public IReadOnlyList<TableRow> Rows => rows;
 
-    public override string Name { get; }
-
-    public Table(string name, SourceReference reference) : base(reference)
+    public Table(string name, NodeReference parentReference, SourceReference reference) :
+        base(name, parentReference, reference)
     {
-        Name = name;
     }
 
     public Type CreateType()
@@ -39,7 +37,7 @@ public class Table : ComponentNode, INodeWithType
 
         if (IsFirstLine())
         {
-            Header = TableHeader.Parse(context);
+            Header = TableHeader.Parse(context, this);
             if (Header == null)
             {
                 invalidHeader = true;
@@ -47,7 +45,7 @@ public class Table : ComponentNode, INodeWithType
         }
         else
         {
-            var tableRow = TableRow.Parse(context, Header);
+            var tableRow = TableRow.Parse(context, Header, this);
             if (tableRow != null) rows.Add(tableRow);
         }
 
@@ -76,10 +74,7 @@ public class Table : ComponentNode, INodeWithType
 
     public override void ValidateTree(IValidationContext context)
     {
-        using (context.CreateVariableScope())
-        {
-            base.ValidateTree(context);
-        }
+        context.InNodeVariableScope(this, base.ValidateTree);
     }
 
     public GeneratedType GetRowType()

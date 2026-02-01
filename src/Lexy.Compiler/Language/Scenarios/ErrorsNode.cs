@@ -1,12 +1,12 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public class ErrorsNode<TNode> : ParsableNode
+public abstract class ErrorsNode<TNode> : ParsableNode
 {
     private readonly IList<string> messages = new List<string>();
 
@@ -14,7 +14,7 @@ public class ErrorsNode<TNode> : ParsableNode
 
     public bool HasValues => messages.Count > 0;
 
-    public ErrorsNode(SourceReference reference) : base(reference)
+    protected ErrorsNode(NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
     }
 

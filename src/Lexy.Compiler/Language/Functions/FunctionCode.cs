@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Functions;
 
@@ -12,9 +12,9 @@ public class FunctionCode : ParsableNode
 
     public IReadOnlyList<Expression> Expressions => expressions;
 
-    public FunctionCode(SourceReference reference, IExpressionFactory factory) : base(reference)
+    public FunctionCode(Function parent, SourceReference reference, IExpressionFactory factory) : base(new NodeReference(parent), reference)
     {
-        expressions = new ExpressionList(reference, factory);
+        expressions = new ExpressionList(this, reference, factory);
     }
 
     public override IParsableNode Parse(IParseLineContext context)

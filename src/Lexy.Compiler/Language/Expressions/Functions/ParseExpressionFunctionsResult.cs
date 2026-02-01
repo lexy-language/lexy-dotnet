@@ -1,6 +1,4 @@
-using Lexy.Compiler.Language.Expressions.Functions;
-
-namespace Lexy.Compiler.Language.Expressions;
+namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public sealed class ParseExpressionFunctionsResult : ParseResult<FunctionCallExpression>
 {

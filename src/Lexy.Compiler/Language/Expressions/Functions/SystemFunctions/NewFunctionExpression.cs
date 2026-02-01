@@ -1,20 +1,20 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Language.TypeSystem;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
-public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencies, INodeWithName
+public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencies
 {
     public const string FunctionName = "new";
 
     protected string FunctionHelp => $"{Name} expects 1 argument new(Function.Parameters)";
 
-    public MemberAccessLiteralToken TypeLiteralToken { get; }
+    public MemberAccessToken TypeToken { get; }
 
     public Expression ValueExpression { get; }
 
@@ -22,11 +22,11 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
 
     public override string Name => FunctionName;
 
-    private NewFunctionExpression(Expression valueExpression, ExpressionSource source)
-        : base(source)
+    private NewFunctionExpression(Expression valueExpression, NodeReference parentReference, ExpressionSource source)
+        : base(parentReference, source)
     {
         ValueExpression = Assert.NotNull(valueExpression, nameof(valueExpression));
-        TypeLiteralToken = (valueExpression as MemberAccessExpression)?.MemberAccessLiteralToken;
+        TypeToken = (valueExpression as MemberAccessExpression)?.MemberAccessToken;
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
@@ -37,9 +37,9 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
         }
     }
 
-    public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
+    public static FunctionCallExpression Create(Expression expression, NodeReference parent, ExpressionSource source)
     {
-        return new NewFunctionExpression(expression, source);
+        return new NewFunctionExpression(expression, parent, source);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -62,8 +62,8 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
 
     public override Type DeriveType(IValidationContext context)
     {
-        var nodeType = context.ComponentNodes.GetType(TypeLiteralToken.Parent);
-        return nodeType?.MemberType(TypeLiteralToken.Member) as GeneratedType;
+        var nodeType = context.ComponentNodes.GetType(TypeToken.Parent);
+        return nodeType?.MemberType(TypeToken.Member) as GeneratedType;
     }
 
     public override Symbol GetSymbol()

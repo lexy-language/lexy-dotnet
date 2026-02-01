@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis.CSharp;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -23,15 +23,13 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     public FunctionResults Results { get; private set; }
     public FunctionCode Code { get; }
 
-    public override string Name { get; }
-
     public bool Nested { get; }
 
-    private Function(string name, bool nested, SourceReference reference, IExpressionFactory factory) : base(reference)
+    private Function(string name, bool nested, NodeReference parentReference, SourceReference reference, IExpressionFactory factory) :
+        base(name, parentReference, reference)
     {
         Nested = nested;
-        Code = new FunctionCode(reference, factory);
-        Name = name;
+        Code = new FunctionCode(this, reference, factory);
     }
 
     public Type CreateType()
@@ -41,24 +39,25 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     public GeneratedType GetParametersType()
     {
-        var members = Parameters?.Variables == null
-            ? new List<ObjectVariable>()
-            : Parameters.Variables
-                .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
-                .ToList();
-
+        var members = GetMembers(Parameters?.Variables);
         return new GeneratedType(Name, ParameterName, this, GeneratedTypeSource.FunctionParameters, members);
     }
 
     public GeneratedType GetResultsType()
     {
-        var members = Results?.Variables == null
-            ? new List<ObjectVariable>()
-            : Results.Variables
-                .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
-                .ToList();
-
+        var members = GetMembers(Results?.Variables);
         return new GeneratedType(Name, ResultsName, this, GeneratedTypeSource.FunctionResults, members);
+    }
+
+    private static IEnumerable<ObjectVariable> GetMembers(IReadOnlyList<VariableDefinition>  variables)
+    {
+        if (variables == null)
+        {
+            return new List<ObjectVariable>();
+        }
+        return variables
+            .Select(parameter => new ObjectVariable(parameter.Name, parameter.TypeDeclaration.Type))
+            .ToList();
     }
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
@@ -69,9 +68,9 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
         return result;
     }
 
-    internal static Function Create(string name, bool nested, SourceReference reference, IExpressionFactory factory)
+    internal static Function Create(string name, bool nested, NodeReference parentReference, SourceReference reference, IExpressionFactory factory)
     {
-        return new Function(name, nested, reference, factory);
+        return new Function(name, nested, parentReference, reference, factory);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -79,17 +78,23 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
         var line = context.Line;
         if (!line.Tokens.IsTokenType<KeywordToken>(0))
         {
-            return Code.Parse(context);
+            return ParseCode(context);
         }
 
         var reference = line.Tokens.AllReference();
         var name = line.Tokens.TokenValue(0);
         return name switch
         {
-            Keywords.Parameters => Parameters = new FunctionParameters(reference),
-            Keywords.Results => Results = new FunctionResults(reference),
-            _ => Code.Parse(context)
+            Keywords.Parameters => Parameters = new FunctionParameters(this, reference),
+            Keywords.Results => Results = new FunctionResults(this, reference),
+            _ => ParseCode(context)
         };
+    }
+
+    private IParsableNode ParseCode(IParseLineContext context)
+    {
+        Code.Area.Expand(context.Line.EndPosition);
+        return Code.Parse(context);
     }
 
     private static void AddObjectTypes(IComponentNodeList componentNodes,
@@ -112,10 +117,7 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     public override void ValidateTree(IValidationContext context)
     {
-        using (context.CreateVariableScope())
-        {
-            base.ValidateTree(context);
-        }
+        context.InNodeVariableScope(this, base.ValidateTree);
     }
 
     public override IEnumerable<INode> GetChildren()
@@ -221,7 +223,7 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     private List<Type> GetParametersTypes()
     {
-        return Parameters.Variables.Select(parameter => parameter.Type).ToList();
+        return Parameters.Variables.Select(parameter => parameter.State.Type).ToList();
     }
 
     private IReadOnlyList<Type> GetArgumentTypes(IReadOnlyList<Expression> arguments, IValidationContext context)
@@ -239,5 +241,33 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     public override Symbol GetSymbol()
     {
         return new Symbol(Reference, $"function: {Name}", string.Empty, SymbolKind.Function);
+    }
+
+    public override SuggestionEdit[] GetSuggestions()
+    {
+        return Suggestions.Edit(with => with
+             .Keyword(Keywords.Parameters)
+             .Keyword(Keywords.Results)
+             .Keyword(Keywords.If)
+             .Keyword(Keywords.Switch)
+         );
+    }
+
+    public void AddParametersAndResultsForVariables(IValidationContext context)
+    {
+        AddVariablesForValidation(context, Parameters?.Variables, VariableSource.Parameters);
+        AddVariablesForValidation(context, Results?.Variables, VariableSource.Results);
+    }
+
+    private static void AddVariablesForValidation(IValidationContext context, IReadOnlyList<VariableDefinition> definitions,
+        VariableSource source)
+    {
+        if (definitions == null) return;
+
+        foreach (var result in definitions)
+        {
+            var type = result.TypeDeclaration.Type;
+            context.VariableContext.AddVariable(result.Name, type, source);
+        }
     }
 }

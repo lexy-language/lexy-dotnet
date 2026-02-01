@@ -2,7 +2,6 @@ using System;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;

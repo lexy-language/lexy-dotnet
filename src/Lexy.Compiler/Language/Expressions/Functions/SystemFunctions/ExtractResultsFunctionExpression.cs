@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
@@ -18,12 +17,12 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
     public string FunctionResultVariable { get; }
     public Expression ValueExpression { get; }
 
-    public VariablesMapping Mapping { get; private set; }
-
     public override string Name => FunctionName;
 
-    private ExtractResultsFunctionExpression(Expression valueExpression, ExpressionSource source)
-        : base(source)
+    public ExtractResultsFunctionState State { get; private set; }
+
+    private ExtractResultsFunctionExpression(Expression valueExpression, NodeReference parentReference, ExpressionSource source)
+        : base(parentReference, source)
     {
         ValueExpression = valueExpression;
         FunctionResultVariable = (valueExpression as IdentifierExpression)?.Identifier;
@@ -58,7 +57,8 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
                 $"Use new(Function.Results) or fill(Function.Results) to create new function results. {FunctionHelp}");
         }
 
-        Mapping = GetMapping(Reference, context, generatedType);
+        var mapping = GetMapping(Reference, context, generatedType);
+        State = new ExtractResultsFunctionState(mapping);
     }
 
     internal static VariablesMapping GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType)
@@ -72,18 +72,7 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
 
         foreach (var member in generatedType.Members)
         {
-            var variable = context.VariableContext.GetVariable(member.Name);
-            if (variable == null || variable.VariableSource == VariableSource.Parameters) continue;
-
-            if (!variable.Type.Equals(member.Type))
-            {
-                context.Logger.Fail(reference,
-                    $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.Type}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
-            }
-            else
-            {
-                mapping.Add(new Mapping(reference, member.Name, variable.Type, variable.VariableSource));
-            }
+            AddMapping(reference, context, member, mapping);
         }
 
         if (mapping.Count == 0)
@@ -95,17 +84,34 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
         return new VariablesMapping(generatedType, mapping);
     }
 
+    private static void AddMapping(SourceReference reference, IValidationContext context, IObjectMember member,
+        List<Mapping> mapping)
+    {
+        var variable = context.VariableContext.GetVariable(member.Name);
+        if (variable == null || variable.VariableSource == VariableSource.Parameters) return;
+
+        if (!variable.Type.Equals(member.Type))
+        {
+            context.Logger.Fail(reference,
+                $"Invalid parameter mapping. Variable '{member.Name}' of type '{variable.Type}' can't be mapped to parameter '{member.Name}' of type '{member.Type}'.");
+        }
+        else
+        {
+            mapping.Add(new Mapping(reference, member.Name, variable.Type, variable.VariableSource));
+        }
+    }
+
     public override Type DeriveType(IValidationContext context) => new VoidType();
 
-    public static FunctionCallExpression Create(ExpressionSource source, Expression expression)
+    public static FunctionCallExpression Create(Expression expression, NodeReference parent, ExpressionSource source)
     {
-        return new ExtractResultsFunctionExpression(expression, source);
+        return new ExtractResultsFunctionExpression(expression, parent, source);
     }
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
         return base.UsedVariables()
-            .Union(Mapping.Select(map => map.ToUsedVariable(VariableAccess.Write)));
+            .Union(State.Mapping.Select(map => map.ToUsedVariable(VariableAccess.Write)));
     }
 
     public override Symbol GetSymbol()

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -14,10 +14,10 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
     public Expression Condition { get; }
     public IEnumerable<Expression> TrueExpressions => trueExpressions;
 
-    private ElseIfExpression(Expression condition, ExpressionSource source, SourceReference reference,
-        IExpressionFactory factory) : base(source, reference)
+    private ElseIfExpression(Expression condition, ExpressionSource source, NodeReference parentReference, SourceReference reference,
+        IExpressionFactory factory) : base(source, parentReference, reference)
     {
-        trueExpressions = new ExpressionList(reference, factory);
+        trueExpressions = new ExpressionList(this, reference, factory);
         Condition = condition;
     }
 
@@ -33,20 +33,22 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
         return expression.Result is IParsableNode node ? node : this;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
 
         if (tokens.Length == 1) return ParseExpressionResult.Invalid<IfExpression>("No condition found");
 
+        var expressionReference = new NodeReference();
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = factory.Parse(condition, source.Line);
+        var conditionExpression = factory.Parse(expressionReference, condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new ElseIfExpression(conditionExpression.Result, source, reference, factory);
+        var expression = new ElseIfExpression(conditionExpression.Result, source, parentReference, reference, factory);
+        expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);
     }

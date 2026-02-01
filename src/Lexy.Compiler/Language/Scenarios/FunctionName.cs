@@ -1,22 +1,25 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
 public class FunctionName : Node
 {
-    public string Value { get; private set; }
+    public string Value { get; }
 
-    public FunctionName(SourceReference reference) : base(reference)
+    private FunctionName(string value, Scenario parent, SourceReference reference) : base(new NodeReference(parent), reference)
     {
+        Value = value;
     }
 
-    public void Parse(IParseLineContext context)
+    public static FunctionName Parse(IParseLineContext context, Scenario parent, SourceReference reference)
     {
         var line = context.Line;
-        Value = line.Tokens.TokenValue(1);
+        var name = line.Tokens.TokenValue(1);
+
+        return new FunctionName(name, parent, reference);
     }
 
     public override string ToString()

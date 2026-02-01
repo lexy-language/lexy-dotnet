@@ -1,6 +1,6 @@
 using Lexy.Compiler.Language.Enums;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.TypeSystem;
 

@@ -27,11 +27,11 @@ public static class IdentifierPathExpressionParser
 
     private static IdentifierPathParseResult Parse(MemberAccessExpression memberAccessExpression)
     {
-        if (memberAccessExpression.MemberAccessLiteralToken.Parts.Length == 0)
+        if (memberAccessExpression.MemberAccessToken.Parts.Length == 0)
             return IdentifierPathParseResult.Failed("Invalid number of variable reference parts: "
-                                                  + memberAccessExpression.MemberAccessLiteralToken.Parts.Length);
+                                                  + memberAccessExpression.MemberAccessToken.Parts.Length);
 
-        var variableReference = new IdentifierPath(memberAccessExpression.MemberAccessLiteralToken.Parts);
+        var variableReference = new IdentifierPath(memberAccessExpression.MemberAccessToken.Parts);
         return IdentifierPathParseResult.Success(variableReference);
     }
 }

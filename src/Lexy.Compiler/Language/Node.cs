@@ -1,20 +1,28 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
-public abstract class Node : INodeWithParent
+public abstract class Node : INode
 {
+    private readonly NodeReference parentReference;
+
     public SourceReference Reference { get; }
+    public SourceArea Area { get; }
 
-    public INode Parent { get; set; }
+    public INode Parent => parentReference.Node;
 
-    protected Node(SourceReference reference)
+    protected Node(NodeReference parentReference, SourceReference reference)
     {
         Reference = Assert.NotNull(reference, nameof(reference));
+        this.parentReference = Assert.NotNull(parentReference, nameof(parentReference));
+        Area = new SourceArea(reference);
+    }
+
+    protected Node(INode parent, SourceReference reference) : this(new NodeReference(parent), reference)
+    {
     }
 
     public virtual void ValidateTree(IValidationContext context)
@@ -31,10 +39,7 @@ public abstract class Node : INodeWithParent
 
     public abstract Symbol GetSymbol();
 
-    void INodeWithParent.SetParent(INode node)
-    {
-        Parent = node;
-    }
+    public virtual SuggestionEdit[] GetSuggestions() => null;
 
     protected abstract void Validate(IValidationContext context);
 
@@ -50,5 +55,29 @@ public abstract class Node : INodeWithParent
     protected virtual void ValidateChild(IValidationContext context, INode child)
     {
         child.ValidateTree(context);
+    }
+
+    public virtual void ExpandArea(Position position)
+    {
+        Area.Expand(position);
+        Parent?.ExpandArea(position);
+    }
+
+    protected bool Equals(Node other)
+    {
+        return Equals(Reference, other.Reference);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((Node)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return (Reference != null ? Reference.GetHashCode() : 0);
     }
 }

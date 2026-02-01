@@ -1,4 +1,5 @@
 using System;
+using Lexy.Compiler.Language;
 using Lexy.Compiler.Parser.Logging;
 
 namespace Lexy.Compiler.Parser.Tokens;
@@ -85,7 +86,14 @@ public class TokenValidator
 
     public TokenValidator MemberAccess(int index, string value = null)
     {
-        Type<MemberAccessLiteralToken>(index);
+        Type<MemberAccessToken>(index);
+        if (value != null) Value(index, value);
+        return this;
+    }
+
+    public TokenValidator IncompleteMemberAccess(int index, string value = null)
+    {
+        Type<IncompleteMemberAccessToken>(index);
         if (value != null) Value(index, value);
         return this;
     }

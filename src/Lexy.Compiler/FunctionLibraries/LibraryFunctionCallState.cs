@@ -1,8 +1,7 @@
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Functions;
-using Lexy.Compiler.Parser;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.FunctionLibraries;
 

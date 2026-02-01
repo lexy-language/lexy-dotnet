@@ -1,11 +1,20 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
+
+public class AssignmentDefinitionState
+{
+    public Type Type { get; }
+
+    public AssignmentDefinitionState(Type type)
+    {
+        Type = type;
+    }
+}
 
 public class AssignmentDefinition : Node, IAssignmentDefinition
 {
@@ -15,11 +24,11 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
     public ConstantValue ConstantValue { get; }
     public IdentifierPath Variable { get; }
 
-    public Type Type { get; private set; }
+    public AssignmentDefinitionState State { get; private set; }
 
     public AssignmentDefinition(IdentifierPath variable, ConstantValue constantValue, Expression variableExpression,
-        Expression targetExpression, SourceReference reference)
-        : base(reference)
+        Expression targetExpression, NodeReference parentReference, SourceReference reference)
+        : base(parentReference, reference)
     {
         Variable = variable;
         ConstantValue = constantValue;
@@ -44,11 +53,12 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
 
         var expressionType = targetExpression.DeriveType(context);
 
-        Type = context.VariableContext.GetType(Variable);
-        if (expressionType != null && !expressionType.Equals(Type))
+        State = new AssignmentDefinitionState(context.VariableContext.GetType(Variable));
+
+        if (expressionType != null && !expressionType.Equals(State.Type))
         {
             context.Logger.Fail(Reference,
-                $"Variable '{Variable}' of type '{Type}' is not assignable from expression of type '{expressionType}'.");
+                $"Variable '{Variable}' of type '{State}' is not assignable from expression of type '{expressionType}'.");
         }
     }
 

@@ -7,15 +7,15 @@ namespace Lexy.Compiler.Language.Expressions.Functions;
 
 public static class FunctionCallExpressionParser
 {
-    private static readonly IDictionary<string, Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
-        SystemFunctions = new Dictionary<string, Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult>>
+    private static readonly IDictionary<string, Func<Expression, NodeReference, ExpressionSource, FunctionCallExpression>>
+        SystemFunctions = new Dictionary<string, Func<Expression, NodeReference, ExpressionSource, FunctionCallExpression>>
         {
-            { NewFunctionExpression.FunctionName, ForFirstArgument(NewFunctionExpression.Create) },
-            { FillParametersFunctionExpression.FunctionName, ForFirstArgument(FillParametersFunctionExpression.Create) },
-            { ExtractResultsFunctionExpression.FunctionName, ForFirstArgument(ExtractResultsFunctionExpression.Create) }
+            { NewFunctionExpression.FunctionName, NewFunctionExpression.Create },
+            { FillParametersFunctionExpression.FunctionName, FillParametersFunctionExpression.Create },
+            { ExtractResultsFunctionExpression.FunctionName, ExtractResultsFunctionExpression.Create }
         };
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!FunctionCallExpression.IsValid(tokens))
@@ -29,27 +29,30 @@ public static class FunctionCallExpressionParser
             return ParseExpressionResult.Invalid<FunctionCallExpression>("No closing parentheses found.");
         }
 
-        var functionNameExpression = tokens[0];
-        var argumentsTokenListResult = GetArgumentTokens(source, factory, tokens, matchingClosingParenthesis);
+        var functionCallReference = new NodeReference();
+        var functionNameToken = tokens[0];
+        var argumentsTokenListResult = GetArgumentTokens(functionCallReference, source, factory, tokens, matchingClosingParenthesis);
         if (!argumentsTokenListResult.IsSuccess)
         {
             return ParseExpressionResult.Invalid<FunctionCallExpression>(argumentsTokenListResult.ErrorMessage);
         }
 
-        var builtInFunctionResult = Parse(functionNameExpression, source, argumentsTokenListResult.Result);
-        if (!builtInFunctionResult.IsSuccess)
+        var functionCall = Parse(functionNameToken, source, parentReference, argumentsTokenListResult.Result);
+        if (!functionCall.IsSuccess)
         {
-            return ParseExpressionResult.Invalid<FunctionCallExpression>(builtInFunctionResult.ErrorMessage);
+            return ParseExpressionResult.Invalid<FunctionCallExpression>(functionCall.ErrorMessage);
         }
 
-        return ParseExpressionResult.Success(builtInFunctionResult?.Result);
+        functionCallReference.SetNode(functionCall.Result);
+
+        return ParseExpressionResult.Success(functionCall?.Result);
     }
 
     private static ParseExpressionsResult GetArgumentTokens(
+        NodeReference functionCallReference,
         ExpressionSource source, IExpressionFactory factory,
         TokenList tokens, int matchingClosingParenthesis)
     {
-
         var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
         var argumentsTokenList = ArgumentList.Parse(innerExpressionTokens);
         if (!argumentsTokenList.IsSuccess)
@@ -60,7 +63,7 @@ public static class FunctionCallExpressionParser
         var arguments = new List<Expression>();
         foreach (var argumentTokens in argumentsTokenList.Result)
         {
-            var argumentExpression = factory.Parse(argumentTokens, source.Line);
+            var argumentExpression = factory.Parse(functionCallReference, argumentTokens, source.Line);
             if (!argumentExpression.IsSuccess)
             {
                 return ParseExpressionsResult.Invalid<FunctionCallExpression>(argumentExpression.ErrorMessage);
@@ -73,44 +76,56 @@ public static class FunctionCallExpressionParser
     }
 
     private static ParseExpressionFunctionsResult Parse(Token functionNameToken, ExpressionSource source,
-        IReadOnlyList<Expression> arguments)
+        NodeReference parentReference, IReadOnlyList<Expression> arguments)
     {
         return functionNameToken switch
         {
             StringLiteralToken stringLiteralToken =>
-                ParseStringLiteralFunctionCall(source, arguments, stringLiteralToken),
+                ParseStringLiteralFunctionCall(stringLiteralToken, arguments, parentReference, source),
 
-            MemberAccessLiteralToken memberAccessLiteralToken =>
-                CreateMemberFunctionCallExpression(source, arguments, memberAccessLiteralToken),
+            MemberAccessToken memberAccessToken =>
+                CreateMemberFunctionCallExpression(memberAccessToken, arguments, parentReference, source),
 
             _ => throw new InvalidOperationException($"Invalid token type: {functionNameToken.GetType()}")
         };
     }
 
-    private static ParseExpressionFunctionsResult ParseStringLiteralFunctionCall(ExpressionSource source,
-        IReadOnlyList<Expression> arguments, StringLiteralToken stringLiteralToken)
+    private static ParseExpressionFunctionsResult ParseStringLiteralFunctionCall(StringLiteralToken stringLiteralToken,
+        IReadOnlyList<Expression> arguments, NodeReference parentReference, ExpressionSource source)
     {
         var functionName = stringLiteralToken.Value;
         if (SystemFunctions.TryGetValue(functionName, out var value))
         {
-            return value(source, arguments);
+            return ParseSystemFunctionCall(arguments, parentReference, source, value);
         }
 
-        var expression = CreateLexyFunctionCallExpression(functionName, source, arguments);
+        var expression = CreateLexyFunctionCallExpression(functionName, arguments, parentReference, source);
         return ParseExpressionFunctionsResult.Success(expression);
     }
 
-    private static ParseExpressionFunctionsResult CreateMemberFunctionCallExpression(ExpressionSource source,
-        IReadOnlyList<Expression> arguments, MemberAccessLiteralToken memberAccessLiteralToken)
+    private static ParseExpressionFunctionsResult ParseSystemFunctionCall(IReadOnlyList<Expression> arguments,
+        NodeReference parentReference, ExpressionSource source, Func<Expression, NodeReference, ExpressionSource, FunctionCallExpression> value)
+    {
+        if (arguments.Count != 1)
+        {
+            return ParseExpressionFunctionsResult.Failed("Invalid number of arguments. 1 argument expected.");
+        }
+
+        var expression = value(arguments[0], parentReference, source);
+        return ParseExpressionFunctionsResult.Success(expression);
+    }
+
+    private static ParseExpressionFunctionsResult CreateMemberFunctionCallExpression(MemberAccessToken memberAccessLiteralToken, IReadOnlyList<Expression> arguments,
+        NodeReference parentReference, ExpressionSource source)
     {
         var path = new IdentifierPath(memberAccessLiteralToken.Parts);
-        var expression = new MemberFunctionCallExpression(path, arguments, source);
+        var expression = new MemberFunctionCallExpression(path, arguments, parentReference, source);
         return ParseExpressionFunctionsResult.Success(expression);
     }
 
-    private static LexyFunctionCallExpression CreateLexyFunctionCallExpression(string functionName, ExpressionSource source, IReadOnlyList<Expression> arguments)
+    private static LexyFunctionCallExpression CreateLexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments, NodeReference parentReference, ExpressionSource source)
     {
-        return new LexyFunctionCallExpression(functionName, arguments, source);
+        return new LexyFunctionCallExpression(functionName, arguments, parentReference, source);
     }
 
     private static Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> ForFirstArgument(

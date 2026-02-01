@@ -2,37 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
+using Lexy.RunTime;
 
 namespace Lexy.Tests;
-
-public class VerifyCollectionContext<TItem> : VerifyModelContext<IReadOnlyList<TItem>>
-    where TItem : class, IComparable
-{
-    public VerifyCollectionContext(IReadOnlyList<TItem> model, VerifyLogging logging) : base(model, logging)
-    {
-    }
-
-    public VerifyCollectionContext<TItem> Length(int length, string extraMessage)
-    {
-        var suffix = extraMessage != null ? $" ({extraMessage})" : "";
-        Logging.LogAssert(Model.Count == length, nameof(Length), $"- Length Failed '{{0}}' != '{{1}}'{suffix}: ", Model, length);
-        return this;
-    }
-
-    public VerifyCollectionContext<TItem> ValueAtEquals(int index, TItem expected)
-    {
-        var value = index >= 0 && index < Model.Count ? Model[index] : (TItem) null;
-        if (value != null)
-        {
-            Logging.LogAssert(expected.CompareTo(value) == 0, "collection", "- ValueAtEquals[{0}] '{1}' != '{2}': ", index, expected, value);
-            return this;
-        }
-
-        Logging.LogAssert(false, "collection", "- ValueAtEquals[{0}] invalid: ", index);
-
-        return this;
-    }
-}
 
 public class VerifyModelContext<TModel>
 {
@@ -41,8 +13,8 @@ public class VerifyModelContext<TModel>
 
     public VerifyModelContext(TModel model, VerifyLogging logging)
     {
-        Model = model;
-        Logging = logging;
+        Model = Assert.NotNull(model, nameof(model));
+        Logging = Assert.NotNull(logging, nameof(logging));
     }
 
     public VerifyModelContext<TModel> Fail(string format, params object[] args)
@@ -335,6 +307,14 @@ public class VerifyModelContext<TModel>
             subContext(this);
         }
         return this;
+    }
+
+    public void ForEach<TItem>(IEnumerable<TItem> items, Action<TItem> handler)
+    {
+        foreach (var item in items)
+        {
+            handler(item);
+        }
     }
 
     private VerifyModelContext<TModel> InContext(Action<VerifyModelContext<TModel>> subContext)

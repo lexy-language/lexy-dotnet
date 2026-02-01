@@ -1,6 +1,7 @@
 using System;
+using Lexy.Compiler.Parser;
 
-namespace Lexy.Compiler.Parser.Symbols;
+namespace Lexy.Compiler.Language.Symbols;
 
 public class SymbolBuilder
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -16,13 +16,12 @@ public class ExecutionLog : ParsableNode
 
     public IReadOnlyList<IAssignmentDefinition> Assignments => assignments;
 
-
-    private ExecutionLog(string message, SourceReference reference) : base(reference)
+    private ExecutionLog(string message, NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
         Message = message;
     }
 
-    public static ExecutionLog ParseLog(IParseLineContext context)
+    public static ExecutionLog ParseLog(NodeReference parentReference, IParseLineContext context)
     {
         var line = context.Line;
         var tokens = line.Tokens;
@@ -48,7 +47,7 @@ public class ExecutionLog : ParsableNode
             return null;
         }
 
-        return new ExecutionLog(messageToken.Value, reference);
+        return new ExecutionLog(messageToken.Value, parentReference, reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -63,7 +62,7 @@ public class ExecutionLog : ParsableNode
 
     private IParsableNode ParseEntry(IParseLineContext context)
     {
-        var entry = ParseLog(context);
+        var entry = ParseLog(new NodeReference(this), context);
         if (entry == null) return this;
         entries.Add(entry);
         return entry;
@@ -71,7 +70,7 @@ public class ExecutionLog : ParsableNode
 
     private IParsableNode ParseAssignment(IParseLineContext context)
     {
-        var assignment = AssignmentDefinitionParser.Parse(context);
+        var assignment = AssignmentDefinitionParser.Parse(context, this);
         if (assignment == null) return this;
         assignments.Add(assignment);
 

@@ -1,4 +1,4 @@
-namespace Lexy.Compiler.Parser.Symbols;
+namespace Lexy.Compiler.Language.Symbols;
 
 public class Position
 {
@@ -15,4 +15,6 @@ public class Position
     {
         return $"{LineNumber}:{Column}";
     }
+
+    public Position AddEndColumn(int amount) => new(LineNumber, Column + amount);
 }

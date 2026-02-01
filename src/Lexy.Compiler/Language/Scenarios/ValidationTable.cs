@@ -1,11 +1,11 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
-public class ValidationTable : ParsableNode
+public class ValidationTable : ParsableNode, INodeWithName
 {
     private bool invalidHeader;
     private readonly List<ValidationTableRow> rows = new();
@@ -15,7 +15,8 @@ public class ValidationTable : ParsableNode
 
     public IReadOnlyList<ValidationTableRow> Rows => rows;
 
-    public ValidationTable(string name, SourceReference reference) : base(reference)
+    public ValidationTable(string name, Scenario parent, SourceReference reference) :
+        base(new NodeReference(parent), reference)
     {
         Name = name;
     }
@@ -26,7 +27,7 @@ public class ValidationTable : ParsableNode
 
         if (IsFirstLine())
         {
-            Header = ValidationTableHeader.Parse(context);
+            Header = ValidationTableHeader.Parse(context, this);
             if (Header == null)
             {
                 invalidHeader = true;
@@ -34,7 +35,7 @@ public class ValidationTable : ParsableNode
         }
         else
         {
-            var tableRow = ValidationTableRow.Parse(context, rows.Count, Header);
+            var tableRow = ValidationTableRow.Parse(context, rows.Count, Header, this);
             if (tableRow != null) rows.Add(tableRow);
         }
 
@@ -66,10 +67,7 @@ public class ValidationTable : ParsableNode
 
     public override void ValidateTree(IValidationContext context)
     {
-        using (context.CreateVariableScope())
-        {
-            base.ValidateTree(context);
-        }
+        context.InNodeVariableScope(this, base.ValidateTree);
     }
 
     public override Symbol GetSymbol() => null;

@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -13,32 +10,40 @@ namespace Lexy.Compiler.Language.Expressions;
 public class BracketedExpression : Expression
 {
     public string FunctionName { get; }
+
     public Expression Expression { get; }
 
-    private BracketedExpression(string functionName, Expression expression,
-        ExpressionSource source, SourceReference reference) : base(source, reference)
+    private BracketedExpression(string functionName, Expression expression, NodeReference parentReference, ExpressionSource source, SourceReference reference) :
+        base(source, parentReference, reference)
     {
         FunctionName = functionName;
         Expression = expression;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
-        if (!IsValid(tokens)) return ParseExpressionResult.Invalid<BracketedExpression>("Not valid.");
+        if (!IsValid(tokens))
+        {
+            return ParseExpressionResult.Invalid<BracketedExpression>("Not valid.");
+        }
 
         var matchingClosingParenthesis = FindMatchingClosingBracket(tokens);
         if (matchingClosingParenthesis == -1)
+        {
             return ParseExpressionResult.Invalid<BracketedExpression>("No closing bracket found.");
+        }
 
+        var expressionReference = new NodeReference();
         var functionName = tokens.TokenValue(0);
         var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
-        var innerExpression = factory.Parse(innerExpressionTokens, source.Line);
+        var innerExpression = factory.Parse(expressionReference, innerExpressionTokens, source.Line);
         if (!innerExpression.IsSuccess) return innerExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new BracketedExpression(functionName, innerExpression.Result, source, reference);
+        var expression = new BracketedExpression(functionName, innerExpression.Result, parentReference, source, reference);
+        expressionReference.SetNode(expression);
         return ParseExpressionResult.Success(expression);
     }
 

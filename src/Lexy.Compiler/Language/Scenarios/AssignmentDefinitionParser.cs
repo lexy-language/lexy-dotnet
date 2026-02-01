@@ -8,7 +8,7 @@ public static class AssignmentDefinitionParser
 {
     private record TokenIdentifierPath(string[] Parts, TokenCharacter FirstCharacter);
 
-    public static IAssignmentDefinition Parse(IParseLineContext context, IdentifierPath parentVariable = null)
+    public static IAssignmentDefinition Parse(IParseLineContext context, INode parent,  IdentifierPath parentVariable = null)
     {
         var line = context.Line;
         var tokens = line.Tokens;
@@ -21,12 +21,8 @@ public static class AssignmentDefinitionParser
             return null;
         }
 
-        var targetTokens = tokens.TokensFromStart(assignmentIndex);
-        if (parentVariable != null)
-        {
-            targetTokens = AddParentVariableAccessor(parentVariable, targetTokens);
-        }
-        var targetExpression = context.ExpressionFactory.Parse(targetTokens, line);
+        var expressionReference = new NodeReference();
+        var targetExpression = ParseTargetExpression(context, parentVariable, tokens, assignmentIndex, expressionReference, line);
         if (context.Failed(targetExpression, reference)) return null;
 
         var variableReference = IdentifierPathExpressionParser.Parse(targetExpression.Result);
@@ -34,17 +30,33 @@ public static class AssignmentDefinitionParser
 
         if (assignmentIndex == tokens.Length - 1)
         {
-            return new ObjectAssignmentDefinition(variableReference.Result, reference);
+            var definition = new ObjectAssignmentDefinition(variableReference.Result, new NodeReference(parent), reference);
+            expressionReference.SetNode(definition);
+            return definition;
         }
 
-        var valueExpression = context.ExpressionFactory.Parse(tokens.TokensFrom(assignmentIndex + 1), line);
+        var valueExpression = context.ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(assignmentIndex + 1), line);
         if (context.Failed(valueExpression, reference)) return null;
 
         var constantValue = ConstantValue.Parse(valueExpression.Result);
         if (context.Failed(constantValue, reference)) return null;
 
-        return new AssignmentDefinition(variableReference.Result, constantValue.Result, targetExpression.Result,
-            valueExpression.Result, reference);
+        var assignmentDefinition = new AssignmentDefinition(variableReference.Result, constantValue.Result, targetExpression.Result,
+            valueExpression.Result, new NodeReference(parent), reference);
+        expressionReference.SetNode(assignmentDefinition);
+        return assignmentDefinition;
+    }
+
+    private static ParseExpressionResult ParseTargetExpression(IParseLineContext context, IdentifierPath parentVariable,
+        TokenList tokens, int assignmentIndex, NodeReference expressionReference, Line line)
+    {
+        var targetTokens = tokens.TokensFromStart(assignmentIndex);
+        if (parentVariable != null)
+        {
+            targetTokens = AddParentVariableAccessor(parentVariable, targetTokens);
+        }
+
+        return context.ExpressionFactory.Parse(expressionReference, targetTokens, line);
     }
 
     private static TokenList AddParentVariableAccessor(IdentifierPath parentVariable, TokenList targetTokens)
@@ -54,7 +66,7 @@ public static class AssignmentDefinitionParser
         if (identifierPath == null) return targetTokens;
 
         var newPath = parentVariable.Append(identifierPath.Parts).FullPath();
-        var newToken = new MemberAccessLiteralToken(newPath, identifierPath.FirstCharacter);
+        var newToken = new MemberAccessToken(newPath, identifierPath.FirstCharacter);
         return new TokenList(targetTokens.Line, new Token[] {newToken});
     }
 
@@ -62,7 +74,7 @@ public static class AssignmentDefinitionParser
     {
         return targetTokens[0] switch
         {
-            MemberAccessLiteralToken memberAccess => new TokenIdentifierPath(memberAccess.Parts, memberAccess.FirstCharacter),
+            MemberAccessToken memberAccess => new TokenIdentifierPath(memberAccess.Parts, memberAccess.FirstCharacter),
             StringLiteralToken literal => new TokenIdentifierPath(new[] { literal.Value }, literal.FirstCharacter),
             _ => null
         };

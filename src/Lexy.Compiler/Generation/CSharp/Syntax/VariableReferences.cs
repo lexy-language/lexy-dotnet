@@ -23,7 +23,7 @@ internal static class VariableReferences
         var childReference = variableReference.Path;
         while (childReference.HasChildIdentifiers)
         {
-            childReference = childReference.ChildrenReference();
+            childReference = childReference.ChildrenPath();
             result = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 result ?? parent,

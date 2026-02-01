@@ -2,18 +2,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language;
+using Lexy.Compiler.Language.Symbols;
+using Lexy.Compiler.Parser.Tokens;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Symbols;
+
+public record NodeLevel(INode Value, int Level);
 
 public class DocumentSymbols
 {
     private record ReturnValue(Symbol Symbol);
 
+    private readonly INode lexyScriptNode;
     private readonly List<INode> nodes = new();
+    private Line[] lines = new Line[32];
+
+    public DocumentSymbols(INode lexyScriptNode)
+    {
+        this.lexyScriptNode = Assert.NotNull(lexyScriptNode, nameof(lexyScriptNode));
+    }
 
     public SymbolDescription GetDescription(Position position) => MapDescription(GetNode(position));
 
     public Signatures GetSignatures(Position position) => MapSignatures(GetNode(position));
+
+    public void Add(IParsableNode parsedNode)
+    {
+        nodes.Add(parsedNode);
+    }
+
+    public void Add(Line line)
+    {
+        if (line.Index >= lines.Length)
+        {
+            Array.Resize(ref lines, lines.Length + 32);
+        }
+
+        Assert.True(line.Index < lines.Length, "Lines should be added sequentially");
+
+        lines[line.Index] = line;
+    }
 
     private SymbolDescription MapDescription(Symbol symbol)
     {
@@ -67,8 +96,66 @@ public class DocumentSymbols
         return null;
     }
 
-    public void Add(IParsableNode parsedNode)
+    public List<NodeLevel> GetNodesInScope(Position position)
     {
-        nodes.Add(parsedNode);
+        var nodesInScope = new List<List<INode>>();
+        GetNodesInScope(position, nodes, nodesInScope);
+
+        return nodesInScope.Count == 0
+            ? new List<NodeLevel>{new(lexyScriptNode, 0)}
+            : Flatten(nodesInScope);
+    }
+
+    private static List<NodeLevel> Flatten(List<List<INode>> nodesInScope)
+    {
+        var result = new List<NodeLevel>();
+        for (var level = 0; level < nodesInScope.Count; level++)
+        {
+            foreach (var node in nodesInScope[level])
+            {
+                result.Add(new NodeLevel(node, level));
+            }
+        }
+        return result;
+    }
+
+    private static void GetNodesInScope(Position position, IEnumerable<INode> list, List<List<INode>> nodesInScope)
+    {
+        var wasIn = false;
+        var precedingNodes = new List<INode>();
+        foreach (var node in list)
+        {
+            var inNode = node.Area.Includes(position);
+
+            if (wasIn & !inNode) return;
+
+            if (nodesInScope.Count > 0)
+            {
+                precedingNodes.Add(node);
+            }
+
+            if (inNode)
+            {
+                if (nodesInScope.Count == 0)
+                {
+                    precedingNodes.Add(node);
+                }
+
+                nodesInScope.Add(precedingNodes);
+                GetNodesInScope(position, node.GetChildren(), nodesInScope);
+                wasIn = true;
+            }
+        }
+    }
+
+    public Token GetToken(Position position)
+    {
+        Assert.NotNull(position, nameof(position));
+        Assert.True(lines.Length >= position.LineNumber, $"Couldn't find line: {position.LineNumber} Lines: {lines.Length}");
+
+        var line = lines[position.LineNumber - 1];
+        Assert.NotNull(line, $"Couldn't find line: {position.LineNumber} Lines: {lines.Length}");
+
+        return line.Tokens.TokenAt(position.Column);
     }
 }

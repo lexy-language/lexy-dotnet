@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -16,8 +16,8 @@ public class SwitchExpression : Expression, IParsableNode
     public IEnumerable<CaseExpression> Cases => cases;
 
     private SwitchExpression(Expression condition, ExpressionSource source, SourceReference reference,
-        IExpressionFactory factory) : base(source,
-        reference)
+        NodeReference parentReference, IExpressionFactory factory)
+        : base(source, parentReference, reference)
     {
         this.factory = factory;
         Condition = condition;
@@ -26,7 +26,7 @@ public class SwitchExpression : Expression, IParsableNode
     public IParsableNode Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var expression = factory.Parse(line.Tokens, line);
+        var expression = factory.Parse(this, line.Tokens, line);
         if (!expression.IsSuccess)
         {
             context.Logger.Fail(line.Tokens.AllReference(), expression.ErrorMessage);
@@ -46,23 +46,28 @@ public class SwitchExpression : Expression, IParsableNode
     public override IEnumerable<INode> GetChildren()
     {
         yield return Condition;
-        foreach (var caseValue in Cases) yield return caseValue;
+        foreach (var caseValue in Cases)
+        {
+            yield return caseValue;
+        }
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<SwitchExpression>("Not valid.");
 
         if (tokens.Length == 1) return ParseExpressionResult.Invalid<SwitchExpression>("No condition found");
 
+        var expressionReference = new NodeReference();
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = factory.Parse(condition, source.Line);
+        var conditionExpression = factory.Parse(expressionReference, condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new SwitchExpression(conditionExpression.Result, source, reference, factory);
+        var expression = new SwitchExpression(conditionExpression.Result, source, reference, parentReference, factory);
+        expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);
     }
@@ -101,4 +106,12 @@ public class SwitchExpression : Expression, IParsableNode
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override SuggestionEdit[] GetSuggestions()
+    {
+        return Suggestions.Edit(with => with
+            .Keyword(Keywords.Case)
+            .Keyword(Keywords.Default)
+        );
+    }
 }

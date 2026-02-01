@@ -1,7 +1,8 @@
-using Lexy.Compiler.Parser.Symbols;
+using System;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.RunTime;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Language;
 
 public class SourceReference
 {
@@ -40,5 +41,23 @@ public class SourceReference
         return position.LineNumber == LineNumber
             && position.Column >= Column
             && position.Column <= EndColumn;
+    }
+
+    protected bool Equals(SourceReference other)
+    {
+        return LineNumber == other.LineNumber && Column == other.Column && EndColumn == other.EndColumn && FileName == other.FileName;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((SourceReference)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(LineNumber, Column, EndColumn, FileName);
     }
 }

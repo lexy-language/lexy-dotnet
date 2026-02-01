@@ -19,7 +19,7 @@ internal static class ExtractFunctionStatement
     {
         Assert.NotNull(expression, nameof(expression));
 
-        return ExtractStatementSyntax(expression.Mapping, expression.FunctionResultVariable);
+        return ExtractStatementSyntax(expression.State.Mapping, expression.FunctionResultVariable);
     }
 
     public static IEnumerable<StatementSyntax> ExtractStatementSyntax(VariablesMapping mappings,

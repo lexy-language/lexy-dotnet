@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Lexy.Compiler.Language.TypeSystem;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.RunTime;
 
@@ -11,7 +10,7 @@ public abstract class Expression : Node
 {
     public ExpressionSource Source { get; }
 
-    protected Expression(ExpressionSource source, SourceReference reference) : base(reference)
+    protected Expression(ExpressionSource source, NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
         Source = Assert.NotNull(source, nameof(source));
     }
@@ -19,10 +18,18 @@ public abstract class Expression : Node
     public override string ToString()
     {
         var writer = new StringBuilder();
-        foreach (var token in Source.Tokens)
+        writer.Append($"({GetType().Name}) ");
+
+        for (var index = 0; index < Source.Tokens.Length; index++)
         {
+            var token = Source.Tokens[index];
             writer.Append(token.Value);
+            if (index < Source.Tokens.Length - 1)
+            {
+                writer.Append(" ");
+            }
         }
+
         return writer.ToString();
     }
 

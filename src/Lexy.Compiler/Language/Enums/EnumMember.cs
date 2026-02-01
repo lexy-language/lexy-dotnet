@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -15,15 +15,15 @@ public class EnumMember : Node
 
     public int NumberValue { get; }
 
-    private EnumMember(string name, NumberLiteralToken valueLiteral, int value, SourceReference reference) :
-        base(reference)
+    private EnumMember(string name, NumberLiteralToken valueLiteral, int value, EnumDefinition enumDefinition, SourceReference reference) :
+        base(enumDefinition, reference)
     {
         NumberValue = value;
         Name = name;
         ValueLiteral = valueLiteral;
     }
 
-    public static EnumMember Parse(IParseLineContext context, int lastIndex)
+    public static EnumMember Parse(IParseLineContext context, EnumDefinition enumDefinition, int lastIndex)
     {
         var valid = context.ValidateTokens<EnumMember>()
             .CountMinimum(1)
@@ -38,7 +38,7 @@ public class EnumMember : Node
 
         if (tokens.Length == 1)
         {
-            return new EnumMember(name, null, lastIndex + 1, tokens.Reference(0, 1));
+            return new EnumMember(name, null, lastIndex + 1, enumDefinition, tokens.Reference(0, 1));
         }
 
         if (tokens.Length != 3)
@@ -57,7 +57,7 @@ public class EnumMember : Node
         var value = tokens.Token<NumberLiteralToken>(2);
         var reference = tokens.AllReference();
 
-        return new EnumMember(name, value, (int)value.NumberValue, reference);
+        return new EnumMember(name, value, (int)value.NumberValue, enumDefinition, reference);
     }
 
     public override IEnumerable<INode> GetChildren()

@@ -41,7 +41,10 @@ public class ComponentNodeList : IComponentNodeList
         Assert.NotNull(componentNode, nameof(componentNode));
 
         values.Add(componentNode);
-        index.TryAdd(componentNode.Name, componentNode);
+        if (componentNode.Name != null)
+        {
+            index.TryAdd(componentNode.Name, componentNode);
+        }
     }
 
     internal bool ContainsEnum(string enumName)

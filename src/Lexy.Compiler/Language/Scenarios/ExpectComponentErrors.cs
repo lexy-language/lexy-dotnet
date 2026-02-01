@@ -1,10 +1,9 @@
-using Lexy.Compiler.Parser;
-
 namespace Lexy.Compiler.Language.Scenarios;
 
 public class ExpectComponentErrors : ErrorsNode<ExpectComponentErrors>
 {
-    public ExpectComponentErrors(SourceReference reference) : base(reference)
+    public ExpectComponentErrors(Scenario scenario, SourceReference reference) :
+        base(new NodeReference(scenario), reference)
     {
     }
 }

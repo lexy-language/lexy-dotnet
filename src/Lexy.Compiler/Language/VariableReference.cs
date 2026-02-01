@@ -1,8 +1,7 @@
 using System;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
-using Lexy.Compiler.Parser.Symbols;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language;

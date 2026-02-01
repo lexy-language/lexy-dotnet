@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
@@ -14,26 +13,30 @@ public class AssignmentExpression : Expression
     public Expression Assignment { get; }
 
     private AssignmentExpression(Expression variable, Expression assignment, ExpressionSource source,
-        SourceReference reference) : base(source, reference)
+        NodeReference parentReference, SourceReference reference) :
+        base(source, parentReference, reference)
     {
         Variable = variable;
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
     {
+        var expressionReference = new NodeReference();
+
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParseExpressionResult>("Invalid expression.");
 
-        var variableExpression = factory.Parse(tokens.TokensFromStart(1), source.Line);
+        var variableExpression = factory.Parse(expressionReference, tokens.TokensFromStart(1), source.Line);
         if (!variableExpression.IsSuccess) return variableExpression;
 
-        var assignment = factory.Parse(tokens.TokensFrom(2), source.Line);
+        var assignment = factory.Parse(expressionReference, tokens.TokensFrom(2), source.Line);
         if (!assignment.IsSuccess) return assignment;
 
         var reference = source.CreateReference();
 
-        var expression = new AssignmentExpression(variableExpression.Result, assignment.Result, source, reference);
+        var expression = new AssignmentExpression(variableExpression.Result, assignment.Result, source, parentReference,  reference);
+        expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);
     }
@@ -41,7 +44,7 @@ public class AssignmentExpression : Expression
     public static bool IsValid(TokenList tokens)
     {
         return tokens.Length >= 3
-            && (tokens.IsTokenType<StringLiteralToken>(0) || tokens.IsTokenType<MemberAccessLiteralToken>(0))
+            && (tokens.IsTokenType<StringLiteralToken>(0) || tokens.IsTokenType<MemberAccessToken>(0))
             && tokens.IsOperatorToken(1, OperatorType.Assignment);
     }
 
@@ -53,9 +56,11 @@ public class AssignmentExpression : Expression
 
     protected override void Validate(IValidationContext context)
     {
-        if (Variable is not IHasVariableReference hasVariableReference || hasVariableReference.Variable == null)
+        var hasVariableReference = Variable as IHasVariableReference;
+        if (hasVariableReference?.Variable == null)
         {
-            context.Logger.Fail(Reference, $"Unknown variable name: '{Variable}'.");
+            var path = hasVariableReference?.Path ?? Variable.ToString();
+            context.Logger.Fail(Reference, $"Unknown variable name: '{path}'.");
             return;
         }
 

@@ -78,7 +78,11 @@ public class KeywordTests : ScopedServicesTestFixture
     public void TestAssignmentWithMemberAccessWithoutLastMember()
     {
         ServiceProvider
-            .TokenizeExpectError(@"  Value = ValidateEnumKeyword.")
-            .ErrorMessage.ShouldContain("Invalid token at end of line. Unexpected end of line. Member accessor should be followed by member name.");
+            .Tokenize(@"  Value = ValidateEnumKeyword.")
+            .Count(3)
+            .StringLiteral(0, "Value")
+            .Operator(1, OperatorType.Assignment)
+            .IncompleteMemberAccess(2, "ValidateEnumKeyword.")
+            .Assert();
     }
 }

@@ -6,13 +6,24 @@ namespace Lexy.Tests.Tokenizer;
 public class MemberAccessTests : ScopedServicesTestFixture
 {
     [Test]
-    public void TestTableHeader()
+    public void Complete()
     {
         ServiceProvider
             .Tokenize(@"    Source.Member")
             .Count(1)
-            .Type<MemberAccessLiteralToken>(0)
+            .Type<MemberAccessToken>(0)
             .MemberAccess(0, "Source.Member")
+            .Assert();
+    }
+
+    [Test]
+    public void Incomplete()
+    {
+        ServiceProvider
+            .Tokenize(@"    Source.")
+            .Count(1)
+            .Type<IncompleteMemberAccessToken>(0)
+            .IncompleteMemberAccess(0, "Source.")
             .Assert();
     }
 }

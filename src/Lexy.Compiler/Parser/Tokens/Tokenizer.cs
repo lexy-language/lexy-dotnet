@@ -95,6 +95,7 @@ public class Tokenizer : ITokenizer
         if (current != null)
         {
             var result = current.EndOfLine();
+
             if (result.Status != TokenStatus.Finished)
             {
                 return TokenizeResult.Failed(line.LineEndReference(), $"Invalid token at end of line. {result.ValidationError}");

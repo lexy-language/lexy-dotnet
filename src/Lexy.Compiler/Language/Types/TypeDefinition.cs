@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Types;
@@ -14,13 +14,11 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
 {
     private readonly List<VariableDefinition> variables = new();
 
-    public override string Name { get; }
-
     public IReadOnlyList<VariableDefinition> Variables => variables;
 
-    private TypeDefinition(string name, SourceReference reference) : base(reference)
+    private TypeDefinition(string name, LexyScriptNode parentReference, SourceReference reference) :
+        base(name, new NodeReference(parentReference), reference)
     {
-        Name = name;
     }
 
     public Type CreateType()
@@ -28,14 +26,14 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
         return new DeclaredType(this);
     }
 
-    internal static TypeDefinition Parse(NodeName name, SourceReference reference)
+    internal static TypeDefinition Parse(NodeName name, LexyScriptNode parent, SourceReference reference)
     {
-        return new TypeDefinition(name.Name, reference);
+        return new TypeDefinition(name.Name, parent, reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
     {
-        var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context);
+        var variableDefinition = VariableDefinition.Parse(VariableSource.Parameters, context, new NodeReference(this));
         if (variableDefinition != null) variables.Add(variableDefinition);
         return this;
     }
@@ -60,10 +58,7 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
 
     public override void ValidateTree(IValidationContext context)
     {
-        using (context.CreateVariableScope())
-        {
-            base.ValidateTree(context);
-        }
+        context.InNodeVariableScope(this, base.ValidateTree);
     }
 
     public override Symbol GetSymbol()
@@ -71,7 +66,7 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
         var builder = new StringBuilder();
         foreach (var variable in Variables)
         {
-            builder.AppendLine("- " + variable.Type + " " + variable.Name);
+            builder.AppendLine($"- {variable.TypeDeclaration} {variable.Name}");
         }
         var variablesString = builder.ToString();
         return new Symbol(Reference, "type: " + Name, variablesString, SymbolKind.Type);

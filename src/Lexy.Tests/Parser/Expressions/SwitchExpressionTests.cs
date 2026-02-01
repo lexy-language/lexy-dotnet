@@ -37,9 +37,9 @@ public class SwitchExpressionTests : ScopedServicesTestFixture
             var expressionCases = expression.Cases.ToArray();
             expressionCases.Count().ShouldBe(3);
 
-            CheckCase(expressionCases, 0, "6", "temp=666");
-            CheckCase(expressionCases, 1, "7", "temp=777");
-            CheckCase(expressionCases, 2, null, "temp=888");
+            CheckCase(expressionCases, 0, "6", "(AssignmentExpression) temp = 666");
+            CheckCase(expressionCases, 1, "7", "(AssignmentExpression) temp = 777");
+            CheckCase(expressionCases, 2, null, "(AssignmentExpression) temp = 888");
         });
     }
 

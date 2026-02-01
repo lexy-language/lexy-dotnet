@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Lexy.Compiler.Parser;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
@@ -10,12 +9,12 @@ public sealed class ValueTypeDeclaration : TypeDeclaration
 {
     public string TypeName { get; }
 
-    public ValueTypeDeclaration(string type, SourceReference reference) : base(reference)
+    public ValueTypeDeclaration(string type, NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
         TypeName = Assert.NotNull(type, nameof(type));
     }
 
-    protected bool Equals(ValueTypeDeclaration other)
+    private bool Equals(ValueTypeDeclaration other)
     {
         return TypeName == other.TypeName;
     }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Lexy.Compiler.Language;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Tokens;
@@ -36,6 +38,27 @@ public class TokenList : IEnumerable<Token>
         return values.Length == 1 && values[0] is CommentToken;
     }
 
+    public Token TokenAt(int column)
+    {
+        var columnIndex = column - 1;
+        for (var index = 0; index < values.Length; index++)
+        {
+            var token = values[index];
+            if (index == values.Length - 1)
+            {
+                if (columnIndex >= token.FirstCharacter.Position && columnIndex <= token.EndColumn + 1)
+                {
+                    return token;
+                }
+            } else if (token.FirstCharacter.Position >= columnIndex && token.EndColumn + 1 <= columnIndex)
+            {
+                return token;
+            }
+        }
+
+        return null;
+    }
+
     public string TokenValue(int index)
     {
         return index >= 0 && index <= values.Length - 1 ? values[index].Value : null;
@@ -43,7 +66,7 @@ public class TokenList : IEnumerable<Token>
 
     public TokenList TokensFrom(int index)
     {
-        if (index == this.values.Length) return new TokenList(Line, Array.Empty<Token>());
+        if (index == values.Length) return new TokenList(Line, Array.Empty<Token>());
         CheckValidTokenIndex(index);
 
         return new TokenList(Line, values[index..]);
@@ -163,7 +186,6 @@ public class TokenList : IEnumerable<Token>
         return -1;
     }
 
-
     public SourceReference Reference(int tokenIndex, int? numberOfTokens = null)
     {
         Assert.True(numberOfTokens is null or >= 1, $"numberOfTokens should be >= 1 ({numberOfTokens})");
@@ -185,6 +207,7 @@ public class TokenList : IEnumerable<Token>
 
         return new SourceReference(Line.FileName, Line.Index + 1, column.Value, endColumn.Value);
     }
+
     public SourceReference AllReference()
     {
         if (Length == 0)

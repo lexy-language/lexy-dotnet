@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 using Lexy.Compiler.Language.Functions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.Expressions.Functions;
@@ -21,7 +20,8 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
 
     public override string Name => FunctionName;
 
-    public LexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments, ExpressionSource source) : base(source)
+    public LexyFunctionCallExpression(string functionName, IReadOnlyList<Expression> arguments,
+        NodeReference parentReference, ExpressionSource source) : base(parentReference, source)
     {
         FunctionName = Assert.NotNull(functionName, nameof(functionName));
         Arguments = Assert.NotNull(arguments, nameof(arguments));
@@ -77,7 +77,7 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
     {
         var function = GetFunction(context);
         var variable = ReturnSingleResultsVariable(function);
-        return variable != null ? variable.Type : function?.GetResultsType();
+        return variable != null ? variable.State.Type : function?.GetResultsType();
     }
 
     private string ReturnSingleResultsVariablesName(Function function)

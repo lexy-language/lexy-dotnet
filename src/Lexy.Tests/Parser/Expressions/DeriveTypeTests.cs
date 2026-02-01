@@ -3,6 +3,7 @@ using Lexy.Compiler.Language;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Logging;
+using Lexy.Compiler.Parser.Symbols;
 using Lexy.Tests.Parser.ExpressionParser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -158,13 +159,18 @@ public class DeriveTypeTests : ScopedServicesTestFixture
     {
         var logger = new ParserLogger(ServiceProvider.GetRequiredService<ILogger<LexyParser>>());
         var visitor = new TrackLoggingCurrentNodeVisitor(logger);
-        var validationContext = new ValidationContext(logger, new ComponentNodeList(), visitor, new Lexy.Compiler.FunctionLibraries.Libraries());
+        var symbols = new DocumentsSymbols(new LexyScriptNode());
+        var validationContext = new ValidationContext(logger, new ComponentNodeList(), visitor, new Lexy.Compiler.FunctionLibraries.Libraries(), symbols);
 
-        using var _ = validationContext.CreateVariableScope();
+        var expression = new Comments(new NodeReference(null), new SourceReference("", 1, 1, 1));
+        Type returnValue = null;
+        validationContext.InNodeVariableScope(expression, _ =>
+        {
+            validationContextHandler?.Invoke(validationContext);
 
-        validationContextHandler?.Invoke(validationContext);
-
-        var expression = this.ParseExpression(expressionValue);
-        return expression.DeriveType(validationContext);
+            var expression = this.ParseExpression(expressionValue);
+            returnValue = expression.DeriveType(validationContext);
+        });
+        return returnValue;
     }
 }

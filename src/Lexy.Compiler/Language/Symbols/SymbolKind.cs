@@ -1,4 +1,4 @@
-namespace Lexy.Compiler.Parser.Symbols;
+namespace Lexy.Compiler.Language.Symbols;
 
 public enum SymbolKind
 {
@@ -18,6 +18,7 @@ public enum SymbolKind
     GeneratedType,
     Table,
     TableFunction,
+    ObjectVariable,
     Comments,
     LibraryFunction,
     TableColumn

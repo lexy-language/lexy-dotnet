@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
 
@@ -11,23 +11,25 @@ public class ValidationTableHeader : Node
 {
     public IList<ValidationColumnHeader> Columns { get; }
 
-    private ValidationTableHeader(ValidationColumnHeader[] columns, SourceReference reference) : base(reference)
+    private ValidationTableHeader(ValidationColumnHeader[] columns, ValidationTable parent, SourceReference reference) :
+        base(new NodeReference(parent), reference)
     {
         Columns = Assert.NotNull(columns, nameof(columns));
     }
 
-    public static ValidationTableHeader Parse(IParseLineContext context)
+    public static ValidationTableHeader Parse(IParseLineContext context, ValidationTable validationTable)
     {
         var startsWithTableSeparator = context.ValidateTokens<ValidationTableHeader>()
             .Type<TableSeparatorToken>(0)
             .IsValid;
         if (!startsWithTableSeparator) return null;
 
-        return ParseWithoutColumnType(context);
+        return ParseWithoutColumnType(context, validationTable);
     }
 
-    private static ValidationTableHeader ParseWithoutColumnType(IParseLineContext context)
+    private static ValidationTableHeader ParseWithoutColumnType(IParseLineContext context, ValidationTable validationTable)
     {
+        var headerReference = new NodeReference();
         var headers = new List<ValidationColumnHeader>();
         var tokens = context.Line.Tokens;
         var index = 0;
@@ -42,11 +44,13 @@ public class ValidationTableHeader : Node
             var name = tokens.TokenValue(index);
             var reference = context.Line.Tokens.Reference(index++, 1);
 
-            var header = ValidationColumnHeader.Parse(name, reference);
+            var header = ValidationColumnHeader.Parse(name, headerReference, reference);
             headers.Add(header);
         }
 
-        return new ValidationTableHeader(headers.ToArray(), context.Line.Tokens.AllReference());
+        var validationTableHeader = new ValidationTableHeader(headers.ToArray(), validationTable, context.Line.Tokens.AllReference());
+        headerReference.SetNode(validationTableHeader);
+        return validationTableHeader;
     }
 
     public override IEnumerable<INode> GetChildren()

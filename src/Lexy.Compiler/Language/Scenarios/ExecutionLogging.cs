@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -11,7 +11,8 @@ public class ExecutionLogging : ParsableNode
 
     public IReadOnlyList<ExecutionLog> Entries => entries;
 
-    public ExecutionLogging(SourceReference reference) : base(reference)
+    public ExecutionLogging(Scenario parent, SourceReference reference) :
+        base(new NodeReference(parent), reference)
     {
     }
 
@@ -22,7 +23,7 @@ public class ExecutionLogging : ParsableNode
 
     private IParsableNode ParseEntry(IParseLineContext context)
     {
-        var entry = ExecutionLog.ParseLog(context);
+        var entry = ExecutionLog.ParseLog(new NodeReference(this), context);
         if (entry == null) return this;
         entries.Add(entry);
         return entry;

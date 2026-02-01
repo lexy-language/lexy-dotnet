@@ -6,7 +6,7 @@ public abstract class TypeDeclaration : Node
 {
     public Type Type { get; protected set; }
 
-    protected TypeDeclaration(SourceReference reference) : base(reference)
+    protected TypeDeclaration(NodeReference parentReference, SourceReference reference) : base(parentReference, reference)
     {
     }
 

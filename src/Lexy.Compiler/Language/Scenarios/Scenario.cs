@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
+using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.Tables;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
-using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -26,16 +26,13 @@ public class Scenario : ComponentNode, IHasNodeDependencies
     public ExpectComponentErrors ExpectComponentErrors { get; private set; }
     public ExpectExecutionErrors ExpectExecutionErrors { get; private set; }
 
-    public override string Name { get; }
-
-    private Scenario(string name, SourceReference reference) : base(reference)
+    private Scenario(string name, LexyScriptNode parentReference, SourceReference reference) : base(name, new NodeReference(parentReference), reference)
     {
-        Name = name;
     }
 
-    internal static Scenario Parse(NodeName name, SourceReference reference)
+    internal static Scenario Parse(NodeName name, LexyScriptNode parent, SourceReference reference)
     {
-        return new Scenario(name.Name, reference);
+        return new Scenario(name.Name, parent, reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)
@@ -55,15 +52,15 @@ public class Scenario : ComponentNode, IHasNodeDependencies
             Keywords.EnumKeyword => ParseEnum(context, reference),
             Keywords.TableKeyword => ParseTable(context, reference),
 
-            Keywords.Parameters => Parameters = new Parameters(reference),
-            Keywords.Results => Results = new Results(reference),
-            Keywords.ValidationTable => ValidationTable = new ValidationTable($"{Name}Table", reference),
+            Keywords.Parameters => Parameters = new Parameters(this, reference),
+            Keywords.Results => Results = new Results(this, reference),
+            Keywords.ValidationTable => ValidationTable = new ValidationTable($"{Name}Table", this, reference),
 
-            Keywords.ExecutionLogging => ExecutionLogging = new ExecutionLogging(reference),
+            Keywords.ExecutionLogging => ExecutionLogging = new ExecutionLogging(this, reference),
 
-            Keywords.ExpectErrors => ExpectErrors = new ExpectErrors(reference),
-            Keywords.ExpectComponentErrors => ExpectComponentErrors = new ExpectComponentErrors(reference),
-            Keywords.ExpectExecutionErrors => ExpectExecutionErrors = new ExpectExecutionErrors(reference),
+            Keywords.ExpectErrors => ExpectErrors = new ExpectErrors(this, reference),
+            Keywords.ExpectComponentErrors => ExpectComponentErrors = new ExpectComponentErrors(this, reference),
+            Keywords.ExpectExecutionErrors => ExpectExecutionErrors = new ExpectExecutionErrors(this, reference),
 
             _ => InvalidToken(context, name, reference)
         };
@@ -83,15 +80,14 @@ public class Scenario : ComponentNode, IHasNodeDependencies
             return ParseFunctionName(context, reference);
         }
 
-        Function = Function.Create($"{Name}Function", true, reference, context.ExpressionFactory);
+        Function = Function.Create($"{Name}Function", true, new NodeReference(this), reference, context.ExpressionFactory);
         context.Logger.SetCurrentNode(Function);
         return Function;
     }
 
     private IParsableNode ParseFunctionName(IParseLineContext context, SourceReference reference)
     {
-        FunctionName ??= new FunctionName(reference);
-        FunctionName.Parse(context);
+        FunctionName = FunctionName.Parse(context, this, reference);
 
         return this;
     }
@@ -106,7 +102,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
         var tokenName = NodeName.Parse(context);
 
-        Enum = EnumDefinition.Parse(tokenName.Name, true, reference);
+        Enum = EnumDefinition.Parse(tokenName.Name, true, this, reference);
         context.Logger.SetCurrentNode(Enum);
         return Enum;
     }
@@ -121,7 +117,7 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
         var tokenName = NodeName.Parse(context);
 
-        Table = new Table(tokenName.Name, reference);
+        Table = new Table(tokenName.Name, new NodeReference(this), reference);
         context.Logger.SetCurrentNode(Table);
         return Table;
     }
@@ -161,32 +157,19 @@ public class Scenario : ComponentNode, IHasNodeDependencies
 
     private void ValidateWithFunctionVariables(IValidationContext context, INode child)
     {
-        using (context.CreateVariableScope())
+        context.InNodeVariableScope(this, _ =>
         {
             AddFunctionParametersAndResultsForValidation(context);
             base.ValidateChild(context, child);
-        }
+        });
     }
 
     private void AddFunctionParametersAndResultsForValidation(IValidationContext context)
     {
         var function = Function ?? (FunctionName != null ? context.ComponentNodes.GetFunction(FunctionName.Value) : null);
         if (function == null) return;
+        function.AddParametersAndResultsForVariables(context);
 
-        AddVariablesForValidation(context, function.Parameters?.Variables, VariableSource.Parameters);
-        AddVariablesForValidation(context, function.Results?.Variables, VariableSource.Results);
-    }
-
-    private static void AddVariablesForValidation(IValidationContext context, IReadOnlyList<VariableDefinition> definitions,
-        VariableSource source)
-    {
-        if (definitions == null) return;
-
-        foreach (var result in definitions)
-        {
-            var type = result.TypeDeclaration.Type;
-            context.VariableContext.AddVariable(result.Name, type, source);
-        }
     }
 
     protected override void Validate(IValidationContext context)
@@ -214,12 +197,22 @@ public class Scenario : ComponentNode, IHasNodeDependencies
             }
         }
         if (Enum != null) result.Add(Enum);
-        if (Table != null) result.Add(this.Table);
+        if (Table != null) result.Add(Table);
         return result;
     }
 
     public override Symbol GetSymbol()
     {
         return new Symbol(Reference, "scenario: " + Name, "Test scenario", SymbolKind.Scenario);
+    }
+
+    public override SuggestionEdit[] GetSuggestions()
+    {
+        return Suggestions.Edit(with => with
+            .Keyword(Keywords.Parameters)
+            .Keyword(Keywords.Results)
+            .Keyword(Keywords.ValidationTable)
+            //Omit system language keywords (Expect..., Execute...)
+        );
     }
 }

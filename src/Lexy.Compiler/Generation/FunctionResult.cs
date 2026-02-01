@@ -41,7 +41,7 @@ public class FunctionResult
         var currentValue = field.GetValue(valueObject);
         while (currentReference.HasChildIdentifiers)
         {
-            currentReference = currentReference.ChildrenReference();
+            currentReference = currentReference.ChildrenPath();
             currentValue = GetField(currentValue, currentReference.RootIdentifier).GetValue(currentValue);
         }
 
