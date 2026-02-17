@@ -63,18 +63,18 @@ public class MemberFunctionCallExpression : FunctionCallExpression, IHasNodeDepe
         var variable = context.VariableContext.GetType(FunctionPath.WithoutLastPart());
         if (variable != null)
         {
-            return GetTypeFunction(context, variable);
+            return GetTypeFunction(variable);
         }
 
         var type = context.ComponentNodes.GetType(FunctionPath.RootIdentifier);
         if (type != null)
         {
-            return GetTypeFunction(context, type);
+            return GetTypeFunction(type);
         }
         return GetLibraryFunction(context);
     }
 
-    private IObjectFunction GetTypeFunction(IValidationContext context, Type variable)
+    private IObjectFunction GetTypeFunction(Type variable)
     {
         return variable is not ObjectType typeWithMember
             ? null

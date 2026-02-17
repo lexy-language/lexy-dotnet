@@ -1,4 +1,3 @@
-using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
 
@@ -10,8 +9,7 @@ public abstract class TypeDeclaration : Node
     {
     }
 
-    public override string ToString()
-    {
-        return Type?.ToString();
-    }
+    public override string ToString() => Type == null ? "unknown" : Type.ToString();
+
+    public abstract string Label();
 }

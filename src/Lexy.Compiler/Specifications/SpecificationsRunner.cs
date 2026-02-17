@@ -27,16 +27,18 @@ public class SpecificationsRunner : ISpecificationsRunner
     public async Task Run(string file)
     {
         var context = new SpecificationRunnerContext(logger);
+        var project = new Project(fileSystem);
 
-        await CreateFileRunner(file, context);
+        await CreateFileRunner(project.File(file), context);
         RunScenarios(context);
     }
 
     public async Task RunAll(string folder)
     {
         var context = new SpecificationRunnerContext(logger);
+        var project = new Project(folder, fileSystem);
 
-        await GetRunners(folder, context);
+        await GetRunners(project, context);
         RunScenarios(context);
     }
 
@@ -66,16 +68,16 @@ public class SpecificationsRunner : ISpecificationsRunner
         throw new InvalidOperationException($"Specifications failed: {context.Failed}");
     }
 
-    private async Task GetRunners(string folder, ISpecificationRunnerContext context)
+    private async Task GetRunners(Project project, ISpecificationRunnerContext context)
     {
-        var absoluteFolder = await GetAbsoluteFolder(folder);
+        var absoluteFolder = await GetAbsoluteFolder(project);
 
         Console.WriteLine($"Specifications folder: {absoluteFolder}");
 
-        await AddFolder(absoluteFolder, context);
+        await AddFolder(project, absoluteFolder, context);
     }
 
-    private async Task AddFolder(string folder, ISpecificationRunnerContext context)
+    private async Task AddFolder(Project project, string folder, ISpecificationRunnerContext context)
     {
         var files = await fileSystem.GetDirectoryFiles(folder, new []{
             $".{LexySourceDocument.FileExtension}",
@@ -84,29 +86,29 @@ public class SpecificationsRunner : ISpecificationsRunner
 
         foreach (var file in files.OrderBy(name => name))
         {
-            await CreateFileRunner(file, context);
+            await CreateFileRunner(project.File(file), context);
         }
 
         var folders = await fileSystem.GetDirectories(folder);
         foreach (var subFolder in folders.OrderBy(name => name))
         {
             var fullFolder = fileSystem.Combine(folder, subFolder);
-            await AddFolder(fullFolder, context);
+            await AddFolder(project, fullFolder, context);
         }
     }
 
-    private async Task CreateFileRunner(string fileName, ISpecificationRunnerContext context)
+    private async Task CreateFileRunner(IFile file, ISpecificationRunnerContext context)
     {
-        var runner = new SpecificationFileRunner(fileName, parser, context, compiler);
+        var runner = new SpecificationFileRunner(file, parser, context, compiler);
         await runner.Initialize();
         context.Add(runner);
     }
 
-    private async Task<string> GetAbsoluteFolder(string folder)
+    private async Task<string> GetAbsoluteFolder(Project project)
     {
-        var absoluteFolder = fileSystem.IsPathRooted(folder)
-            ? folder
-            : fileSystem.GetFullPath(folder);
+        var absoluteFolder = fileSystem.IsPathRooted(project.BaseFolder)
+            ? project.BaseFolder
+            : fileSystem.GetFullPath(project.BaseFolder);
 
         if (!await fileSystem.DirectoryExists(absoluteFolder))
         {

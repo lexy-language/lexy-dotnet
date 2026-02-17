@@ -53,6 +53,7 @@ public class LexyFunctionCallExpression : FunctionCallExpression, IHasNodeDepend
         var parametersMapping = AutoMapParameters(result, context);
         var resultsObjectType = function.GetResultsType();
         var returnSingleResultsVariablesName = ReturnSingleResultsVariablesName(function);
+
         State = new LexyFunctionCallState(parametersMapping, resultsObjectType, returnSingleResultsVariablesName);
     }
 

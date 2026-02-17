@@ -33,7 +33,7 @@ public static class Keywords
 
     public const string ImplicitVariableDeclaration = "var";
 
-    private static readonly Lazy<IList<string>> values = new(LoadValues);
+    public static readonly Lazy<IList<string>> Values = new(LoadValues);
 
     private static IList<string> LoadValues()
     {
@@ -46,6 +46,6 @@ public static class Keywords
 
     public static bool Contains(string keyword)
     {
-        return values.Value.Contains(keyword);
+        return Values.Value.Contains(keyword);
     }
 }

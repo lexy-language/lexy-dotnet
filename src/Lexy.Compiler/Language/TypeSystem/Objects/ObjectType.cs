@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
 
-public abstract class ObjectType : Type
+public abstract class ObjectType : Type, IHasNodeDependencies
 {
     private readonly Lazy<IEnumerable<IObjectMember>> members;
 
@@ -25,12 +25,6 @@ public abstract class ObjectType : Type
     }
 
     public Type MemberType(string name) => Members.FirstOrDefault(member => member.Name == name)?.Type;
-
-    public IEnumerable<ObjectVariable> GetVariables() => Members.OfType<ObjectVariable>();
-
-    public IEnumerable<ObjectFunction> GetFunctions() => Members.OfType<ObjectFunction>();
-
-    public ObjectVariable GetVariable(string name) => GetMember(name) as ObjectVariable;
 
     public ObjectFunction GetFunction(string name) => GetMember(name) as ObjectFunction;
 

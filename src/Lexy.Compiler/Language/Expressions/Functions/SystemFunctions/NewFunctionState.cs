@@ -1,11 +1,13 @@
+using Lexy.Compiler.Language.TypeSystem.Objects;
+
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
 public class NewFunctionState
 {
-    public VariablesMapping Mapping { get; }
+    public GeneratedType Type { get; }
 
-    public NewFunctionState(VariablesMapping mapping)
+    public NewFunctionState(GeneratedType type)
     {
-        Mapping = mapping;
+        Type = type;
     }
 }

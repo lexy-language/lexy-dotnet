@@ -1,5 +1,4 @@
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 
 namespace Lexy.Compiler.Language.TypeSystem.Functions;
 

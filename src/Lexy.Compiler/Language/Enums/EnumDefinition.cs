@@ -77,6 +77,4 @@ public class EnumDefinition : ComponentNode, INestedNode, INodeWithType
     {
         return new Symbol(Reference, $"enum: {Name}", string.Empty, SymbolKind.Enum);
     }
-
-    public override string ToString() => Name;
 }

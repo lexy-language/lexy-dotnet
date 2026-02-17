@@ -43,4 +43,15 @@ public class VerifyLogging
         action();
         indention--;
     }
+
+    public void AssertNoErrors()
+    {
+        var summary = ToString();
+        if (Errors > 0)
+        {
+            throw new InvalidOperationException(summary);
+        }
+
+        Console.WriteLine(summary);
+    }
 }

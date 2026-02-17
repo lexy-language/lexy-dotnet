@@ -1,20 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.Scenarios;
-
-public class AssignmentDefinitionState
-{
-    public Type Type { get; }
-
-    public AssignmentDefinitionState(Type type)
-    {
-        Type = type;
-    }
-}
 
 public class AssignmentDefinition : Node, IAssignmentDefinition
 {
@@ -25,6 +15,15 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
     public IdentifierPath Variable { get; }
 
     public AssignmentDefinitionState State { get; private set; }
+
+    public AssignmentDefinitionState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     public AssignmentDefinition(IdentifierPath variable, ConstantValue constantValue, Expression variableExpression,
         Expression targetExpression, NodeReference parentReference, SourceReference reference)
@@ -58,7 +57,7 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
         if (expressionType != null && !expressionType.Equals(State.Type))
         {
             context.Logger.Fail(Reference,
-                $"Variable '{Variable}' of type '{State}' is not assignable from expression of type '{expressionType}'.");
+                $"Variable '{Variable}' of type '{State.Type}' is not assignable from expression of type '{expressionType}'.");
         }
     }
 
@@ -68,4 +67,6 @@ public class AssignmentDefinition : Node, IAssignmentDefinition
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => $"{Variable} = {ConstantValue}";
 }

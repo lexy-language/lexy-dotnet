@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
-using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
 
@@ -111,43 +110,72 @@ public class ParseScenarioTests : ScopedServicesTestFixture
 
         var (scenario, _) = await ServiceProvider.ParseScenario(code);
 
-        scenario.Name.ShouldBe("ValidNumberIntAsParameter");
-        scenario.Function.ShouldNotBeNull();
-        scenario.Function.Parameters.Variables.Count.ShouldBe(2);
-        scenario.Function.Parameters.Variables[0].Name.ShouldBe("Value1");
-        scenario.Function.Parameters.Variables[0].TypeDeclaration.ValidateOfType<ValueTypeDeclaration>(value =>
-            ShouldBeStringTestExtensions.ShouldBe(value.TypeName, "number"));
-        scenario.Function.Parameters.Variables[0].DefaultExpression.ToString().ShouldBe("123");
-        scenario.Function.Parameters.Variables[1].Name.ShouldBe("Value2");
-        scenario.Function.Parameters.Variables[1].TypeDeclaration.ValidateOfType<ValueTypeDeclaration>(value =>
-            value.TypeName.ShouldBe("number"));
-        scenario.Function.Parameters.Variables[1].DefaultExpression.ToString().ShouldBe("456");
-        scenario.Function.Results.Variables.Count.ShouldBe(2);
-        scenario.Function.Results.Variables[0].Name.ShouldBe("Result1");
-        scenario.Function.Results.Variables[0].TypeDeclaration.ValidateOfType<ValueTypeDeclaration>(value =>
-            value.TypeName.ShouldBe("number"));
-        scenario.Function.Results.Variables[0].DefaultExpression.ShouldBeNull();
-        scenario.Function.Results.Variables[1].Name.ShouldBe("Result2");
-        scenario.Function.Results.Variables[1].TypeDeclaration.ValidateOfType<ValueTypeDeclaration>(value =>
-            value.TypeName.ShouldBe("number"));
-        scenario.Function.Results.Variables[1].DefaultExpression.ShouldBeNull();
-        scenario.Function.Code.Expressions.Count.ShouldBe(2);
-        scenario.Function.Code.Expressions[0].ToString().ShouldBe("(AssignmentExpression) Result1 = Value1");
-        scenario.Function.Code.Expressions[1].ToString().ShouldBe("(AssignmentExpression) Result2 = Value2");
-
-        var parameterAssignments = scenario.Parameters.AllAssignments();
-        parameterAssignments.Count.ShouldBe(2);
-        parameterAssignments[0].Variable.RootIdentifier.ShouldBe("Value1");
-        parameterAssignments[0].ConstantValue.Value.ShouldBe(987m);
-        parameterAssignments[1].Variable.RootIdentifier.ShouldBe("Value2");
-        parameterAssignments[1].ConstantValue.Value.ShouldBe(654m);
-
-        var resultsAssignments = scenario.Results.AllAssignments();
-        resultsAssignments.Count.ShouldBe(2);
-        resultsAssignments[0].Variable.RootIdentifier.ShouldBe("Result1");
-        resultsAssignments[0].ConstantValue.Value.ShouldBe(123m);
-        resultsAssignments[1].Variable.RootIdentifier.ShouldBe("Result2");
-        resultsAssignments[1].ConstantValue.Value.ShouldBe(456m);
+        Verify.Model(scenario, context => context
+            .AreEqual(value => value.Name, "ValidNumberIntAsParameter")
+            .IsNotNull(value => value.Function, functionContext => functionContext
+                .Collection(value => value.Parameters.Variables, variablesContext => variablesContext
+                    .Length(2, "value.Parameters.Variables")
+                    .ValueModel(0, itemContext => itemContext
+                        .AreEqual(item => item.Name, "Value1")
+                        .IsOfType<ValueTypeDeclaration>(item => item.TypeDeclaration, valueTypeDeclarationContext => valueTypeDeclarationContext
+                            .AreEqual(valueTypeDeclaration => valueTypeDeclaration.TypeName, "number")
+                        )
+                        .AreEqual(item => item.DefaultExpression.ToString(), "number: 123")
+                    )
+                    .ValueModel(1, itemContext => itemContext
+                        .AreEqual(item => item.Name, "Value2")
+                        .IsOfType<ValueTypeDeclaration>(item => item.TypeDeclaration, valueTypeDeclaration => valueTypeDeclaration
+                            .AreEqual(valueTypeDeclaration => valueTypeDeclaration.TypeName, "number")
+                        )
+                        .AreEqual(item => item.DefaultExpression.ToString(), "number: 456")
+                    )
+                )
+                .Collection(value => value.Results.Variables, variablesContext => variablesContext
+                    .Length(2, "value.Results.Variables")
+                    .ValueModel(0, itemContext => itemContext
+                        .AreEqual(item => item.Name, "Result1")
+                        .IsOfType<ValueTypeDeclaration>(item => item.TypeDeclaration, valueTypeDeclarationContext => valueTypeDeclarationContext
+                            .AreEqual(valueTypeDeclaration => valueTypeDeclaration.TypeName, "number")
+                        )
+                        .IsNull(item => item.DefaultExpression)
+                    )
+                    .ValueModel(1, itemContext => itemContext
+                        .AreEqual(item => item.Name, "Result2")
+                        .IsOfType<ValueTypeDeclaration>(item => item.TypeDeclaration, valueTypeDeclaration => valueTypeDeclaration
+                            .AreEqual(valueTypeDeclaration => valueTypeDeclaration.TypeName, "number")
+                        )
+                        .IsNull(item => item.DefaultExpression, "LiteralExpression: 456")
+                    )
+                )
+            )
+            .Collection(value => value.Function.Code.Expressions, variablesContext => variablesContext
+                .Length(2, "value.Function.Code.Expressions")
+                .ValueAt(0, value => value.ToString() == "Result1 = Value1")
+                .ValueAt(1, value => value.ToString() == "Result2 = Value2")
+            )
+            .Collection(value => scenario.Parameters.AllAssignments(), variablesContext => variablesContext
+                .Length(2, "scenario.Parameters.AllAssignments")
+                .ValueModel(0, itemContext => itemContext
+                    .AreEqual(value => value.Variable.RootIdentifier, "Value1")
+                    .AreEqual(value => (decimal) value.ConstantValue.Value, 987m)
+                )
+                .ValueModel(1, itemContext => itemContext
+                    .AreEqual(value => value.Variable.RootIdentifier, "Value2")
+                    .AreEqual(value => (decimal) value.ConstantValue.Value, 654m)
+                )
+            )
+            .Collection(value => scenario.Results.AllAssignments(), variablesContext => variablesContext
+                .Length(2, "scenario.Results.AllAssignments")
+                .ValueModel(0, itemContext => itemContext
+                    .AreEqual(value => value.Variable.RootIdentifier, "Result1")
+                    .AreEqual(value => (decimal) value.ConstantValue.Value, 123m)
+                )
+                .ValueModel(1, itemContext => itemContext
+                    .AreEqual(value => value.Variable.RootIdentifier, "Result2")
+                    .AreEqual(value => (decimal) value.ConstantValue.Value, 456m)
+                )
+            )
+        );
     }
 
     [Test]

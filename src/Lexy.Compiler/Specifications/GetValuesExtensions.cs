@@ -22,8 +22,7 @@ public static class GetValuesExtensions
         return result;
     }
 
-    private static void SetParametersValue(AssignmentDefinition parameter,
-        Dictionary<string, object> result)
+    private static void SetParametersValue(AssignmentDefinition parameter, IDictionary<string, object> result)
     {
         SetValueObjectProperty(result, parameter.Variable, parameter.ConstantValue.Value);
     }

@@ -62,4 +62,6 @@ public class TableValue : Node
         valueReference.SetNode(tableValue);
         return tableValue;
     }
+
+    public override string ToString() => $"[{index}]";
 }

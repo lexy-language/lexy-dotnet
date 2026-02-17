@@ -1,20 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Lexy.Compiler.Language;
 
 namespace Lexy.Compiler.Parser.Logging;
 
 public static class NodesLogger
 {
-    public static string Log(IEnumerable<INode> nodes)
+    public static void Log(IEnumerable<INode> nodes, Action<string> logger)
     {
-        var builder = new StringBuilder();
-        Log(null, nodes, builder, 0);
-        return builder.ToString();
+        Log(null, nodes, logger, 0);
     }
 
-    private static void Log(INode parent, IEnumerable<INode> nodes, StringBuilder builder, int indent)
+    private static void Log(INode parent, IEnumerable<INode> nodes, Action<string> logger, int indent)
     {
         var index = 0;
         foreach (var node in nodes)
@@ -23,25 +20,18 @@ public static class NodesLogger
             {
                 throw new InvalidOperationException($"Node {index++} of '{parent.GetType()}' is null.");
             }
-            Log(node, builder, indent);
+            Log(node, logger, indent);
         }
     }
 
-    private static void Log(INode node, StringBuilder builder, int indent)
+    private static void Log(INode node, Action<string> logger, int indent)
     {
         var indentString = new string(' ', indent);
 
-        if (node is INodeWithName componentNode)
-        {
-            builder.AppendLine($"{componentNode.Reference,30} {indentString}{componentNode.GetType().Name}: {componentNode.Name} ({componentNode.ToString()})");
-        }
-        else
-        {
-            builder.AppendLine($"{node.Reference,30} {indentString}{node.GetType().Name} ({node.ToString()})");
-        }
+        logger($"{node.Reference,-70} {indentString}{node.GetType().Name}: {node.ToString()}");
 
         var children = node.GetChildren();
 
-        Log(node, children, builder, indent + 2);
+        Log(node, children, logger, indent + 2);
     }
 }

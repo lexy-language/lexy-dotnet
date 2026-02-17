@@ -8,9 +8,7 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Symbols;
 
-public record NodeLevel(INode Value, int Level);
-
-public class DocumentSymbols
+public class DocumentSymbols : IDocumentSymbols
 {
     private record ReturnValue(Symbol Symbol);
 
@@ -27,9 +25,21 @@ public class DocumentSymbols
 
     public Signatures GetSignatures(Position position) => MapSignatures(GetNode(position));
 
-    public void Add(IParsableNode parsedNode)
+    public void Add(IComponentNode parsedNode)
     {
         nodes.Add(parsedNode);
+    }
+
+    public void WalkSymbols(Action<INode, Symbol> symbolWalker)
+    {
+        NodesWalker.Walk(nodes, node =>
+        {
+            var symbol = node.GetSymbol();
+            if (symbol != null)
+            {
+                symbolWalker(node, symbol);
+            }
+        });
     }
 
     public void Add(Line line)
@@ -96,25 +106,22 @@ public class DocumentSymbols
         return null;
     }
 
-    public List<NodeLevel> GetNodesInScope(Position position)
+    public IReadOnlyList<INode> GetNodesInScope(Position position)
     {
         var nodesInScope = new List<List<INode>>();
         GetNodesInScope(position, nodes, nodesInScope);
 
         return nodesInScope.Count == 0
-            ? new List<NodeLevel>{new(lexyScriptNode, 0)}
+            ? new List<INode>{lexyScriptNode}
             : Flatten(nodesInScope);
     }
 
-    private static List<NodeLevel> Flatten(List<List<INode>> nodesInScope)
+    private static List<INode> Flatten(List<List<INode>> nodesInScope)
     {
-        var result = new List<NodeLevel>();
-        for (var level = 0; level < nodesInScope.Count; level++)
+        var result = new List<INode>();
+        foreach (var nodes in nodesInScope)
         {
-            foreach (var node in nodesInScope[level])
-            {
-                result.Add(new NodeLevel(node, level));
-            }
+            result.AddRange(nodes);
         }
         return result;
     }
@@ -127,7 +134,7 @@ public class DocumentSymbols
         {
             var inNode = node.Area.Includes(position);
 
-            if (wasIn & !inNode) return;
+            if (wasIn && !inNode) return;
 
             if (nodesInScope.Count > 0)
             {

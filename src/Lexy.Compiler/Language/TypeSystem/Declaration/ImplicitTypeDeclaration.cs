@@ -29,4 +29,6 @@ public sealed class ImplicitTypeDeclaration : TypeDeclaration
     protected override void Validate(IValidationContext context)
     {
     }
+
+    public override string Label() => "var";
 }

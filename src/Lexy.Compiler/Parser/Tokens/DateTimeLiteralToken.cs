@@ -101,6 +101,11 @@ public class DateTimeLiteralToken : ParsableToken, ILiteralToken
 
     public override string ToString()
     {
-        return DateTimeValue.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
+        return "date: " + FormatDate(DateTimeValue);
+    }
+
+    public static string FormatDate(DateTime value)
+    {
+        return value.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
     }
 }

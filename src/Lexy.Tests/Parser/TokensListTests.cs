@@ -7,7 +7,7 @@ namespace Lexy.Tests.Parser;
 
 public class TokensListTests
 {
-    private Line dummyLine = new Line(0, "", "");
+    private Line dummyLine = new Line(0, "", TestFile.Instance);
 
     [Test]
     public void TokensFrom()

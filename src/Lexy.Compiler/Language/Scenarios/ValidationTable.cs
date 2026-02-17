@@ -71,4 +71,6 @@ public class ValidationTable : ParsableNode, INodeWithName
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => rows.Count.ToString();
 }

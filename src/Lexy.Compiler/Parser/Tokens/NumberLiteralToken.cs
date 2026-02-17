@@ -93,8 +93,5 @@ public class NumberLiteralToken : ParsableToken, ILiteralToken
         return numberValue.HasValue && numberValue % 1 != 0;
     }
 
-    public override string ToString()
-    {
-        return Value;
-    }
+    public override string ToString() => $"number: {Value}";
 }

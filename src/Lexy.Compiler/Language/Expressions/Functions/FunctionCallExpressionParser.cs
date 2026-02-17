@@ -127,19 +127,4 @@ public static class FunctionCallExpressionParser
     {
         return new LexyFunctionCallExpression(functionName, arguments, parentReference, source);
     }
-
-    private static Func<ExpressionSource, IReadOnlyList<Expression>, ParseExpressionFunctionsResult> ForFirstArgument(
-        Func<ExpressionSource, Expression, FunctionCallExpression> factory)
-    {
-        return (reference, arguments) =>
-        {
-            if (arguments.Count != 1)
-            {
-                return ParseExpressionFunctionsResult.Failed("Invalid number of arguments. 1 argument expected.");
-            }
-
-            var function = factory(reference, arguments[0]);
-            return ParseExpressionFunctionsResult.Success(function);
-        };
-    }
 }

@@ -22,6 +22,6 @@ public class StringLiteralToken : Token, ILiteralToken
 
     public override string ToString()
     {
-        return Value;
+        return "string: " + Value;
     }
 }

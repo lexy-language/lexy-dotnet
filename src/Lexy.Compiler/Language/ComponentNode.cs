@@ -8,4 +8,6 @@ public abstract class ComponentNode : ParsableNode, IComponentNode
     {
         Name = name;
     }
+
+    public override string ToString() => Name;
 }

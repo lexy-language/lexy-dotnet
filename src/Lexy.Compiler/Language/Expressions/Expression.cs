@@ -18,8 +18,6 @@ public abstract class Expression : Node
     public override string ToString()
     {
         var writer = new StringBuilder();
-        writer.Append($"({GetType().Name}) ");
-
         for (var index = 0; index < Source.Tokens.Length; index++)
         {
             var token = Source.Tokens[index];

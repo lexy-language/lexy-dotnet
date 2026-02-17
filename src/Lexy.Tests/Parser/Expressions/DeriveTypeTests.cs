@@ -152,19 +152,19 @@ public class DeriveTypeTests : ScopedServicesTestFixture
 
     private static SourceReference NewReference()
     {
-        return new SourceReference("tests.lexy", 1, 1, 1);
+        return new SourceReference(TestFile.Instance, 1, 1, 1);
     }
 
     private Type DeriveType(string expressionValue, Action<IValidationContext> validationContextHandler = null)
     {
         var logger = new ParserLogger(ServiceProvider.GetRequiredService<ILogger<LexyParser>>());
         var visitor = new TrackLoggingCurrentNodeVisitor(logger);
-        var symbols = new DocumentsSymbols(new LexyScriptNode());
+        var lexyScriptNode = new LexyScriptNode(TestFile.Instance.Project);
+        var symbols = new Lexy.Compiler.Parser.Symbols.Symbols(lexyScriptNode);
         var validationContext = new ValidationContext(logger, new ComponentNodeList(), visitor, new Lexy.Compiler.FunctionLibraries.Libraries(), symbols);
 
-        var expression = new Comments(new NodeReference(null), new SourceReference("", 1, 1, 1));
         Type returnValue = null;
-        validationContext.InNodeVariableScope(expression, _ =>
+        validationContext.InNodeVariableScope(lexyScriptNode, _ =>
         {
             validationContextHandler?.Invoke(validationContext);
 

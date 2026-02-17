@@ -1,18 +1,39 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions;
 
+public class SpreadAssignmentState
+{
+    public VariablesMapping Mapping { get; }
+
+    public SpreadAssignmentState(VariablesMapping mapping)
+    {
+        Mapping = mapping;
+    }
+}
+
 public class SpreadAssignmentExpression : Expression
 {
-    public Expression Assignment { get; private set; }
-    public VariablesMapping Mapping { get; private set; }
+    public Expression Assignment { get; }
+
+    public SpreadAssignmentState State { get; private set; }
+
+    public SpreadAssignmentState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     private SpreadAssignmentExpression(Expression assignment, ExpressionSource source, NodeReference parentReference, SourceReference reference) :
         base(source, parentReference, reference)
@@ -52,14 +73,14 @@ public class SpreadAssignmentExpression : Expression
     protected override void Validate(IValidationContext context)
     {
         var expressionType = Assignment.DeriveType(context);
-        if (expressionType is GeneratedType objectResultsType)
-        {
-            Mapping = ExtractResultsFunctionExpression.GetMapping(Reference, context, objectResultsType);
-        }
-        else
+        if (expressionType is not GeneratedType objectResultsType)
         {
             context.Logger.Fail(Reference, "Couldn't determine type of assignment.");
+            return;
         }
+
+        var mapping = ExtractResultsFunctionExpression.GetMapping(Reference, context, objectResultsType);
+        State = new SpreadAssignmentState(mapping);
     }
 
     public override Type DeriveType(IValidationContext context)
@@ -74,12 +95,18 @@ public class SpreadAssignmentExpression : Expression
 
     public override Symbol GetSymbol()
     {
+        if (State?.Mapping == null) return null;
+
         var builder = new StringBuilder();
-        foreach (var mapping in Mapping)
+        foreach (var mapping in State.Mapping)
         {
-            builder.AppendLine($"- {mapping.Type} {mapping.VariableName} (from {mapping.VariableSource})");
+            if (builder.Length > 0)
+            {
+                builder.AppendLine();
+            }
+            builder.Append($"- {mapping.Type} {mapping.VariableName} (from {mapping.VariableSource})");
         }
         var variablesString = builder.ToString();
-        return new Symbol(Reference, "spread operator", variablesString, SymbolKind.Operator);
+        return new Symbol(Reference, "operator: spread", variablesString, SymbolKind.Operator);
     }
 }

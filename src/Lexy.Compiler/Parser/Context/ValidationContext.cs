@@ -15,7 +15,7 @@ public class ValidationContext : IValidationContext
 
     public ILibraries Libraries { get; }
     public IParserLogger Logger { get; }
-    public DocumentsSymbols Symbols { get; }
+    public ISymbols Symbols { get; }
     public ComponentNodeList ComponentNodes { get; }
 
     public ITreeValidationVisitor Visitor { get; }
@@ -29,7 +29,7 @@ public class ValidationContext : IValidationContext
         }
     }
 
-    public ValidationContext(IParserLogger logger, ComponentNodeList componentNodes, ITreeValidationVisitor visitor, ILibraries libraries, DocumentsSymbols symbols)
+    public ValidationContext(IParserLogger logger, ComponentNodeList componentNodes, ITreeValidationVisitor visitor, ILibraries libraries, ISymbols symbols)
     {
         Logger = Assert.NotNull(logger, nameof(logger));
         ComponentNodes = Assert.NotNull(componentNodes, nameof(componentNodes));

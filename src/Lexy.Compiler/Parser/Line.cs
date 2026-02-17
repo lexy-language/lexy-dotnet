@@ -1,5 +1,5 @@
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Logging;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -12,16 +12,16 @@ public class Line
 
     internal string Content { get; }
 
-    public string FileName { get; }
+    public IFile File { get; }
 
     public TokenList Tokens { get; private set; }
     public Position EndPosition { get; }
 
-    public Line(int index, string line, string fileName)
+    public Line(int index, string line, IFile file)
     {
         Index = index;
         Content = Assert.NotNull(line, nameof(line));
-        FileName = Assert.NotNull(fileName, nameof(fileName));
+        File = Assert.NotNull(file, nameof(file));
         EndPosition = new Position(index + 1, line.Length);
     }
 
@@ -79,18 +79,18 @@ public class Line
 
     public SourceReference LineReference(int characterIndex)
     {
-        return new SourceReference(FileName ?? "runtime", Index + 1, characterIndex + 1, characterIndex + 1);
+        return new SourceReference(File, Index + 1, characterIndex + 1, characterIndex + 1);
     }
 
     public SourceReference LineEndReference()
     {
         if (Tokens == null || Tokens.Length == 0)
         {
-            return new SourceReference(FileName ?? "runtime", Index + 1, 1, Content.Length + 1);
+            return new SourceReference(File, Index + 1, 1, Content.Length + 1);
         }
 
         var columnEnd = Tokens[^1].EndColumn;
-        return new SourceReference(FileName ?? "runtime", Index + 1, columnEnd - 1, columnEnd);
+        return new SourceReference(File, Index + 1, columnEnd - 1, columnEnd);
     }
 
     public TokenizeResult Tokenize(ITokenizer tokenizer)

@@ -45,4 +45,6 @@ public class FunctionResults : ParsableNode
     {
         return new Symbol(Reference, "results", "function result variables", SymbolKind.Keyword);
     }
+
+    public override string ToString() => variables.Count.ToString();
 }

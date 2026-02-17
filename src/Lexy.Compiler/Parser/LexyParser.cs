@@ -38,42 +38,51 @@ public class LexyParser : ILexyParser
     {
         Assert.NotNull(fileName, nameof(fileName));
         Assert.NotNull(content, nameof(content));
+        Assert.NotNull(options, nameof(options));
 
         baseLogger.LogInformation("Parse code: {FileName}", fileName);
 
-        var document = new StringSourceCodeDocument(content, fileName);
-        return await ParseDocuments(new[] { document }, options);
+        var project = new Project(fileSystem.CurrentFolder(), fileSystem);
+        var document = new StringSourceCodeDocument(project.File(fileName), content);
+        return await ParseDocuments(project, new[] { document }, options);
     }
 
-    public async Task<ParserResult> ParseFile(string fileName, ParseOptions options)
+    public async Task<ParserResult> ParseFile(IFile file, ParseOptions options)
     {
-        baseLogger.LogInformation("Parse file: {FileName}", fileName);
+        Assert.NotNull(file, nameof(file));
+        Assert.NotNull(options, nameof(options));
 
-        var fullPath = fileSystem.GetFullPath(fileName);
-        using var document = new FileSourceDocument(fullPath);
-        return await ParseDocuments(new[] { document }, options);
+        baseLogger.LogInformation("Parse file: {FileName}", file.Name);
+
+        using var document = await fileSystem.CreateFileSourceDocument(file);
+        return await ParseDocuments(file.Project,new[] { document }, options);
     }
 
     public async Task<ParserResult> ParseFiles(IEnumerable<string> fileNames, ParseOptions options)
     {
+        Assert.NotNull(fileNames, nameof(fileNames));
+        Assert.NotNull(options, nameof(options));
+
         baseLogger.LogInformation("Parse files: {FileNames}", string.Join(", ", fileNames));
 
-        using var documents = FileDocuments.Create(fileSystem, fileNames);
+        var project = new Project(fileSystem.CurrentFolder(), fileSystem);
+        var files = fileNames.Select(fileName => project.File(fileName)).ToArray();
+        using var documents = await fileSystem.CreateFileSourceDocuments(files);
 
-        return await ParseDocuments(documents.Documents, options);
+        return await ParseDocuments(project, documents.Documents, options);
     }
 
-    public async Task<ParserResult> ParseDocuments(IEnumerable<ISourceCodeDocument> sourceCodeDocuments, ParseOptions options)
+    public async Task<ParserResult> ParseDocuments(IProject project, IEnumerable<ISourceCodeDocument> sourceCodeDocuments, ParseOptions options)
     {
         Assert.NotNull(sourceCodeDocuments, nameof(sourceCodeDocuments));
 
         var parserLogger = new ParserLogger(baseLogger);
-        var context = new ParserContext(parserLogger, fileSystem, libraries, options);
+        var context = new ParserContext(project, parserLogger, fileSystem, libraries, options);
 
         foreach (var sourceCodeDocument in sourceCodeDocuments)
         {
-            context.AddFileIncluded(sourceCodeDocument.FullFileName);
-            context.SetFileLineFilter(sourceCodeDocument.FullFileName);
+            context.AddFileIncluded(sourceCodeDocument.File);
+            context.SetFileLineFilter(sourceCodeDocument.File);
 
             await ParseDocument(sourceCodeDocument, context);
         }
@@ -98,7 +107,7 @@ public class LexyParser : ILexyParser
     {
         var currentIndent = 0;
         var nodesPerIndent = new ParsableNodeIndex(context.RootNode);
-        var symbols = context.Symbols.Document(sourceCodeDocument.FullFileName);
+        var symbols = context.Symbols.Document(sourceCodeDocument.File);
 
         while (sourceCodeDocument.HasMoreLines())
         {
@@ -129,7 +138,7 @@ public class LexyParser : ILexyParser
 
         Reset(context);
 
-        await LoadIncludedFiles(sourceCodeDocument.FullFileName, context);
+        await LoadIncludedFiles(sourceCodeDocument.File, context);
     }
 
     private bool GetIndent(IParserContext context, Line line, out int indent)
@@ -173,27 +182,27 @@ public class LexyParser : ILexyParser
         return tokens.IsSuccess;
     }
 
-    private async Task LoadIncludedFiles(string parentFullFileName, IParserContext context)
+    private async Task LoadIncludedFiles(IFile parentFile, IParserContext context)
     {
         var includes = context.RootNode.GetDueIncludes();
         foreach (var include in includes)
         {
-            await IncludeFiles(parentFullFileName, include, context);
+            await IncludeFiles(parentFile, include, context);
         }
     }
 
-    private async Task IncludeFiles(string parentFullFileName, Include include, IParserContext context)
+    private async Task IncludeFiles(IFile parentFile, Include include, IParserContext context)
     {
-        var fileName = await include.Process(parentFullFileName, context);
-        if (fileName == null) return;
+        var file = await include.Process(parentFile, context);
+        if (file == null) return;
 
-        if (context.IsFileIncluded(fileName)) return;
+        if (context.IsFileIncluded(file)) return;
 
-        context.Logger.LogInfo("Parse file: " + fileName);
+        context.Logger.LogInfo("Parse file: " + file.Name);
 
-        context.AddFileIncluded(fileName);
+        context.AddFileIncluded(file);
 
-        var document = new FileSourceDocument(fileName);
+        var document = await fileSystem.CreateFileSourceDocument(file);
         await ParseDocument(document, context);
     }
 
@@ -224,7 +233,7 @@ public class LexyParser : ILexyParser
     }
 
     private IParsableNode ParseLine(Line line, IParsableNode currentNode, IParserContext context,
-        DocumentSymbols documentSymbols, ParsableNodeIndex nodesPerIndent, int indent)
+        IDocumentSymbols documentSymbols, ParsableNodeIndex nodesPerIndent, int indent)
     {
         if (currentNode == null)
         {

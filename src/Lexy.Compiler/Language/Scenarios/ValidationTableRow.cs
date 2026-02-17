@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -40,7 +39,7 @@ public class ValidationTableRow : Node
         var currentLineTokens = context.Line.Tokens;
         while (++tokenIndex < currentLineTokens.Length)
         {
-            var value = ParseValue(context, tableRowReference, currentLineTokens, tokenIndex++);
+            var value = ParseValue(context, values.Count, tableRowReference, currentLineTokens, tokenIndex++);
             if (value == null)
             {
                 return null;
@@ -55,6 +54,7 @@ public class ValidationTableRow : Node
     }
 
     private static ValidationTableValue ParseValue(IParseLineContext context,
+        int index,
         NodeReference tableRowReference,
         TokenList currentLineTokens, int tokenIndex)
     {
@@ -73,7 +73,7 @@ public class ValidationTableRow : Node
 
         if (context.Failed(expression, reference)) return null;
 
-        var validationTableValue = new ValidationTableValue(expression.Result, tableRowReference, reference);
+        var validationTableValue = new ValidationTableValue(index, expression.Result, tableRowReference, reference);
         tableValueReference.SetNode(validationTableValue);
         return validationTableValue;
     }
@@ -93,4 +93,9 @@ public class ValidationTableRow : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString()
+    {
+        return $"[{Index}]";
+    }
 }

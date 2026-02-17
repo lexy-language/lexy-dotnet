@@ -1,8 +1,31 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/Users/timcools/Library/Caches/JetBrains/Rider2021.3/resharper-host/temp/Rider/vAny/CoverageData/_Lexy.-1103237505/Snapshot/snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2d5c39e7_002D0432_002D4f01_002D8d61_002Dbed4145ce22b/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c7ebc3b4_002D9792_002D482d_002D905f_002Df3c8e58f2554/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;Not&gt;
+      &lt;TestAncestor&gt;
+        &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Specifications.GetSymbolsTests.Function&lt;/TestId&gt;
+      &lt;/TestAncestor&gt;
+    &lt;/Not&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Specifications.GetSymbolsTests.Function&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+  &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ed26b91b_002D3b1c_002D4a88_002D8bc6_002D6e1c16e859da/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;Not&gt;
+      &lt;TestAncestor&gt;
+        &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Specifications.GetSymbolsTests.Function&lt;/TestId&gt;
+      &lt;/TestAncestor&gt;
+    &lt;/Not&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;NUnit3x::2166E7F5-376E-48C8-9819-E8C9F9437C3D::net7.0::Lexy.Tests.Specifications.GetSymbolsTests.Function&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+  &lt;/Or&gt;
+&lt;/SessionState&gt;</s:String>
+	
 	
 	
 	

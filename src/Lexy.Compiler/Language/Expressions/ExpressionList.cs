@@ -81,4 +81,6 @@ public class ExpressionList : Node, IReadOnlyList<Expression>
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => values.Count.ToString();
 }

@@ -47,7 +47,8 @@ internal static class BinaryExpressionsSyntax
 
     public static ExpressionSyntax BinaryExpressionSyntax(BinaryExpression expression)
     {
-        if (expression.State.LeftType.Equals(ValueType.String) &&
+        var expressionState = expression.StateRequired;
+        if (expressionState.LeftType.Equals(ValueType.String) &&
             expression.Operator == ExpressionOperator.Addition)
         {
             return StringAdditionSyntax(expression);
@@ -68,15 +69,16 @@ internal static class BinaryExpressionsSyntax
     {
         var kind = Syntax(expression.Operator);
         var expressionSyntax = ExpressionSyntax(expression.Right);
-        if (expression.State.RightType.Equals(ValueType.Date))
+        var expressionState = expression.StateRequired;
+        if (expressionState.RightType.Equals(ValueType.Date))
         {
             expressionSyntax = FormatDate(expressionSyntax);
         }
-        else if (expression.State.RightType.Equals(ValueType.Boolean))
+        else if (expressionState.RightType.Equals(ValueType.Boolean))
         {
             expressionSyntax = FormatBoolean(expressionSyntax);
         }
-        else if (expression.State.RightType is EnumType)
+        else if (expressionState.RightType is EnumType)
         {
             expressionSyntax = FormatEnum(expressionSyntax);
         }
@@ -161,9 +163,10 @@ internal static class BinaryExpressionsSyntax
 
     private static bool IsStringComparison(BinaryExpression expression)
     {
-        return expression.State.LeftType.Equals(ValueType.String)
-            && expression.State.RightType.Equals(ValueType.String)
-            && ComparisonOperators.Contains(expression.Operator);
+        var stateRequired = expression.StateRequired;
+        return stateRequired.LeftType.Equals(ValueType.String)
+               && stateRequired.RightType.Equals(ValueType.String)
+               && ComparisonOperators.Contains(expression.Operator);
     }
 
     private static SyntaxKind Syntax(ExpressionOperator expressionOperator)

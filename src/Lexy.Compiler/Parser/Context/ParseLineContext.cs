@@ -11,9 +11,9 @@ public class ParseLineContext : IParseLineContext
     public Line Line { get; }
     public IParserLogger Logger { get; }
     public IExpressionFactory ExpressionFactory { get; }
-    public DocumentSymbols Symbols { get; }
+    public IDocumentSymbols Symbols { get; }
 
-    public ParseLineContext(Line line, IParserLogger logger, DocumentSymbols symbols, IExpressionFactory expressionFactory)
+    public ParseLineContext(Line line, IParserLogger logger, IDocumentSymbols symbols, IExpressionFactory expressionFactory)
     {
         Line = Assert.NotNull(line, nameof(line));
         Logger = Assert.NotNull(logger, nameof(logger));

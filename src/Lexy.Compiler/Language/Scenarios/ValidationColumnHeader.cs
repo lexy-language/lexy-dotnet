@@ -35,4 +35,6 @@ public class ValidationColumnHeader : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => Name;
 }

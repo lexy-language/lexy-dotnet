@@ -15,10 +15,10 @@ namespace Lexy.Compiler.Specifications;
 
 public class SpecificationFileRunner : ISpecificationFileRunner
 {
+    private readonly IFile file;
     private readonly ILexyCompiler compiler;
     private readonly ILexyParser parser;
 
-    private readonly string fileName;
     private readonly ISpecificationRunnerContext runnerContext;
 
     private readonly List<IScenarioRunner> scenarioRunners = new();
@@ -26,9 +26,9 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
     public IEnumerable<IScenarioRunner> ScenarioRunners => scenarioRunners;
 
-    public SpecificationFileRunner(string fileName, ILexyParser parser, ISpecificationRunnerContext runnerContext, ILexyCompiler compiler)
+    public SpecificationFileRunner(IFile file, ILexyParser parser, ISpecificationRunnerContext runnerContext, ILexyCompiler compiler)
     {
-        this.fileName = fileName;
+        this.file = Assert.NotNull(file, nameof(file));
         this.parser = Assert.NotNull(parser, nameof(parser));
         this.runnerContext = Assert.NotNull(runnerContext, nameof(runnerContext));
         this.compiler = Assert.NotNull(compiler, nameof(compiler));
@@ -52,11 +52,11 @@ public class SpecificationFileRunner : ISpecificationFileRunner
     {
         try
         {
-            return await parser.ParseFile(fileName, new ParseOptions { SuppressException = true });
+            return await parser.ParseFile(file, new ParseOptions { SuppressException = true });
         }
         catch (Exception exception)
         {
-            throw new InvalidOperationException("Error while parsing " + fileName, exception);
+            throw new InvalidOperationException("Error while parsing " + file.Name, exception);
         }
     }
 
@@ -66,7 +66,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
 
         if (scenarioRunners.Count == 0) return;
 
-        runnerContext.LogGlobal($"Filename: {fileName}");
+        runnerContext.LogGlobal($"Filename: {file.Name}");
 
         foreach (var scenario in scenarioRunners)
         {
@@ -82,7 +82,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         }
         catch (Exception innerException)
         {
-            throw new InvalidOperationException("Error occurred while running: " + fileName, innerException);
+            throw new InvalidOperationException("Error occurred while running: " + file.Name, innerException);
         }
     }
 
@@ -91,11 +91,11 @@ public class SpecificationFileRunner : ISpecificationFileRunner
     {
         try
         {
-            return new ScenarioRunner(fileName, compiler, nodes, scenario, context, logger, dependencies);
+            return new ScenarioRunner(file.Name, compiler, nodes, scenario, context, logger, dependencies);
         }
         catch (Exception exception)
         {
-            throw new InvalidOperationException("Error occurred while create runner for: " + fileName, exception);
+            throw new InvalidOperationException("Error occurred while create runner for: " + file.Name, exception);
         }
     }
 
@@ -113,7 +113,7 @@ public class SpecificationFileRunner : ISpecificationFileRunner
         if (componentScenarioRunner == null)
         {
             logger.Fail(reference,
-                $"'{fileName}' has component errors but no scenario that verifies expected root errors. Errors: {logger.ErrorComponentMessages().Format(2)}");
+                $"'{file.Name}' has component errors but no scenario that verifies expected root errors. Errors: {logger.ErrorComponentMessages().Format(2)}");
         }
     }
 }

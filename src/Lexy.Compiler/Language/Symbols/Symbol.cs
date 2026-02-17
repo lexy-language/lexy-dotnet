@@ -22,7 +22,7 @@ public class Symbol
 
     public override string ToString()
     {
-        var value = !string.IsNullOrEmpty(Description) ? $"{Name}: {Description}'" : Name;
+        var value = !string.IsNullOrEmpty(Description) ? $"{Name}: {Description}" : Name;
 
         return Signatures != null ? $"value - {Signatures}" : value;
     }

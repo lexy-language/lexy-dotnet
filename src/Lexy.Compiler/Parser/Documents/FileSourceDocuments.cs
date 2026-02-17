@@ -6,26 +6,26 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Documents;
 
-public class FileDocuments : IDisposable
+public class FileSourceDocuments : ISourceCodeDocuments
 {
     private readonly FileSourceDocument[] documents;
 
-    public ISourceCodeDocument[] Documents => documents;
+    public IEnumerable<ISourceCodeDocument> Documents => documents;
 
-    private FileDocuments(FileSourceDocument[] documents)
+    private FileSourceDocuments(FileSourceDocument[] documents)
     {
         this.documents = Assert.NotNull(documents, nameof(documents));
     }
 
-    public static FileDocuments Create(IFileSystem fileSystem, IEnumerable<string> fileNames)
+    public static FileSourceDocuments Create(IFileSystem fileSystem, IEnumerable<IFile> files)
     {
-        var documents = fileNames.Select(fileName =>
+        var documents = files.Select(file =>
         {
-            var fullPath = fileSystem.GetFullPath(fileName);
-            return new FileSourceDocument(fullPath);
+            var fullPath = file.FullPath;
+            return new FileSourceDocument(fileSystem, file);
         }).ToArray();
 
-        return new FileDocuments(documents);
+        return new FileSourceDocuments(documents);
     }
 
     public void Dispose()

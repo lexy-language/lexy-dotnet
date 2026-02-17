@@ -1,3 +1,4 @@
+using System.Linq;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Tokens;
@@ -7,14 +8,14 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class ExpressionSource
 {
-    public string FileName { get; }
+    public IFile File { get; }
     public Line Line { get; }
     public TokenList Tokens { get; }
 
     public ExpressionSource(Line line, TokenList tokens)
     {
         Line = Assert.NotNull(line, nameof(line));
-        FileName = Assert.NotNull(line.FileName, nameof(line));
+        File = Assert.NotNull(line.File, nameof(line.File));
         Tokens = Assert.NotNull(tokens, nameof(tokens));
     }
 
@@ -24,7 +25,7 @@ public class ExpressionSource
         var tokenEnd = Tokens[^1];
 
         return new SourceReference(
-            FileName,
+            File,
             Line.Index + 1,
             token.FirstCharacter.Position + 1,
             tokenEnd.EndColumn + 1);

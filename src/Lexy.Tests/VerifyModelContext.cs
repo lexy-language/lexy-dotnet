@@ -17,6 +17,14 @@ public class VerifyModelContext<TModel>
         Logging = Assert.NotNull(logging, nameof(logging));
     }
 
+    public VerifyModelContext<TModel> Collection<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> expression, Action<VerifyCollectionContext<TItem>> handler) where TItem : class
+    {
+        var (value, message) = expression.CompileExpression(Model);
+        Logging.AppendLine("Collection: " + message);
+        handler(new VerifyCollectionContext<TItem>(value, Logging));
+        return this;
+    }
+
     public VerifyModelContext<TModel> Fail(string format, params object[] args)
     {
         var message = string.Format(CultureInfo.InvariantCulture, format, args);
@@ -197,7 +205,7 @@ public class VerifyModelContext<TModel>
         }
     }
 
-    public VerifyModelContext<TModel> IsOfType<TExpected>(Expression<Func<TModel, object>> expression, Action<VerifyModelContext<TExpected>> subContext) where TExpected : class
+    public VerifyModelContext<TModel> IsOfType<TExpected>(Expression<Func<TModel, object>> expression, Action<VerifyModelContext<TExpected>> subContext = null) where TExpected : class
     {
         var (value, message) = expression.CompileExpression(Model);
         var subInstance = value as TExpected;
@@ -251,36 +259,6 @@ public class VerifyModelContext<TModel>
         return this;
     }
 
-    public VerifyModelContext<TModel> ValueAt<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, Action<VerifyModelContext<TItem>> subContext)
-        where TItem : class
-    {
-        var (listValue, message) = list.CompileExpression(Model);
-        var value = index >= 0 && index < listValue.Count ? listValue[index] : null;
-        if (value != null)
-        {
-            return InContext(subContext, value);
-        }
-
-        Logging.LogAssert(false, message, "- ValueAt '{0}': ", index);
-        return this;
-    }
-
-    public VerifyModelContext<TModel> ValueAtEquals<TItem>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, TItem expected)
-        where TItem : struct, IComparable
-    {
-        var (listValue, message) = list.CompileExpression(Model);
-        TItem? value = index >= 0 && index < listValue.Count ? listValue[index] : null;
-        if (value != null)
-        {
-            Logging.LogAssert(expected.CompareTo(value.Value) == 0, message, "- ValueAtEquals[{0}] '{1}' != '{2}': ", index, expected, value);
-            return this;
-        }
-
-        Logging.LogAssert(false, message, "- ValueAtEquals[{0}] invalid: ", index);
-
-        return this;
-    }
-
     public VerifyModelContext<TModel> ValueAtEquals<TItem, TValue>(Expression<Func<TModel, IReadOnlyList<TItem>>> list, int index, Expression<Func<TItem, TValue>> property, TValue expected)
         where TItem : class
         where TValue : IComparable
@@ -327,8 +305,10 @@ public class VerifyModelContext<TModel>
     private VerifyModelContext<TModel> InContext<TSubModel>(Action<VerifyModelContext<TSubModel>> subContext,
         TSubModel value)
     {
-        Logging.WithIndentation(() => subContext(new VerifyModelContext<TSubModel>(value, Logging)));
-
+        if (subContext != null)
+        {
+            Logging.WithIndentation(() => subContext(new VerifyModelContext<TSubModel>(value, Logging)));
+        }
         return this;
     }
 }

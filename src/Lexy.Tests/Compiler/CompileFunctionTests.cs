@@ -48,7 +48,6 @@ public class CompileFunctionTests : ScopedServicesTestFixture
         result.Number("Result").ShouldBe(777);
     }
 
-
     [Test]
     public async Task TestMemberAccessAssignment()
     {
@@ -97,7 +96,6 @@ function ValidateTableKeywordFunction
         var result = script.Run();
         result.Number("Result").ShouldBe(5);
     }
-
 
     [Test]
     public async Task VariableDeclarationWithDefaultEnumInCode()

@@ -17,7 +17,7 @@ public class MemberAccessToken : Token, ILiteralToken
 
     public object TypedValue => Parts;
 
-    public MemberAccessToken(string value, TokenCharacter character) : base(character)
+    public MemberAccessToken(string value, TokenCharacter character, int? endColumn = null) : base(character, endColumn)
     {
         Value = Assert.NotNull(value, nameof(value));
         Parts = value.Split(TokenValues.MemberAccess);

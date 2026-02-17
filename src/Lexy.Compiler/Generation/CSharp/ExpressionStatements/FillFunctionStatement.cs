@@ -34,7 +34,8 @@ internal static class FillFunctionStatement
                 "functionCallExpression.FunctionCallExpression should be FillParametersFunction");
         }
 
-        return FillStatementSyntax(expression.Name, fillParametersFunction.Type, fillParametersFunction.State.Mapping);
+        var fillParametersFunctionState = fillParametersFunction.StateRequired;
+        return FillStatementSyntax(expression.Name, fillParametersFunctionState.Type, fillParametersFunctionState.Mapping);
     }
 
     public static IEnumerable<StatementSyntax> FillStatementSyntax(string variableName, Type type,

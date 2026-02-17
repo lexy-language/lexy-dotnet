@@ -17,7 +17,7 @@ public static class TokenizerTestExtensions
 
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
 
-        var line = new Line(0, value, "tests.lexy");
+        var line = new Line(0, value, TestFile.Instance);
         var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)
         {
@@ -37,7 +37,7 @@ public static class TokenizerTestExtensions
 
         var tokenizer = serviceProvider.GetRequiredService<ITokenizer>();
 
-        var line = new Line(0, value, "tests.lexy");
+        var line = new Line(0, value, TestFile.Instance);
         var tokenizeResult = line.Tokenize(tokenizer);
         if (tokenizeResult.IsSuccess)
         {

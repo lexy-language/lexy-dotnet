@@ -54,8 +54,7 @@ public class TableType : ObjectType
 
         foreach (var column in Table.Header?.Columns)
         {
-            var columnType = new GeneratedType(Name, column.Name, Table, GeneratedTypeSource.TableColumn,
-                Array.Empty<IObjectMember>());
+            var columnType = new TableColumnType(Name, column.Name, Table);
             members.Add(new ObjectVariable(column.Name, columnType));
         }
     }

@@ -11,14 +11,14 @@ public class ParserResult
     public ComponentNodeList Nodes { get; }
     public IParserLogger Logger { get; }
     public Dependencies Dependencies { get; }
-    public DocumentsSymbols DocumentsSymbols { get; }
+    public ISymbols Symbols { get; }
 
-    public ParserResult(LexyScriptNode rootNode, ComponentNodeList nodes, IParserLogger logger, Dependencies dependencies, DocumentsSymbols documentsSymbols)
+    public ParserResult(LexyScriptNode rootNode, ComponentNodeList nodes, IParserLogger logger, Dependencies dependencies, ISymbols symbols)
     {
         RootNode = rootNode;
         Nodes = nodes;
         Logger = logger;
         Dependencies = dependencies;
-        DocumentsSymbols = documentsSymbols;
+        Symbols = symbols;
     }
 }

@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
@@ -20,11 +21,18 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
 
     public Expression ValueExpression { get; }
 
-    public GeneratedType Type { get; private set; }
-
     public override string Name => FunctionName;
 
     public FillParametersFunctionState State { get; private set; }
+
+    public FillParametersFunctionState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     private FillParametersFunctionExpression(Expression valueExpression, NodeReference parentReference, ExpressionSource source)
         : base(parentReference, source)
@@ -61,10 +69,8 @@ public class FillParametersFunctionExpression : FunctionCallExpression, IHasNode
             return;
         }
 
-        Type = generatedType;
-
         var mapping = GetMapping(Reference, context, generatedType);
-        State = new FillParametersFunctionState(mapping);
+        State = new FillParametersFunctionState(generatedType, mapping);
     }
 
     internal static VariablesMapping GetMapping(SourceReference reference, IValidationContext context, GeneratedType generatedType)

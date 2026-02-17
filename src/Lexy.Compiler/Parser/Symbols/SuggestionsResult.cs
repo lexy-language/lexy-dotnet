@@ -8,6 +8,7 @@ public class SuggestionsResult
 {
     public IReadOnlyList<Suggestion> Filtered { get; }
     public IReadOnlyList<Suggestion> All { get; }
+    public string Filter { get; }
 
     public SuggestionsResult()
     {
@@ -15,9 +16,10 @@ public class SuggestionsResult
         All = new List<Suggestion>();
     }
 
-    public SuggestionsResult(IReadOnlyList<Suggestion> filtered, IReadOnlyList<Suggestion> all)
+    public SuggestionsResult(IReadOnlyList<Suggestion> filtered, IReadOnlyList<Suggestion> all, string filter)
     {
         Filtered = Assert.NotNull(filtered, nameof(filtered));
         All = Assert.NotNull(all, nameof(all));
+        Filter = filter;
     }
 }

@@ -1,21 +1,24 @@
 using System;
 using System.IO;
+using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
+using File = Lexy.Compiler.Infrastructure.File;
 
 namespace Lexy.Compiler.Parser.Documents;
 
-internal class FileSourceDocument : ISourceCodeDocument, IDisposable
+internal class FileSourceDocument : ISourceCodeDocument
 {
-    private readonly string fileName;
+    private readonly IFileSystem fileSystem;
     private StreamReader streamReader;
 
     private int index;
 
-    public string FullFileName => fileName;
+    public IFile File { get; }
 
-    public FileSourceDocument(string fileName)
+    public FileSourceDocument(IFileSystem fileSystem, IFile file)
     {
-        this.fileName = fileName;
+        this.fileSystem = fileSystem;
+        File = Assert.NotNull(file, nameof(file));
     }
 
     public bool HasMoreLines()
@@ -28,7 +31,7 @@ internal class FileSourceDocument : ISourceCodeDocument, IDisposable
     {
         if (streamReader == null)
         {
-            streamReader = File.OpenText(fileName);
+            streamReader = fileSystem.OpenStream(File.FullPath);
         }
     }
 
@@ -38,7 +41,7 @@ internal class FileSourceDocument : ISourceCodeDocument, IDisposable
         Assert.False(streamReader.EndOfStream, "No more lines.");
 
         var line = streamReader.ReadLine();
-        return new Line(index++, line, fileName);
+        return new Line(index++, line, File);
     }
 
     public void Dispose()

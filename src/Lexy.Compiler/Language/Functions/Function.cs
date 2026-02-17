@@ -93,7 +93,7 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     private IParsableNode ParseCode(IParseLineContext context)
     {
-        Code.Area.Expand(context.Line.EndPosition);
+        Code.ExpandArea(context.Line.EndPosition);
         return Code.Parse(context);
     }
 
@@ -151,9 +151,8 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     private ValidateFunctionArgumentsResult ValidateAutoMap()
     {
         var parametersType = GetParametersType();
-        var resultsType = GetResultsType();
 
-        return ValidateFunctionArgumentsAutoMapResult.SuccessAutoMap(parametersType, resultsType);
+        return ValidateFunctionArgumentsAutoMapResult.SuccessAutoMap(parametersType);
     }
 
     private ValidateFunctionArgumentsResult ValidateWithArguments(IValidationContext context,
@@ -264,10 +263,10 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
     {
         if (definitions == null) return;
 
-        foreach (var result in definitions)
+        foreach (var definition in definitions)
         {
-            var type = result.TypeDeclaration.Type;
-            context.VariableContext.AddVariable(result.Name, type, source);
+            var type = definition.TypeDeclaration.Type;
+            context.VariableContext.AddVariable(definition.Name, type, source);
         }
     }
 }

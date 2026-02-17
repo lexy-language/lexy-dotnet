@@ -19,7 +19,7 @@ public static class VariableClass
 
     private static IEnumerable<MemberDeclarationSyntax> Syntax(IReadOnlyList<VariableDefinition> variables)
     {
-        return variables != null? variables.Select(VariableSyntax) : Array.Empty<MemberDeclarationSyntax>();
+        return variables != null ? variables.Select(VariableSyntax) : Array.Empty<MemberDeclarationSyntax>();
     }
 
     private static FieldDeclarationSyntax VariableSyntax(VariableDefinition variable)

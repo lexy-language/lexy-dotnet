@@ -17,7 +17,7 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
     private readonly List<Expression> elseExpressions = new ();
 
     public Expression Condition { get; }
-    public IEnumerable<Expression> TrueExpressions => trueExpressions;
+    public IReadOnlyList<Expression> TrueExpressions => trueExpressions;
 
     public IReadOnlyList<Expression> ElseExpressions => elseExpressions;
 

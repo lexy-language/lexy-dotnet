@@ -13,7 +13,7 @@ public static class ParseExpressionTestExtensions
         var expressionFactory = new ExpressionFactory();
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
 
-        var line = new Line(0, expression, "tests.lexy");
+        var line = new Line(0, expression, TestFile.Instance);
 
         var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)
@@ -32,7 +32,7 @@ public static class ParseExpressionTestExtensions
     {
         var expressionFactory = new ExpressionFactory();
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
-        var line = new Line(0, expression, "tests.lexy");
+        var line = new Line(0, expression, TestFile.Instance);
 
         var tokens = line.Tokenize(tokenizer);
         if (!tokens.IsSuccess)

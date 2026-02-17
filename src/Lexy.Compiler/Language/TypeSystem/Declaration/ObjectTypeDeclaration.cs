@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.TypeSystem.Declaration;
@@ -36,17 +35,12 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
         return TypeName != null ? TypeName.GetHashCode() : 0;
     }
 
-    public override string ToString()
-    {
-        return TypeName;
-    }
-
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
         var type = GetType(componentNodes);
-        if (type is ObjectType objectType)
+        if (type is IHasNodeDependencies hasNodeDependencies)
         {
-            return objectType.GetDependencies(componentNodes);
+            return hasNodeDependencies.GetDependencies(componentNodes);
         }
         return Array.Empty<IComponentNode>();
     }
@@ -97,4 +91,6 @@ public sealed class ObjectTypeDeclaration : TypeDeclaration, IHasNodeDependencie
         return Type?.GetSymbol(Reference)
             ?? new Symbol(Reference, "unknown", string.Empty, SymbolKind.Keyword);
     }
+
+    public override string Label() => TypeName;
 }

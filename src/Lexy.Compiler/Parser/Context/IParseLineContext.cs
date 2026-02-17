@@ -3,7 +3,7 @@ using Lexy.Compiler.Parser.Logging;
 using Lexy.Compiler.Parser.Symbols;
 using Lexy.Compiler.Parser.Tokens;
 
-namespace Lexy.Compiler.Parser;
+namespace Lexy.Compiler.Parser.Context;
 
 public interface IParseLineContext
 {
@@ -11,7 +11,7 @@ public interface IParseLineContext
     IParserLogger Logger { get; }
 
     IExpressionFactory ExpressionFactory { get; }
-    DocumentSymbols Symbols { get; }
+    IDocumentSymbols Symbols { get; }
 
     TokenValidator ValidateTokens<T>();
 }

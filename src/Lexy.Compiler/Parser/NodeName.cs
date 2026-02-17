@@ -1,3 +1,5 @@
+using Lexy.Compiler.Parser.Context;
+
 namespace Lexy.Compiler.Parser;
 
 internal class NodeName

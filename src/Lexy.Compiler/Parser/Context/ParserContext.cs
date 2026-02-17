@@ -22,40 +22,45 @@ public class ParserContext : IParserContext
     public ParseOptions Options { get; }
 
     public IFileSystem FileSystem { get; }
-    public DocumentsSymbols Symbols { get; }
+    public ISymbols Symbols { get; }
 
-    public ParserContext(IParserLogger logger, IFileSystem fileSystem, ILibraries libraries, ParseOptions options)
+    public IProject Project { get; }
+
+    public ParserContext(IProject project, IParserLogger logger, IFileSystem fileSystem, ILibraries libraries, ParseOptions options)
     {
+        Project = Assert.NotNull(project, nameof(project));
+
         FileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
         Logger = Assert.NotNull(logger, nameof(logger));
         Libraries = Assert.NotNull(libraries, nameof(libraries));
 
         Options = options ?? ParseOptions.Default();
 
-        RootNode = new LexyScriptNode();
+        RootNode = new LexyScriptNode(project);
         LineFilter = new DefaultLineFilter();
-        Symbols = new DocumentsSymbols(RootNode);
+        Symbols = new Symbols.Symbols(RootNode);
     }
 
-    public void AddFileIncluded(string fileName)
+    public void AddFileIncluded(IFile file)
     {
-        var path = NormalizePath(fileName);
+        Assert.NotNull(file, nameof(file));
+
+        var path = file.FullPath;
 
         includedFiles.Add(path);
     }
 
-    public bool IsFileIncluded(string fileName)
+    public bool IsFileIncluded(IFile file)
     {
-        return includedFiles.Contains(NormalizePath(fileName));
+        Assert.NotNull(file, nameof(file));
+
+        return includedFiles.Contains(file.FullPath);
     }
 
-    private string NormalizePath(string fileName)
+    public void SetFileLineFilter(IFile file)
     {
-        return FileSystem.GetFullPath(fileName);
-    }
+        Assert.NotNull(file, nameof(file));
 
-    public void SetFileLineFilter(string fileName)
-    {
-        LineFilter = fileName.EndsWith(LexySourceDocument.MarkdownExtension) ? new MarkdownLineFilter() : new DefaultLineFilter();
+        LineFilter = file.Name.EndsWith(LexySourceDocument.MarkdownExtension) ? new MarkdownLineFilter() : new DefaultLineFilter();
     }
 }

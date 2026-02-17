@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Lexy.Compiler.Parser.Context;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
 using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
@@ -7,7 +8,10 @@ namespace Lexy.Compiler.Parser.Tokens;
 
 public class QuotedLiteralToken : ParsableToken, ILiteralToken
 {
+    private static readonly List<char> escapeCharacters = new() { '\\', '"' };
+
     private bool quoteClosed;
+    private bool escapeNext;
 
     public QuotedLiteralToken(TokenCharacter character) : base(null, character)
     {
@@ -30,6 +34,23 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
         var value = character.Value;
         if (quoteClosed) throw new InvalidOperationException("No characters allowed after closing quote.");
 
+        if (escapeNext)
+        {
+            if (escapeCharacters.Contains(value))
+            {
+                AppendValue(value);
+                escapeNext = false;
+                return ParseTokenResult.InProgress();
+            }
+            return ParseTokenResult.Invalid("Invalid escape character: " + value);
+        }
+
+        if (value == TokenValues.Backslash)
+        {
+            escapeNext = true;
+            return ParseTokenResult.InProgress();
+        }
+
         if (value == TokenValues.Quote)
         {
             quoteClosed = true;
@@ -46,8 +67,5 @@ public class QuotedLiteralToken : ParsableToken, ILiteralToken
         throw new InvalidOperationException("Token should be finished by the Parse method before reaching end of line");
     }
 
-    public override string ToString()
-    {
-        return Value;
-    }
+    public override string ToString() => $"string: \"{Value}\"";
 }

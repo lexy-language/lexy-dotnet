@@ -8,19 +8,8 @@ using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
-using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language;
-
-public class VariableDefinitionState
-{
-    public Type Type { get; }
-
-    public VariableDefinitionState(Type type)
-    {
-        Type = type;
-    }
-}
 
 public class VariableDefinition : Node, IHasNodeDependencies
 {
@@ -30,6 +19,15 @@ public class VariableDefinition : Node, IHasNodeDependencies
     public string Name { get; }
 
     public VariableDefinitionState State { get; private set; }
+
+    public VariableDefinitionState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     private VariableDefinition(string name,  TypeDeclaration type,
         VariableSource source, NodeReference parentReference,
@@ -93,19 +91,19 @@ public class VariableDefinition : Node, IHasNodeDependencies
         if (tokens.Token<OperatorToken>(2).Type != OperatorType.Assignment)
         {
             context.Logger.Fail(tokens.Reference(2, 1), "Invalid variable declaration token. Expected '='.");
-            return ParseExpressionResult.Invalid<Expression>("failed");
+            return ParseExpressionResult.Invalid<VariableDefinition>("failed");
         }
 
         if (tokens.Length != 4)
         {
             context.Logger.Fail(tokens.AllReference(),
                 "Invalid variable declaration. Expected literal token.");
-            return ParseExpressionResult.Invalid<Expression>("failed");
+            return ParseExpressionResult.Invalid<VariableDefinition>("failed");
         }
 
         var defaultValue = context.ExpressionFactory.Parse(definitionReference, tokens.TokensFrom(3), line);
         return context.Failed(defaultValue, tokens.Reference(3))
-            ? ParseExpressionResult.Invalid<Expression>("failed")
+            ? ParseExpressionResult.Invalid<VariableDefinition>("failed")
             : defaultValue;
     }
 
@@ -127,8 +125,14 @@ public class VariableDefinition : Node, IHasNodeDependencies
     public override Symbol GetSymbol()
     {
         var kind = Source == VariableSource.Parameters ? SymbolKind.ParameterVariable : SymbolKind.ResultVariable;
+        var label = Label();
+        return new Symbol(Reference, label, string.Empty, kind);
+    }
+
+    private string Label()
+    {
         var prefix = GetPrefix();
-        return new Symbol(Reference, $"{prefix}: {TypeDeclaration} {Name}", string.Empty, kind);
+        return $"{prefix}: {TypeDeclaration.Label()} {Name}";
     }
 
     private string GetPrefix()
@@ -142,4 +146,6 @@ public class VariableDefinition : Node, IHasNodeDependencies
             _ => throw new InvalidOperationException("Invalid source: " + Source)
         };
     }
+
+    public override string ToString() => Label();
 }

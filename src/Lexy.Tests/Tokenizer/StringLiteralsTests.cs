@@ -16,6 +16,16 @@ public class StringLiteralsTests : ScopedServicesTestFixture
     }
 
     [Test]
+    public void TestQuotedLiteralWithEscapedQuote()
+    {
+        ServiceProvider
+            .Tokenize(@"   ""This is \\a quoted \""literal\""""")
+            .Count(1)
+            .QuotedString(0, @"This is \a quoted ""literal""")
+            .Assert();
+    }
+
+    [Test]
     public void TestStringLiteral()
     {
         ServiceProvider

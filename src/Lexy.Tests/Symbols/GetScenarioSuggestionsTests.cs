@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Lexy.Tests.Symbols;
@@ -5,15 +6,18 @@ namespace Lexy.Tests.Symbols;
 public class GetScenarioSuggestionsTests : VerifySuggestionsFixture
 {
     [Test]
-    public void ScenarioKeyword()
+    public async Task ScenarioKeyword()
     {
-        VerifySuggestions(context => context
-            .Keyword(@"scenario Name
-  p", 2, 3, "parameters")
-            .Keyword(@"scenario Name
-  res", 2, 5, "results")
-            .Keyword(@"scenario Name
-  va", 2, 4, "validationTable")
-        );
+        await VerifySuggestions(async context =>
+        {
+            await context.Keyword(@"scenario Name
+  p", 2, 3, "parameters");
+            await context.Keyword(@"scenario Name
+  res", 2, 5, "results");
+            await context.Keyword(@"scenario Name
+  va", 2, 4, "validationTable");
+        });
+
+        //todo add variables
     }
 }

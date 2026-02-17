@@ -22,11 +22,6 @@ public class FunctionName : Node
         return new FunctionName(name, parent, reference);
     }
 
-    public override string ToString()
-    {
-        return Value;
-    }
-
     public override IEnumerable<INode> GetChildren()
     {
         yield break;
@@ -42,4 +37,6 @@ public class FunctionName : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => Value;
 }

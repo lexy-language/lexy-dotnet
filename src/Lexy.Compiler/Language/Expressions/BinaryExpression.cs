@@ -1,25 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
+using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Language.Expressions;
-
-public class BinaryState
-{
-    public Type LeftType { get; }
-    public Type RightType { get; }
-
-    public BinaryState(Type leftType, Type rightType)
-    {
-        LeftType = leftType;
-        RightType = rightType;
-    }
-}
 
 public class BinaryExpression : Expression
 {
@@ -49,13 +39,82 @@ public class BinaryExpression : Expression
         }
     }
 
-    private static Type EnumType()
+    private class OperatorCombination
     {
-        var definition = new EnumDefinition("*", false, new NodeReference(null), new SourceReference("*", 1, 1, 1));
-        return new EnumType(definition);
-    }
+        private readonly Type leftType;
+        private readonly Type rightType;
 
-    private record OperatorCombination(Type LeftType, Type RightType, ExpressionOperator ExpressionOperator);
+        private readonly bool leftTypeEnum;
+        private readonly bool rightTypeEnum;
+
+        private Type LeftType
+        {
+            get
+            {
+                if (leftTypeEnum) throw new InvalidOperationException("Left type is enum");
+                return leftType;
+            }
+        }
+
+        private Type RightType
+        {
+            get
+            {
+                if (rightTypeEnum) throw new InvalidOperationException("Right type is enum");
+                return rightType;
+            }
+        }
+
+        public ExpressionOperator ExpressionOperator { get; }
+
+        private OperatorCombination(bool leftTypeEnum, Type leftType, bool rightTypeEnum, Type rightType, ExpressionOperator expressionOperator)
+        {
+            this.leftTypeEnum = leftTypeEnum;
+            this.leftType = leftType;
+            this.rightTypeEnum = rightTypeEnum;
+            this.rightType = rightType;
+            ExpressionOperator = expressionOperator;
+        }
+
+        public OperatorCombination(Type leftType, Type rightType, ExpressionOperator expressionOperator)
+        {
+            this.leftType = leftType;
+            this.rightType = rightType;
+            ExpressionOperator = expressionOperator;
+        }
+
+        public static OperatorCombination Enums(ExpressionOperator expressionOperator)
+        {
+            return new OperatorCombination(true, null, true, null, expressionOperator);
+        }
+
+        public static OperatorCombination RightEnum(Type leftType, ExpressionOperator expressionOperator)
+        {
+            return new OperatorCombination(false, leftType, true, null, expressionOperator);
+        }
+
+        public bool Allowed(Type left, Type right)
+        {
+            var leftEnum = left is EnumType;
+            var rightEnum = right is EnumType;
+
+            if (leftTypeEnum && rightTypeEnum)
+            {
+                //if left and right is enum, the enum should be of the same type
+                return leftEnum && rightEnum && left.Equals(right);
+            }
+            if (leftTypeEnum)
+            {
+                return leftEnum && RightType.Equals(right);
+            }
+            if (rightTypeEnum)
+            {
+                return LeftType.Equals(left) && rightEnum;
+            }
+            return LeftType.Equals(left) && RightType.Equals(right);
+
+        }
+    }
 
     private static readonly IList<ExpressionOperator> ComparisonOperators = new[]
     {
@@ -73,19 +132,19 @@ public class BinaryExpression : Expression
         new OperatorCombination(ValueType.Number, ValueType.Number, ExpressionOperator.Equals),
         new OperatorCombination(ValueType.Boolean, ValueType.Boolean, ExpressionOperator.Equals),
         new OperatorCombination(ValueType.Date, ValueType.Date, ExpressionOperator.Equals),
-        new OperatorCombination(EnumType(), EnumType(), ExpressionOperator.Equals),
+        OperatorCombination.Enums(ExpressionOperator.Equals),
 
         new OperatorCombination(ValueType.String, ValueType.String, ExpressionOperator.NotEqual),
         new OperatorCombination(ValueType.Number, ValueType.Number, ExpressionOperator.NotEqual),
         new OperatorCombination(ValueType.Boolean, ValueType.Boolean, ExpressionOperator.NotEqual),
         new OperatorCombination(ValueType.Date, ValueType.Date, ExpressionOperator.NotEqual),
-        new OperatorCombination(EnumType(), EnumType(), ExpressionOperator.NotEqual),
+        OperatorCombination.Enums(ExpressionOperator.NotEqual),
 
         new OperatorCombination(ValueType.String, ValueType.String, ExpressionOperator.Addition),
         new OperatorCombination(ValueType.String, ValueType.Number, ExpressionOperator.Addition),
         new OperatorCombination(ValueType.String, ValueType.Boolean, ExpressionOperator.Addition),
         new OperatorCombination(ValueType.String, ValueType.Date, ExpressionOperator.Addition),
-        new OperatorCombination(ValueType.String, EnumType(), ExpressionOperator.Addition),
+        OperatorCombination.RightEnum(ValueType.String, ExpressionOperator.Addition),
 
         new OperatorCombination(ValueType.Number, ValueType.Number, ExpressionOperator.Addition),
         new OperatorCombination(ValueType.Number, ValueType.Number, ExpressionOperator.Subtraction),
@@ -139,6 +198,15 @@ public class BinaryExpression : Expression
 
     public BinaryState State { get; private set; }
 
+    public BinaryState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
+
     private BinaryExpression(Expression left, Expression right, ExpressionOperator operatorValue,
         ExpressionSource source, NodeReference parentReference, SourceReference reference) :
         base(source, parentReference, reference)
@@ -182,7 +250,7 @@ public class BinaryExpression : Expression
         var operatorValue = lowestPriorityOperation.ExpressionOperator;
         var reference = source.CreateReference();
 
-        var binaryExpression = new BinaryExpression(left.Result, right.Result, operatorValue, source, parentReference,  reference);
+        var binaryExpression = new BinaryExpression(left.Result, right.Result, operatorValue, source, parentReference, reference);
         expressionReference.SetNode(binaryExpression);
 
         return ParseExpressionResult.Success(binaryExpression);
@@ -284,30 +352,11 @@ public class BinaryExpression : Expression
 
     private bool IsAllowedOperation(Type left, Type right)
     {
-        return AllowedOperationCombinations.Any(allowed =>
+        return AllowedOperationCombinations.Any(combination =>
         {
-            if (allowed.ExpressionOperator != Operator) return false;
+            if (combination.ExpressionOperator != Operator) return false;
 
-            var leftEnum = left is EnumType;
-            var rightEnum = right is EnumType;
-            var allowedLeftEnum = allowed.LeftType is EnumType;
-            var allowedRightEnum = allowed.RightType is EnumType;
-
-            if (allowedLeftEnum && allowedRightEnum)
-            {
-                //if left and right is enum, the enum should be of the same type
-                return leftEnum && rightEnum && left.Equals(right);
-            }
-            if (allowedLeftEnum)
-            {
-                return leftEnum && allowed.RightType.Equals(right);
-            }
-            if (allowedRightEnum)
-            {
-                return allowed.LeftType.Equals(left) && rightEnum;
-            }
-
-            return allowed.LeftType.Equals(left) && allowed.RightType.Equals(right);
+            return combination.Allowed(left, right);
         });
     }
 

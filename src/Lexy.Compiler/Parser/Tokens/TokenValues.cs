@@ -38,4 +38,6 @@ public static class TokenValues
     public const char Slash = '/';
     public const char Colon = ':';
     public const char Space = ' ';
+
+    public const char Backslash = '\\';
 }

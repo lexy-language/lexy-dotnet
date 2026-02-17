@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -30,7 +29,7 @@ public class Results : ParsableNode
     {
     }
 
-    public IList<AssignmentDefinition> AllAssignments()
+    public IReadOnlyList<AssignmentDefinition> AllAssignments()
     {
         return assignments.Flatten().ToList();
     }
@@ -39,4 +38,6 @@ public class Results : ParsableNode
     {
         return new Symbol(Reference, "results", "Scenario results variables used to validate the function result.", SymbolKind.Keyword);
     }
+
+    public override string ToString() => assignments.Count.ToString();
 }

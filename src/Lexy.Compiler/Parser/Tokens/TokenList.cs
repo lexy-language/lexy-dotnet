@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Lexy.Compiler.Language;
 using Lexy.RunTime;
@@ -50,7 +49,8 @@ public class TokenList : IEnumerable<Token>
                 {
                     return token;
                 }
-            } else if (token.FirstCharacter.Position >= columnIndex && token.EndColumn + 1 <= columnIndex)
+            }
+            else if (token.FirstCharacter.Position >= columnIndex && token.EndColumn + 1 <= columnIndex)
             {
                 return token;
             }
@@ -165,6 +165,13 @@ public class TokenList : IEnumerable<Token>
         return values[tokenIndex].FirstCharacter.Position;
     }
 
+    public int? CharacterEndColumn(int tokenIndex)
+    {
+        if (tokenIndex < 0 || tokenIndex >= values.Length) return null;
+
+        return values[tokenIndex].EndColumn;
+    }
+
     public int? LastColumn()
     {
         return values[^1].EndColumn;
@@ -197,26 +204,27 @@ public class TokenList : IEnumerable<Token>
         }
 
         var endColumn = numberOfTokens != null
-            ? CharacterColumn(tokenIndex + numberOfTokens.Value)
+            ? CharacterEndColumn(tokenIndex + numberOfTokens.Value - 1)
             : LastColumn() ;
-        if (column == null)
-        {
-            throw new InvalidOperationException($"TokenReference end: {tokenIndex + numberOfTokens}");
-        }
         endColumn = endColumn == null ? Line.Content.Length : endColumn + 1;
 
-        return new SourceReference(Line.FileName, Line.Index + 1, column.Value, endColumn.Value);
+        return CreateReference(column.Value, endColumn.Value);
     }
 
     public SourceReference AllReference()
     {
         if (Length == 0)
         {
-            return new SourceReference(Line.FileName ?? "runtime", Line.Index + 1, 1, Line.Content.Length + 1);
+            return CreateReference(1, Line.Content.Length + 1);
         }
 
         var column = this[0].FirstCharacter.Position + 1;
         var columnEnd = this[^1].EndColumn + 1;
-        return new SourceReference(Line.FileName ?? "runtime", Line.Index + 1, column, columnEnd);
+        return CreateReference(column, columnEnd);
+    }
+
+    private SourceReference CreateReference(int column, int columnEnd)
+    {
+        return new SourceReference(Line.File, Line.Index + 1, column, columnEnd);
     }
 }

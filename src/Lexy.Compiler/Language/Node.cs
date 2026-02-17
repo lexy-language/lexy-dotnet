@@ -8,9 +8,11 @@ namespace Lexy.Compiler.Language;
 public abstract class Node : INode
 {
     private readonly NodeReference parentReference;
+    private SourceArea area;
 
     public SourceReference Reference { get; }
-    public SourceArea Area { get; }
+
+    public IReadonlySourceArea Area => area;
 
     public INode Parent => parentReference.Node;
 
@@ -18,7 +20,7 @@ public abstract class Node : INode
     {
         Reference = Assert.NotNull(reference, nameof(reference));
         this.parentReference = Assert.NotNull(parentReference, nameof(parentReference));
-        Area = new SourceArea(reference);
+        area = new SourceArea(reference);
     }
 
     protected Node(INode parent, SourceReference reference) : this(new NodeReference(parent), reference)
@@ -59,7 +61,7 @@ public abstract class Node : INode
 
     public virtual void ExpandArea(Position position)
     {
-        Area.Expand(position);
+        area.Expand(position);
         Parent?.ExpandArea(position);
     }
 

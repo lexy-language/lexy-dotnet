@@ -7,7 +7,7 @@ namespace Lexy.Compiler.Language;
 public interface INode
 {
     SourceReference Reference { get; }
-    SourceArea Area { get; }
+    IReadonlySourceArea Area { get; }
 
     INode Parent { get; }
 

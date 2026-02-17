@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
@@ -18,7 +19,16 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
 
     public Expression ValueExpression { get; }
 
-    public GeneratedType Type { get; private set; }
+    public NewFunctionState State { get; private set; }
+
+    public NewFunctionState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     public override string Name => FunctionName;
 
@@ -31,9 +41,9 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
 
     public IEnumerable<IComponentNode> GetDependencies(IComponentNodeList componentNodes)
     {
-        if (Type?.Node != null)
+        if (State?.Type?.Node != null)
         {
-            yield return Type.Node;
+            yield return State.Type.Node;
         }
     }
 
@@ -57,7 +67,7 @@ public class NewFunctionExpression : FunctionCallExpression, IHasNodeDependencie
             return;
         }
 
-        Type = generatedType;
+        State = new NewFunctionState(generatedType);
     }
 
     public override Type DeriveType(IValidationContext context)

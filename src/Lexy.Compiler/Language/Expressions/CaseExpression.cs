@@ -12,7 +12,7 @@ public class CaseExpression : Expression, IParsableNode
     private readonly ExpressionList expressions;
 
     public Expression Value { get; }
-    public IEnumerable<Expression> Expressions => expressions;
+    public IReadOnlyList<Expression> Expressions => expressions;
     public bool IsDefault { get; }
 
     private CaseExpression(Expression value, bool isDefault, ExpressionSource source,

@@ -10,7 +10,7 @@ namespace Lexy.Tests.Parser;
 public class ParentTests : ScopedServicesTestFixture
 {
     [Test]
-    public async Task SimpleEnum()
+    public async Task CheckFullModel()
     {
         const string code = @"scenario ValidateBuildOrder
   function
@@ -86,7 +86,7 @@ enum EnumExample
 
         var result = await ServiceProvider.ParseNodes(code);
 
-        Console.WriteLine(NodesLogger.Log(result.Nodes));
+        NodesLogger.Log(result.Nodes, Console.WriteLine);
 
         Verify.All(context =>
             NodesWalker.Walk(result.Nodes, node => VerifyParentChildrenAreSet(node, context)));
@@ -107,7 +107,7 @@ enum EnumExample
             var children = parent.GetChildren();
             var contains = children.Contains(node);
 
-            context.IsTrue(contains, node.GetType().Name + " not found as child of " + parent.GetType().Name);
+            context.IsTrue(contains, $"'{node.GetType().Name}' not found as child of '{parent.GetType().Name}'");
         }
     }
 }

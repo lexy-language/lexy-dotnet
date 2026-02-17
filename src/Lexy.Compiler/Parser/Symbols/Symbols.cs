@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Language.TypeSystem.Objects;
@@ -9,13 +10,13 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Symbols;
 
-public class DocumentsSymbols
+public class Symbols : ISymbols
 {
     private readonly Dictionary<string, DocumentSymbols> symbols = new();
     private readonly Dictionary<INode, IReadOnlyList<VariableEntry>> nodeVariables = new();
     private readonly LexyScriptNode lexyScriptNode;
 
-    public DocumentsSymbols(LexyScriptNode lexyScriptNode)
+    public Symbols(LexyScriptNode lexyScriptNode)
     {
         this.lexyScriptNode = Assert.NotNull(lexyScriptNode, nameof(lexyScriptNode));
     }
@@ -25,34 +26,38 @@ public class DocumentsSymbols
         nodeVariables.TryAdd(node, result);
     }
 
-    public SymbolDescription GetDescription(string fileName, Position position)
+    public SymbolDescription GetDescription(IFile file, Position position)
     {
-        var document = GetDocumentSymbols(fileName);
+        Assert.NotNull(file, nameof(file));
+
+        var document = GetDocumentSymbols(file);
         if (document == null)
         {
-            throw new InvalidOperationException($"Couldn't find document: {fileName}");
+            throw new InvalidOperationException($"Couldn't find document: {file}");
         }
 
         return document.GetDescription(position);
     }
 
-    public Signatures GetSignatures(string fileName, Position position)
+    public Signatures GetSignatures(IFile file, Position position)
     {
-        var document = GetDocumentSymbols(fileName);
+        Assert.NotNull(file, nameof(file));
+
+        var document = GetDocumentSymbols(file);
         if (document == null)
         {
-            throw new InvalidOperationException($"Couldn't find document: {fileName}");
+            throw new InvalidOperationException($"Couldn't find document: {file}");
         }
 
         return document.GetSignatures(position);
     }
 
-    public SuggestionsResult GetSuggestions(string fileName, Position position)
+    public SuggestionsResult GetSuggestions(IFile file, Position position)
     {
-        var document = GetDocumentSymbols(fileName);
+        var document = GetDocumentSymbols(file);
         if (document == null)
         {
-            throw new InvalidOperationException($"Couldn't find document: {fileName}");
+            throw new InvalidOperationException($"Couldn't find document: {file}");
         }
 
         var token = document.GetToken(position);
@@ -71,7 +76,7 @@ public class DocumentsSymbols
 
         var filter = Filter(result, token);
 
-        return new SuggestionsResult(filter, result);
+        return new SuggestionsResult(filter, result, token.Value);
     }
 
     private static List<Suggestion> Filter(List<Suggestion> result, Token token)
@@ -84,6 +89,17 @@ public class DocumentsSymbols
         };
     }
 
+    private static string MapDescription(IObjectMember member)
+    {
+        return member switch
+        {
+            ObjectFunction => $"function: {member.Type}",
+            ObjectVariable => $"variable: {member.Type}",
+            ObjectNestedType => $"type: {member.Type}",
+            _ => throw new InvalidOperationException("Invalid member: " + member)
+        };
+    }
+
     private static List<Suggestion> FilterMemberAccess(IEnumerable<Suggestion> result, string[] parts)
     {
         var members = GetMembers(result, parts);
@@ -93,7 +109,7 @@ public class DocumentsSymbols
         }
 
         return members
-            .Select(member => new Suggestion(member.Name, SymbolKind.ObjectVariable, member.Type))
+            .Select(member => new Suggestion(member.Name, MapDescription(member), SymbolKind.ObjectVariable, member.Type))
             .ToList();
     }
 
@@ -143,11 +159,11 @@ public class DocumentsSymbols
     }
 
 
-    private void AddVariables(IEnumerable<NodeLevel> nodesInScope, List<Suggestion> result)
+    private void AddVariables(IEnumerable<INode> nodesInScope, List<Suggestion> result)
     {
         foreach (var node in nodesInScope)
         {
-            if (nodeVariables.TryGetValue(node.Value, out var variables))
+            if (nodeVariables.TryGetValue(node, out var variables))
             {
                 var entries = variables.Select(Map);
                 result.AddRange(entries);
@@ -157,6 +173,13 @@ public class DocumentsSymbols
 
     private static Suggestion Map(VariableEntry entry)
     {
+        var kind = GetKind(entry);
+        var description = entry.ToString();
+        return new Suggestion(entry.Name, description, kind, entry.Type);
+    }
+
+    private static SymbolKind GetKind(VariableEntry entry)
+    {
         var kind = entry.VariableSource switch
         {
             VariableSource.Parameters => SymbolKind.ParameterVariable,
@@ -165,17 +188,16 @@ public class DocumentsSymbols
             VariableSource.Type => SymbolKind.ObjectVariable,
             _ => throw new ArgumentOutOfRangeException(nameof(entry.VariableSource), "Value: " + entry.VariableSource)
         };
-
-        return new Suggestion(entry.Name, kind, entry.Type);
+        return kind;
     }
 
-    private static void AddSuggestions(List<NodeLevel> nodes, List<Suggestion> suggestions, Position position)
+    private static void AddSuggestions(IReadOnlyList<INode> nodes, List<Suggestion> suggestions, Position position)
     {
         for (var index = nodes.Count - 1; index >= 0; index--)
         {
             var node = nodes[index];
-            var nodeSuggestions = node.Value.GetSuggestions();
-            AddSuggestions(suggestions, nodeSuggestions, node.Value, position);
+            var nodeSuggestions = node.GetSuggestions();
+            AddSuggestions(suggestions, nodeSuggestions, node, position);
         }
     }
 
@@ -193,20 +215,21 @@ public class DocumentsSymbols
         }
     }
 
-    private DocumentSymbols GetDocumentSymbols(string fileName)
+    private DocumentSymbols GetDocumentSymbols(IFile file)
     {
-        return symbols.TryGetValue(fileName, out var value) ? value : null;
+        return symbols.TryGetValue(file.FullPath, out var value) ? value : null;
     }
 
-    public DocumentSymbols Document(string fullFileName)
+    public IDocumentSymbols Document(IFile file)
     {
-        if (symbols.TryGetValue(fullFileName, out var value))
+        var fileFullPath = file.FullPath;
+        if (symbols.TryGetValue(fileFullPath, out var value))
         {
             return value;
         }
 
         var documentSymbols = new DocumentSymbols(lexyScriptNode);
-        symbols.Add(fullFileName, documentSymbols);
+        symbols.Add(fileFullPath, documentSymbols);
         return documentSymbols;
     }
 }

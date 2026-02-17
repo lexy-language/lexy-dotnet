@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -68,4 +67,6 @@ public class ValidationTableHeader : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => Columns.Count.ToString();
 }

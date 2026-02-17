@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
@@ -6,28 +7,13 @@ using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
 
-public class IncludeState
-{
-    public bool IsProcessed { get; private set; }
-
-    public IncludeState(bool isProcessed)
-    {
-        IsProcessed = isProcessed;
-    }
-
-    public void SetProcessed()
-    {
-        IsProcessed = true;
-    }
-}
-
 public class Include
 {
     private readonly SourceReference reference;
 
     public string FileName { get; }
 
-    public IncludeState State { get; private set; }
+    public IncludeState State { get; }
 
     private Include(string fileName, SourceReference reference)
     {
@@ -57,25 +43,27 @@ public class Include
         return new Include(quotedString.Value, lineTokens.AllReference());
     }
 
-    public async Task<string> Process(string parentFullFileName, IParserContext context)
+    public async Task<IFile> Process(IFile parentFile, IParserContext context)
     {
         State.SetProcessed();
+
         if (string.IsNullOrEmpty(FileName))
         {
             context.Logger.Fail(reference, "No include file name specified.");
             return null;
         }
 
-        var directName = context.FileSystem.GetDirectoryName(parentFullFileName);
+        var directName = context.FileSystem.GetDirectoryName(parentFile.FullPath);
         var fullPath = context.FileSystem.GetFullPath(directName);
         var fullFileName = $"{context.FileSystem.Combine(fullPath, FileName)}.{LexySourceDocument.FileExtension}";
+        var file = context.Project.File(fullFileName);
 
-        if (!await context.FileSystem.FileExists(fullFileName))
+        if (!await context.FileSystem.FileExists(file.FullPath))
         {
             context.Logger.Fail(reference, $"Invalid include file name '{FileName}'");
             return null;
         }
 
-        return fullFileName;
+        return file;
     }
 }

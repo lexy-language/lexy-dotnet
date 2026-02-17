@@ -1,5 +1,6 @@
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser;
+using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
@@ -8,7 +9,7 @@ public static class AssignmentDefinitionParser
 {
     private record TokenIdentifierPath(string[] Parts, TokenCharacter FirstCharacter);
 
-    public static IAssignmentDefinition Parse(IParseLineContext context, INode parent,  IdentifierPath parentVariable = null)
+    public static IAssignmentDefinition Parse(IParseLineContext context, INode parent, IdentifierPath parentVariable = null)
     {
         var line = context.Line;
         var tokens = line.Tokens;
@@ -38,7 +39,7 @@ public static class AssignmentDefinitionParser
         var valueExpression = context.ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(assignmentIndex + 1), line);
         if (context.Failed(valueExpression, reference)) return null;
 
-        var constantValue = ConstantValue.Parse(valueExpression.Result);
+        var constantValue = ConstantValueParser.Parse(valueExpression.Result);
         if (context.Failed(constantValue, reference)) return null;
 
         var assignmentDefinition = new AssignmentDefinition(variableReference.Result, constantValue.Result, targetExpression.Result,
@@ -66,8 +67,8 @@ public static class AssignmentDefinitionParser
         if (identifierPath == null) return targetTokens;
 
         var newPath = parentVariable.Append(identifierPath.Parts).FullPath();
-        var newToken = new MemberAccessToken(newPath, identifierPath.FirstCharacter);
-        return new TokenList(targetTokens.Line, new Token[] {newToken});
+        var newToken = new MemberAccessToken(newPath, identifierPath.FirstCharacter, targetTokens[0].EndColumn);
+        return new TokenList(targetTokens.Line, newToken);
     }
 
     private static TokenIdentifierPath GetIdentifierPath(TokenList targetTokens)

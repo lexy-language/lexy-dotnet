@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem.Functions;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;

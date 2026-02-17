@@ -1,4 +1,5 @@
-using Lexy.Compiler.Language.Expressions;
+using System;
+using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Scenarios;
 
@@ -6,29 +7,17 @@ public class ConstantValue
 {
     public object Value { get; }
 
-    private ConstantValue(object value)
+    public ConstantValue(object value)
     {
         Value = value;
     }
 
-    public static ConstantValueParseResult Parse(Expression expression)
+    public override string ToString()
     {
-        return expression switch
+        if (Value is DateTime dateTime)
         {
-            LiteralExpression literalExpression => Parse(literalExpression),
-            MemberAccessExpression literalExpression => Parse(literalExpression),
-            _ => ConstantValueParseResult.Failed("Invalid expression variable. Expected: 'Variable = ConstantValue'")
-        };
-    }
-
-    private static ConstantValueParseResult Parse(LiteralExpression literalExpression)
-    {
-        var value = new ConstantValue(literalExpression.Literal.TypedValue);
-        return ConstantValueParseResult.Success(value);
-    }
-
-    private static ConstantValueParseResult Parse(MemberAccessExpression literalExpression)
-    {
-        return ConstantValueParseResult.Success(new ConstantValue(literalExpression.MemberAccessToken.Value));
+            return DateTimeLiteralToken.FormatDate(dateTime);
+        }
+        return Value != null ? Value.ToString() : "null";
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
@@ -12,15 +11,15 @@ public class TableRow : Node
 {
     private readonly TableHeader tableHeader;
 
-    public IList<TableValue> Values { get; }
+    public IReadOnlyList<TableValue> Values { get; }
 
-    private TableRow(Table table, IList<TableValue> values, SourceReference reference) : base(table, reference)
+    private TableRow(Table table, IReadOnlyList<TableValue> values, SourceReference reference) : base(table, reference)
     {
         Values = Assert.NotNull(values, nameof(values));
         tableHeader = table.Header;
     }
 
-    public static TableRow Parse(IParseLineContext context, TableHeader tableHeader, Table table)
+    public static TableRow Parse(IParseLineContext context, Table table)
     {
         var tokenIndex = 0;
 
@@ -34,7 +33,7 @@ public class TableRow : Node
         var currentLineTokens = context.Line.Tokens;
         while (++tokenIndex < currentLineTokens.Length)
         {
-            var value = TableValue.Parse(context, tableHeader, currentLineTokens, rowReference, tokenIndex++, values.Count);
+            var value = TableValue.Parse(context, table.Header, currentLineTokens, rowReference, tokenIndex++, values.Count);
             if (value == null)
             {
                 return null;
@@ -62,4 +61,6 @@ public class TableRow : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => Values.Count.ToString();
 }

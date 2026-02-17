@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Lexy.Compiler.Infrastructure;
-using Lexy.Compiler.Parser;
 using NUnit.Framework;
 using Shouldly;
 

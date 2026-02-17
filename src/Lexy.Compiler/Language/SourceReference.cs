@@ -1,5 +1,5 @@
 using System;
-using Lexy.Compiler.Language.Symbols;
+using Lexy.Compiler.Infrastructure;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language;
@@ -11,20 +11,20 @@ public class SourceReference
     public int Column { get; }
     public int EndColumn { get; }
 
-    public string FileName { get; }
+    public IFile File { get; }
 
     public string SortIndex
     {
         get
         {
             var value = (LineNumber * 100000000 + Column).ToString().PadLeft(16);
-            return $"{FileName}/{value}";
+            return $"{File.Name}/{value}";
         }
     }
 
-    public SourceReference(string fileName, int lineNumber, int column, int endColumn)
+    public SourceReference(IFile file, int lineNumber, int column, int endColumn)
     {
-        FileName = Assert.NotNull(fileName, nameof(fileName));
+        File = Assert.NotNull(file, nameof(file));
         LineNumber = lineNumber;
         Column = column;
         EndColumn = endColumn;
@@ -33,7 +33,7 @@ public class SourceReference
     public override string ToString()
     {
         var suffix = Column != EndColumn ? $"-{EndColumn}" : string.Empty;
-        return $"{FileName} ({LineNumber}:{Column}{suffix})";
+        return $"{File.Name} ({LineNumber}:{Column}{suffix})";
     }
 
     public bool Includes(Position position)
@@ -45,7 +45,7 @@ public class SourceReference
 
     protected bool Equals(SourceReference other)
     {
-        return LineNumber == other.LineNumber && Column == other.Column && EndColumn == other.EndColumn && FileName == other.FileName;
+        return LineNumber == other.LineNumber && Column == other.Column && EndColumn == other.EndColumn && File.Equals(other.File);
     }
 
     public override bool Equals(object obj)
@@ -58,6 +58,6 @@ public class SourceReference
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(LineNumber, Column, EndColumn, FileName);
+        return HashCode.Combine(LineNumber, Column, EndColumn, File);
     }
 }

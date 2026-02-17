@@ -10,10 +10,10 @@ namespace Lexy.Compiler.Language.Expressions;
 public class SwitchExpression : Expression, IParsableNode
 {
     private readonly IExpressionFactory factory;
-    private readonly IList<CaseExpression> cases = new List<CaseExpression>();
+    private readonly List<CaseExpression> cases = new();
 
     public Expression Condition { get; }
-    public IEnumerable<CaseExpression> Cases => cases;
+    public IReadOnlyList<CaseExpression> Cases => cases;
 
     private SwitchExpression(Expression condition, ExpressionSource source, SourceReference reference,
         NodeReference parentReference, IExpressionFactory factory)

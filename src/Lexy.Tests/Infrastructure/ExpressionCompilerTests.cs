@@ -1,8 +1,3 @@
-using System.Threading.Tasks;
-using Lexy.Compiler;
-using Lexy.Tests.Compiler;
-using Lexy.Tests.Libraries;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 

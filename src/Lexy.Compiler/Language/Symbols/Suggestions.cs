@@ -4,12 +4,6 @@ using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Symbols;
 
-public enum SuggestionsScope
-{
-    CurrentLevel,
-    Children
-}
-
 public class Suggestions
 {
     private readonly List<SuggestionEdit> values = new();
@@ -36,17 +30,17 @@ public class Suggestions
 
     private SuggestionEdit[] Edit() => values.ToArray();
 
-    public Suggestions Keyword(string name) => Add(name, SymbolKind.Keyword);
-    public Suggestions Parameter(string name, Type type) => Add(name, SymbolKind.ParameterVariable, type);
-    public Suggestions Result(string name, Type type) => Add(name, SymbolKind.ResultVariable, type);
-    public Suggestions Variable(string name, Type type) => Add(name, SymbolKind.Variable, type);
-    public Suggestions TypeVariable(string name, Type type) => Add(name, SymbolKind.ObjectVariable, type);
+    public Suggestions Keyword(string name) => Add(name, "keyword", SymbolKind.Keyword);
+    public Suggestions Parameter(string name, Type type, string description = null) => Add(name, description, SymbolKind.ParameterVariable, type);
+    public Suggestions Result(string name, Type type, string description = null) => Add(name, description, SymbolKind.ResultVariable, type);
+    public Suggestions Variable(string name, Type type, string description = null) => Add(name, description, SymbolKind.Variable, type);
+    public Suggestions TypeVariable(string name, Type type, string description = null) => Add(name, description, SymbolKind.ObjectVariable, type);
 
     public Suggestions RemoveKeyword(string name) => Remove(name, SymbolKind.Keyword);
 
-    private Suggestions Add(string name, SymbolKind kind, Type type = null, bool remove = false)
+    private Suggestions Add(string name, string description, SymbolKind kind, Type type = null)
     {
-        values.Add(new AddSuggestion(scope, name, kind, type));
+        values.Add(new AddSuggestion(scope, name, description, kind, type));
         return this;
     }
 
@@ -55,5 +49,4 @@ public class Suggestions
         values.Add(new RemoveSuggestion(name, kind));
         return this;
     }
-
 }

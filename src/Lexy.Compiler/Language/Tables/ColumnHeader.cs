@@ -67,4 +67,6 @@ public class ColumnHeader : Node
     {
         return new Symbol(Reference, $"{TypeDeclaration} {NameExpression.ToString()}", string.Empty, SymbolKind.TableColumn);
     }
+
+    public override string ToString() => Name;
 }

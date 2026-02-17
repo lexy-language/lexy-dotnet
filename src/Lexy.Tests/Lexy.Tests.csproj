@@ -39,6 +39,36 @@
       <None Update="Compiler\1mb.lexy">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="lexy-language\Specifications\Symbols\AllKeywords.lexy">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\AllKeywords.nodes">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\AllKeywords.symbols">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\Enum.lexy">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\Enum.nodes">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\Enum.symbols">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\Function.lexy">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\Table.lexy">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\Type.lexy">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="lexy-language\Specifications\Symbols\SystemFunctions.lexy">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -26,7 +26,7 @@ internal static class AutoMapLexyFunctionStatement
         };
 
         result.AddRange(ExtractFunctionStatement.ExtractStatementSyntax(
-            expression.Mapping,
+            expression.StateRequired.Mapping,
             resultsVariable));
 
         return result;
@@ -40,7 +40,7 @@ internal static class AutoMapLexyFunctionStatement
             .WithInitializer(EqualsValueClause(initialize));
 
         return LocalDeclarationStatement(
-            VariableDeclaration(Types.Syntax(expression.Mapping.MappingType))
+            VariableDeclaration(Types.Syntax(expression.State.Mapping.MappingType))
                 .WithVariables(SingletonSeparatedList(variable)));
     }
 }

@@ -1,11 +1,12 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Lexy.Tests.Symbols;
 
 public class VerifySuggestionsFixture : ScopedServicesTestFixture
 {
-    protected void VerifySuggestions(Action<VerifySuggestions> handler)
+    protected async Task VerifySuggestions(Func<VerifySuggestions, Task> handler)
     {
-        Verify.All(context => handler(new VerifySuggestions(ServiceProvider, context)));
+        await Verify.All(async context => await handler(new VerifySuggestions(ServiceProvider, context)));
     }
 }

@@ -1,33 +1,32 @@
+using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
 using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public class VariableDeclarationState
-{
-    public Type Type { get; }
-
-    public VariableDeclarationState(Type type)
-    {
-        Type = type;
-    }
-}
-
 public class VariableDeclarationExpression : Expression
 {
-
     public TypeDeclaration TypeDeclaration { get; }
     public string Name { get; }
     public Expression Assignment { get; }
     public VariableNameExpression NameExpression { get; }
 
     public VariableDeclarationState State { get; private set; }
+
+    public VariableDeclarationState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     private VariableDeclarationExpression(TypeDeclaration typeDeclaration, VariableNameExpression nameExpression, Expression assignment,
         ExpressionSource source, NodeReference parentReference, SourceReference reference) : base(source, parentReference, reference)
@@ -114,7 +113,7 @@ public class VariableDeclarationExpression : Expression
         var type = GetType(context, assignmentType);
         if (type == null)
         {
-            context.Logger.Fail(Reference, $"Invalid variable type '{TypeDeclaration}'");
+            context.Logger.Fail(Reference, $"Invalid variable type '{TypeDeclaration.Label()}'");
         }
 
         context.VariableContext.RegisterVariableAndVerifyUnique(Reference, Name, type, VariableSource.Code);
@@ -146,7 +145,7 @@ public class VariableDeclarationExpression : Expression
 
     public override IEnumerable<VariableUsage> UsedVariables()
     {
-        yield return new VariableUsage(Reference, IdentifierPath.Parse(Name), null, State.Type, VariableSource.Code, VariableAccess.Write);
+        yield return new VariableUsage(Reference, IdentifierPath.Parse(Name), null, StateRequired.Type, VariableSource.Code, VariableAccess.Write);
 
         if (Assignment == null) yield break;
 

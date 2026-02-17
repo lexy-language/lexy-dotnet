@@ -29,13 +29,20 @@ function If
 
         logger.AssertNoErrors();
 
-        function.ShouldNotBeNull();
-        function.Code.Expressions.Count.ShouldBe(3);
-        function.Code.Expressions[1].ValidateOfType<IfExpression>(expression =>
-        {
-            expression.TrueExpressions.Count().ShouldBe(1);
-            expression.TrueExpressions.ToArray()[0].ValidateOfType<AssignmentExpression>(assignment =>
-                assignment.ToString().ShouldBe("(AssignmentExpression) temp = 666"));
-        });
+        Verify.Model(function, context => context
+            .IsNotNull(value => value, valueContext => valueContext
+                .Collection(value => value.Code.Expressions, expressionsContext => expressionsContext
+                    .Length(3, "value.Code.Expressions")
+                    .ValueModelOfType<IfExpression>(1, ifExpressionContext => ifExpressionContext
+                        .Collection(value => value.TrueExpressions, trueExpressionContext => trueExpressionContext
+                            .Length(1, "value.TrueExpressions")
+                            .ValueModelOfType<AssignmentExpression>(0, assignmentExpression => assignmentExpression
+                                .AreEqual(assignment => assignment.ToString(), "temp = 666")
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
 }

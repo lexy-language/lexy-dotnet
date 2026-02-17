@@ -40,7 +40,7 @@ public static class FunctionClass
         {
             GuardStatements.VerifyNotNull(LexyCodeConstants.ParameterVariable),
             GuardStatements.VerifyNotNull(LexyCodeConstants.ContextVariable),
-            LogCalls.SetFileName(function.Reference.FileName),
+            LogCalls.SetFileName(function.Reference.File.Name),
             LogCalls.OpenScope($"Execute: {function.Name}", function.Reference.LineNumber),
         };
 

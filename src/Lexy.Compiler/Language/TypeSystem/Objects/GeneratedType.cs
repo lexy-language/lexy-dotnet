@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.RunTime;
 
 namespace Lexy.Compiler.Language.TypeSystem.Objects;
@@ -10,8 +9,8 @@ public class GeneratedType : ObjectType
 {
     public GeneratedTypeSource Source { get; }
     public IComponentNode Node { get;}
-    public string TypeName { get; set; }
-    public string MemberName { get; set; }
+    public string TypeName { get; }
+    public string MemberName { get; }
 
     public GeneratedType(string typeName, string memberName, IComponentNode node, GeneratedTypeSource source, IEnumerable<IObjectMember> members) :
         base($"{typeName}.{memberName}", members)

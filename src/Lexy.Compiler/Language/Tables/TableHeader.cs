@@ -75,4 +75,6 @@ public class TableHeader : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => Columns.Count.ToString();
 }

@@ -29,8 +29,55 @@ public class VerifyCollectionContext<TItem> : VerifyModelContext<IReadOnlyList<T
             return this;
         }
 
-        Logging.LogAssert(false, "null", "- ValueAtEquals[{0}] invalid: ", index);
+        Logging.LogAssert(false, "null", "- ValueAt[{0}] invalid: ", index);
 
+        return this;
+    }
+
+    public VerifyCollectionContext<TItem> ValueModel<TValue>(int index, Expression<Func<TItem, TValue>> expression, Action<VerifyModelContext<TValue>> verify)
+    {
+        var item = index >= 0 && index < Model.Count ? Model[index] : null;
+        var (value, message) = expression.CompileExpression(item);
+        if (value != null)
+        {
+            verify(new VerifyModelContext<TValue>(value, Logging));
+            return this;
+        }
+
+        Logging.LogAssert(false, "null", "- ValueModel[{0}] is null: ", index);
+
+        return this;
+    }
+
+    public VerifyCollectionContext<TItem> ValueModel(int index, Action<VerifyModelContext<TItem>> verify)
+    {
+        var item = index >= 0 && index < Model.Count ? Model[index] : null;
+        if (item != null)
+        {
+            verify(new VerifyModelContext<TItem>(item, Logging));
+            return this;
+        }
+
+        Logging.LogAssert(false, "null", "- ValueModel[{0}] is null: ", index);
+
+        return this;
+    }
+    public VerifyCollectionContext<TItem> ValueModelOfType<TValue>(int index, Action<VerifyModelContext<TValue>> verify) where TValue : class
+    {
+        var item = index >= 0 && index < Model.Count ? Model[index] : null;
+        if (item == null)
+        {
+            Logging.LogAssert(false, "null", "- ValueModel[{0}] is null: ", index);
+            return this;
+        }
+
+        if (item is not TValue specific)
+        {
+            Logging.LogAssert(false, "invalid type", "- ValueModel[{0}] is not '{1}' but '{2}': ", index, typeof(TValue), item.GetType());
+            return this;
+        }
+
+        verify(new VerifyModelContext<TValue>(specific, Logging));
         return this;
     }
 
@@ -47,7 +94,7 @@ public class VerifyCollectionContext<TItem> : VerifyModelContext<IReadOnlyList<T
     {
         var value = Model.Any(criteria.Compile());
 
-        var suffix = Normalize($" - ({extraMessage})");
+        var suffix = Normalize($" - >>{extraMessage}<<");
         Logging.LogAssert(value, criteria.ToString(), $"- Any invalid{suffix}: ");
 
         return this;

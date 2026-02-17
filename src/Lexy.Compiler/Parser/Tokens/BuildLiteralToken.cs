@@ -50,15 +50,15 @@ public class BuildLiteralToken : ParsableToken
         }
 
         if (value == TokenValues.Quote && Value == TokenValues.DateTimeStarter)
+        {
             return ParseTokenResult.InProgress(new DateTimeLiteralToken(FirstCharacter));
+        }
 
         return ParseTokenResult.Invalid($"Unexpected character: '{value}'");
     }
 
     public override ParseTokenResult EndOfLine()
     {
-
-
         return ParseTokenResult.Finished(true, SealLiteral());
     }
 

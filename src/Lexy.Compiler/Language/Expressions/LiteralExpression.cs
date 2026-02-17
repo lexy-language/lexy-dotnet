@@ -26,14 +26,6 @@ public class LiteralExpression : Expression
              : ParseExpressionResult.Success(expression);
     }
 
-    public static ParseLiteralExpressionResult ParseLiteral(NodeReference parentReference, ExpressionSource source, IExpressionFactory factory)
-    {
-        var expression = CreateExpression(parentReference, source, source.Tokens);
-        return expression == null
-             ? ParseLiteralExpressionResult.Invalid<LiteralExpression>("Invalid expression.")
-             : ParseLiteralExpressionResult.Success(expression);
-    }
-
     private static LiteralExpression CreateExpression(NodeReference parentReference, ExpressionSource source, TokenList tokens)
     {
         if (!IsValid(source.Tokens)) return null;
@@ -91,5 +83,5 @@ public class LiteralExpression : Expression
         return new Symbol(Reference, Literal.ToString(), string.Empty, SymbolKind.Constant);
     }
 
-    public override string ToString() => Literal?.Value;
+    public override string ToString() => Literal.ToString();
 }

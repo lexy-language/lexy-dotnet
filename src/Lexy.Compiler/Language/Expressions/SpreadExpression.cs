@@ -44,5 +44,5 @@ public class SpreadExpression : Expression
         return null;
     }
 
-    public override Symbol GetSymbol() => new Symbol(Reference, "spread operator", string.Empty, SymbolKind.Operator);
+    public override Symbol GetSymbol() => new(Reference, "operator: spread", string.Empty, SymbolKind.Operator);
 }

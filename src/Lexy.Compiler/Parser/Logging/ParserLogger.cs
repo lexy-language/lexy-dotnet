@@ -70,9 +70,9 @@ public class ParserLogger : IParserLogger
     {
         if (!logger.IsEnabled(LogLevel.Debug)) return;
 
-        var nodesLog = NodesLogger.Log(nodes);
+        logger.LogDebug("Parsed nodes:");
 
-        logger.LogDebug("Parsed nodes: {Nodes}", nodesLog);
+        NodesLogger.Log(nodes, value => logger.LogDebug(value));
     }
 
     public bool HasErrorMessage(string expectedError)

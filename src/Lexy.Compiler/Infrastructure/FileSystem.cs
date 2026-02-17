@@ -1,6 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
+using FileIO = System.IO.File;
 using System.Linq;
 using System.Threading.Tasks;
+using Lexy.Compiler.Parser.Documents;
+using File = Lexy.Compiler.Infrastructure;
 
 namespace Lexy.Compiler.Infrastructure;
 
@@ -8,7 +12,17 @@ public class FileSystem : IFileSystem
 {
     public Task<string[]> ReadAllLines(string fileName)
     {
-        return File.ReadAllLinesAsync(fileName);
+        return FileIO.ReadAllLinesAsync(fileName);
+    }
+
+    public Task WriteAllLines(string fileName, IEnumerable<string> lines)
+    {
+        return FileIO.WriteAllLinesAsync(fileName, lines);
+    }
+
+    public StreamReader OpenStream(string fileName)
+    {
+        return FileIO.OpenText(fileName);
     }
 
     public Task<bool> FileExists(string fileName)
@@ -33,6 +47,7 @@ public class FileSystem : IFileSystem
         var directories = Directory.GetDirectories(folder);
         return Task.FromResult(directories);
     }
+
     public string GetFileName(string fileName)
     {
         return Path.GetFileName(fileName);
@@ -59,4 +74,14 @@ public class FileSystem : IFileSystem
     public string LogFolders() => throw new System.NotImplementedException();
 
     public string CurrentFolder() => Directory.GetCurrentDirectory();
+
+    public async Task<ISourceCodeDocument> CreateFileSourceDocument(IFile file)
+    {
+        return new FileSourceDocument(this, file);
+    }
+
+    public async Task<ISourceCodeDocuments> CreateFileSourceDocuments(IFile[] files)
+    {
+        return FileSourceDocuments.Create(this, files);
+    }
 }

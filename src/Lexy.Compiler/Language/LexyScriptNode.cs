@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language.Enums;
 using Lexy.Compiler.Language.Functions;
 using Lexy.Compiler.Language.Scenarios;
@@ -20,7 +21,7 @@ public class LexyScriptNode : ComponentNode
     public Comments Comments { get; }
     public ComponentNodeList ComponentNodes { get; } = new();
 
-    public LexyScriptNode() : base(nameof(LexyScriptNode), new NodeReference(null), new SourceReference(nameof(LexyScriptNode), 1, 1, 1))
+    public LexyScriptNode(IProject project) : base(nameof(LexyScriptNode), new NodeReference(null), new SourceReference(project.File("LexyScript"), 1, 1, 1))
     {
         Comments = new Comments(new NodeReference(this), Reference);
     }

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.Functions;
@@ -35,4 +34,6 @@ public class FunctionParameters : ParsableNode
     {
         return new Symbol(Reference, "parameters", "function parameter variables", SymbolKind.Keyword);
     }
+
+    public override string ToString() => variables.Count.ToString();
 }

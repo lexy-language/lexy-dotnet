@@ -1,4 +1,4 @@
-namespace Lexy.Compiler.Language.Symbols;
+namespace Lexy.Compiler.Language;
 
 public class Position
 {

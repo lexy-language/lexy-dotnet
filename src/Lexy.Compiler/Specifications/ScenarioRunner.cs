@@ -176,8 +176,9 @@ public class ScenarioRunner : IScenarioRunner
         foreach (var expected in Scenario.Results.AllAssignments())
         {
             var actual = result.GetValue(expected.Variable);
-            var expectedValue =
-                TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.State.Type);
+            var expectedValue = expected.State != null
+                ? TypeConverter.Convert(compilationResult, expected.ConstantValue.Value, expected.State.Type)
+                : null;
 
             if (actual == null
              || expectedValue == null
@@ -217,11 +218,35 @@ public class ScenarioRunner : IScenarioRunner
     {
         var actual = result.GetValue(path);
         var expectedValue = value.GetValue();
-        if (actual == null || expectedValue == null || !actual.Equals(expectedValue))
+        if (!CompareValues(actual, expectedValue))
         {
             validationResult.Add(
                 $"'{path}' should be '{expectedValue ?? "<null>"}' ({expectedValue?.GetType().Name}) but is '{actual ?? "<null>"}' ({actual?.GetType().Name})");
         }
+    }
+
+    private static bool CompareValues(object actual, object expectedValue)
+    {
+        if (actual == null || expectedValue == null) return false;
+
+        if (actual.GetType().IsEnum)
+        {
+            return CompareEnum(actual, expectedValue);
+        }
+        return actual.Equals(expectedValue);
+    }
+
+    private static bool CompareEnum(object actual, object expectedValue)
+    {
+        var parts = expectedValue.ToString().Split(".");
+        if (parts.Length != 2) return false;
+
+        var enumType = actual.GetType().Name;
+        var enumName = enumType[(enumType.IndexOf("__") + 2)..];
+        if (parts[0] != enumName) return false;
+
+        var expectedEnum = Enum.Parse(actual.GetType(), parts[1]);
+        return expectedEnum.Equals(actual);
     }
 
     private IReadOnlyList<string> GetDependenciesErrors()

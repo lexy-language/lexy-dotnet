@@ -32,11 +32,6 @@ public sealed class ValueTypeDeclaration : TypeDeclaration
         return Type != null ? Type.GetHashCode() : 0;
     }
 
-    public override string ToString()
-    {
-        return TypeName;
-    }
-
     protected override void Validate(IValidationContext context)
     {
         Type = new ValueType(TypeName);
@@ -51,4 +46,6 @@ public sealed class ValueTypeDeclaration : TypeDeclaration
     {
         return new Symbol(Reference, $"value type: {Type}", null, SymbolKind.ValueType);
     }
+
+    public override string Label() => TypeName;
 }

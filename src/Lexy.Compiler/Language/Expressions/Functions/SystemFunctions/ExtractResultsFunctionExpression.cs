@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Symbols;
@@ -5,6 +6,7 @@ using Lexy.Compiler.Language.TypeSystem;
 using Lexy.Compiler.Language.TypeSystem.Objects;
 using Lexy.Compiler.Parser.Context;
 using Lexy.RunTime;
+using Type = Lexy.Compiler.Language.TypeSystem.Type;
 
 namespace Lexy.Compiler.Language.Expressions.Functions.SystemFunctions;
 
@@ -20,6 +22,15 @@ public class ExtractResultsFunctionExpression : FunctionCallExpression
     public override string Name => FunctionName;
 
     public ExtractResultsFunctionState State { get; private set; }
+
+    public ExtractResultsFunctionState StateRequired
+    {
+        get
+        {
+            if (State == null) throw new InvalidOperationException("State not set.");
+            return State;
+        }
+    }
 
     private ExtractResultsFunctionExpression(Expression valueExpression, NodeReference parentReference, ExpressionSource source)
         : base(parentReference, source)

@@ -11,7 +11,7 @@ public class ValidateFunctionArgumentsAutoMapResult : ValidateFunctionArgumentsR
         ParameterType = parameterType;
     }
 
-    public static ValidateFunctionArgumentsAutoMapResult SuccessAutoMap(Type parameterType, Type resultType)
+    public static ValidateFunctionArgumentsAutoMapResult SuccessAutoMap(Type parameterType)
     {
         return new ValidateFunctionArgumentsAutoMapResult(parameterType);
     }

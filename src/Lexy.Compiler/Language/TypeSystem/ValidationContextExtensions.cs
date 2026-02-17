@@ -129,7 +129,9 @@ public static class ValidationContextExtensions
         }
 
         if (literalExpression.Literal is not T)
+        {
             context.Logger.Fail(reference,
                 $"Invalid default value '{defaultValueExpression}'. (type: '{valueTypeDeclaration.Type}')");
+        }
     }
 }

@@ -9,7 +9,7 @@ public static class TypeNames
     public const string Date = "date";
     public const string String = "string";
 
-    private static readonly IList<string> existing = new List<string>
+    public static readonly IList<string> Values = new List<string>
     {
         Number,
         Boolean,
@@ -19,6 +19,6 @@ public static class TypeNames
 
     public static bool Contains(string parameterType)
     {
-        return existing.Contains(parameterType);
+        return Values.Contains(parameterType);
     }
 }

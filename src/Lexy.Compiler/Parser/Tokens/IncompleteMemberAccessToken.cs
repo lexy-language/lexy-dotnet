@@ -21,5 +21,5 @@ public class IncompleteMemberAccessToken : Token, ILiteralToken
 
     public Type DeriveType(IValidationContext context) => null;
 
-    public override string ToString() => Value;
+    public override string ToString() => "unknown: " + Value;
 }

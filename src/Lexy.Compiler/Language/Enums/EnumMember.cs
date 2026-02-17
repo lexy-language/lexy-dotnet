@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Tokens;
 using Microsoft.CodeAnalysis.CSharp;
@@ -89,22 +88,27 @@ public class EnumMember : Node
 
         if (ValueLiteral.NumberValue < 0)
         {
-            context.Logger.Fail(Reference, $"Enum member value should not be < 0: {ValueLiteral}");
+            context.Logger.Fail(Reference, $"Enum member value should not be < 0: {ValueLiteral.Value}");
         }
 
         if (ValueLiteral.IsDecimal())
         {
-            context.Logger.Fail(Reference, $"Enum member value should not be decimal: {ValueLiteral}");
+            context.Logger.Fail(Reference, $"Enum member value should not be decimal: {ValueLiteral.Value}");
         }
     }
 
     public override Symbol GetSymbol()
     {
-        var parentEnum = Parent as EnumDefinition;
-        return ValueLiteral != null
-            ? new Symbol(Reference, $"enum member: {parentEnum?.Name}.{Name} = {ValueLiteral}", string.Empty, SymbolKind.EnumMember)
-            : new Symbol(Reference, $"enum member: {parentEnum?.Name}.{Name}", string.Empty, SymbolKind.EnumMember);
+        return new Symbol(Reference, $"enum member: {Label()}", string.Empty, SymbolKind.EnumMember);
     }
 
-    public override string ToString() => Name;
+    private string Label()
+    {
+        var parentEnum = Parent as EnumDefinition;
+        return ValueLiteral != null
+            ? $"{parentEnum?.Name}.{Name} = {ValueLiteral.Value}"
+            : $"{parentEnum?.Name}.{Name}";
+    }
+
+    public override string ToString() => Label();
 }

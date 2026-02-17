@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Symbols;
 using Lexy.Compiler.Parser.Symbols;
 using Lexy.RunTime;
@@ -19,18 +22,18 @@ public class VerifySuggestions
         this.context = Assert.NotNull(context, nameof(context));
     }
 
-    public VerifySuggestions Keyword(string code, int lineNumber, int column, string name) =>
-        Suggestion(code, lineNumber, column, SymbolKind.Keyword, name);
+    public async Task<VerifySuggestions> Keyword(string code, int lineNumber, int column, string name) =>
+        await Suggestion(code, lineNumber, column, SymbolKind.Keyword, name, "keyword");
 
-    public VerifySuggestions Parameter(string code, int lineNumber, int column, string name) =>
-        Suggestion(code, lineNumber, column, SymbolKind.ParameterVariable, name);
+    public async Task<VerifySuggestions> Parameter(string code, int lineNumber, int column, string name, string description) =>
+        await Suggestion(code, lineNumber, column, SymbolKind.ParameterVariable, name, description);
 
-    public VerifySuggestions Result(string code, int lineNumber, int column, string name) =>
-        Suggestion(code, lineNumber, column, SymbolKind.ResultVariable, name);
+    public async Task<VerifySuggestions> Result(string code, int lineNumber, int column, string name, string description) =>
+        await Suggestion(code, lineNumber, column, SymbolKind.ResultVariable, name, description);
 
-    public VerifySuggestions Suggestion(string code, int lineNumber, int column, Action<VerifyMultipleSuggestion> testHandler)
+    public async Task<VerifySuggestions> Suggestion(string code, int lineNumber, int column, Action<VerifyMultipleSuggestion> testHandler)
     {
-        var result = GetSuggestions(code, lineNumber, column);
+        var result = await GetSuggestions(code, lineNumber, column);
 
         var verifyMultipleSuggestion = new VerifyMultipleSuggestion(context, result, testHandler, index++);
         verifyMultipleSuggestion.Verify();
@@ -38,23 +41,29 @@ public class VerifySuggestions
         return this;
     }
 
-    private SuggestionsResult GetSuggestions(string code, int lineNumber, int column)
+    private async Task<SuggestionsResult> GetSuggestions(string code, int lineNumber, int column)
     {
-        var symbols = serviceProvider.GetSymbols($"test.{index}.lexy", code, true);
-        var result = symbols.Result.Symbols.GetSuggestions($"test.{index}.lexy", new Position(lineNumber, column));
-
-        return result;
+        var result = await serviceProvider.GetSymbols($"test.{index}.lexy", code, true);
+        return result.Symbols.GetSuggestions(result.File, new Position(lineNumber, column));
     }
 
-    private VerifySuggestions Suggestion(string code, int lineNumber, int column, SymbolKind kind, string name)
+    private async Task<VerifySuggestions> Suggestion(string code, int lineNumber, int column, SymbolKind kind, string name, string description)
     {
-        var result = GetSuggestions(code, lineNumber, column);
+        var result = await GetSuggestions(code, lineNumber, column);
 
         var message = $"All:\n{Format(result.All)}\nFiltered:\n{Format(result.Filtered)}";
         var assertionMessage = $"{index++}: {name} - {kind}\n\n{message}";
 
-        context.Collection(result.Filtered, verifySuggestions => verifySuggestions
-            .Any(value => value.Name == name && value.Kind == kind, assertionMessage));
+        var element = result.Filtered.FirstOrDefault(value => value.Name == name);
+
+        if (element == null) {
+            context.Fail("Element not found: " + assertionMessage);
+            return this;
+        }
+
+        context
+            .IsTrue(element.Kind == kind, "Suggestion: " + element + "\n" + assertionMessage)
+            .IsTrue(element.Description == description, "Suggestion: " + element + "\n" + assertionMessage);
 
         return this;
     }

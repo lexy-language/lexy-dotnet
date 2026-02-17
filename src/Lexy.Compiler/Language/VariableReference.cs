@@ -42,9 +42,8 @@ public class VariableReference
         {
             return new Symbol(Reference, $"enum member: {Path}", string.Empty, SymbolKind.EnumMember);
         }
-        return Type is GeneratedType
-            ? new Symbol(Reference, $"type: {Path}", string.Empty, SymbolKind.GeneratedType)
-            : new Symbol(Reference, $"variable: {Type} {Path}", string.Empty, SymbolKind.Variable);
+        return Type.GetSymbol(Reference);
+        //todo : new Symbol(Reference, $"variable: {Type} {Path}", string.Empty, SymbolKind.Variable);
     }
 
     public override string ToString()

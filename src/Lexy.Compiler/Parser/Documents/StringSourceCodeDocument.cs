@@ -1,46 +1,57 @@
 using System;
-using System.Linq;
 using System.Text;
+using Lexy.Compiler.Infrastructure;
+using Lexy.RunTime;
 
 namespace Lexy.Compiler.Parser.Documents;
 
 public class StringSourceCodeDocument : ISourceCodeDocument
 {
-    private readonly Line[] code;
-    private readonly string fileName;
+    private readonly string[] code;
 
     private int index;
 
-    public string FullFileName => fileName;
+    public IFile File { get; }
+
     public Line CurrentLine { get; private set; }
 
-    public StringSourceCodeDocument(string[] code, string fileName)
+    public StringSourceCodeDocument(IFile file, string[] code)
     {
-        index = -1;
-        this.fileName = fileName;
-        this.code = code.Select((line, index) => new Line(index, line, fileName)).ToArray();
+        index = 0;
+        File = Assert.NotNull(file, nameof(file));
+        this.code = Assert.NotNull(code, nameof(code));
     }
 
     public bool HasMoreLines()
     {
-        return index < code.Length - 1;
+        return index <= code.Length - 1;
     }
 
     public Line NextLine()
     {
         if (index >= code.Length) throw new InvalidOperationException("No more lines");
 
-        CurrentLine = code[++index];
+        CurrentLine = CreateLine(index++);
         return CurrentLine;
     }
 
     public override string ToString()
     {
         var sourceCode = new StringBuilder();
-        foreach (var line in code)
+        for (var lineIndex = 0; lineIndex < code.Length; lineIndex++)
         {
-            sourceCode.AppendLine(line.ToString());
+            sourceCode.AppendLine(CreateLine(index).ToString());
         }
         return "Code: " + sourceCode;
+    }
+
+    public void Dispose()
+    {
+    }
+
+    private Line CreateLine(int lineIndex)
+    {
+        var lineContents = code[lineIndex];
+        return new Line(lineIndex, lineContents, File);
     }
 }

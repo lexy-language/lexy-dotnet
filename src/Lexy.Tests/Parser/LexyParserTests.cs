@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
+using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem.Declaration;
-using Lexy.Tests.Parser.ExpressionParser;
 using NUnit.Framework;
 using Shouldly;
 
@@ -19,13 +19,19 @@ public class LexyParserTests : ScopedServicesTestFixture
         var (function, logger) = await ServiceProvider.ParseFunction(code);
 
         logger.HasErrors().ShouldBeFalse(logger.ToString());
-        function.Name.ShouldBe("TestSimpleReturn");
-        function.Results.Variables.Count.ShouldBe(1);
-        function.Results.Variables[0].Name.ShouldBe("Result");
-        function.Results.Variables[0].TypeDeclaration.ValidateOfType<ValueTypeDeclaration>(type =>
-            type.TypeName.ShouldBe("number"));
-        function.Code.Expressions.Count.ShouldBe(1);
-        function.Code.Expressions[0].ToString().ShouldBe("(AssignmentExpression) Result = 777");
+
+        Verify.Model(function, context => context
+            .AreEqual(value => value.Name, "TestSimpleReturn")
+            .Collection(value => value.Results.Variables, variablesContext => variablesContext
+                .Length(1, "value.Results.Variables")
+                .ValueModel(0, value => value, itemContext => itemContext
+                    .AreEqual(item => item.Name, "Result")
+                    .IsOfType<ValueTypeDeclaration>(item => item.TypeDeclaration, typeDeclarationContext => typeDeclarationContext
+                        .AreEqual(typeDeclaration => typeDeclaration.TypeName, "number"))))
+            .Collection(value => function.Code.Expressions, variablesContext => variablesContext
+                .Length(1, "function.Code.Expressions")
+                .ValueModelOfType<AssignmentExpression>(0, itemContext => itemContext
+                    .AreEqual(item => item.ToString(), "Result = 777"))));
     }
 
     [Test]

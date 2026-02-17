@@ -35,7 +35,7 @@ public class AssignmentExpression : Expression
 
         var reference = source.CreateReference();
 
-        var expression = new AssignmentExpression(variableExpression.Result, assignment.Result, source, parentReference,  reference);
+        var expression = new AssignmentExpression(variableExpression.Result, assignment.Result, source, parentReference, reference);
         expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);

@@ -45,7 +45,7 @@ public class Table : ComponentNode, INodeWithType
         }
         else
         {
-            var tableRow = TableRow.Parse(context, Header, this);
+            var tableRow = TableRow.Parse(context, this);
             if (tableRow != null) rows.Add(tableRow);
         }
 

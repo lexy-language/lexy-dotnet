@@ -7,11 +7,14 @@ namespace Lexy.Compiler.Language.Scenarios;
 
 public class ValidationTableValue : Node
 {
+    private int index;
+
     public Expression Expression { get; }
 
-    public ValidationTableValue(Expression expression, NodeReference parentReference, SourceReference reference) :
+    public ValidationTableValue(int index, Expression expression, NodeReference parentReference, SourceReference reference) :
         base(parentReference, reference)
     {
+        this.index = index;
         Expression = expression;
     }
 
@@ -36,4 +39,6 @@ public class ValidationTableValue : Node
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => $"[{index}]";
 }

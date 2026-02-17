@@ -33,4 +33,6 @@ public class FunctionCode : ParsableNode
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString() => expressions.Count.ToString();
 }

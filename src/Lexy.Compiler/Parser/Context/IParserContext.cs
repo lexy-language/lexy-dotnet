@@ -12,13 +12,14 @@ public interface IParserContext
     IParserLogger Logger { get; }
 
     IFileSystem FileSystem { get; }
-    DocumentsSymbols Symbols { get; }
+    ISymbols Symbols { get; }
 
     ComponentNodeList Nodes { get; }
     LexyScriptNode RootNode { get; }
 
     ILineFilter LineFilter { get; }
+    IProject Project { get; }
 
-    void AddFileIncluded(string fileName);
-    bool IsFileIncluded(string fileName);
+    void AddFileIncluded(IFile file);
+    bool IsFileIncluded(IFile file);
 }
