@@ -13,7 +13,7 @@ public class SpreadExpression : Expression
     {
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<LiteralExpression>("Invalid expression.");

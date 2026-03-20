@@ -40,7 +40,7 @@ internal static class AutoMapLexyFunctionStatement
             .WithInitializer(EqualsValueClause(initialize));
 
         return LocalDeclarationStatement(
-            VariableDeclaration(Types.Syntax(expression.State.Mapping.MappingType))
+            VariableDeclaration(Types.Syntax(expression.StateRequired.Mapping.MappingType))
                 .WithVariables(SingletonSeparatedList(variable)));
     }
 }

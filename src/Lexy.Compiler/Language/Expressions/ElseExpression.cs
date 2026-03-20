@@ -13,15 +13,15 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
 
     public IEnumerable<Expression> FalseExpressions => falseExpressions;
 
-    private ElseExpression(ExpressionSource source, NodeReference parentReference, SourceReference reference, IExpressionFactory factory) :
+    private ElseExpression(ExpressionSource source, NodeReference parentReference, SourceReference reference) :
         base(source, parentReference, reference)
     {
-        falseExpressions = new ExpressionList(this, reference, factory);
+        falseExpressions = new ExpressionList(this, reference);
     }
 
     public override IEnumerable<INode> GetChildren()
     {
-        return FalseExpressions;
+        yield return falseExpressions;
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -30,7 +30,7 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
         return expression.Result is IParsableNode node ? node : this;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ElseExpression>("Not valid.");
@@ -39,7 +39,7 @@ public class ElseExpression : Expression, IParsableNode, IChildExpression
 
         var reference = source.CreateReference();
 
-        var expression = new ElseExpression(source, parentReference, reference, factory);
+        var expression = new ElseExpression(source, parentReference, reference);
 
         return ParseExpressionResult.Success(expression);
     }

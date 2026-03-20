@@ -18,7 +18,7 @@ public class LiteralExpression : Expression
         Literal = Assert.NotNull(literal, nameof(literal));
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var expression = CreateExpression(parentReference, source, source.Tokens);
         return expression == null

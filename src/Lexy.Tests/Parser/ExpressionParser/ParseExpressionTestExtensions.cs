@@ -10,7 +10,6 @@ public static class ParseExpressionTestExtensions
 {
     public static Expression ParseExpression(this ScopedServicesTestFixture fixture, string expression)
     {
-        var expressionFactory = new ExpressionFactory();
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
 
         var line = new Line(0, expression, TestFile.Instance);
@@ -21,7 +20,7 @@ public static class ParseExpressionTestExtensions
             throw new InvalidOperationException($"Tokenizing failed: {tokens.ErrorMessage}");
         }
 
-        var result = expressionFactory.Parse((INode) null, line.Tokens, line);
+        var result = ExpressionFactory.Parse((INode) null, line.Tokens, line);
         result.IsSuccess.ShouldBeTrue(result.ErrorMessage);
         return result.Result;
     }
@@ -30,7 +29,6 @@ public static class ParseExpressionTestExtensions
         string expression,
         string errorMessage)
     {
-        var expressionFactory = new ExpressionFactory();
         var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
         var line = new Line(0, expression, TestFile.Instance);
 
@@ -40,7 +38,7 @@ public static class ParseExpressionTestExtensions
             throw new InvalidOperationException($"Tokenizing failed: {tokens.ErrorMessage}");
         }
 
-        var result = expressionFactory.Parse((INode) null, line.Tokens, line);
+        var result = ExpressionFactory.Parse((INode) null, line.Tokens, line);
         result.IsSuccess.ShouldBeFalse();
         result.ErrorMessage.ShouldBe(errorMessage);
     }

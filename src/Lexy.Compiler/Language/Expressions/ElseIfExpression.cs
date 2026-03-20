@@ -14,10 +14,9 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
     public Expression Condition { get; }
     public IEnumerable<Expression> TrueExpressions => trueExpressions;
 
-    private ElseIfExpression(Expression condition, ExpressionSource source, NodeReference parentReference, SourceReference reference,
-        IExpressionFactory factory) : base(source, parentReference, reference)
+    private ElseIfExpression(Expression condition, ExpressionSource source, NodeReference parentReference, SourceReference reference) : base(source, parentReference, reference)
     {
-        trueExpressions = new ExpressionList(this, reference, factory);
+        trueExpressions = new ExpressionList(this, reference);
         Condition = condition;
     }
 
@@ -33,7 +32,7 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
         return expression.Result is IParsableNode node ? node : this;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
@@ -42,12 +41,12 @@ public class ElseIfExpression : Expression, IParsableNode, IChildExpression
 
         var expressionReference = new NodeReference();
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = factory.Parse(expressionReference, condition, source.Line);
+        var conditionExpression = ExpressionFactory.Parse(expressionReference, condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new ElseIfExpression(conditionExpression.Result, source, parentReference, reference, factory);
+        var expression = new ElseIfExpression(conditionExpression.Result, source, parentReference, reference);
         expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);

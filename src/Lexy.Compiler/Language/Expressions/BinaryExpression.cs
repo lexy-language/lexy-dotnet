@@ -93,8 +93,10 @@ public class BinaryExpression : Expression
             return new OperatorCombination(false, leftType, true, null, expressionOperator);
         }
 
-        public bool Allowed(Type left, Type right)
+        public bool Allowed(ExpressionOperator expressionOperator, Type left, Type right)
         {
+            if (ExpressionOperator != expressionOperator) return false;
+
             var leftEnum = left is EnumType;
             var rightEnum = right is EnumType;
 
@@ -216,7 +218,7 @@ public class BinaryExpression : Expression
         Operator = operatorValue;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         var supportedTokens = GetCurrentLevelSupportedTokens(tokens);
@@ -241,10 +243,10 @@ public class BinaryExpression : Expression
         }
 
         var expressionReference = new NodeReference();
-        var left = factory.Parse(expressionReference, leftTokens, source.Line);
+        var left = ExpressionFactory.Parse(expressionReference, leftTokens, source.Line);
         if (!left.IsSuccess) return left;
 
-        var right = factory.Parse(expressionReference, rightTokens, source.Line);
+        var right = ExpressionFactory.Parse(expressionReference, rightTokens, source.Line);
         if (!right.IsSuccess) return left;
 
         var operatorValue = lowestPriorityOperation.ExpressionOperator;
@@ -352,12 +354,7 @@ public class BinaryExpression : Expression
 
     private bool IsAllowedOperation(Type left, Type right)
     {
-        return AllowedOperationCombinations.Any(combination =>
-        {
-            if (combination.ExpressionOperator != Operator) return false;
-
-            return combination.Allowed(left, right);
-        });
+        return AllowedOperationCombinations.Any(combination => combination.Allowed(Operator, left, right));
     }
 
     public override Type DeriveType(IValidationContext context)

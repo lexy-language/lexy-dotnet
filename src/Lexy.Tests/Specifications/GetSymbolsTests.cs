@@ -65,7 +65,7 @@ public class GetSymbolsTests : ScopedServicesTestFixture
 
         if (failed)
         {
-            var expectedFileName = fileSystem.Combine(fileSystem.CurrentFolder(), nodesLogFile + ".actual");
+            var expectedFileName = nodesLogFile + ".actual";
             await fileSystem.WriteAllLines(expectedFileName, log);
             context.Log($"  - Expected saved: " + expectedFileName);
         }
@@ -113,7 +113,7 @@ public class GetSymbolsTests : ScopedServicesTestFixture
 
         if (expectedLog != actualLog)
         {
-            context.Fail($"Invalid node log: {index}\n    Expect: {expectedLog}\n    Actual: {actualLog}");
+            context.Fail($"\n  - Invalid node log: {index}\n    Expect: {expectedLog}\n    Actual: {actualLog}");
             return true;
         }
 
@@ -135,7 +135,7 @@ public class GetSymbolsTests : ScopedServicesTestFixture
         {
             context.Fail("\n  - Invalid symbols");
 
-            var expectedFileName = fileSystem.Combine(fileSystem.CurrentFolder(), expectedSymbolsFile + ".actual");
+            var expectedFileName = expectedSymbolsFile + ".actual";
             var expectedSymbols = CreateSymbols(documentSymbols);
 
             await fileSystem.WriteAllLines(expectedFileName, expectedSymbols);
@@ -148,14 +148,16 @@ public class GetSymbolsTests : ScopedServicesTestFixture
         IDocumentSymbols documentSymbols)
     {
         var failed = false;
-        foreach (var expectedSymbolsLine in expectedSymbolsLines)
+        for (var index = 0; index < expectedSymbolsLines.Length; index++)
         {
-            var expectedSymbol = ExpectedSymbol.Parse(expectedSymbolsLine);
+            var expectedSymbolsLine = expectedSymbolsLines[index];
+            var expectedSymbol = ExpectedSymbol.Parse(index, expectedSymbolsLine);
             if (expectedSymbol != null && !expectedSymbol.Verify(documentSymbols, context))
             {
                 failed = true;
             }
         }
+
         return failed;
     }
 
@@ -213,51 +215,6 @@ public class GetSymbolsTests : ScopedServicesTestFixture
                 range.Subtract(child.Reference);
             }
             SubtractChildren(range, child.GetChildren());
-        }
-    }
-}
-
-internal class CodeRange
-{
-    private static readonly Random random = new();
-
-    private readonly Symbol symbol;
-    private readonly List<int> options = new();
-    private readonly int lineNumber;
-
-    public CodeRange(Symbol symbol)
-    {
-        this.symbol = symbol;
-        lineNumber = symbol.Reference.LineNumber;
-
-        for (var index = symbol.Reference.Column; index <= symbol.Reference.EndColumn; index++)
-        {
-            options.Add(index);
-        }
-    }
-
-    public int? Random()
-    {
-        if (options.Count == 0)
-        {
-            throw new InvalidOperationException("No reference options: line: " + lineNumber);
-        }
-
-        var index = random.Next(options.Count);
-        return options[index];
-    }
-
-    public void Subtract(SourceReference reference)
-    {
-        if (reference.LineNumber != lineNumber) return;
-
-        for (var index = reference.Column; index <= reference.EndColumn; index++)
-        {
-            var found = options.IndexOf(index);
-            if (found >= 0)
-            {
-                options.RemoveAt(found);
-            }
         }
     }
 }

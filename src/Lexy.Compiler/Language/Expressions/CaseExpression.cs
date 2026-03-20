@@ -16,12 +16,11 @@ public class CaseExpression : Expression, IParsableNode
     public bool IsDefault { get; }
 
     private CaseExpression(Expression value, bool isDefault, ExpressionSource source,
-        NodeReference parentReference, SourceReference reference,
-        IExpressionFactory factory) : base(source, parentReference, reference)
+        NodeReference parentReference, SourceReference reference) : base(source, parentReference, reference)
     {
         Value = value;
         IsDefault = isDefault;
-        expressions = new ExpressionList(this, reference, factory);
+        expressions = new ExpressionList(this, reference);
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -37,14 +36,14 @@ public class CaseExpression : Expression, IParsableNode
         yield return expressions;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<CaseExpression>("Not valid.");
 
         if (tokens.IsKeyword(0, Keywords.Default))
         {
-            return ParseDefaultCase(parentReference, source, tokens, factory);
+            return ParseDefaultCase(parentReference, source, tokens);
         }
 
         if (tokens.Length == 1)
@@ -54,18 +53,17 @@ public class CaseExpression : Expression, IParsableNode
 
         var expressionReference = new NodeReference();
         var value = tokens.TokensFrom(1);
-        var valueExpression = factory.Parse(expressionReference, value, source.Line);
+        var valueExpression = ExpressionFactory.Parse(expressionReference, value, source.Line);
         if (!valueExpression.IsSuccess) return valueExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new CaseExpression(valueExpression.Result, false, source, parentReference, reference, factory);
+        var expression = new CaseExpression(valueExpression.Result, false, source, parentReference, reference);
         expressionReference.SetNode(expression);
         return ParseExpressionResult.Success(expression);
     }
 
-    private static ParseExpressionResult ParseDefaultCase(NodeReference parentReference, ExpressionSource source, TokenList tokens,
-        IExpressionFactory factory)
+    private static ParseExpressionResult ParseDefaultCase(NodeReference parentReference, ExpressionSource source, TokenList tokens)
     {
         if (tokens.Length != 1)
         {
@@ -73,7 +71,7 @@ public class CaseExpression : Expression, IParsableNode
         }
 
         var reference = source.CreateReference();
-        var expression = new CaseExpression(null, true, source, parentReference, reference, factory);
+        var expression = new CaseExpression(null, true, source, parentReference, reference);
         return ParseExpressionResult.Success(expression);
     }
 

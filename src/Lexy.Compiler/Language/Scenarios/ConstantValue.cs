@@ -14,10 +14,11 @@ public class ConstantValue
 
     public override string ToString()
     {
-        if (Value is DateTime dateTime)
+        return Value switch
         {
-            return DateTimeLiteralToken.FormatDate(dateTime);
-        }
-        return Value != null ? Value.ToString() : "null";
+            DateTime dateTime => DateTimeLiteralToken.FormatDate(dateTime),
+            bool boolean => boolean.ToString().ToLowerInvariant(),
+            _ => Value != null ? Value.ToString() : "null"
+        };
     }
 }

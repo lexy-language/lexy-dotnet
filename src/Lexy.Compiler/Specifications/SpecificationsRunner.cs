@@ -11,6 +11,11 @@ namespace Lexy.Compiler.Specifications;
 
 public class SpecificationsRunner : ISpecificationsRunner
 {
+    private static readonly string[] extensions = new []{
+        $".{LexySourceDocument.FileExtension}",
+        $".{LexySourceDocument.MarkdownExtension}"
+    };
+
     private readonly ILexyParser parser;
     private readonly IFileSystem fileSystem;
     private readonly ILexyCompiler compiler;
@@ -70,26 +75,24 @@ public class SpecificationsRunner : ISpecificationsRunner
 
     private async Task GetRunners(Project project, ISpecificationRunnerContext context)
     {
-        var absoluteFolder = await GetAbsoluteFolder(project);
+        Console.WriteLine($"Specifications base folder: {project.BaseFolder}");
 
-        Console.WriteLine($"Specifications folder: {absoluteFolder}");
-
-        await AddFolder(project, absoluteFolder, context);
+        await AddFolder(project, "", context);
     }
 
     private async Task AddFolder(Project project, string folder, ISpecificationRunnerContext context)
     {
-        var files = await fileSystem.GetDirectoryFiles(folder, new []{
-            $".{LexySourceDocument.FileExtension}",
-            $".{LexySourceDocument.MarkdownExtension}"
-        });
+        var fullPath = fileSystem.Combine(project.BaseFolder, folder);
+        var files = await fileSystem.GetDirectoryFiles(fullPath, extensions);
+        var folders = await fileSystem.GetDirectories(fullPath);
+
+        Console.WriteLine($"Specifications folder: {folder} (Files: {files.Length} Folders: {folders.Length})");
 
         foreach (var file in files.OrderBy(name => name))
         {
             await CreateFileRunner(project.File(file), context);
         }
 
-        var folders = await fileSystem.GetDirectories(folder);
         foreach (var subFolder in folders.OrderBy(name => name))
         {
             var fullFolder = fileSystem.Combine(folder, subFolder);

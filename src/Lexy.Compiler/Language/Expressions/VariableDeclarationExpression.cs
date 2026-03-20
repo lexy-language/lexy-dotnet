@@ -37,7 +37,7 @@ public class VariableDeclarationExpression : Expression
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens))
@@ -48,7 +48,7 @@ public class VariableDeclarationExpression : Expression
         var expressionReference = new NodeReference();
         var type = TypeDeclarationParser.Parse(tokens.TokenValue(0), expressionReference, tokens.Reference(0, 1));
         var assignment = tokens.Length > 3
-            ? factory.Parse(expressionReference, tokens.TokensFrom(3), source.Line)
+            ? ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(3), source.Line)
             : null;
         if (assignment is { IsSuccess: false }) return assignment;
 

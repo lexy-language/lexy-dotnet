@@ -55,7 +55,7 @@ public class TableValue : Node
         var valueReference = new NodeReference();
         var reference = context.Line.Tokens.Reference(tokenIndex, 1);
         var token = currentLineTokens.Token<Token>(tokenIndex);
-        var expression = context.ExpressionFactory.Parse(valueReference, new TokenList(context.Line, token), context.Line);
+        var expression = ExpressionFactory.Parse(valueReference, new TokenList(context.Line, token), context.Line);
         if (context.Failed(expression, reference)) return null;
 
         var tableValue = new TableValue(valueIndex, expression.Result, tableHeader, parentReference, reference);

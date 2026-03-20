@@ -6,7 +6,6 @@ using Lexy.Compiler.DependencyGraph;
 using Lexy.Compiler.FunctionLibraries;
 using Lexy.Compiler.Infrastructure;
 using Lexy.Compiler.Language;
-using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Parser.Context;
 using Lexy.Compiler.Parser.Documents;
 using Lexy.Compiler.Parser.Logging;
@@ -23,14 +22,12 @@ public class LexyParser : ILexyParser
     private readonly ITokenizer tokenizer;
     private readonly IFileSystem fileSystem;
     private readonly ILibraries libraries;
-    private readonly IExpressionFactory expressionFactory;
 
-    public LexyParser(ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IFileSystem fileSystem, IExpressionFactory expressionFactory, ILibraries libraries)
+    public LexyParser(ILogger<LexyParser> baseLogger, ITokenizer tokenizer, IFileSystem fileSystem, ILibraries libraries)
     {
         this.baseLogger = Assert.NotNull(baseLogger, nameof(baseLogger));
         this.tokenizer = Assert.NotNull(tokenizer, nameof(tokenizer));
         this.fileSystem = Assert.NotNull(fileSystem, nameof(fileSystem));
-        this.expressionFactory = Assert.NotNull(expressionFactory, nameof(expressionFactory));
         this.libraries = Assert.NotNull(libraries, nameof(libraries));
     }
 
@@ -42,7 +39,7 @@ public class LexyParser : ILexyParser
 
         baseLogger.LogInformation("Parse code: {FileName}", fileName);
 
-        var project = new Project(fileSystem.CurrentFolder(), fileSystem);
+        var project = new Project(fileSystem);
         var document = new StringSourceCodeDocument(project.File(fileName), content);
         return await ParseDocuments(project, new[] { document }, options);
     }
@@ -55,7 +52,7 @@ public class LexyParser : ILexyParser
         baseLogger.LogInformation("Parse file: {FileName}", file.Name);
 
         using var document = await fileSystem.CreateFileSourceDocument(file);
-        return await ParseDocuments(file.Project,new[] { document }, options);
+        return await ParseDocuments(file.Project, new[] { document }, options);
     }
 
     public async Task<ParserResult> ParseFiles(IEnumerable<string> fileNames, ParseOptions options)
@@ -65,7 +62,7 @@ public class LexyParser : ILexyParser
 
         baseLogger.LogInformation("Parse files: {FileNames}", string.Join(", ", fileNames));
 
-        var project = new Project(fileSystem.CurrentFolder(), fileSystem);
+        var project = new Project(fileSystem);
         var files = fileNames.Select(fileName => project.File(fileName)).ToArray();
         using var documents = await fileSystem.CreateFileSourceDocuments(files);
 
@@ -240,7 +237,7 @@ public class LexyParser : ILexyParser
             throw new InvalidOperationException($"Current node can't be null. Line: {line}");
         }
 
-        var parseLineContext = new ParseLineContext(line, context.Logger, documentSymbols, expressionFactory);
+        var parseLineContext = new ParseLineContext(line, context.Logger, documentSymbols);
         currentNode.ExpandArea(line.EndPosition);
 
         var node = currentNode.Parse(parseLineContext);

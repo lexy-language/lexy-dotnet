@@ -20,7 +20,7 @@ public class IdentifierExpression : Expression, IHasVariableReference
         Identifier = identifier;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IdentifierExpression>("Invalid expression");
@@ -78,6 +78,8 @@ public class IdentifierExpression : Expression, IHasVariableReference
 
     public override Symbol GetSymbol()
     {
-        return Variable != null ? Variable.GetSymbol() : new Symbol(Reference, Identifier, string.Empty, SymbolKind.Variable);
+        return Variable != null
+            ? Variable.GetSymbol()
+            : new Symbol(Reference, Identifier, string.Empty, SymbolKind.Variable);
     }
 }

@@ -21,11 +21,11 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
 
     public IReadOnlyList<Expression> ElseExpressions => elseExpressions;
 
-    private IfExpression(Expression condition, ExpressionSource source, NodeReference parentReference, SourceReference reference, IExpressionFactory factory) :
+    private IfExpression(Expression condition, ExpressionSource source, NodeReference parentReference, SourceReference reference) :
         base(source, parentReference, reference)
     {
         Condition = condition;
-        trueExpressions = new ExpressionList(this, reference, factory);
+        trueExpressions = new ExpressionList(this, reference);
     }
 
     public IParsableNode Parse(IParseLineContext context)
@@ -44,7 +44,7 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
         }
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<IfExpression>("Not valid.");
@@ -53,12 +53,12 @@ public class IfExpression : Expression, IParsableNode, IParentExpression
 
         var expressionReference = new NodeReference();
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = factory.Parse(expressionReference, condition, source.Line);
+        var conditionExpression = ExpressionFactory.Parse(expressionReference, condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new IfExpression(conditionExpression.Result, source, parentReference, reference, factory);
+        var expression = new IfExpression(conditionExpression.Result, source, parentReference, reference);
         expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);

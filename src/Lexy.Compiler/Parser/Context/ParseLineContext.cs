@@ -10,14 +10,12 @@ public class ParseLineContext : IParseLineContext
 {
     public Line Line { get; }
     public IParserLogger Logger { get; }
-    public IExpressionFactory ExpressionFactory { get; }
     public IDocumentSymbols Symbols { get; }
 
-    public ParseLineContext(Line line, IParserLogger logger, IDocumentSymbols symbols, IExpressionFactory expressionFactory)
+    public ParseLineContext(Line line, IParserLogger logger, IDocumentSymbols symbols)
     {
         Line = Assert.NotNull(line, nameof(line));
         Logger = Assert.NotNull(logger, nameof(logger));
-        ExpressionFactory = Assert.NotNull(expressionFactory, nameof(expressionFactory));
         Symbols = Assert.NotNull(symbols, nameof(symbols));
     }
 

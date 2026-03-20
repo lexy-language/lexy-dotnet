@@ -93,7 +93,11 @@ public class Table : ComponentNode, INodeWithType
         var builder = new StringBuilder();
         foreach (var column in Header.Columns)
         {
-            builder.AppendLine($"- {column.TypeDeclaration} {column.Name}");
+            if (builder.Length > 0)
+            {
+                builder.AppendLine();
+            }
+            builder.Append($"- {column.TypeDeclaration} {column.Name}");
         }
         var variablesString = builder.ToString();
         return new Symbol(Reference, "table: " + Name, variablesString, SymbolKind.Table);

@@ -2,23 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Lexy.Compiler.Language.Symbols;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.Expressions;
 
 public class ExpressionList : Node, IReadOnlyList<Expression>
 {
-    private readonly IExpressionFactory factory;
     private readonly List<Expression> values = new();
 
     public int Count => values.Count;
     public Expression this[int index] => values[index];
 
-    public ExpressionList(INode parent, SourceReference reference, IExpressionFactory factory) :
+    public ExpressionList(INode parent, SourceReference reference) :
         base(new NodeReference(parent), reference)
     {
-        this.factory = factory;
     }
 
     public IEnumerator<Expression> GetEnumerator()
@@ -48,7 +45,7 @@ public class ExpressionList : Node, IReadOnlyList<Expression>
     public ParseExpressionResult Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var expression = factory.Parse(new NodeReference(this), line.Tokens, line);
+        var expression = ExpressionFactory.Parse(new NodeReference(this), line.Tokens, line);
         if (!expression.IsSuccess)
         {
             context.Logger.Fail(line.Tokens.AllReference(), expression.ErrorMessage);

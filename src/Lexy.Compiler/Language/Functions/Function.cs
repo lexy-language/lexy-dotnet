@@ -25,11 +25,11 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
 
     public bool Nested { get; }
 
-    private Function(string name, bool nested, NodeReference parentReference, SourceReference reference, IExpressionFactory factory) :
+    private Function(string name, bool nested, NodeReference parentReference, SourceReference reference) :
         base(name, parentReference, reference)
     {
         Nested = nested;
-        Code = new FunctionCode(this, reference, factory);
+        Code = new FunctionCode(this, reference);
     }
 
     public Type CreateType()
@@ -68,9 +68,9 @@ public class Function : ComponentNode, IHasNodeDependencies, INestedNode, INodeW
         return result;
     }
 
-    internal static Function Create(string name, bool nested, NodeReference parentReference, SourceReference reference, IExpressionFactory factory)
+    internal static Function Create(string name, bool nested, NodeReference parentReference, SourceReference reference)
     {
-        return new Function(name, nested, parentReference, reference, factory);
+        return new Function(name, nested, parentReference, reference);
     }
 
     public override IParsableNode Parse(IParseLineContext context)

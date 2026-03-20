@@ -24,7 +24,7 @@ public class LexyParserTests : ScopedServicesTestFixture
             .AreEqual(value => value.Name, "TestSimpleReturn")
             .Collection(value => value.Results.Variables, variablesContext => variablesContext
                 .Length(1, "value.Results.Variables")
-                .ValueModel(0, value => value, itemContext => itemContext
+                .ValueModel(0, itemContext => itemContext
                     .AreEqual(item => item.Name, "Result")
                     .IsOfType<ValueTypeDeclaration>(item => item.TypeDeclaration, typeDeclarationContext => typeDeclarationContext
                         .AreEqual(typeDeclaration => typeDeclaration.TypeName, "number"))))

@@ -3,9 +3,6 @@ namespace Lexy.Compiler.Language;
 
 public interface IReadonlySourceArea
 {
-    Position Begin { get; }
-    Position End { get; }
-
     bool Includes(Position position);
 }
 
@@ -13,12 +10,6 @@ public class SourceArea : IReadonlySourceArea
 {
     public Position Begin { get; }
     public Position End { get; private set; }
-
-    public SourceArea(IReadonlySourceArea area)
-    {
-        Begin = area.Begin;
-        End = area.End;
-    }
 
     public SourceArea(SourceReference reference)
     {

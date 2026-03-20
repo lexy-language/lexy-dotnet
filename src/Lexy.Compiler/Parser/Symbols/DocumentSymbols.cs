@@ -126,7 +126,7 @@ public class DocumentSymbols : IDocumentSymbols
         return result;
     }
 
-    private static void GetNodesInScope(Position position, IEnumerable<INode> list, List<List<INode>> nodesInScope)
+    private static void GetNodesInScope(Position position, IEnumerable<INode> list, ICollection<List<INode>> nodesInScope)
     {
         var wasIn = false;
         var precedingNodes = new List<INode>();

@@ -8,7 +8,7 @@ namespace Lexy.Compiler.Language;
 public abstract class Node : INode
 {
     private readonly NodeReference parentReference;
-    private SourceArea area;
+    private readonly SourceArea area;
 
     public SourceReference Reference { get; }
 

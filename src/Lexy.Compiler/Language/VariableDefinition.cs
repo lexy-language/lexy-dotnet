@@ -59,9 +59,10 @@ public class VariableDefinition : Node, IHasNodeDependencies
 
         if (!result) return null;
 
+        var typeReference = tokens.Reference(0, 1);
         if (!tokens.IsTokenType<StringLiteralToken>(0) && !tokens.IsTokenType<MemberAccessToken>(0))
         {
-            context.Logger.Fail(tokens.Reference(0, 1), "Unexpected token.");
+            context.Logger.Fail(typeReference, "Unexpected token.");
             return null;
         }
 
@@ -72,7 +73,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
         if (!defaultValue.IsSuccess) return null;
 
         var typeToken = tokens.TokenValue(0);
-        var typeDeclaration = TypeDeclarationParser.Parse(typeToken, definitionReference, tokens.Reference(0, 1));
+        var typeDeclaration = TypeDeclarationParser.Parse(typeToken, definitionReference, typeReference);
         if (typeDeclaration == null) return null;
 
         var variableDefinition = new VariableDefinition(name, typeDeclaration, source, parentReference, tokens.AllReference(), defaultValue.Result);
@@ -101,7 +102,7 @@ public class VariableDefinition : Node, IHasNodeDependencies
             return ParseExpressionResult.Invalid<VariableDefinition>("failed");
         }
 
-        var defaultValue = context.ExpressionFactory.Parse(definitionReference, tokens.TokensFrom(3), line);
+        var defaultValue = ExpressionFactory.Parse(definitionReference, tokens.TokensFrom(3), line);
         return context.Failed(defaultValue, tokens.Reference(3))
             ? ParseExpressionResult.Invalid<VariableDefinition>("failed")
             : defaultValue;

@@ -15,7 +15,7 @@ public static class FunctionCallExpressionParser
             { ExtractResultsFunctionExpression.FunctionName, ExtractResultsFunctionExpression.Create }
         };
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!FunctionCallExpression.IsValid(tokens))
@@ -31,7 +31,7 @@ public static class FunctionCallExpressionParser
 
         var functionCallReference = new NodeReference();
         var functionNameToken = tokens[0];
-        var argumentsTokenListResult = GetArgumentTokens(functionCallReference, source, factory, tokens, matchingClosingParenthesis);
+        var argumentsTokenListResult = GetArgumentTokens(functionCallReference, source, tokens, matchingClosingParenthesis);
         if (!argumentsTokenListResult.IsSuccess)
         {
             return ParseExpressionResult.Invalid<FunctionCallExpression>(argumentsTokenListResult.ErrorMessage);
@@ -50,7 +50,7 @@ public static class FunctionCallExpressionParser
 
     private static ParseExpressionsResult GetArgumentTokens(
         NodeReference functionCallReference,
-        ExpressionSource source, IExpressionFactory factory,
+        ExpressionSource source,
         TokenList tokens, int matchingClosingParenthesis)
     {
         var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
@@ -63,7 +63,7 @@ public static class FunctionCallExpressionParser
         var arguments = new List<Expression>();
         foreach (var argumentTokens in argumentsTokenList.Result)
         {
-            var argumentExpression = factory.Parse(functionCallReference, argumentTokens, source.Line);
+            var argumentExpression = ExpressionFactory.Parse(functionCallReference, argumentTokens, source.Line);
             if (!argumentExpression.IsSuccess)
             {
                 return ParseExpressionsResult.Invalid<FunctionCallExpression>(argumentExpression.ErrorMessage);

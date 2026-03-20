@@ -20,17 +20,17 @@ public class AssignmentExpression : Expression
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var expressionReference = new NodeReference();
 
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParseExpressionResult>("Invalid expression.");
 
-        var variableExpression = factory.Parse(expressionReference, tokens.TokensFromStart(1), source.Line);
+        var variableExpression = ExpressionFactory.Parse(expressionReference, tokens.TokensFromStart(1), source.Line);
         if (!variableExpression.IsSuccess) return variableExpression;
 
-        var assignment = factory.Parse(expressionReference, tokens.TokensFrom(2), source.Line);
+        var assignment = ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(2), source.Line);
         if (!assignment.IsSuccess) return assignment;
 
         var reference = source.CreateReference();

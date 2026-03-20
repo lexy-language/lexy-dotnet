@@ -8,19 +8,20 @@ public class File : IFile
     public IProject Project { get; }
 
     public string Name { get; }
-
-    public string BaseFolder => Project.BaseFolder;
-    public string FullPath => Project.FileSystem.Combine(Project.BaseFolder, Name);
+    public string BaseFolder { get; }
+    public string FullPath { get; }
 
     public File(Project project, string name)
     {
         Project = Assert.NotNull(project, nameof(project));
         Name = name;
+        BaseFolder = Project.BaseFolder;
+        FullPath = Project.FileSystem.Combine(Project.BaseFolder, Name);
     }
 
     protected bool Equals(File other)
     {
-        return BaseFolder == other.BaseFolder && FullPath == other.FullPath && Name == other.Name;
+        return FullPath == other.FullPath;
     }
 
     public override bool Equals(object obj)

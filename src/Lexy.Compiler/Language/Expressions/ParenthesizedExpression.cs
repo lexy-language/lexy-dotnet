@@ -17,7 +17,7 @@ public class ParenthesizedExpression : Expression
         Expression = Assert.NotNull(expression, nameof(expression));
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParenthesizedExpression>("Not valid.");
@@ -30,7 +30,7 @@ public class ParenthesizedExpression : Expression
 
         var expressionReference = new NodeReference();
         var innerExpressionTokens = tokens.TokensRange(1, matchingClosingParenthesis - 1);
-        var innerExpression = factory.Parse(expressionReference, innerExpressionTokens, source.Line);
+        var innerExpression = ExpressionFactory.Parse(expressionReference, innerExpressionTokens, source.Line);
         if (!innerExpression.IsSuccess) return innerExpression;
 
         var reference = source.CreateReference();

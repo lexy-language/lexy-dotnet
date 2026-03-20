@@ -20,7 +20,7 @@ public class BracketedExpression : Expression
         Expression = expression;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens))
@@ -37,7 +37,7 @@ public class BracketedExpression : Expression
         var expressionReference = new NodeReference();
         var functionName = tokens.TokenValue(0);
         var innerExpressionTokens = tokens.TokensRange(2, matchingClosingParenthesis - 1);
-        var innerExpression = factory.Parse(expressionReference, innerExpressionTokens, source.Line);
+        var innerExpression = ExpressionFactory.Parse(expressionReference, innerExpressionTokens, source.Line);
         if (!innerExpression.IsSuccess) return innerExpression;
 
         var reference = source.CreateReference();

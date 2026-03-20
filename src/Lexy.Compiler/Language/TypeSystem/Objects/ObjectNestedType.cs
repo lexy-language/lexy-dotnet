@@ -10,4 +10,9 @@ public class ObjectNestedType : IObjectMember
         Name = name;
         Type = type;
     }
+
+    public string Description()
+    {
+        return $"type: {Type}";
+    }
 }

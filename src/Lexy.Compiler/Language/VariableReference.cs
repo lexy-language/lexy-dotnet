@@ -43,7 +43,6 @@ public class VariableReference
             return new Symbol(Reference, $"enum member: {Path}", string.Empty, SymbolKind.EnumMember);
         }
         return Type.GetSymbol(Reference);
-        //todo : new Symbol(Reference, $"variable: {Type} {Path}", string.Empty, SymbolKind.Variable);
     }
 
     public override string ToString()

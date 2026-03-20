@@ -5,7 +5,6 @@ using Lexy.Compiler.Language;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.TypeSystem.Functions;
 using Lexy.Compiler.Language.TypeSystem.Objects;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 using Lexy.RunTime;
 using Type = Lexy.Compiler.Language.TypeSystem.Type;
@@ -18,17 +17,16 @@ internal class LibraryFunction : IObjectFunction
     private readonly MemberInfo functionInfo;
     private readonly Type returnType;
     private readonly Type[] parameterTypes;
-
-    public IdentifierPath FullTypeName { get; }
+    private readonly IdentifierPath fullTypeName;
+    private readonly IdentifierPath functionName;
 
     private LibraryFunction(MemberInfo functionInfo, Type returnType, Type[] parameterTypes)
     {
         this.functionInfo = Assert.NotNull(functionInfo, nameof(functionInfo));
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
-
-        FullTypeName =
-            IdentifierPath.Parse(functionInfo.DeclaringType?.Namespace, functionInfo.DeclaringType?.Name, functionInfo.Name);
+        fullTypeName = IdentifierPath.Parse(functionInfo.DeclaringType?.Namespace, functionInfo.DeclaringType?.Name, functionInfo.Name);
+        functionName = IdentifierPath.Parse(functionInfo.DeclaringType?.Name, functionInfo.Name);
     }
 
     public ValidateMemberFunctionArgumentsResult ValidateArguments(IValidationContext context, IReadOnlyList<Expression> arguments, SourceReference reference)
@@ -49,8 +47,8 @@ internal class LibraryFunction : IObjectFunction
         }
 
         return failed
-            ? ValidateMemberFunctionArgumentsResult.Failed()
-            : ValidateMemberFunctionArgumentsResult.Success(new LibraryFunctionCallState(reference, FullTypeName, returnType));
+             ? ValidateMemberFunctionArgumentsResult.Failed()
+             : ValidateMemberFunctionArgumentsResult.Success(new LibraryFunctionCallState(reference, fullTypeName, functionName, returnType));
     }
 
     public Type GetResultsType(IReadOnlyList<Expression> arguments) => returnType;

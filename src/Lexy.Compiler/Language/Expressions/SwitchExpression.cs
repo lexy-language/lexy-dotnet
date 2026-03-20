@@ -9,24 +9,22 @@ namespace Lexy.Compiler.Language.Expressions;
 
 public class SwitchExpression : Expression, IParsableNode
 {
-    private readonly IExpressionFactory factory;
     private readonly List<CaseExpression> cases = new();
 
     public Expression Condition { get; }
     public IReadOnlyList<CaseExpression> Cases => cases;
 
     private SwitchExpression(Expression condition, ExpressionSource source, SourceReference reference,
-        NodeReference parentReference, IExpressionFactory factory)
+        NodeReference parentReference)
         : base(source, parentReference, reference)
     {
-        this.factory = factory;
         Condition = condition;
     }
 
     public IParsableNode Parse(IParseLineContext context)
     {
         var line = context.Line;
-        var expression = factory.Parse(this, line.Tokens, line);
+        var expression = ExpressionFactory.Parse(this, line.Tokens, line);
         if (!expression.IsSuccess)
         {
             context.Logger.Fail(line.Tokens.AllReference(), expression.ErrorMessage);
@@ -52,7 +50,7 @@ public class SwitchExpression : Expression, IParsableNode
         }
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<SwitchExpression>("Not valid.");
@@ -61,12 +59,12 @@ public class SwitchExpression : Expression, IParsableNode
 
         var expressionReference = new NodeReference();
         var condition = tokens.TokensFrom(1);
-        var conditionExpression = factory.Parse(expressionReference, condition, source.Line);
+        var conditionExpression = ExpressionFactory.Parse(expressionReference, condition, source.Line);
         if (!conditionExpression.IsSuccess) return conditionExpression;
 
         var reference = source.CreateReference();
 
-        var expression = new SwitchExpression(conditionExpression.Result, source, reference, parentReference, factory);
+        var expression = new SwitchExpression(conditionExpression.Result, source, reference, parentReference);
         expressionReference.SetNode(expression);
 
         return ParseExpressionResult.Success(expression);

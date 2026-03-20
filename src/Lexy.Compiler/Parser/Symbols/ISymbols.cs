@@ -11,7 +11,7 @@ public interface ISymbols
     Signatures GetSignatures(IFile file, Position position);
     SuggestionsResult GetSuggestions(IFile file, Position position);
 
-    IDocumentSymbols Document(IFile fullFileName);
+    IDocumentSymbols Document(IFile file);
 
     void AddNodeVariables(INode node, IReadOnlyList<VariableEntry> result);
 }

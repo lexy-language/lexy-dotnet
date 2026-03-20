@@ -87,4 +87,9 @@ internal class LookUpRowFunction : TableFunction
                 return null;
         }
     }
+
+    public override string Description()
+    {
+        return FunctionHelpValue;
+    }
 }

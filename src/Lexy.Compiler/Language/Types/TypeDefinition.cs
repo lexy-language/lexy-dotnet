@@ -66,7 +66,11 @@ public class TypeDefinition : ComponentNode, ITypeDefinition, IHasNodeDependenci
         var builder = new StringBuilder();
         foreach (var variable in Variables)
         {
-            builder.AppendLine($"- {variable.TypeDeclaration} {variable.Name}");
+            if (builder.Length > 0)
+            {
+                builder.AppendLine();
+            }
+            builder.Append($"- {variable.TypeDeclaration} {variable.Name}");
         }
         var variablesString = builder.ToString();
         return new Symbol(Reference, "type: " + Name, variablesString, SymbolKind.Type);

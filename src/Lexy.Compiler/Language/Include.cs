@@ -53,10 +53,9 @@ public class Include
             return null;
         }
 
-        var directName = context.FileSystem.GetDirectoryName(parentFile.FullPath);
-        var fullPath = context.FileSystem.GetFullPath(directName);
-        var fullFileName = $"{context.FileSystem.Combine(fullPath, FileName)}.{LexySourceDocument.FileExtension}";
-        var file = context.Project.File(fullFileName);
+        var directName = context.FileSystem.GetDirectoryName(parentFile.Name);
+        var relativeFileName = $"{context.FileSystem.Combine(directName, FileName)}.{LexySourceDocument.FileExtension}";
+        var file = context.Project.File(relativeFileName);
 
         if (!await context.FileSystem.FileExists(file.FullPath))
         {

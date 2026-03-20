@@ -36,7 +36,7 @@ public static class AssignmentDefinitionParser
             return definition;
         }
 
-        var valueExpression = context.ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(assignmentIndex + 1), line);
+        var valueExpression = ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(assignmentIndex + 1), line);
         if (context.Failed(valueExpression, reference)) return null;
 
         var constantValue = ConstantValueParser.Parse(valueExpression.Result);
@@ -57,7 +57,7 @@ public static class AssignmentDefinitionParser
             targetTokens = AddParentVariableAccessor(parentVariable, targetTokens);
         }
 
-        return context.ExpressionFactory.Parse(expressionReference, targetTokens, line);
+        return ExpressionFactory.Parse(expressionReference, targetTokens, line);
     }
 
     private static TokenList AddParentVariableAccessor(IdentifierPath parentVariable, TokenList targetTokens)

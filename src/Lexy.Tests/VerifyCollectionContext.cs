@@ -44,7 +44,7 @@ public class VerifyCollectionContext<TItem> : VerifyModelContext<IReadOnlyList<T
             return this;
         }
 
-        Logging.LogAssert(false, "null", "- ValueModel[{0}] is null: ", index);
+        Logging.LogAssert(false, message, "- ValueModel[{0}] is null: ", index);
 
         return this;
     }
@@ -62,6 +62,7 @@ public class VerifyCollectionContext<TItem> : VerifyModelContext<IReadOnlyList<T
 
         return this;
     }
+
     public VerifyCollectionContext<TItem> ValueModelOfType<TValue>(int index, Action<VerifyModelContext<TValue>> verify) where TValue : class
     {
         var item = index >= 0 && index < Model.Count ? Model[index] : null;

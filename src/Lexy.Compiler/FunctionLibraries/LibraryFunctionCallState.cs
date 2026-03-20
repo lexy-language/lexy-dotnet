@@ -8,15 +8,18 @@ namespace Lexy.Compiler.FunctionLibraries;
 internal class LibraryFunctionCallState : IFunctionCallState
 {
     public IdentifierPath FullTypeName { get; }
+    public IdentifierPath IdentifierPath { get; }
     public Type ReturnType { get; }
     public SourceReference Reference { get; }
 
-    public LibraryFunctionCallState(SourceReference reference, IdentifierPath fullTypeName, Type returnType)
+    public LibraryFunctionCallState(SourceReference reference, IdentifierPath fullTypeName,
+        IdentifierPath identifierPath, Type returnType)
     {
         Reference = reference;
         FullTypeName = fullTypeName;
+        IdentifierPath = identifierPath;
         ReturnType = returnType;
     }
 
-    public Symbol GetSymbol() => new(Reference, FullTypeName.FullPath(), string.Empty, SymbolKind.LibraryFunction);
+    public Symbol GetSymbol() => new(Reference, IdentifierPath.FullPath(), string.Empty, SymbolKind.LibraryFunction);
 }

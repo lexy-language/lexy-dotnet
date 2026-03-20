@@ -40,6 +40,6 @@ public class BooleanLiteralToken : Token, ILiteralToken
 
     public override string ToString()
     {
-        return "boolean: " + Value;
+        return "boolean: " + Value.ToLowerInvariant();
     }
 }

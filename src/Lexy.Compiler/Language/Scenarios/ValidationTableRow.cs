@@ -69,7 +69,7 @@ public class ValidationTableRow : Node
         var token = currentLineTokens.Token<Token>(tokenIndex);
         var tokens = new TokenList(context.Line, new[] { token });
         var tableValueReference = new NodeReference();
-        var expression = context.ExpressionFactory.Parse(tableValueReference, tokens, context.Line);
+        var expression = ExpressionFactory.Parse(tableValueReference, tokens, context.Line);
 
         if (context.Failed(expression, reference)) return null;
 

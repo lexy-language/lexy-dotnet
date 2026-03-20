@@ -19,7 +19,6 @@ public static class ServiceProviderExtensions
         return services.Singleton<ILexyParser, LexyParser>()
 
             .Singleton<ITokenizer, Tokenizer>()
-            .Singleton<IExpressionFactory, ExpressionFactory>()
 
             .Singleton<IFileSystem, FileSystem>()
             .Singleton<IExecutionContext, ExecutionContext>()

@@ -10,4 +10,9 @@ public class ObjectVariable : IObjectMember
         Name = name;
         Type = type;
     }
+
+    public string Description()
+    {
+        return $"variable: {Type}";
+    }
 }

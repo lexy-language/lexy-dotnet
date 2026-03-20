@@ -30,7 +30,7 @@ public class MemberAccessExpression : Expression, IHasNodeDependencies, IHasVari
         if (componentNode != null) yield return componentNode;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<MemberAccessExpression>("Invalid expression.");

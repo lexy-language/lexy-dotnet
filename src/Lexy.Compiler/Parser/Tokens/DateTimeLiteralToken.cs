@@ -9,7 +9,8 @@ using ValueType = Lexy.Compiler.Language.TypeSystem.ValueType;
 
 namespace Lexy.Compiler.Parser.Tokens;
 
-public class DateTimeLiteralToken : ParsableToken, ILiteralToken
+public class
+    DateTimeLiteralToken : ParsableToken, ILiteralToken
 {
     private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 

@@ -41,13 +41,13 @@ public class SpreadAssignmentExpression : Expression
         Assignment = assignment;
     }
 
-    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference, IExpressionFactory factory)
+    public static ParseExpressionResult Parse(ExpressionSource source, NodeReference parentReference)
     {
         var tokens = source.Tokens;
         if (!IsValid(tokens)) return ParseExpressionResult.Invalid<ParseExpressionResult>("Invalid expression.");
 
         var expressionReference = new NodeReference();
-        var assignment = factory.Parse(expressionReference, tokens.TokensFrom(2), source.Line);
+        var assignment = ExpressionFactory.Parse(expressionReference, tokens.TokensFrom(2), source.Line);
         if (!assignment.IsSuccess) return null;
 
         var reference = source.CreateReference();

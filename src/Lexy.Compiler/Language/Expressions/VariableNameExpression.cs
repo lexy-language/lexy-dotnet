@@ -53,5 +53,5 @@ public class VariableNameExpression : Expression
 
     public override Type DeriveType(IValidationContext context) => null;
 
-    public override Symbol GetSymbol() => new Symbol(Reference, Name, string.Empty, kind);
+    public override Symbol GetSymbol() => new(Reference, Name, string.Empty, kind);
 }

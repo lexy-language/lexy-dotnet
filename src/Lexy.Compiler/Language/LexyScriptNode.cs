@@ -64,7 +64,7 @@ public class LexyScriptNode : ComponentNode
 
         var componentNode = tokenName.Keyword switch
         {
-            Keywords.Function => Function.Create(tokenName.Name, false, new NodeReference(this), reference, context.ExpressionFactory),
+            Keywords.Function => Function.Create(tokenName.Name, false, new NodeReference(this), reference),
             Keywords.EnumKeyword => EnumDefinition.Parse(tokenName.Name, false, this, reference),
             Keywords.ScenarioKeyword => Scenario.Parse(tokenName, this, reference),
             Keywords.TableKeyword => new Table(tokenName.Name, new NodeReference(this), reference),

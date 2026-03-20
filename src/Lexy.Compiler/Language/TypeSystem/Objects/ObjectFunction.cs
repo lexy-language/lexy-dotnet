@@ -22,4 +22,9 @@ public abstract class ObjectFunction : IObjectMember, IObjectFunction
         SourceReference reference);
 
     public abstract Type GetResultsType(IReadOnlyList<Expression> arguments);
+
+    public virtual string Description()
+    {
+        return $"function: {Type}";
+    }
 }

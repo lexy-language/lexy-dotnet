@@ -89,17 +89,6 @@ public class Symbols : ISymbols
         };
     }
 
-    private static string MapDescription(IObjectMember member)
-    {
-        return member switch
-        {
-            ObjectFunction => $"function: {member.Type}",
-            ObjectVariable => $"variable: {member.Type}",
-            ObjectNestedType => $"type: {member.Type}",
-            _ => throw new InvalidOperationException("Invalid member: " + member)
-        };
-    }
-
     private static List<Suggestion> FilterMemberAccess(IEnumerable<Suggestion> result, string[] parts)
     {
         var members = GetMembers(result, parts);
@@ -109,7 +98,7 @@ public class Symbols : ISymbols
         }
 
         return members
-            .Select(member => new Suggestion(member.Name, MapDescription(member), SymbolKind.ObjectVariable, member.Type))
+            .Select(member => new Suggestion(member.Name, member.Description(), SymbolKind.ObjectVariable, member.Type))
             .ToList();
     }
 
@@ -163,11 +152,10 @@ public class Symbols : ISymbols
     {
         foreach (var node in nodesInScope)
         {
-            if (nodeVariables.TryGetValue(node, out var variables))
-            {
-                var entries = variables.Select(Map);
-                result.AddRange(entries);
-            }
+            if (!nodeVariables.TryGetValue(node, out var variables)) continue;
+
+            var entries = variables.Select(Map);
+            result.AddRange(entries);
         }
     }
 

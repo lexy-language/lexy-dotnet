@@ -25,11 +25,9 @@ internal class ExpectedSymbol : IExpectedSymbol
         this.description = description?.Replace("\\n", "\n");
     }
 
-    public static IExpectedSymbol Parse(string line)
+    public static IExpectedSymbol Parse(int parseLineNumber, string line)
     {
-        var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
-        var tokenizeResult = tokenizer.Tokenize(new Line(0, line, TestFile.Instance));
-        var parts = GetTokens(line, tokenizeResult);
+        var parts = GetTokens(parseLineNumber, line);
         if (parts.Count <= 1) return null;
 
         if (parts[1].Value.Trim() == "null")
@@ -44,9 +42,9 @@ internal class ExpectedSymbol : IExpectedSymbol
 
         var lineNumber = Number(parts[0]);
         var column = Number(parts[1]);
-        var name = Trim(parts[2]);
+        var name = parts[2].Value;
         var kind = ParseSymbolKind(parts[3]);
-        var description = parts.Count > 4 ? Trim(parts[4]) : null;
+        var description = parts.Count > 4 ? parts[4].Value : null;
 
         return new ExpectedSymbol(lineNumber, column, name, kind, description);
     }
@@ -69,11 +67,13 @@ internal class ExpectedSymbol : IExpectedSymbol
         return (int) numberLiteral.NumberValue;
     }
 
-    private static IReadOnlyList<Token> GetTokens(string line, TokenizeResult tokenizeResult)
+    private static IReadOnlyList<Token> GetTokens(int lineNumber, string line)
     {
+        var tokenizer = new Lexy.Compiler.Parser.Tokens.Tokenizer();
+        var tokenizeResult = tokenizer.Tokenize(new Line(lineNumber, line, TestFile.Instance));
         if (!tokenizeResult.IsSuccess)
         {
-            throw new InvalidOperationException("Invalid line: " + line);
+            throw new InvalidOperationException($"Invalid line [{lineNumber}]: {line}");
         }
 
         var result = new List<Token>();
@@ -93,8 +93,6 @@ internal class ExpectedSymbol : IExpectedSymbol
     {
         return tokens[index] is OperatorToken operatorToken && operatorToken.Type == OperatorType.ArgumentSeparator;
     }
-
-    private static string Trim(Token token) => token.Value;
 
     public bool Verify(IDocumentSymbols symbols, VerifyContext context)
     {

@@ -19,11 +19,7 @@ public class FileSourceDocuments : ISourceCodeDocuments
 
     public static FileSourceDocuments Create(IFileSystem fileSystem, IEnumerable<IFile> files)
     {
-        var documents = files.Select(file =>
-        {
-            var fullPath = file.FullPath;
-            return new FileSourceDocument(fileSystem, file);
-        }).ToArray();
+        var documents = files.Select(file => new FileSourceDocument(fileSystem, file)).ToArray();
 
         return new FileSourceDocuments(documents);
     }

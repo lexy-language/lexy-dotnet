@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Lexy.Compiler.Language.Expressions;
 using Lexy.Compiler.Language.Tables;
-using Lexy.Compiler.Parser;
 using Lexy.Compiler.Parser.Context;
 
 namespace Lexy.Compiler.Language.TypeSystem.Functions;
@@ -110,5 +109,10 @@ internal class LookUpFunction : TableFunction
                 context?.Logger.Fail(reference, $"Invalid number of arguments. {FunctionHelpValue}");
                 return null;
         }
+    }
+
+    public override string Description()
+    {
+        return FunctionHelpValue;
     }
 }

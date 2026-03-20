@@ -6,9 +6,9 @@ using Lexy.Compiler.Parser.Tokens;
 
 namespace Lexy.Compiler.Language.Expressions;
 
-public class ExpressionFactory : IExpressionFactory
+public static class ExpressionFactory
 {
-    private record Entry(Func<TokenList, bool> IsValid, Func<ExpressionSource, NodeReference, IExpressionFactory, ParseExpressionResult> Parse);
+    private record Entry(Func<TokenList, bool> IsValid, Func<ExpressionSource, NodeReference, ParseExpressionResult> Parse);
 
     private static readonly IList<Entry> Factories =
         new List<Entry>
@@ -32,19 +32,19 @@ public class ExpressionFactory : IExpressionFactory
         };
 
 
-    public ParseExpressionResult Parse(INode parent, TokenList tokens, Line currentLine)
+    public static ParseExpressionResult Parse(INode parent, TokenList tokens, Line currentLine)
     {
         return Parse(new NodeReference(parent), tokens, currentLine);
     }
 
-    public ParseExpressionResult Parse(NodeReference parentReference, TokenList tokens, Line currentLine)
+    public static ParseExpressionResult Parse(NodeReference parentReference, TokenList tokens, Line currentLine)
     {
         foreach (var factory in Factories)
         {
             if (factory.IsValid(tokens))
             {
                 var source = new ExpressionSource(currentLine, tokens);
-                return factory.Parse(source, parentReference, this);
+                return factory.Parse(source, parentReference);
             }
         }
 

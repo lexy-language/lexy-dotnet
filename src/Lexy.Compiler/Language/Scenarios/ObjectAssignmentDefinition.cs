@@ -56,4 +56,9 @@ public class ObjectAssignmentDefinition : ParsableNode, IAssignmentDefinition
     }
 
     public override Symbol GetSymbol() => null;
+
+    public override string ToString()
+    {
+        return Variable.ToString();
+    }
 }
